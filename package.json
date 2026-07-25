@@ -1,0 +1,25 @@
+{
+  "name": "@occumed/map",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "prepare:sprites": "node scripts/build-sprites.mjs",
+    "prepare:style": "node scripts/build-runtime-style.mjs && node scripts/normalize-runtime-fonts.mjs",
+    "prepare:assets": "npm run prepare:sprites && npm run prepare:style",
+    "check:export": "node scripts/check-export.mjs",
+    "check:runtime": "node scripts/check-runtime.mjs",
+    "check": "npm run check:export && npm run check:runtime",
+    "dev": "npm run prepare:assets && vite",
+    "build": "npm run prepare:assets && npm run check && vite build",
+    "preview": "vite preview",
+    "start": "node server.mjs"
+  },
+  "dependencies": {
+    "maplibre-gl": "5.24.0"
+  },
+  "devDependencies": {
+    "@chrispahm/spritezero": "8.1.0",
+    "vite": "8.1.5"
+  }
+}
