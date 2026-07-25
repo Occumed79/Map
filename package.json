@@ -1,15 +1,19 @@
 {
   "name": "occu-med-map",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "npm run generate-style && vite",
+    "generate-style": "node scripts/generate-style.mjs",
+    "build": "npm run generate-style && vite build",
     "preview": "vite preview",
-    "prepare-style": "node scripts/prepare-style.mjs"
+    "prepare-style": "node scripts/prepare-style.mjs",
+    "check-style": "node scripts/check-style.mjs",
+    "check": "npm run generate-style && npm run check-style && npm run build"
   },
   "dependencies": {
+    "@protomaps/basemaps": "5.7.2",
     "maplibre-gl": "latest",
     "pmtiles": "latest"
   },
