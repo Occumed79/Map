@@ -14,14 +14,27 @@ function resolvePublicOrigin(style, styleUrl) {
   return resolved;
 }
 
+function versionedStyleUrl(styleUrl) {
+  const url = new URL(styleUrl, window.location.href);
+  url.searchParams.set('__occumed_style', String(Date.now()));
+  return url.href;
+}
+
 export async function loadOccumedStyle(styleUrl = DEFAULT_STYLE_URL) {
-  const response = await fetch(styleUrl, { cache: 'no-store' });
+  const requestUrl = versionedStyleUrl(styleUrl);
+  const response = await fetch(requestUrl, {
+    cache: 'no-store',
+    headers: {
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      Pragma: 'no-cache'
+    }
+  });
 
   if (!response.ok) {
     throw new Error(`Unable to load the Occu-Med style (${response.status}).`);
   }
 
-  return resolvePublicOrigin(await response.json(), styleUrl);
+  return resolvePublicOrigin(await response.json(), requestUrl);
 }
 
 /**
