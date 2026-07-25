@@ -47,11 +47,12 @@ export async function loadOccumedStyle(styleUrl = DEFAULT_STYLE_URL) {
 export async function createOccumedMap({
   container,
   styleUrl = DEFAULT_STYLE_URL,
-  center = [-98.5, 39.5],
-  zoom = 3.3,
-  minZoom = 1,
+  center = [-98.5, 24],
+  zoom = 2.43,
+  minZoom = 1.35,
   maxZoom = 19,
   controls = true,
+  scaleControl = false,
   mapOptions = {}
 }) {
   if (!container) {
@@ -66,16 +67,24 @@ export async function createOccumedMap({
     zoom,
     minZoom,
     maxZoom,
+    pitch: 0,
+    bearing: 0,
     hash: false,
-    attributionControl: true,
+    renderWorldCopies: false,
+    attributionControl: false,
     cooperativeGestures: false,
     ...mapOptions
   });
 
   if (controls) {
-    map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'bottom-right');
+    map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-right');
+  }
+
+  if (scaleControl) {
     map.addControl(new maplibregl.ScaleControl({ unit: 'imperial' }), 'bottom-left');
   }
+
+  map.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-right');
 
   return map;
 }

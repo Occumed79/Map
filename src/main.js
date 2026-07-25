@@ -12,7 +12,15 @@ function clearError() {
   errorPanel.hidden = true;
 }
 
+function markReady(message) {
+  mapReady = true;
+  clearError();
+  statusElement.textContent = message;
+  document.documentElement.classList.add('map-is-ready');
+}
+
 function showFatalError(message) {
+  document.documentElement.classList.remove('map-is-ready');
   statusElement.textContent = 'Map unavailable';
   errorMessage.textContent = message || 'The basemap failed before it finished loading.';
   errorPanel.hidden = false;
@@ -52,9 +60,7 @@ async function initialize() {
     });
 
     map.once('idle', () => {
-      mapReady = true;
-      clearError();
-      statusElement.textContent = 'Occu-Med map ready';
+      markReady('Occu-Med map ready');
     });
 
     map.on('error', (event) => {
