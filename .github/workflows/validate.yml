@@ -1,0 +1,40 @@
+name: Validate Occu-Med basemap
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Generate complete style
+        run: npm run generate-style
+
+      - name: Report generated style
+        run: |
+          node -e "const s=require('./public/style/style.json'); console.log({name:s.name,layers:s.layers.length,sources:Object.keys(s.sources),glyphs:s.glyphs,sprite:s.sprite})"
+
+      - name: Validate generated style
+        run: npm run check-style
+
+      - name: Build viewer
+        run: npm run build
