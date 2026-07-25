@@ -56,31 +56,35 @@ async function loadStyle() {
   return resolveRuntimeAssets(await response.json());
 }
 
-try {
-  const style = await loadStyle();
+async function initializeMap() {
+  try {
+    const style = await loadStyle();
 
-  const map = new maplibregl.Map({
-    container: 'map',
-    style,
-    center: [-98.5, 39.5],
-    zoom: 3.3,
-    minZoom: 1,
-    maxZoom: 18,
-    attributionControl: true,
-    hash: true
-  });
+    const map = new maplibregl.Map({
+      container: 'map',
+      style,
+      center: [-98.5, 39.5],
+      zoom: 3.3,
+      minZoom: 1,
+      maxZoom: 18,
+      attributionControl: true,
+      hash: true
+    });
 
-  map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'bottom-right');
-  map.addControl(new maplibregl.ScaleControl({ unit: 'imperial' }), 'bottom-left');
+    map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'bottom-right');
+    map.addControl(new maplibregl.ScaleControl({ unit: 'imperial' }), 'bottom-left');
 
-  map.on('load', () => {
-    statusElement.textContent = 'Occu-Med map ready';
-  });
+    map.on('load', () => {
+      statusElement.textContent = 'Occu-Med map ready';
+    });
 
-  map.on('error', (event) => {
-    const message = event?.error?.message || 'The vector-tile archive could not be loaded.';
-    showError(message);
-  });
-} catch (error) {
-  showError(error instanceof Error ? error.message : String(error));
+    map.on('error', (event) => {
+      const message = event?.error?.message || 'The vector-tile archive could not be loaded.';
+      showError(message);
+    });
+  } catch (error) {
+    showError(error instanceof Error ? error.message : String(error));
+  }
 }
+
+initializeMap();
