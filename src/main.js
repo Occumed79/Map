@@ -6,6 +6,7 @@ const errorPanel = document.querySelector('#map-error');
 const errorMessage = document.querySelector('#map-error-message');
 
 let mapReady = false;
+let startupTimer = null;
 
 function clearError() {
   errorMessage.textContent = '';
@@ -14,6 +15,10 @@ function clearError() {
 
 function markReady(message) {
   mapReady = true;
+  if (startupTimer) {
+    window.clearTimeout(startupTimer);
+    startupTimer = null;
+  }
   clearError();
   statusElement.textContent = message;
   document.documentElement.classList.add('map-is-ready');
@@ -36,16 +41,6 @@ function errorDetails(event) {
   };
 }
 
-function isRecoverableResourceError(event) {
-  return Boolean(
-    mapReady ||
-      event?.tile ||
-      event?.sourceId ||
-      event?.dataType === 'source' ||
-      event?.sourceDataType
-  );
-}
-
 async function initialize() {
   try {
     const map = await createOccumedMap({
@@ -53,10 +48,14 @@ async function initialize() {
       styleUrl: import.meta.env.VITE_OCCUMED_STYLE_URL || '/style/occumed-open.json'
     });
 
+    startupTimer = window.setTimeout(() => {
+      if (!mapReady) {
+        showFatalError('The basemap did not finish loading within 20 seconds.');
+      }
+    }, 20_000);
+
     map.once('load', () => {
-      mapReady = true;
-      clearError();
-      statusElement.textContent = 'Basemap loaded';
+      markReady('Basemap loaded');
     });
 
     map.once('idle', () => {
@@ -64,17 +63,12 @@ async function initialize() {
     });
 
     map.on('error', (event) => {
-      const details = errorDetails(event);
-
-      if (isRecoverableResourceError(event)) {
-        console.warn('Occu-Med basemap resource warning:', details);
-        return;
-      }
-
-      console.error('Occu-Med basemap startup failure:', details);
-      showFatalError(details.message);
+      // MapLibre emits this event for individual tile, glyph, terrain, and
+      // source requests. Those warnings must never cover a map that rendered.
+      console.warn('Occu-Med basemap resource warning:', errorDetails(event));
     });
   } catch (error) {
+    if (startupTimer) window.clearTimeout(startupTimer);
     showFatalError(error instanceof Error ? error.message : String(error));
   }
 }
