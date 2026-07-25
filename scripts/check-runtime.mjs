@@ -80,9 +80,28 @@ const sprite2xCount = Object.keys(sprite2x).length;
 if (spriteCount < 100) fail(`Compiled sprite is incomplete: ${spriteCount} icons.`);
 if (spriteCount !== sprite2xCount) fail('1x and 2x sprite manifests do not contain the same icon IDs.');
 
-if (runtimeText.includes('DIN Pro') || runtimeText.includes('Arial Unicode MS')) {
-  fail('Runtime style still requests unavailable Mapbox font stacks.');
+function collectStrings(value, result = []) {
+  if (typeof value === 'string') result.push(value);
+  else if (Array.isArray(value)) {
+    for (const child of value) collectStrings(child, result);
+  } else if (value && typeof value === 'object') {
+    for (const child of Object.values(value)) collectStrings(child, result);
+  }
+  return result;
 }
+
+const activeFontStrings = runtime.layers.flatMap((layer) =>
+  collectStrings(layer.layout?.['text-font'])
+);
+const unavailableFonts = [...new Set(
+  activeFontStrings.filter(
+    (font) => font.includes('DIN Pro') || font.includes('Arial Unicode MS')
+  )
+)];
+if (unavailableFonts.length) {
+  fail(`Rendered layers still request unavailable font stacks: ${unavailableFonts.join(', ')}`);
+}
+
 if (report.originalLayerCount !== original.layers.length) fail('Compatibility report source count is stale.');
 if (report.runtimeLayerCount !== runtime.layers.length) fail('Compatibility report runtime count is stale.');
 
@@ -93,5 +112,5 @@ if (failures.length) {
 }
 
 console.log(
-  `Open basemap validated: ${runtime.layers.length}/${original.layers.length} visual layers, ${runtime.layers.filter((layer) => layer.type === 'symbol').length} symbol layers, and ${spriteCount} sprite images.`
+  `Open basemap validated: ${runtime.layers.length}/${original.layers.length} visual layers, ${runtime.layers.filter((layer) => layer.type === 'symbol').length} symbol layers, ${activeFontStrings.length} active font references, and ${spriteCount} sprite images.`
 );
