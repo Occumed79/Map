@@ -8,24 +8,24 @@ const runtime = JSON.parse(await fs.readFile(runtimePath, 'utf8'));
 
 /*
  * MapLibre's sky model is experimental and does not behave like Mapbox fog.
- * A direct translation caused severe directional overexposure while rotating.
- * Use a restrained, orientation-neutral atmosphere that preserves a thin rim
- * without washing out the map surface.
+ * Keep the surface orientation-neutral while restoring a visible white-blue
+ * rim around the globe. Ground and horizon fog remain disabled so rotation
+ * cannot wash out the map surface.
  */
 runtime.sky = {
   'sky-color': '#05080c',
-  'horizon-color': 'rgba(238, 249, 255, 0.96)',
-  'fog-color': 'rgba(170, 220, 245, 0.08)',
+  'horizon-color': 'rgba(246, 252, 255, 0.99)',
+  'fog-color': 'rgba(168, 218, 244, 0.06)',
   'sky-horizon-blend': [
     'interpolate',
     ['linear'],
     ['zoom'],
     0,
-    0.025,
+    0.055,
     3,
-    0.02,
+    0.045,
     5,
-    0.01,
+    0.02,
     6,
     0
   ],
@@ -36,11 +36,11 @@ runtime.sky = {
     ['linear'],
     ['zoom'],
     0,
-    0.12,
+    0.18,
     3,
-    0.1,
+    0.15,
     5,
-    0.04,
+    0.07,
     6,
     0
   ]
@@ -58,18 +58,18 @@ relief.paint = {
     ['exponential', 1.2],
     ['zoom'],
     0,
-    0.5,
+    0.68,
     2.5,
-    0.44,
+    0.62,
     4.5,
-    0.24,
+    0.38,
     6.5,
     0
   ],
-  'raster-saturation': 0.32,
-  'raster-contrast': 0.04,
-  'raster-brightness-min': 0.06,
-  'raster-brightness-max': 0.9,
+  'raster-saturation': 0.62,
+  'raster-contrast': 0.12,
+  'raster-brightness-min': 0.02,
+  'raster-brightness-max': 0.94,
   'raster-resampling': 'linear',
   'raster-fade-duration': 0
 };
@@ -89,15 +89,15 @@ hillshade.paint = {
     ['linear'],
     ['zoom'],
     2,
-    0.05,
+    0.04,
     8,
-    0.14,
+    0.16,
     15,
-    0.1
+    0.11
   ],
-  'hillshade-shadow-color': 'hsla(215, 22%, 28%, 0.45)',
-  'hillshade-highlight-color': 'hsla(48, 38%, 96%, 0.38)',
-  'hillshade-accent-color': 'hsla(95, 22%, 48%, 0.28)',
+  'hillshade-shadow-color': 'hsla(215, 22%, 28%, 0.42)',
+  'hillshade-highlight-color': 'hsla(48, 38%, 96%, 0.34)',
+  'hillshade-accent-color': 'hsla(95, 26%, 46%, 0.32)',
   'hillshade-illumination-direction': 335,
   'hillshade-illumination-anchor': 'map'
 };
@@ -105,9 +105,10 @@ hillshade.paint = {
 runtime.metadata = {
   ...(runtime.metadata || {}),
   'occumed:mapbox-fog-translated-to-maplibre-sky': true,
-  'occumed:globe-parity-pass': 2,
-  'occumed:stable-orientation-neutral-atmosphere': true
+  'occumed:globe-parity-pass': 3,
+  'occumed:stable-orientation-neutral-atmosphere': true,
+  'occumed:visual-quality-pass': true
 };
 
 await fs.writeFile(runtimePath, `${JSON.stringify(runtime, null, 2)}\n`);
-console.log('Applied stable Occu-Med globe atmosphere and restrained relief treatment.');
+console.log('Applied refined Occu-Med globe rim, vivid low-zoom relief, and stable hillshade.');

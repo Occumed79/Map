@@ -41,7 +41,7 @@ body {
   inset: 0;
   content: "";
   pointer-events: none;
-  opacity: 0.26;
+  opacity: 0.2;
   background-image:
     radial-gradient(circle at 12% 19%, rgba(255, 255, 255, 0.62) 0 0.65px, transparent 0.9px),
     radial-gradient(circle at 71% 14%, rgba(185, 214, 236, 0.52) 0 0.55px, transparent 0.85px),
@@ -81,7 +81,7 @@ body {
   opacity: 0;
   transform: translateY(-8px);
   pointer-events: none;
-  transition-delay: 1.2s;
+  transition-delay: 900ms;
 }
 
 .eyebrow {
@@ -96,24 +96,6 @@ body {
   font-size: 0.68rem;
   font-weight: 700;
   white-space: nowrap;
-}
-
-.error-panel {
-  position: absolute;
-  z-index: 3;
-  right: 18px;
-  bottom: 18px;
-  display: grid;
-  gap: 5px;
-  width: min(440px, calc(100vw - 36px));
-  padding: 14px 16px;
-  border: 1px solid rgba(255, 130, 130, 0.28);
-  border-radius: 15px;
-  color: #ffe8e8;
-  background: rgba(74, 18, 18, 0.9);
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.28);
-  backdrop-filter: blur(14px);
-  font-size: 0.82rem;
 }
 
 .maplibregl-canvas {
@@ -133,13 +115,6 @@ body {
   height: 34px;
 }
 
-.maplibregl-ctrl-scale {
-  border-color: rgba(255, 255, 255, 0.82) !important;
-  color: rgba(255, 255, 255, 0.92) !important;
-  background: rgba(5, 12, 20, 0.58) !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-}
-
 .maplibregl-ctrl-attrib {
   color: #33485d;
   background: rgba(255, 255, 255, 0.9) !important;
@@ -155,11 +130,5 @@ body {
   .map-header {
     top: 10px;
     left: 10px;
-  }
-
-  .error-panel {
-    right: 10px;
-    bottom: 10px;
-    width: calc(100vw - 20px);
   }
 }
