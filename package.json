@@ -5,10 +5,10 @@
   "type": "module",
   "scripts": {
     "prepare:sprites": "node scripts/build-sprites.mjs",
-    "prepare:style": "node scripts/build-runtime-style.mjs && node scripts/normalize-runtime-fonts.mjs && node scripts/normalize-runtime-filters.mjs && node scripts/normalize-boundary-filters.mjs && node scripts/force-runtime-filter-expressions.mjs",
+    "prepare:style": "node scripts/build-runtime-style.mjs && node scripts/normalize-runtime-fonts.mjs && node scripts/normalize-runtime-filters.mjs && node scripts/normalize-boundary-filters.mjs && node scripts/force-runtime-filter-expressions.mjs && node scripts/apply-globe-parity.mjs",
     "prepare:assets": "npm run prepare:sprites && npm run prepare:style",
     "check:export": "node scripts/check-export.mjs",
-    "check:runtime": "node scripts/check-runtime.mjs && node scripts/validate-maplibre-style.mjs",
+    "check:runtime": "node scripts/check-runtime.mjs && node scripts/validate-maplibre-style.mjs && node scripts/check-globe-parity.mjs",
     "check": "npm run check:export && npm run check:runtime",
     "dev": "npm run prepare:assets && vite",
     "build": "npm run prepare:assets && npm run check && vite build",
