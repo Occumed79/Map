@@ -1,4 +1,4 @@
-name: Validate literal Occu-Med Mapbox style
+name: Validate Occu-Med open basemap
 
 on:
   pull_request:
@@ -26,14 +26,21 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Verify untouched uploaded export
-        run: npm run validate:export
+      - name: Verify untouched Mapbox export
+        run: npm run check:export
 
-      - name: Copy style byte-for-byte
+      - name: Compile uploaded SVG sprites
+        run: npm run prepare:sprites
+
+      - name: Convert exact style to open data
         run: npm run prepare:style
 
-      - name: Confirm build copy is identical
-        run: cmp style.json public/style.json
+      - name: Validate reusable basemap
+        run: npm run check:runtime
 
-      - name: Build self-hosted Mapbox viewer
+      - name: Build MapLibre viewer
         run: npx vite build
+
+      - name: Summarize generated compatibility report
+        run: |
+          node -e "const r=require('./public/style/compatibility-report.json'); console.log({original:r.originalLayerCount,runtime:r.runtimeLayerCount,skipped:r.skippedLayerCount,mappings:r.sourceLayerMappings})"
