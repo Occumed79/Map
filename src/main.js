@@ -9,6 +9,12 @@ maplibregl.addProtocol('pmtiles', protocol.tile);
 const styleUrl = import.meta.env.VITE_STYLE_URL || '/style/style.json';
 const rawTilesUrl = import.meta.env.VITE_PMTILES_URL || '/data/occumed.pmtiles';
 const tilesUrl = rawTilesUrl.replace(/^pmtiles:\/\//, '');
+const glyphsUrl =
+  import.meta.env.VITE_GLYPHS_URL ||
+  'https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf';
+const spriteUrl =
+  import.meta.env.VITE_SPRITE_URL ||
+  'https://protomaps.github.io/basemaps-assets/sprites/v4/light';
 
 const statusElement = document.querySelector('#map-status');
 const errorPanel = document.querySelector('#map-error');
@@ -20,6 +26,26 @@ function showError(message) {
   errorPanel.hidden = false;
 }
 
+function resolveRuntimeAssets(style) {
+  const resolved = structuredClone(style);
+
+  for (const source of Object.values(resolved.sources || {})) {
+    if (source?.url === 'pmtiles://__PMTILES_URL__') {
+      source.url = `pmtiles://${tilesUrl}`;
+    }
+  }
+
+  if (resolved.glyphs === '__GLYPHS_URL__') {
+    resolved.glyphs = glyphsUrl;
+  }
+
+  if (resolved.sprite === '__SPRITE_URL__') {
+    resolved.sprite = spriteUrl;
+  }
+
+  return resolved;
+}
+
 async function loadStyle() {
   const response = await fetch(styleUrl, { cache: 'no-store' });
 
@@ -27,15 +53,7 @@ async function loadStyle() {
     throw new Error(`Unable to load ${styleUrl} (${response.status}).`);
   }
 
-  const style = await response.json();
-
-  for (const source of Object.values(style.sources || {})) {
-    if (source?.url === 'pmtiles://__PMTILES_URL__') {
-      source.url = `pmtiles://${tilesUrl}`;
-    }
-  }
-
-  return style;
+  return resolveRuntimeAssets(await response.json());
 }
 
 try {
