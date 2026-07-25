@@ -47,9 +47,9 @@ export async function loadOccumedStyle(styleUrl = DEFAULT_STYLE_URL) {
 export async function createOccumedMap({
   container,
   styleUrl = DEFAULT_STYLE_URL,
-  center = [-98.5, 24],
-  zoom = 2.43,
-  minZoom = 1.35,
+  center = [-98.5, 28],
+  zoom = 2.05,
+  minZoom = 1.2,
   maxZoom = 19,
   controls = true,
   scaleControl = false,
