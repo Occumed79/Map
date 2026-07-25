@@ -1,0 +1,150 @@
+{
+  "version": 8,
+  "name": "Occu-Med Terrain Open Foundation",
+  "center": [-98.5, 39.5],
+  "zoom": 3.3,
+  "sources": {
+    "occumed": {
+      "type": "vector",
+      "url": "pmtiles://__PMTILES_URL__",
+      "attribution": "© OpenStreetMap contributors"
+    }
+  },
+  "layers": [
+    {
+      "id": "land",
+      "type": "background",
+      "paint": {
+        "background-color": "hsl(60, 20%, 85%)"
+      }
+    },
+    {
+      "id": "landcover",
+      "type": "fill",
+      "source": "occumed",
+      "source-layer": "landcover",
+      "paint": {
+        "fill-color": [
+          "match",
+          ["get", "class"],
+          "wood", "hsla(103, 50%, 60%, 0.8)",
+          "grass", "hsla(98, 50%, 74%, 0.6)",
+          "scrub", "hsla(98, 47%, 68%, 0.6)",
+          "farmland", "hsla(68, 55%, 70%, 0.6)",
+          "ice", "hsl(205, 45%, 95%)",
+          "hsl(98, 48%, 67%)"
+        ],
+        "fill-antialias": false
+      }
+    },
+    {
+      "id": "landuse",
+      "type": "fill",
+      "source": "occumed",
+      "source-layer": "landuse",
+      "paint": {
+        "fill-color": [
+          "match",
+          ["get", "class"],
+          "park", "hsl(98, 55%, 70%)",
+          "cemetery", "hsl(98, 45%, 75%)",
+          "hospital", "hsl(20, 45%, 82%)",
+          "school", "hsl(40, 45%, 78%)",
+          "residential", "hsl(60, 7%, 87%)",
+          "industrial", "hsl(230, 20%, 85%)",
+          "commercial", "hsl(55, 45%, 85%)",
+          "hsl(60, 22%, 82%)"
+        ],
+        "fill-opacity": 0.72
+      }
+    },
+    {
+      "id": "water",
+      "type": "fill",
+      "source": "occumed",
+      "source-layer": "water",
+      "paint": {
+        "fill-color": "hsl(205, 75%, 70%)"
+      }
+    },
+    {
+      "id": "waterway",
+      "type": "line",
+      "source": "occumed",
+      "source-layer": "waterway",
+      "paint": {
+        "line-color": "hsl(205, 75%, 70%)",
+        "line-width": [
+          "interpolate",
+          ["exponential", 1.3],
+          ["zoom"],
+          8, 0.25,
+          18, 5
+        ]
+      }
+    },
+    {
+      "id": "roads-casing",
+      "type": "line",
+      "source": "occumed",
+      "source-layer": "transportation",
+      "filter": ["==", ["geometry-type"], "LineString"],
+      "layout": {
+        "line-cap": "round",
+        "line-join": "round"
+      },
+      "paint": {
+        "line-color": "hsl(45, 20%, 68%)",
+        "line-width": [
+          "interpolate",
+          ["exponential", 1.45],
+          ["zoom"],
+          5, 0.5,
+          18, 13
+        ],
+        "line-opacity": 0.72
+      }
+    },
+    {
+      "id": "roads",
+      "type": "line",
+      "source": "occumed",
+      "source-layer": "transportation",
+      "filter": ["==", ["geometry-type"], "LineString"],
+      "layout": {
+        "line-cap": "round",
+        "line-join": "round"
+      },
+      "paint": {
+        "line-color": [
+          "match",
+          ["get", "class"],
+          "motorway", "hsl(28, 82%, 68%)",
+          "trunk", "hsl(38, 82%, 70%)",
+          "primary", "hsl(48, 82%, 76%)",
+          "secondary", "hsl(55, 70%, 82%)",
+          "hsl(60, 20%, 96%)"
+        ],
+        "line-width": [
+          "interpolate",
+          ["exponential", 1.45],
+          ["zoom"],
+          5, 0.25,
+          18, 10
+        ]
+      }
+    },
+    {
+      "id": "boundaries",
+      "type": "line",
+      "source": "occumed",
+      "source-layer": "boundary",
+      "paint": {
+        "line-color": "hsl(230, 24%, 55%)",
+        "line-width": ["interpolate", ["linear"], ["zoom"], 2, 0.4, 10, 1.3],
+        "line-opacity": 0.58,
+        "line-dasharray": [3, 2]
+      }
+    }
+  ]
+}
