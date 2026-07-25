@@ -5,10 +5,10 @@
   "type": "module",
   "scripts": {
     "prepare:sprites": "node scripts/build-sprites.mjs",
-    "prepare:style": "node scripts/build-runtime-style.mjs && node scripts/normalize-runtime-fonts.mjs",
+    "prepare:style": "node scripts/build-runtime-style.mjs && node scripts/normalize-runtime-fonts.mjs && node scripts/normalize-runtime-filters.mjs",
     "prepare:assets": "npm run prepare:sprites && npm run prepare:style",
     "check:export": "node scripts/check-export.mjs",
-    "check:runtime": "node scripts/check-runtime.mjs",
+    "check:runtime": "node scripts/check-runtime.mjs && node scripts/validate-maplibre-style.mjs",
     "check": "npm run check:export && npm run check:runtime",
     "dev": "npm run prepare:assets && vite",
     "build": "npm run prepare:assets && npm run check && vite build",
@@ -20,6 +20,7 @@
   },
   "devDependencies": {
     "@chrispahm/spritezero": "8.1.0",
+    "@maplibre/maplibre-gl-style-spec": "24.8.1",
     "vite": "8.1.5"
   }
 }
