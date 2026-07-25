@@ -1,0 +1,14 @@
+This document sets forth the licenses for the items in this archive.
+
+STYLE
+
+If your style is created from scratch or "outdoors" style, it considered as your creation and you may use it as you wish.
+
+If your style is based on one of the starter styles Bright and Satellite in Mapbox Studio, you are licensed to use it as a derivative work in accordance with the license terms for
+the underlying style. For Mapbox Basic, Bright, and Satellite the license is set
+forth at https://github.com/mapbox/mapbox-gl-styles/blob/main/LICENSE.md.
+
+FONTS AND SVGS
+
+Individual SVG icons provided by Mapbox in connection with Mapbox styles are
+dedicated to the public domain without any license restrictions.
