@@ -1,0 +1,19 @@
+{
+  "name": "occumed-map-reference",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "prepare:reference": "node scripts/prepare-reference.mjs",
+    "validate:export": "node scripts/validate-export.mjs",
+    "dev": "npm run validate:export && npm run prepare:reference && vite",
+    "build": "npm run validate:export && npm run prepare:reference && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "mapbox-gl": "3.26.0"
+  },
+  "devDependencies": {
+    "vite": "6.1.0"
+  }
+}
