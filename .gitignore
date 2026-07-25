@@ -1,6 +1,0 @@
-node_modules/
-dist/
-.env
-public/data/*.pmtiles
-public/style/conversion-report.json
-.DS_Store
