@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b1f3a" />
+    <title>Occu-Med Map</title>
+  </head>
+  <body>
+    <div id="app">
+      <div id="map" aria-label="Occu-Med map"></div>
+      <header class="map-header">
+        <div>
+          <span class="eyebrow">OCCU-MED</span>
+          <h1>Terrain Basemap</h1>
+        </div>
+        <span id="map-status" class="status">Loading map…</span>
+      </header>
+      <section id="map-error" class="error-panel" hidden>
+        <strong>Map data is not connected yet.</strong>
+        <span id="map-error-message"></span>
+      </section>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
