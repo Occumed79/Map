@@ -44,3 +44,20 @@ jobs:
       - name: Summarize generated compatibility report
         run: |
           node -e "const r=require('./public/style/compatibility-report.json'); console.log({original:r.originalLayerCount,runtime:r.runtimeLayerCount,skipped:r.skippedLayerCount,mappings:r.sourceLayerMappings})"
+
+  runtime-diagnostic:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Quiet runtime validation
+        shell: bash
+        run: |
+          git init -q .
+          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
+          git fetch -q --depth=1 origin "${GITHUB_SHA}"
+          git checkout -q FETCH_HEAD
+          npm install --silent
+          npm run prepare:assets >/dev/null
+          npm run check:runtime
