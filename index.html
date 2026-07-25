@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#07182f" />
+    <title>Occu-Med Terrain Reference</title>
+  </head>
+  <body>
+    <main id="app">
+      <div id="map" aria-label="Occu-Med Terrain map"></div>
+
+      <header class="reference-header">
+        <div>
+          <span class="eyebrow">OCCU-MED TERRAIN</span>
+          <h1>Exact Export Reference</h1>
+        </div>
+        <div class="status-group">
+          <span class="reference-badge">Immutable Mapbox template</span>
+          <span id="map-status" class="status">Loading exact style…</span>
+        </div>
+      </header>
+
+      <section id="map-error" class="error-panel" hidden>
+        <strong>Reference map could not load.</strong>
+        <span id="map-error-message"></span>
+      </section>
+    </main>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
