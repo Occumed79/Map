@@ -52,6 +52,7 @@ export async function createOccumedMap({
   minZoom = 1.35,
   maxZoom = 19,
   controls = true,
+  scaleControl = false,
   mapOptions = {}
 }) {
   if (!container) {
@@ -76,7 +77,10 @@ export async function createOccumedMap({
   });
 
   if (controls) {
-    map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'bottom-right');
+    map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-right');
+  }
+
+  if (scaleControl) {
     map.addControl(new maplibregl.ScaleControl({ unit: 'imperial' }), 'bottom-left');
   }
 
