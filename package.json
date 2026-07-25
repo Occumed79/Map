@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "prepare:sprites": "node scripts/build-sprites.mjs",
-    "prepare:style": "node scripts/build-runtime-style.mjs",
+    "prepare:style": "node scripts/build-runtime-style.mjs && node scripts/normalize-runtime-fonts.mjs",
     "prepare:assets": "npm run prepare:sprites && npm run prepare:style",
     "check:export": "node scripts/check-export.mjs",
     "check:runtime": "node scripts/check-runtime.mjs",
