@@ -1,69 +1,50 @@
 # Occu-Med Map
 
-A reusable Occu-Med basemap package built from the uploaded **Occu-Med Terrain** Mapbox Studio export.
+A reusable Occu-Med basemap package that renders the uploaded **Occu-Med Terrain** Mapbox Studio export directly.
 
-This repository owns only the shared visual foundation: globe atmosphere, terrain, land, water, roads, buildings, boundaries, labels, fonts, and sprites. It does **not** contain provider, employer, procurement, opportunity, clinic, applicant, or other application data.
+## What is hosted here
 
-## Architecture
+GitHub and Render host:
+
+- the application;
+- the untouched root `style.json`;
+- the reusable map initialization helper;
+- the full-screen viewer.
+
+The build copies `style.json` byte-for-byte to `/style.json`. It does not translate layers, replace colors, change fonts, rewrite filters, alter the atmosphere, or substitute open map data.
+
+The original file still references Mapbox Streets, Terrain, Bathymetry, glyph, and sprite services. Mapbox GL JS therefore requires `VITE_MAPBOX_ACCESS_TOKEN` at runtime.
+
+## Data isolation
+
+This repository contains only the basemap. It contains no provider, clinic, employer, procurement, opportunity, applicant, or other application data.
+
+Each application creates its own independent map instance and adds only its own overlays:
 
 ```text
-Occu-Med Map repository
-  ├─ shared basemap style and assets
-  └─ reusable MapLibre initialization helper
-
-Atlas
-  ├─ loads the shared basemap
-  └─ adds Atlas provider/service overlays only
-
-Insight Hub
-  ├─ loads the shared basemap
-  └─ adds Insight Hub intelligence overlays only
-
-Network Map
-  ├─ loads the shared basemap
-  └─ adds Network Map clinic/search overlays only
+Hosted Occu-Med style
+        +
+Insight Hub overlays only
 ```
 
-Each application creates its own independent map instance and owns its own sources, markers, filters, popups, and state. Data from one application cannot appear in another merely because they use this basemap.
+```text
+Hosted Occu-Med style
+        +
+Atlas overlays only
+```
 
-## Visual source of truth
-
-The root [`style.json`](./style.json) and all `Sprite-*` directories are the untouched Mapbox export. They are never rewritten in place.
-
-The build creates `public/style/occumed-open.json` by:
-
-1. Preserving the original layer order, paint colors, line widths, opacities, zoom thresholds, label rules, and filters wherever the open schema supports them.
-2. Translating Mapbox Streets source-layer and property names to the OpenMapTiles schema.
-3. Normalizing OpenMapTiles landuse, park, wetland, settlement, and road values into the categories expected by the exported style.
-4. Translating the exported Mapbox globe atmosphere into MapLibre's supported sky model.
-5. Replacing Mapbox-hosted tiles, glyphs, sprites, and terrain with open endpoints.
-6. Compiling every uploaded SVG into locally hosted 1x and 2x MapLibre sprite sheets.
-7. Replacing unavailable DIN/Arial glyph stacks with open font stacks.
-8. Producing `public/style/compatibility-report.json` that documents mapped and unsupported source layers.
-
-The goal is a clear, crisp **visual clone**, not a copy of Mapbox's proprietary hosted data. OpenStreetMap/OpenMapTiles feature coverage can differ from Mapbox even when the cartography is matched.
-
-## Runtime services and cost boundary
-
-The default build uses:
-
-- **MapLibre GL JS** for rendering. No Mapbox GL JS package or Mapbox access token.
-- **OpenFreeMap** for OpenMapTiles vector data and open glyphs.
-- **AWS Terrain Tiles public dataset** for global Terrarium elevation tiles and hillshading.
-- **Locally generated sprites** served by this repository.
-
-There are no Mapbox map-load charges in this implementation. Every external endpoint is configurable so the same style can later move to independently hosted infrastructure without redesigning the map.
+Sharing the same basemap does not share markers, filters, popups, application state, or databases.
 
 ## Development
 
 ```bash
 npm install
+cp .env.example .env
+# Add VITE_MAPBOX_ACCESS_TOKEN
 npm run dev
 ```
 
-The asset preparation step compiles sprites and generates the open runtime style before Vite starts.
-
-## Production build
+## Production
 
 ```bash
 npm install
@@ -71,76 +52,42 @@ npm run build
 npm start
 ```
 
-Set `PUBLIC_ORIGIN` on the deployed Map service, for example:
+Render environment variable:
 
 ```text
-PUBLIC_ORIGIN=https://map.example.com
+VITE_MAPBOX_ACCESS_TOKEN=<your public Mapbox token>
 ```
 
-The Node server adds CORS headers and serves the resolved shared style at:
+The standalone viewer is served at `/` and the exact uploaded style is served with CORS at:
 
 ```text
-/style/occumed-open.json
+/style.json
 ```
 
-## Using the basemap in another application
-
-Applications can load the hosted style directly:
+## Reuse in another application
 
 ```js
-import * as maplibregl from 'maplibre-gl';
+import mapboxgl from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
 
-const map = new maplibregl.Map({
+mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
+
+const response = await fetch('https://YOUR-MAP-SERVICE.onrender.com/style.json');
+const style = await response.json();
+
+const map = new mapboxgl.Map({
   container: 'map',
-  style: 'https://YOUR-MAP-SERVICE/style/occumed-open.json',
+  style,
   center: [-98.5, 24],
   zoom: 2.43,
-  projection: 'globe'
+  antialias: true
 });
 
 map.on('load', () => {
-  // Add only this application's private sources and layers here.
+  // Add only this application's sources and layers here.
 });
 ```
 
-Or use the reusable helper:
+## Integrity protection
 
-```js
-import { createOccumedMap } from './src/occumed-map.js';
-
-const map = await createOccumedMap({
-  container: 'map',
-  styleUrl: 'https://YOUR-MAP-SERVICE/style/occumed-open.json',
-  controls: true,
-  scaleControl: false
-});
-
-map.on('load', () => {
-  map.addSource('my-app-data', {
-    type: 'geojson',
-    data: myApplicationGeoJson
-  });
-
-  // This source exists only inside this map instance.
-});
-```
-
-All constructor camera options can be overridden per application without modifying the shared style.
-
-## Integrity and quality gates
-
-`npm run build` fails when:
-
-- the original `style.json` or `license.txt` changes;
-- the uploaded SVG export is incomplete;
-- a `mapbox://` or Mapbox API endpoint remains in the runtime style;
-- required road, building, water, boundary, place, POI, or label layers disappear;
-- original layer ordering changes;
-- local sprite generation is incomplete;
-- unavailable Mapbox font stacks remain;
-- the globe loses its dark space, atmosphere, horizon, or anchored hillshade;
-- OpenMapTiles landuse and settlement values bypass compatibility normalization;
-- road or label hierarchy falls below the required layer count;
-- application-specific data sources or layers enter the shared basemap.
-
-The standalone viewer is intentionally only a visual-QA shell. Production applications load the same basemap and then add their own isolated overlays.
+`npm run validate:export` verifies that the uploaded `style.json`, `license.txt`, and SVG export remain intact. CI also runs `cmp style.json public/style.json`, so the build fails unless the deployed style is an exact byte-for-byte copy.
