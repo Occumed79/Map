@@ -38,19 +38,3 @@ jobs:
 
       - name: Build viewer
         run: npm run build
-
-  build-diagnostic:
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-
-    steps:
-      - name: Quiet checkout and build
-        shell: bash
-        run: |
-          git init -q .
-          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
-          git fetch -q --depth=1 origin "${GITHUB_SHA}"
-          git checkout -q FETCH_HEAD
-          npm install --silent
-          npm run build
