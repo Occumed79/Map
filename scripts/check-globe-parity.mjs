@@ -16,6 +16,24 @@ if (!runtime.sky) fail('The MapLibre sky/atmosphere configuration is missing.');
 if (!runtime.sky?.['sky-color']) fail('The dark outer-space color is missing.');
 if (!runtime.sky?.['horizon-color']) fail('The atmospheric horizon color is missing.');
 if (!runtime.sky?.['atmosphere-blend']) fail('The globe atmosphere blend is missing.');
+if (runtime.light) fail('Directional global light must remain disabled to prevent rotation-dependent washout.');
+if (runtime.sky?.['horizon-fog-blend'] !== 0) {
+  fail('Horizon fog must remain disabled to prevent the globe surface from washing out.');
+}
+if (runtime.sky?.['fog-ground-blend'] !== 0) {
+  fail('Ground fog must remain disabled to preserve surface contrast.');
+}
+
+const atmosphereBlend = runtime.sky?.['atmosphere-blend'];
+if (Array.isArray(atmosphereBlend)) {
+  const outputs = [];
+  for (let index = 4; index < atmosphereBlend.length; index += 2) {
+    if (typeof atmosphereBlend[index] === 'number') outputs.push(atmosphereBlend[index]);
+  }
+  if (outputs.some((value) => value > 0.2)) {
+    fail('Atmosphere opacity is high enough to overexpose the globe.');
+  }
+}
 
 const relief = runtime.layers.find((layer) => layer.id === 'occumed-shaded-relief');
 if (!relief) fail('The low-zoom relief layer is missing.');
@@ -40,4 +58,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('Globe parity validated: dark space, atmosphere, vivid low-zoom relief, and anchored hillshade.');
+console.log('Globe parity validated: stable dark space, restrained atmosphere, vivid relief, and anchored hillshade.');
