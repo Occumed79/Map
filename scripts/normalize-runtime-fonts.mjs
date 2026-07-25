@@ -10,16 +10,17 @@ function openFont(font) {
   if (typeof font !== 'string') return font;
 
   if (font.startsWith('DIN Pro')) {
-    if (/Bold/i.test(font)) return /Italic/i.test(font) ? 'Open Sans Bold Italic' : 'Open Sans Bold';
-    if (/Medium|Semibold/i.test(font)) {
+    if (/Bold/i.test(font)) {
       return /Italic/i.test(font) ? 'Open Sans Semibold Italic' : 'Open Sans Semibold';
+    }
+    if (/Medium|Semibold/i.test(font)) {
+      return /Italic/i.test(font) ? 'Open Sans Italic' : 'Open Sans Regular';
     }
     if (/Italic/i.test(font)) return 'Open Sans Italic';
     return 'Open Sans Regular';
   }
 
   if (font.startsWith('Arial Unicode MS')) {
-    if (/Bold/i.test(font)) return 'Noto Sans Bold';
     if (/Italic/i.test(font)) return 'Noto Sans Italic';
     return 'Noto Sans Regular';
   }
@@ -36,14 +37,24 @@ function rewrite(value) {
 }
 
 let changedLayers = 0;
+let refinedHalos = 0;
+
 for (const layer of runtime.layers || []) {
   const textFont = layer.layout?.['text-font'];
-  if (!textFont) continue;
+  if (textFont) {
+    const before = JSON.stringify(textFont);
+    layer.layout['text-font'] = rewrite(textFont);
+    if (JSON.stringify(layer.layout['text-font']) !== before) changedLayers += 1;
+  }
 
-  const before = JSON.stringify(textFont);
-  layer.layout['text-font'] = rewrite(textFont);
-  if (JSON.stringify(layer.layout['text-font']) !== before) changedLayers += 1;
+  const haloWidth = layer.paint?.['text-halo-width'];
+  if (layer.type === 'symbol' && typeof haloWidth === 'number' && haloWidth > 1.25) {
+    layer.paint['text-halo-width'] = 1.25;
+    refinedHalos += 1;
+  }
 }
 
 await fs.writeFile(runtimePath, `${JSON.stringify(runtime, null, 2)}\n`);
-console.log(`Normalized active font stacks in ${changedLayers} runtime layers.`);
+console.log(
+  `Normalized active font stacks in ${changedLayers} runtime layers and refined ${refinedHalos} label halos.`
+);
