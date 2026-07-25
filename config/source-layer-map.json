@@ -1,0 +1,22 @@
+{
+  "landcover": "landcover",
+  "landuse_overlay": "landuse",
+  "landuse": "landuse",
+  "waterway": "waterway",
+  "water": "water",
+  "depth": null,
+  "hillshade": null,
+  "contour": null,
+  "structure": "transportation",
+  "aeroway": "aeroway",
+  "building": "building",
+  "road": "transportation",
+  "admin": "boundary",
+  "housenum_label": "housenumber",
+  "place_label": "place",
+  "motorway_junction": null,
+  "natural_label": "mountain_peak",
+  "poi_label": "poi",
+  "transit_stop_label": "poi",
+  "airport_label": "aerodrome_label"
+}
