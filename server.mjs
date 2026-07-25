@@ -33,8 +33,10 @@ function send(response, status, body, contentType, cacheControl = 'no-store') {
   response.writeHead(status, {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Headers': 'Content-Type, Cache-Control, Pragma',
     'Cache-Control': cacheControl,
+    'CDN-Cache-Control': cacheControl,
+    'Surrogate-Control': cacheControl,
     'Content-Type': contentType,
     'Cross-Origin-Resource-Policy': 'cross-origin',
     'X-Content-Type-Options': 'nosniff'
@@ -47,7 +49,13 @@ async function serveStyle(request, response) {
   const stylePath = path.join(root, 'style/occumed-open.json');
   const styleText = await fs.readFile(stylePath, 'utf8');
   const resolved = styleText.replaceAll('__OCCUMED_PUBLIC_ORIGIN__', requestOrigin(request));
-  send(response, 200, resolved, contentTypes['.json'], 'public, max-age=300');
+  send(
+    response,
+    200,
+    resolved,
+    contentTypes['.json'],
+    'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0'
+  );
 }
 
 async function serveStatic(request, response, pathname) {
@@ -71,11 +79,11 @@ async function serveStatic(request, response, pathname) {
       200,
       body,
       contentTypes[extension] || 'application/octet-stream',
-      longLived ? 'public, max-age=31536000, immutable' : 'public, max-age=3600'
+      longLived ? 'public, max-age=31536000, immutable' : 'no-store, no-cache, must-revalidate, max-age=0'
     );
   } catch {
     const index = await fs.readFile(path.join(root, 'index.html'));
-    send(response, 200, index, contentTypes['.html'], 'no-store');
+    send(response, 200, index, contentTypes['.html'], 'no-store, no-cache, must-revalidate, max-age=0');
   }
 }
 
@@ -85,7 +93,8 @@ const server = http.createServer(async (request, response) => {
       response.writeHead(204, {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type'
+        'Access-Control-Allow-Headers': 'Content-Type, Cache-Control, Pragma',
+        'Cache-Control': 'no-store'
       });
       response.end();
       return;
