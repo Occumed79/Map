@@ -60,6 +60,7 @@ jobs:
       - name: Build custom Fresno PMTiles archive
         env:
           OCCUMED_TILE_AREA: fresno
+          OCCUMED_OSM_PBF: ${{ github.workspace }}/.planetiler-data/fresno.osm.pbf
           OCCUMED_PMTILES_OUTPUT: ${{ github.workspace }}/artifacts/occumed-fresno.pmtiles
           OCCUMED_PLANETILER_DATA_DIR: ${{ github.workspace }}/.planetiler-data
           OCCUMED_PLANETILER_MEMORY: 4g
