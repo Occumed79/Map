@@ -1,10 +1,10 @@
 name: Build and publish Occu-Med PMTiles shard
-description: Builds one Geofabrik leaf extract with the Occu-Med Planetiler schema and publishes it to a GitHub Release.
+description: Builds one Geofabrik leaf or bounded subdivision with the Occu-Med Planetiler schema and publishes it to a GitHub Release.
 
 inputs:
   id:
     required: true
-    description: Geofabrik region id
+    description: Worldwide manifest region id
   slug:
     required: true
     description: Filesystem-safe region slug
@@ -17,6 +17,10 @@ inputs:
   pbf-url:
     required: true
     description: Source OSM PBF URL
+  extract-bbox:
+    required: false
+    default: ''
+    description: Optional west,south,east,north bbox extracted from the source PBF before Planetiler runs
   west:
     required: true
   south:
@@ -35,24 +39,62 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Reuse an already-published healthy archive
+      id: existing
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        if gh release view "${{ inputs.release-tag }}" \
+          --repo "$GITHUB_REPOSITORY" \
+          --json assets \
+          --jq '.assets[].name' | grep -Fxq '${{ inputs.asset-name }}'; then
+          echo 'exists=true' >> "$GITHUB_OUTPUT"
+          echo "Reusing published archive: ${{ inputs.asset-name }}"
+        else
+          echo 'exists=false' >> "$GITHUB_OUTPUT"
+        fi
+
     - name: Reclaim runner disk
+      if: steps.existing.outputs.exists != 'true'
       shell: bash
       run: |
         sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc || true
         docker system prune --all --force || true
         df -h
 
-    - name: Download OpenStreetMap shard
+    - name: Download and prepare OpenStreetMap shard
+      if: steps.existing.outputs.exists != 'true'
       shell: bash
+      env:
+        EXTRACT_BBOX: ${{ inputs.extract-bbox }}
       run: |
         mkdir -p .planetiler-data/tmp artifacts
-        curl --fail --location --retry 5 --retry-delay 10 \
-          --output ".planetiler-data/${{ inputs.slug }}.osm.pbf" \
-          "${{ inputs.pbf-url }}"
-        test -s ".planetiler-data/${{ inputs.slug }}.osm.pbf"
-        ls -lh ".planetiler-data/${{ inputs.slug }}.osm.pbf"
+        target=".planetiler-data/${{ inputs.slug }}.osm.pbf"
+        if [ -n "$EXTRACT_BBOX" ]; then
+          source=".planetiler-data/${{ inputs.slug }}-source.osm.pbf"
+          curl --fail --location --retry 5 --retry-delay 10 \
+            --output "$source" \
+            "${{ inputs.pbf-url }}"
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends osmium-tool
+          osmium extract \
+            --bbox="$EXTRACT_BBOX" \
+            --strategy=complete_ways \
+            --overwrite \
+            --output="$target" \
+            "$source"
+          rm -f "$source"
+        else
+          curl --fail --location --retry 5 --retry-delay 10 \
+            --output "$target" \
+            "${{ inputs.pbf-url }}"
+        fi
+        test -s "$target"
+        ls -lh "$target"
 
     - name: Build Occu-Med PMTiles shard
+      if: steps.existing.outputs.exists != 'true'
       shell: bash
       env:
         OCCUMED_TILE_AREA: ${{ inputs.slug }}
@@ -71,6 +113,7 @@ runs:
         fi
 
     - name: Write local shard metadata
+      if: steps.existing.outputs.exists != 'true'
       shell: bash
       env:
         REGION_ID: ${{ inputs.id }}
@@ -78,6 +121,7 @@ runs:
         REGION_NAME: ${{ inputs.name }}
         REGION_CONTINENT: ${{ inputs.continent }}
         PBF_URL: ${{ inputs.pbf-url }}
+        EXTRACT_BBOX: ${{ inputs.extract-bbox }}
         WEST: ${{ inputs.west }}
         SOUTH: ${{ inputs.south }}
         EAST: ${{ inputs.east }}
@@ -94,6 +138,7 @@ runs:
           name: process.env.REGION_NAME,
           continent: process.env.REGION_CONTINENT,
           source: process.env.PBF_URL,
+          extractBbox: process.env.EXTRACT_BBOX || null,
           bounds: [
             Number(process.env.WEST),
             Number(process.env.SOUTH),
@@ -113,6 +158,7 @@ runs:
         NODE
 
     - name: Publish PMTiles archive to GitHub Release
+      if: steps.existing.outputs.exists != 'true'
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
@@ -122,9 +168,10 @@ runs:
           --repo "$GITHUB_REPOSITORY" \
           --clobber
 
-    - name: Verify published byte ranges
+    - name: Verify published PMTiles byte ranges
       shell: bash
       run: |
+        mkdir -p artifacts
         url="https://github.com/${GITHUB_REPOSITORY}/releases/download/${{ inputs.release-tag }}/${{ inputs.asset-name }}"
         curl --silent --show-error --fail --location \
           --header 'Range: bytes=0-126' \
@@ -133,3 +180,4 @@ runs:
           "$url"
         grep -Eiq '^HTTP/.* 206' artifacts/release-range.headers.txt
         test "$(wc -c < artifacts/release-range.bin)" -eq 127
+        test "$(head -c 7 artifacts/release-range.bin)" = 'PMTiles'
