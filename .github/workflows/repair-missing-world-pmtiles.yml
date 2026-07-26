@@ -1,0 +1,286 @@
+name: Repair Missing Worldwide Occu-Med PMTiles
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/custom-planetiler-pmtiles-basemap
+    paths:
+      - planetiler/world-missing-repair.trigger
+
+permissions:
+  contents: write
+
+concurrency:
+  group: occumed-world-pmtiles-missing-repair
+  cancel-in-progress: true
+
+env:
+  WORLD_RELEASE_TAG: occumed-world-v1
+  WORLD_BUCKETS: 3
+  OCCUMED_DIRECT_PBF_LIMIT_BYTES: 400000000
+  OCCUMED_TARGET_SPLIT_PBF_BYTES: 250000000
+  OCCUMED_MAX_SPLIT_CELLS: 24
+
+jobs:
+  plan-missing:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      bucket0: ${{ steps.plan.outputs.bucket0 }}
+      bucket1: ${{ steps.plan.outputs.bucket1 }}
+      bucket2: ${{ steps.plan.outputs.bucket2 }}
+      missing_count: ${{ steps.plan.outputs.missing_count }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Generate missing-only canonical world plan
+        id: plan
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p world-plan
+          node scripts/plan-world-shards.mjs --scope all > world-plan/raw-world-plan.json
+
+          gh release view "$WORLD_RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 || \
+            gh release create "$WORLD_RELEASE_TAG" \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "Occu-Med Worldwide PMTiles v1" \
+              --notes "Worldwide Occu-Med Planetiler archives built from Geofabrik OpenStreetMap extracts."
+
+          release_id="$(gh api "/repos/${GITHUB_REPOSITORY}/releases/tags/${WORLD_RELEASE_TAG}" --jq '.id')"
+          gh api --paginate --slurp \
+            "/repos/${GITHUB_REPOSITORY}/releases/${release_id}/assets?per_page=100" \
+            > world-plan/release-asset-pages.json
+
+          node <<'NODE'
+          const fs = require('node:fs');
+          const input = JSON.parse(fs.readFileSync('world-plan/raw-world-plan.json', 'utf8'));
+          const assetPages = JSON.parse(fs.readFileSync('world-plan/release-asset-pages.json', 'utf8'));
+          const assetNames = new Set(assetPages.flatMap((page) => page || []).map((asset) => asset.name));
+          const excluded = new Set([
+            'alps', 'britain-and-ireland', 'dach', 'great-britain', 'sea',
+            'south-africa-and-lesotho', 'us', 'us-midwest', 'us-northeast',
+            'us-pacific', 'us-south', 'us-west'
+          ]);
+          const include = input.include.filter((region) =>
+            !excluded.has(region.id) && !excluded.has(region.source_region_id)
+          );
+          const ids = include.map((region) => region.id);
+          const assets = include.map((region) => region.asset_name);
+          if (!include.length) throw new Error('Canonical worldwide plan is empty.');
+          if (new Set(ids).size !== ids.length) throw new Error('Canonical plan contains duplicate IDs.');
+          if (new Set(assets).size !== assets.length) throw new Error('Canonical plan contains duplicate asset names.');
+          if (include.some((region) => region.source_size_bytes > 400000000 && !region.extract_bbox)) {
+            throw new Error('An oversized source remains unsplit.');
+          }
+
+          const missing = include.filter((region) => !assetNames.has(region.asset_name));
+          const fullPlan = {
+            ...input,
+            generatedAt: new Date().toISOString(),
+            canonical: true,
+            excludedSourceRegions: [...excluded],
+            include
+          };
+          fs.writeFileSync('world-plan/world-plan.json', `${JSON.stringify(fullPlan, null, 2)}\n`);
+          fs.writeFileSync(
+            'world-plan/missing-world-plan.json',
+            `${JSON.stringify({ ...fullPlan, include: missing }, null, 2)}\n`
+          );
+
+          const output = process.env.GITHUB_OUTPUT;
+          fs.appendFileSync(output, `missing_count=${missing.length}\n`);
+          for (let bucket = 0; bucket < 3; bucket += 1) {
+            const assigned = missing.filter((_, index) => index % 3 === bucket);
+            const includeForMatrix = assigned.length ? assigned : [{
+              skip: true,
+              id: `empty-bucket-${bucket}`,
+              slug: `empty-bucket-${bucket}`,
+              name: `Empty bucket ${bucket}`,
+              continent: 'none',
+              pbf_url: 'https://example.invalid/empty.osm.pbf',
+              extract_bbox: '',
+              west: 0,
+              south: 0,
+              east: 0,
+              north: 0,
+              asset_name: `empty-bucket-${bucket}.pmtiles`,
+              metadata_name: `empty-bucket-${bucket}.json`
+            }];
+            fs.appendFileSync(output, `bucket${bucket}=${JSON.stringify({ include: includeForMatrix })}\n`);
+          }
+          console.log(`Canonical plan: ${include.length} shards.`);
+          console.log(`Already published: ${include.length - missing.length} shards.`);
+          console.log(`Missing and scheduled: ${missing.length} shards.`);
+          NODE
+
+          gh release upload "$WORLD_RELEASE_TAG" \
+            world-plan/world-plan.json \
+            world-plan/missing-world-plan.json \
+            --repo "$GITHUB_REPOSITORY" \
+            --clobber
+
+      - name: Preserve canonical plans
+        uses: actions/upload-artifact@v4
+        with:
+          name: occumed-missing-world-plan-${{ github.sha }}
+          path: |
+            world-plan/world-plan.json
+            world-plan/missing-world-plan.json
+          if-no-files-found: error
+          retention-days: 30
+
+  build-bucket-0:
+    needs: plan-missing
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.plan-missing.outputs.bucket0) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/build-pmtiles-shard
+        if: matrix.skip != true
+        with:
+          id: ${{ matrix.id }}
+          slug: ${{ matrix.slug }}
+          name: ${{ matrix.name }}
+          continent: ${{ matrix.continent }}
+          pbf-url: ${{ matrix.pbf_url }}
+          extract-bbox: ${{ matrix.extract_bbox }}
+          west: ${{ matrix.west }}
+          south: ${{ matrix.south }}
+          east: ${{ matrix.east }}
+          north: ${{ matrix.north }}
+          asset-name: ${{ matrix.asset_name }}
+          metadata-name: ${{ matrix.metadata_name }}
+          release-tag: ${{ env.WORLD_RELEASE_TAG }}
+
+  build-bucket-1:
+    needs: plan-missing
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.plan-missing.outputs.bucket1) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/build-pmtiles-shard
+        if: matrix.skip != true
+        with:
+          id: ${{ matrix.id }}
+          slug: ${{ matrix.slug }}
+          name: ${{ matrix.name }}
+          continent: ${{ matrix.continent }}
+          pbf-url: ${{ matrix.pbf_url }}
+          extract-bbox: ${{ matrix.extract_bbox }}
+          west: ${{ matrix.west }}
+          south: ${{ matrix.south }}
+          east: ${{ matrix.east }}
+          north: ${{ matrix.north }}
+          asset-name: ${{ matrix.asset_name }}
+          metadata-name: ${{ matrix.metadata_name }}
+          release-tag: ${{ env.WORLD_RELEASE_TAG }}
+
+  build-bucket-2:
+    needs: plan-missing
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.plan-missing.outputs.bucket2) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/build-pmtiles-shard
+        if: matrix.skip != true
+        with:
+          id: ${{ matrix.id }}
+          slug: ${{ matrix.slug }}
+          name: ${{ matrix.name }}
+          continent: ${{ matrix.continent }}
+          pbf-url: ${{ matrix.pbf_url }}
+          extract-bbox: ${{ matrix.extract_bbox }}
+          west: ${{ matrix.west }}
+          south: ${{ matrix.south }}
+          east: ${{ matrix.east }}
+          north: ${{ matrix.north }}
+          asset-name: ${{ matrix.asset_name }}
+          metadata-name: ${{ matrix.metadata_name }}
+          release-tag: ${{ env.WORLD_RELEASE_TAG }}
+
+  publish-world-manifest:
+    if: always() && needs.plan-missing.result == 'success'
+    needs:
+      - plan-missing
+      - build-bucket-0
+      - build-bucket-1
+      - build-bucket-2
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: occumed-missing-world-plan-${{ github.sha }}
+          path: world-plan
+
+      - name: Build manifest from every paginated release asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p world-release
+          release_id="$(gh api "/repos/${GITHUB_REPOSITORY}/releases/tags/${WORLD_RELEASE_TAG}" --jq '.id')"
+          gh api --paginate --slurp \
+            "/repos/${GITHUB_REPOSITORY}/releases/${release_id}/assets?per_page=100" \
+            > world-release/asset-pages.json
+
+          node <<'NODE'
+          const fs = require('node:fs');
+          const pages = JSON.parse(fs.readFileSync('world-release/asset-pages.json', 'utf8'));
+          fs.writeFileSync(
+            'world-release/assets.json',
+            `${JSON.stringify({ assets: pages.flatMap((page) => page || []) }, null, 2)}\n`
+          );
+          NODE
+
+          node scripts/build-world-manifest.mjs \
+            --plan world-plan/world-plan.json \
+            --assets world-release/assets.json \
+            --repository "$GITHUB_REPOSITORY" \
+            --tag "$WORLD_RELEASE_TAG" \
+            --output world-release/occumed-world-manifest.json
+
+          gh release upload "$WORLD_RELEASE_TAG" \
+            world-release/occumed-world-manifest.json \
+            --repo "$GITHUB_REPOSITORY" \
+            --clobber
+
+          cat world-release/occumed-world-manifest.json
+
+      - name: Require zero missing worldwide shards
+        run: |
+          test -s world-release/occumed-world-manifest.json
+          missing="$(node -p "require('./world-release/occumed-world-manifest.json').missingRegionCount")"
+          if [ "$missing" -ne 0 ]; then
+            echo "$missing worldwide PMTiles shards are still missing from the release." >&2
+            exit 1
+          fi
+
+      - name: Preserve final worldwide manifest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: occumed-world-manifest-missing-repair-${{ github.sha }}
+          path: world-release/occumed-world-manifest.json
+          if-no-files-found: error
+          retention-days: 30
