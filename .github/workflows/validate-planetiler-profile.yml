@@ -16,9 +16,243 @@ on:
       - .github/workflows/validate-planetiler-profile.yml
 
 permissions:
-  contents: read
+  contents: write
+  actions: read
 
 jobs:
+  repair-world-pipeline:
+    if: github.event_name == 'push' && github.ref_name == 'feat/custom-planetiler-pmtiles-basemap'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/custom-planetiler-pmtiles-basemap
+          fetch-depth: 0
+
+      - name: Apply canonical planner and workflow repairs
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+
+          planner = Path('scripts/plan-world-shards.mjs')
+          planner_text = planner.read_text()
+          root_anchor = '''const rootIds = new Set([
+  'africa',
+  'antarctica',
+  'asia',
+  'australia-oceania',
+  'central-america',
+  'europe',
+  'north-america',
+  'south-america'
+]);
+'''
+          overlay_block = root_anchor + '''
+// Geofabrik exposes alternate convenience bundles that overlap the canonical
+// country/state/region partition. They are unsafe for bbox-based source routing.
+const NON_CANONICAL_OVERLAY_IDS = new Set([
+  'alps',
+  'britain-and-ireland',
+  'dach',
+  'great-britain',
+  'sea',
+  'south-africa-and-lesotho',
+  'us',
+  'us-midwest',
+  'us-northeast',
+  'us-pacific',
+  'us-south',
+  'us-west'
+]);
+'''
+          if 'const NON_CANONICAL_OVERLAY_IDS' not in planner_text:
+            if planner_text.count(root_anchor) != 1:
+              raise SystemExit('Unable to find the world planner root anchor.')
+            planner_text = planner_text.replace(root_anchor, overlay_block, 1)
+
+          loop = '''  for (const entry of entries) {
+    if (!entry.pbfUrl || !entry.bounds) continue;
+'''
+          canonical_loop = '''  for (const entry of entries) {
+    if (!entry.pbfUrl || !entry.bounds) continue;
+    if (NON_CANONICAL_OVERLAY_IDS.has(entry.id)) continue;
+'''
+          if canonical_loop not in planner_text:
+            if planner_text.count(loop) != 1:
+              raise SystemExit('Unable to find the world planner selection loop.')
+            planner_text = planner_text.replace(loop, canonical_loop, 1)
+          planner.write_text(planner_text)
+
+          workflow = Path('.github/workflows/build-world-pmtiles.yml')
+          lines = workflow.read_text().splitlines(keepends=True)
+          output = []
+          in_plan_world = False
+          index = 0
+          pbf_line = '          pbf-url: $' + '{{ matrix.pbf_url }}\n'
+          extract_line = '          extract-bbox: $' + '{{ matrix.extract_bbox }}\n'
+          planner_start = '          node scripts/plan-world-shards.mjs --scope all > world-plan/world-plan.json\n'
+          replacement = '''          node scripts/plan-world-shards.mjs --scope all > world-plan/world-plan.json
+          for bucket in 0 1 2 3 4 5; do
+            jq \\
+              --argjson bucket "$bucket" \\
+              --argjson buckets "$WORLD_BUCKETS" \\
+              '{include: [.include | to_entries[] | select((.key % $buckets) == $bucket) | .value]}' \\
+              world-plan/world-plan.json \\
+              > "world-plan/bucket-${bucket}.json"
+            compact="$(jq -c . "world-plan/bucket-${bucket}.json")"
+            echo "bucket${bucket}=${compact}" >> "$GITHUB_OUTPUT"
+          done
+'''.splitlines(keepends=True)
+
+          while index < len(lines):
+            line = lines[index]
+            if line == '  plan-world:\n':
+              in_plan_world = True
+              output.append(line)
+              index += 1
+              continue
+            if in_plan_world and line.startswith('  ') and not line.startswith('    ') and line != '  plan-world:\n':
+              in_plan_world = False
+            if in_plan_world and line == '    timeout-minutes: 15\n':
+              output.append('    timeout-minutes: 30\n')
+              index += 1
+              continue
+            if line == planner_start:
+              output.extend(replacement)
+              index += 1
+              if index < len(lines) and lines[index] == '          for bucket in 0 1 2 3 4 5; do\n':
+                while index < len(lines):
+                  current = lines[index]
+                  index += 1
+                  if current == '          done\n':
+                    break
+              continue
+            output.append(line)
+            if line == pbf_line:
+              if index + 1 >= len(lines) or lines[index + 1] != extract_line:
+                output.append(extract_line)
+            index += 1
+
+          workflow_text = ''.join(output)
+          old_assets = '''          gh release view "$WORLD_RELEASE_TAG" \\
+            --repo "$GITHUB_REPOSITORY" \\
+            --json assets \\
+            > world-release/assets.json
+'''
+          paginated_assets = '''          release_id="$(gh api "/repos/${GITHUB_REPOSITORY}/releases/tags/${WORLD_RELEASE_TAG}" --jq .id)"
+          gh api --paginate --slurp \\
+            "/repos/${GITHUB_REPOSITORY}/releases/${release_id}/assets?per_page=100" \\
+            > world-release/asset-pages.json
+          jq '{assets: [ .[][] | {name, size, browser_download_url} ]}' \\
+            world-release/asset-pages.json \\
+            > world-release/assets.json
+'''
+          if old_assets in workflow_text:
+            workflow_text = workflow_text.replace(old_assets, paginated_assets, 1)
+
+          if workflow_text.count(extract_line) != 6:
+            raise SystemExit(f'Expected six extract-bbox matrix inputs, got {workflow_text.count(extract_line)}.')
+          if workflow_text.count(planner_start) != 1:
+            raise SystemExit('The size-aware world planner must run exactly once per build.')
+          if 'timeout-minutes: 30' not in workflow_text:
+            raise SystemExit('The size-aware planning timeout was not applied.')
+          if 'gh api --paginate --slurp' not in workflow_text:
+            raise SystemExit('Release asset enumeration is not paginated.')
+          workflow.write_text(workflow_text)
+          PY
+
+      - name: Commit repairs and remove obsolete helpers
+        run: |
+          rm -f \
+            .github/workflows/patch-world-workflow.yml \
+            .github/workflows/patch-canonical-world-plan.yml \
+            .github/workflows/validate-size-aware-world-plan.yml
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add -A \
+            scripts/plan-world-shards.mjs \
+            .github/workflows/build-world-pmtiles.yml \
+            .github/workflows/patch-world-workflow.yml \
+            .github/workflows/patch-canonical-world-plan.yml \
+            .github/workflows/validate-size-aware-world-plan.yml
+          git diff --cached --quiet || git commit -m "Finalize canonical size-aware worldwide pipeline"
+          git push origin HEAD:feat/custom-planetiler-pmtiles-basemap
+
+  validate-world-plan:
+    if: github.event_name == 'push' && github.ref_name == 'feat/custom-planetiler-pmtiles-basemap'
+    needs: repair-world-pipeline
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/custom-planetiler-pmtiles-basemap
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Generate and verify the canonical size-aware world plan
+        run: |
+          mkdir -p diagnostics
+          node scripts/plan-world-shards.mjs --scope all > /tmp/canonical-world-plan.json
+          node <<'NODE'
+          const fs = require('node:fs');
+          const plan = JSON.parse(fs.readFileSync('/tmp/canonical-world-plan.json', 'utf8'));
+          const regions = plan.include || [];
+          const byId = new Map(regions.map((region) => [region.id, region]));
+          const assets = regions.map((region) => region.asset_name);
+          const excludedOverlays = [
+            'alps', 'britain-and-ireland', 'dach', 'great-britain', 'sea',
+            'south-africa-and-lesotho', 'us', 'us-midwest', 'us-northeast',
+            'us-pacific', 'us-south', 'us-west'
+          ];
+          const retainedOverlays = excludedOverlays.filter((id) => byId.has(id));
+          const argentinaPieces = regions.filter((region) => region.source_region_id === 'argentina');
+          const splitSources = [...new Set(
+            regions.filter((region) => region.extract_bbox).map((region) => region.source_region_id)
+          )].sort();
+          const fiji = regions.find((region) => region.id === 'fiji');
+          const probed = regions.filter((region) => Number.isFinite(region.source_size_bytes)).length;
+
+          if (regions.length < 350 || regions.length > 900) throw new Error(`Unexpected shard count: ${regions.length}`);
+          if (new Set(regions.map((region) => region.id)).size !== regions.length) throw new Error('Duplicate region IDs.');
+          if (new Set(assets).size !== assets.length) throw new Error('Duplicate PMTiles asset names.');
+          if (retainedOverlays.length) throw new Error(`Overlapping bundles remain: ${retainedOverlays.join(', ')}`);
+          if (byId.has('argentina')) throw new Error('Argentina was not subdivided.');
+          if (argentinaPieces.length < 4 || argentinaPieces.some((region) => !region.extract_bbox)) {
+            throw new Error(`Argentina subdivision is incomplete: ${argentinaPieces.length}.`);
+          }
+          if (!fiji || !(fiji.west > fiji.east)) throw new Error('Fiji is not represented with wrapped dateline bounds.');
+          if (probed < Math.floor(regions.length * 0.9)) throw new Error(`Size probes incomplete: ${probed}/${regions.length}.`);
+
+          const summary = {
+            generatedAt: new Date().toISOString(),
+            plannedRegionCount: regions.length,
+            uniqueAssetCount: new Set(assets).size,
+            probedRegionCount: probed,
+            splitSourceCount: splitSources.length,
+            splitSources,
+            argentinaPieceCount: argentinaPieces.length,
+            excludedOverlays,
+            antimeridianFijiBounds: [fiji.west, fiji.south, fiji.east, fiji.north]
+          };
+          fs.writeFileSync('diagnostics/size-aware-world-plan-summary.json', `${JSON.stringify(summary, null, 2)}\n`);
+          console.log(JSON.stringify(summary, null, 2));
+          NODE
+
+      - name: Commit verified plan summary
+        run: |
+          git fetch origin feat/custom-planetiler-pmtiles-basemap
+          git checkout -B feat/custom-planetiler-pmtiles-basemap origin/feat/custom-planetiler-pmtiles-basemap
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add diagnostics/size-aware-world-plan-summary.json
+          git diff --cached --quiet || git commit -m "Validate canonical worldwide PMTiles plan"
+          git push origin HEAD:feat/custom-planetiler-pmtiles-basemap
+
   build-monaco-archive:
     runs-on: ubuntu-latest
     timeout-minutes: 20
