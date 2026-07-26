@@ -1,0 +1,2 @@
+requested_at=2026-07-26T21:41:00Z
+purpose=inventory_every_published_pmtiles_asset_before_any_more_repairs
