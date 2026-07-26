@@ -1,4 +1,4 @@
-name: Patch canonical worldwide plan
+name: Patch canonical worldwide routing plan
 
 on:
   push:
