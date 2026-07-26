@@ -1,13 +1,13 @@
 {
-  "capturedAt": "2026-07-26T22:08:12.041Z",
+  "capturedAt": "2026-07-26T22:09:14.029Z",
   "releaseTag": "occumed-world-v1",
   "canonicalShardCount": 724,
-  "totalReleaseAssetCount": 329,
-  "totalReleasePmtilesCount": 317,
-  "publishedCanonicalCount": 313,
-  "missingCanonicalCount": 411,
-  "publishedCanonicalPercentage": 43.23,
-  "publishedCanonicalBytes": 99440197266,
+  "totalReleaseAssetCount": 332,
+  "totalReleasePmtilesCount": 320,
+  "publishedCanonicalCount": 316,
+  "missingCanonicalCount": 408,
+  "publishedCanonicalPercentage": 43.65,
+  "publishedCanonicalBytes": 100670318735,
   "zeroSizePublishedCount": 0,
   "extraPmtilesAssetCount": 4,
   "publishedRegions": [
@@ -411,6 +411,13 @@
       "updatedAt": "2026-07-26T21:18:50Z"
     },
     {
+      "id": "central-fed-district--r2-c2",
+      "name": "Central Federal District 2.2",
+      "asset": "occumed-central-fed-district--r2-c2.pmtiles",
+      "sizeBytes": 623131423,
+      "updatedAt": "2026-07-26T22:09:09Z"
+    },
+    {
       "id": "central-zone",
       "name": "Central Zone",
       "asset": "occumed-central-zone.pmtiles",
@@ -744,7 +751,7 @@
       "name": "Ethiopia",
       "asset": "occumed-ethiopia.pmtiles",
       "sizeBytes": 585906172,
-      "updatedAt": "2026-07-26T22:08:09Z"
+      "updatedAt": "2026-07-26T22:08:29Z"
     },
     {
       "id": "extremadura",
@@ -1256,6 +1263,13 @@
       "asset": "occumed-kansai.pmtiles",
       "sizeBytes": 779479666,
       "updatedAt": "2026-07-26T20:47:15Z"
+    },
+    {
+      "id": "kanto--r1-c3",
+      "name": "Kantō region 1.3",
+      "asset": "occumed-kanto--r1-c3.pmtiles",
+      "sizeBytes": 16732,
+      "updatedAt": "2026-07-26T22:08:31Z"
     },
     {
       "id": "karlovarsky",
@@ -1860,6 +1874,13 @@
       "updatedAt": "2026-07-26T21:58:46Z"
     },
     {
+      "id": "nordeste--r1-c1",
+      "name": "Nordeste 1.1",
+      "asset": "occumed-nordeste--r1-c1.pmtiles",
+      "sizeBytes": 606973314,
+      "updatedAt": "2026-07-26T22:08:37Z"
+    },
+    {
       "id": "norfolk",
       "name": "Norfolk",
       "asset": "occumed-norfolk.pmtiles",
@@ -2290,11 +2311,6 @@
       "asset": "occumed-central-fed-district--r2-c1.pmtiles"
     },
     {
-      "id": "central-fed-district--r2-c2",
-      "name": "Central Federal District 2.2",
-      "asset": "occumed-central-fed-district--r2-c2.pmtiles"
-    },
-    {
       "id": "chubu--r1-c1",
       "name": "Chūbu region 1.1",
       "asset": "occumed-chubu--r1-c1.pmtiles"
@@ -2458,11 +2474,6 @@
       "id": "kanto--r1-c2",
       "name": "Kantō region 1.2",
       "asset": "occumed-kanto--r1-c2.pmtiles"
-    },
-    {
-      "id": "kanto--r1-c3",
-      "name": "Kantō region 1.3",
-      "asset": "occumed-kanto--r1-c3.pmtiles"
     },
     {
       "id": "kanto--r2-c1",
@@ -2788,11 +2799,6 @@
       "id": "nord-ovest--r2-c3",
       "name": "Nord-Ovest 2.3",
       "asset": "occumed-nord-ovest--r2-c3.pmtiles"
-    },
-    {
-      "id": "nordeste--r1-c1",
-      "name": "Nordeste 1.1",
-      "asset": "occumed-nordeste--r1-c1.pmtiles"
     },
     {
       "id": "nordeste--r1-c2",
@@ -4284,7 +4290,7 @@
       "id": 490731837,
       "name": "occumed-rhone-alpes.pmtiles",
       "sizeBytes": 1130386990,
-      "updatedAt": "2026-07-26T22:07:57Z"
+      "updatedAt": "2026-07-26T22:08:21Z"
     }
   ]
 }

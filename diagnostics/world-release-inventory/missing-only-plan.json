@@ -273,22 +273,6 @@
       "metadata_name": "occumed-central-fed-district--r2-c1.json"
     },
     {
-      "id": "central-fed-district--r2-c2",
-      "slug": "central-fed-district--r2-c2",
-      "name": "Central Federal District 2.2",
-      "continent": "central-fed-district",
-      "pbf_url": "https://download.geofabrik.de/russia/central-fed-district-latest.osm.pbf",
-      "extract_bbox": "39.184995,54.57888,47.67023,59.6533",
-      "source_region_id": "central-fed-district",
-      "source_size_bytes": 870284469,
-      "west": 39.184995,
-      "south": 54.57888,
-      "east": 47.67023,
-      "north": 59.6533,
-      "asset_name": "occumed-central-fed-district--r2-c2.pmtiles",
-      "metadata_name": "occumed-central-fed-district--r2-c2.json"
-    },
-    {
       "id": "chubu--r1-c1",
       "slug": "chubu--r1-c1",
       "name": "Chūbu region 1.1",
@@ -815,22 +799,6 @@
       "north": 28.62108,
       "asset_name": "occumed-kanto--r1-c2.pmtiles",
       "metadata_name": "occumed-kanto--r1-c2.json"
-    },
-    {
-      "id": "kanto--r1-c3",
-      "slug": "kanto--r1-c3",
-      "name": "Kantō region 1.3",
-      "continent": "asia",
-      "pbf_url": "https://download.geofabrik.de/asia/japan/kanto-latest.osm.pbf",
-      "extract_bbox": "147.839167,20.08228,154.4709,28.62108",
-      "source_region_id": "kanto",
-      "source_size_bytes": 479744061,
-      "west": 147.839167,
-      "south": 20.08228,
-      "east": 154.4709,
-      "north": 28.62108,
-      "asset_name": "occumed-kanto--r1-c3.pmtiles",
-      "metadata_name": "occumed-kanto--r1-c3.json"
     },
     {
       "id": "kanto--r2-c1",
@@ -1871,22 +1839,6 @@
       "north": 46.64119,
       "asset_name": "occumed-nord-ovest--r2-c3.pmtiles",
       "metadata_name": "occumed-nord-ovest--r2-c3.json"
-    },
-    {
-      "id": "nordeste--r1-c1",
-      "slug": "nordeste--r1-c1",
-      "name": "Nordeste 1.1",
-      "continent": "south-america",
-      "pbf_url": "https://download.geofabrik.de/south-america/brazil/nordeste-latest.osm.pbf",
-      "extract_bbox": "-48.77554,-18.59514,-38.59791,-7.961063",
-      "source_region_id": "nordeste",
-      "source_size_bytes": 436302214,
-      "west": -48.77554,
-      "south": -18.59514,
-      "east": -38.59791,
-      "north": -7.961063,
-      "asset_name": "occumed-nordeste--r1-c1.pmtiles",
-      "metadata_name": "occumed-nordeste--r1-c1.json"
     },
     {
       "id": "nordeste--r1-c2",
