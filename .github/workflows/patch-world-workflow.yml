@@ -20,7 +20,7 @@ jobs:
           ref: feat/custom-planetiler-pmtiles-basemap
           fetch-depth: 0
 
-      - name: Patch matrices and single-pass planning
+      - name: Apply verified size-aware workflow patch
         run: |
           python3 <<'PY'
           from pathlib import Path
