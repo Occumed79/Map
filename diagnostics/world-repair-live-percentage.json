@@ -1,18 +1,18 @@
 {
-  "capturedAt": "2026-07-26T20:45:28.922Z",
+  "capturedAt": "2026-07-26T21:13:29.311Z",
   "runId": "30214445296",
   "runUrl": "https://github.com/Occumed79/Map/actions/runs/30214445296",
-  "runStatus": "queued",
-  "runConclusion": null,
+  "runStatus": "completed",
+  "runConclusion": "failure",
   "totalShardJobs": 724,
   "successfulShardJobs": 310,
-  "failedShardJobs": 354,
+  "failedShardJobs": 414,
   "cancelledShardJobs": 0,
   "skippedShardJobs": 0,
-  "inProgressShardJobs": 8,
-  "queuedShardJobs": 52,
-  "nonFailedTarget": 370,
-  "completionPercentageExcludingFailures": 83.78,
+  "inProgressShardJobs": 0,
+  "queuedShardJobs": 0,
+  "nonFailedTarget": 310,
+  "completionPercentageExcludingFailures": 100,
   "failures": [
     {
       "id": 89826326886,
@@ -779,12 +779,32 @@
       "name": "build-bucket-4 (sudeste--r2-c2, sudeste--r2-c2, Sudeste 2.2, south-america, https://download.geof..."
     },
     {
+      "id": 89826328809,
+      "name": "build-bucket-4 (slaskie, slaskie, Województwo śląskie<br />(Silesian Voivodeship), europe, htt..."
+    },
+    {
+      "id": 89826328810,
+      "name": "build-bucket-4 (staffordshire, staffordshire, Staffordshire, europe, https://download.geofabrik.d..."
+    },
+    {
+      "id": 89826328820,
+      "name": "build-bucket-4 (switzerland--r1-c1, switzerland--r1-c1, Switzerland 1.1, europe, https://download..."
+    },
+    {
       "id": 89826328827,
       "name": "build-bucket-4 (tanzania--r2-c1, tanzania--r2-c1, Tanzania 2.1, africa, https://download.geofabri..."
     },
     {
+      "id": 89826328834,
+      "name": "build-bucket-4 (trondelag, trondelag, Trøndelag<br />(Central Norway), europe, https://download...."
+    },
+    {
       "id": 89826328836,
       "name": "build-bucket-4 (ukraine--r2-c3, ukraine--r2-c3, Ukraine (with Crimea) 2.3, europe, https://downlo..."
+    },
+    {
+      "id": 89826328838,
+      "name": "build-bucket-4 (southern-zone--r1-c2, southern-zone--r1-c2, Southern Zone 1.2, asia, https://down..."
     },
     {
       "id": 89826328839,
@@ -811,8 +831,68 @@
       "name": "build-bucket-4 (syria, syria, Syria, asia, https://download.geofabrik.de/asia/syria-latest.osm.pb..."
     },
     {
+      "id": 89826328857,
+      "name": "build-bucket-4 (us/new-york--r1-c3, us--new-york--r1-c3, us/new-york 1.3, north-america, https://..."
+    },
+    {
+      "id": 89826328863,
+      "name": "build-bucket-4 (us/michigan, us--michigan, us/michigan, north-america, https://download.geofabrik..."
+    },
+    {
       "id": 89826328864,
       "name": "build-bucket-4 (us/texas--r1-c1, us--texas--r1-c1, us/texas 1.1, north-america, https://download...."
+    },
+    {
+      "id": 89826328867,
+      "name": "build-bucket-4 (us/north-carolina--r1-c3, us--north-carolina--r1-c3, us/north-carolina 1.3, north..."
+    },
+    {
+      "id": 89826328869,
+      "name": "build-bucket-4 (us/arizona, us--arizona, us/arizona, north-america, https://download.geofabrik.de..."
+    },
+    {
+      "id": 89826328874,
+      "name": "build-bucket-4 (us/us-virgin-islands, us--us-virgin-islands, us/us-virgin-islands, north-america,..."
+    },
+    {
+      "id": 89826328877,
+      "name": "build-bucket-4 (us/nevada, us--nevada, us/nevada, north-america, https://download.geofabrik.de/no..."
+    },
+    {
+      "id": 89826328880,
+      "name": "build-bucket-4 (us/virginia--r1-c4, us--virginia--r1-c4, us/virginia 1.4, north-america, https://..."
+    },
+    {
+      "id": 89826328884,
+      "name": "build-bucket-4 (us/kansas, us--kansas, us/kansas, north-america, https://download.geofabrik.de/no..."
+    },
+    {
+      "id": 89826328888,
+      "name": "build-bucket-4 (zambia, zambia, Zambia, africa, https://download.geofabrik.de/africa/zambia-lates..."
+    },
+    {
+      "id": 89826328892,
+      "name": "build-bucket-4 (victoria, victoria, Victoria, australia-oceania, https://download.geofabrik.de/au..."
+    },
+    {
+      "id": 89826328894,
+      "name": "build-bucket-4 (utrecht, utrecht, Utrecht, europe, https://download.geofabrik.de/europe/netherlan..."
+    },
+    {
+      "id": 89826328900,
+      "name": "build-bucket-4 (us/pennsylvania, us--pennsylvania, us/pennsylvania, north-america, https://downlo..."
+    },
+    {
+      "id": 89826328903,
+      "name": "build-bucket-4 (worcestershire, worcestershire, Worcestershire, europe, https://download.geofabri..."
+    },
+    {
+      "id": 89826328906,
+      "name": "build-bucket-4 (west-sussex, west-sussex, West Sussex, europe, https://download.geofabrik.de/euro..."
+    },
+    {
+      "id": 89826328909,
+      "name": "build-bucket-4 (vysocina, vysocina, Kraj Vysočina, europe, https://download.geofabrik.de/europe/..."
     },
     {
       "id": 89826329116,
@@ -889,6 +969,10 @@
     {
       "id": 89826329168,
       "name": "build-bucket-2 (south-africa--r2-c2, south-africa--r2-c2, South Africa 2.2, africa, https://downl..."
+    },
+    {
+      "id": 89826329169,
+      "name": "build-bucket-2 (opolskie, opolskie, Województwo opolskie<br />(Opole Voivodeship), europe, https..."
     },
     {
       "id": 89826329170,
@@ -971,12 +1055,36 @@
       "name": "build-bucket-2 (zlinsky, zlinsky, Zlínský kraj, europe, https://download.geofabrik.de/europe/cz..."
     },
     {
+      "id": 89826329204,
+      "name": "build-bucket-2 (yunnan, yunnan, Yunnan, asia, https://download.geofabrik.de/asia/china/yunnan-lat..."
+    },
+    {
       "id": 89826329206,
       "name": "build-bucket-2 (us/wyoming, us--wyoming, us/wyoming, north-america, https://download.geofabrik.de..."
     },
     {
       "id": 89826329207,
       "name": "build-bucket-2 (warwickshire, warwickshire, Warwickshire, europe, https://download.geofabrik.de/e..."
+    },
+    {
+      "id": 89826329208,
+      "name": "build-bucket-2 (us/oklahoma, us--oklahoma, us/oklahoma, north-america, https://download.geofabrik..."
+    },
+    {
+      "id": 89826329212,
+      "name": "build-bucket-2 (us/texas--r2-c2, us--texas--r2-c2, us/texas 2.2, north-america, https://download...."
+    },
+    {
+      "id": 89826329213,
+      "name": "build-bucket-2 (volga-fed-district--r2-c1, volga-fed-district--r2-c1, Volga Federal District 2.1,..."
+    },
+    {
+      "id": 89826329216,
+      "name": "build-bucket-2 (us/south-dakota, us--south-dakota, us/south-dakota, north-america, https://downlo..."
+    },
+    {
+      "id": 89826329217,
+      "name": "build-bucket-2 (us/north-carolina--r1-c1, us--north-carolina--r1-c1, us/north-carolina 1.1, north..."
     },
     {
       "id": 89826329231,
@@ -1135,6 +1243,10 @@
       "name": "build-bucket-3 (tyne-and-wear, tyne-and-wear, Tyne and Wear, europe, https://download.geofabrik.d..."
     },
     {
+      "id": 89826329766,
+      "name": "build-bucket-3 (us/district-of-columbia, us--district-of-columbia, us/district-of-columbia, north..."
+    },
+    {
       "id": 89826329770,
       "name": "build-bucket-1 (northwest-territories--r1-c2, northwest-territories--r1-c2, Northwest Territories..."
     },
@@ -1145,6 +1257,18 @@
     {
       "id": 89826329773,
       "name": "build-bucket-1 (north-admreg--r2-c1, north-admreg--r2-c1, North Administrative Region 2.1, north-..."
+    },
+    {
+      "id": 89826329779,
+      "name": "build-bucket-3 (us/new-york--r1-c2, us--new-york--r1-c2, us/new-york 1.2, north-america, https://..."
+    },
+    {
+      "id": 89826329782,
+      "name": "build-bucket-3 (zachodniopomorskie, zachodniopomorskie, Województwo zachodniopomorskie<br />(Wes..."
+    },
+    {
+      "id": 89826329783,
+      "name": "build-bucket-3 (vestlandet, vestlandet, Vestlandet<br />(Western Norway), europe, https://downloa..."
     },
     {
       "id": 89826329793,
@@ -1163,12 +1287,20 @@
       "name": "build-bucket-1 (shanxi, shanxi, Shanxi, asia, https://download.geofabrik.de/asia/china/shanxi-lat..."
     },
     {
+      "id": 89826329803,
+      "name": "build-bucket-3 (us/florida--r2-c3, us--florida--r2-c3, us/florida 2.3, north-america, https://dow..."
+    },
+    {
       "id": 89826329807,
       "name": "build-bucket-1 (northwestern-fed-district--r2-c2, northwestern-fed-district--r2-c2, Northwestern ..."
     },
     {
       "id": 89826329809,
       "name": "build-bucket-1 (senegal-and-gambia, senegal-and-gambia, Senegal and Gambia, africa, https://downl..."
+    },
+    {
+      "id": 89826329813,
+      "name": "build-bucket-3 (volga-fed-district--r2-c2, volga-fed-district--r2-c2, Volga Federal District 2.2,..."
     },
     {
       "id": 89826329814,
@@ -1315,8 +1447,28 @@
       "name": "build-bucket-1 (us/illinois, us--illinois, us/illinois, north-america, https://download.geofabrik..."
     },
     {
+      "id": 89826329961,
+      "name": "build-bucket-5 (quebec--r2-c1, quebec--r2-c1, Quebec 2.1, north-america, https://download.geofabr..."
+    },
+    {
       "id": 89826329963,
       "name": "build-bucket-5 (qikiqtaaluk--r1-c2, qikiqtaaluk--r1-c2, Qikiqtaaluk Region 1.2, north-america, ht..."
+    },
+    {
+      "id": 89826329972,
+      "name": "build-bucket-1 (us/texas--r2-c1, us--texas--r2-c1, us/texas 2.1, north-america, https://download...."
+    },
+    {
+      "id": 89826329980,
+      "name": "build-bucket-1 (us/ohio, us--ohio, us/ohio, north-america, https://download.geofabrik.de/north-am..."
+    },
+    {
+      "id": 89826329986,
+      "name": "build-bucket-5 (northumberland, northumberland, Northumberland, europe, https://download.geofabri..."
+    },
+    {
+      "id": 89826329987,
+      "name": "build-bucket-1 (us/virginia--r1-c1, us--virginia--r1-c1, us/virginia 1.1, north-america, https://..."
     },
     {
       "id": 89826329988,
@@ -1327,12 +1479,28 @@
       "name": "build-bucket-1 (western-zone, western-zone, Western Zone, asia, https://download.geofabrik.de/asi..."
     },
     {
+      "id": 89826329992,
+      "name": "build-bucket-1 (us/wisconsin, us--wisconsin, us/wisconsin, north-america, https://download.geofab..."
+    },
+    {
       "id": 89826329994,
       "name": "build-bucket-5 (palau, palau, Palau, australia-oceania, https://download.geofabrik.de/australia-o..."
     },
     {
       "id": 89826329999,
       "name": "build-bucket-5 (north-admreg--r1-c2, north-admreg--r1-c2, North Administrative Region 1.2, north-..."
+    },
+    {
+      "id": 89826330007,
+      "name": "build-bucket-1 (us/new-mexico, us--new-mexico, us/new-mexico, north-america, https://download.geo..."
+    },
+    {
+      "id": 89826330013,
+      "name": "build-bucket-5 (ontario--r1-c2, ontario--r1-c2, Ontario 1.2, north-america, https://download.geof..."
+    },
+    {
+      "id": 89826330014,
+      "name": "build-bucket-3 (sud--r2-c1, sud--r2-c1, Sud 2.1, europe, https://download.geofabrik.de/europe/ita..."
     },
     {
       "id": 89826330027,
@@ -1351,6 +1519,10 @@
       "name": "build-bucket-5 (south-korea, south-korea, South Korea, asia, https://download.geofabrik.de/asia/s..."
     },
     {
+      "id": 89826330046,
+      "name": "build-bucket-5 (tibet, tibet, Tibet, asia, https://download.geofabrik.de/asia/china/tibet-latest...."
+    },
+    {
       "id": 89826330053,
       "name": "build-bucket-5 (switzerland--r1-c2, switzerland--r1-c2, Switzerland 1.2, europe, https://download..."
     },
@@ -1361,6 +1533,10 @@
     {
       "id": 89826330063,
       "name": "build-bucket-5 (ukraine--r1-c1, ukraine--r1-c1, Ukraine (with Crimea) 1.1, europe, https://downlo..."
+    },
+    {
+      "id": 89826330064,
+      "name": "build-bucket-5 (sweden--r1-c1, sweden--r1-c1, Sweden 1.1, europe, https://download.geofabrik.de/e..."
     },
     {
       "id": 89826330066,
@@ -1375,12 +1551,32 @@
       "name": "build-bucket-5 (slovakia, slovakia, Slovakia, europe, https://download.geofabrik.de/europe/slovak..."
     },
     {
+      "id": 89826330072,
+      "name": "build-bucket-5 (rhone-alpes--r2-c3, rhone-alpes--r2-c3, Rhone-Alpes 2.3, europe, https://download..."
+    },
+    {
       "id": 89826330074,
       "name": "build-bucket-5 (sudan, sudan, Sudan, africa, https://download.geofabrik.de/africa/sudan-latest.os..."
     },
     {
+      "id": 89826330075,
+      "name": "build-bucket-5 (shandong, shandong, Shandong, asia, https://download.geofabrik.de/asia/china/shan..."
+    },
+    {
       "id": 89826330078,
       "name": "build-bucket-5 (sudeste--r2-c3, sudeste--r2-c3, Sudeste 2.3, south-america, https://download.geof..."
+    },
+    {
+      "id": 89826330079,
+      "name": "build-bucket-5 (us/hawaii, us--hawaii, us/hawaii, north-america, https://download.geofabrik.de/no..."
+    },
+    {
+      "id": 89826330084,
+      "name": "build-bucket-5 (us/minnesota, us--minnesota, us/minnesota, north-america, https://download.geofab..."
+    },
+    {
+      "id": 89826330085,
+      "name": "build-bucket-5 (unterfranken, unterfranken, Unterfranken, europe, https://download.geofabrik.de/e..."
     },
     {
       "id": 89826330086,
@@ -1399,16 +1595,48 @@
       "name": "build-bucket-5 (socal--r2-c2, socal--r2-c2, Southern California 2.2, north-america, https://downl..."
     },
     {
+      "id": 89826330095,
+      "name": "build-bucket-5 (tuebingen-regbez, tuebingen-regbez, Regierungsbezirk Tübingen, europe, https://d..."
+    },
+    {
       "id": 89826330098,
       "name": "build-bucket-5 (taiwan, taiwan, Taiwan, asia, https://download.geofabrik.de/asia/taiwan-latest.os..."
+    },
+    {
+      "id": 89826330105,
+      "name": "build-bucket-5 (us/north-carolina--r1-c4, us--north-carolina--r1-c4, us/north-carolina 1.4, north..."
     },
     {
       "id": 89826330109,
       "name": "build-bucket-5 (us/new-hampshire, us--new-hampshire, us/new-hampshire, north-america, https://dow..."
     },
     {
+      "id": 89826330112,
+      "name": "build-bucket-1 (volga-fed-district--r1-c2, volga-fed-district--r1-c2, Volga Federal District 1.2,..."
+    },
+    {
+      "id": 89826330120,
+      "name": "build-bucket-5 (us/florida--r1-c2, us--florida--r1-c2, us/florida 1.2, north-america, https://dow..."
+    },
+    {
       "id": 89826330121,
       "name": "build-bucket-5 (us/texas--r1-c2, us--texas--r1-c2, us/texas 1.2, north-america, https://download...."
+    },
+    {
+      "id": 89826330122,
+      "name": "build-bucket-5 (us/new-york--r2-c1, us--new-york--r2-c1, us/new-york 2.1, north-america, https://..."
+    },
+    {
+      "id": 89826330127,
+      "name": "build-bucket-5 (us/utah, us--utah, us/utah, north-america, https://download.geofabrik.de/north-am..."
+    },
+    {
+      "id": 89826330137,
+      "name": "build-bucket-1 (us/new-york--r2-c3, us--new-york--r2-c3, us/new-york 2.3, north-america, https://..."
+    },
+    {
+      "id": 89826330140,
+      "name": "build-bucket-5 (ostlandet--r2-c1, ostlandet--r2-c1, Østlandet<br />(Eastern Norway) 2.1, europe,..."
     },
     {
       "id": 89826330141,
@@ -1419,8 +1647,16 @@
       "name": "build-bucket-5 (vietnam, vietnam, Vietnam, asia, https://download.geofabrik.de/asia/vietnam-lates..."
     },
     {
+      "id": 89826330150,
+      "name": "build-bucket-5 (zeeland, zeeland, Zeeland, europe, https://download.geofabrik.de/europe/netherlan..."
+    },
+    {
       "id": 89826330151,
       "name": "build-bucket-5 (xinjiang, xinjiang, Xinjiang, asia, https://download.geofabrik.de/asia/china/xinj..."
+    },
+    {
+      "id": 89826330152,
+      "name": "build-bucket-5 (us/washington, us--washington, us/washington, north-america, https://download.geo..."
     },
     {
       "id": 89826330154,
@@ -1429,6 +1665,10 @@
     {
       "id": 89826330158,
       "name": "build-bucket-5 (uzbekistan, uzbekistan, Uzbekistan, asia, https://download.geofabrik.de/asia/uzbe..."
+    },
+    {
+      "id": 89826330159,
+      "name": "build-bucket-5 (west-yorkshire, west-yorkshire, West Yorkshire, europe, https://download.geofabri..."
     }
   ]
 }
