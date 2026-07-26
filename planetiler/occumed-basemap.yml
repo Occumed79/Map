@@ -1,0 +1,304 @@
+schema_name: Occu-Med Terrain
+schema_description: Custom Occu-Med vector schema for the reusable MapLibre basemap
+attribution: '<a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors</a>'
+
+sources:
+  osm:
+    type: osm
+    url: geofabrik:california
+
+layers:
+  - id: landcover
+    features:
+      - source: osm
+        geometry: polygon
+        min_zoom: 3
+        include_when:
+          natural: [wood, scrub, heath, grassland, fell, glacier, sand]
+        attributes:
+          - key: class
+            tag_value: natural
+      - source: osm
+        geometry: polygon
+        min_zoom: 3
+        include_when:
+          landuse: [forest, meadow, farmland, orchard, vineyard, grass]
+        attributes:
+          - key: class
+            tag_value: landuse
+
+  - id: landuse
+    features:
+      - source: osm
+        geometry: polygon
+        min_zoom: 6
+        include_when:
+          landuse: [residential, commercial, industrial, retail, cemetery, recreation_ground, quarry]
+        attributes:
+          - key: class
+            tag_value: landuse
+          - key: name
+            tag_value: name
+      - source: osm
+        geometry: polygon
+        min_zoom: 6
+        include_when:
+          leisure: [park, garden, playground, golf_course, pitch, nature_reserve]
+        attributes:
+          - key: class
+            tag_value: leisure
+          - key: name
+            tag_value: name
+
+  - id: park
+    features:
+      - source: osm
+        geometry: polygon
+        min_zoom: 5
+        include_when:
+          boundary: [national_park, protected_area]
+        attributes:
+          - key: class
+            tag_value: boundary
+          - key: name
+            tag_value: name
+      - source: osm
+        geometry: polygon
+        min_zoom: 7
+        include_when:
+          leisure: [park, nature_reserve]
+        attributes:
+          - key: class
+            tag_value: leisure
+          - key: name
+            tag_value: name
+
+  - id: water
+    features:
+      - source: osm
+        geometry: polygon
+        min_zoom: 0
+        include_when:
+          natural: [water]
+        attributes:
+          - key: class
+            tag_value: water
+          - key: name
+            tag_value: name
+      - source: osm
+        geometry: polygon
+        min_zoom: 5
+        include_when:
+          waterway: [riverbank, dock]
+        attributes:
+          - key: class
+            tag_value: waterway
+          - key: name
+            tag_value: name
+
+  - id: waterway
+    features:
+      - source: osm
+        geometry: line
+        min_zoom: 6
+        include_when:
+          waterway: [river, canal, stream, drain, ditch]
+        attributes:
+          - key: class
+            tag_value: waterway
+          - key: name
+            tag_value: name
+
+  - id: transportation
+    features:
+      - source: osm
+        geometry: line
+        min_zoom: 4
+        include_when:
+          highway: [motorway, motorway_link, trunk, trunk_link, primary, primary_link, secondary, secondary_link, tertiary, tertiary_link, unclassified, residential, living_street, service, track, pedestrian, path, footway, cycleway, steps]
+        attributes:
+          - key: class
+            tag_value: highway
+          - key: subclass
+            tag_value: highway
+          - key: brunnel
+            expression: 'coalesce(tag("bridge") == "yes" ? "bridge" : null, tag("tunnel") == "yes" ? "tunnel" : null, "none")'
+          - key: ramp
+            expression: 'tag("highway").endsWith("_link") ? 1 : 0'
+          - key: surface
+            tag_value: surface
+          - key: ref
+            tag_value: ref
+          - key: name
+            tag_value: name
+      - source: osm
+        geometry: line
+        min_zoom: 8
+        include_when:
+          railway: [rail, light_rail, subway, tram, narrow_gauge, monorail]
+        attributes:
+          - key: class
+            tag_value: railway
+          - key: subclass
+            tag_value: railway
+          - key: brunnel
+            expression: 'coalesce(tag("bridge") == "yes" ? "bridge" : null, tag("tunnel") == "yes" ? "tunnel" : null, "none")'
+          - key: name
+            tag_value: name
+
+  - id: transportation_name
+    features:
+      - source: osm
+        geometry: line
+        min_zoom: 8
+        include_when:
+          highway: [motorway, trunk, primary, secondary, tertiary, unclassified, residential]
+        attributes:
+          - key: class
+            tag_value: highway
+          - key: name
+            tag_value: name
+          - key: ref
+            tag_value: ref
+
+  - id: building
+    features:
+      - source: osm
+        geometry: polygon
+        min_zoom: 13
+        include_when:
+          building: __any__
+        attributes:
+          - key: class
+            tag_value: building
+          - key: render_height
+            tag_value: height
+          - key: render_min_height
+            tag_value: min_height
+          - key: underground
+            expression: 'tag("location") == "underground" ? "true" : "false"'
+
+  - id: aeroway
+    features:
+      - source: osm
+        geometry: line
+        min_zoom: 9
+        include_when:
+          aeroway: [runway, taxiway]
+        attributes:
+          - key: class
+            tag_value: aeroway
+          - key: type
+            tag_value: aeroway
+      - source: osm
+        geometry: polygon
+        min_zoom: 10
+        include_when:
+          aeroway: [aerodrome, runway, taxiway, helipad]
+        attributes:
+          - key: class
+            tag_value: aeroway
+          - key: type
+            tag_value: aeroway
+          - key: name
+            tag_value: name
+
+  - id: boundary
+    features:
+      - source: osm
+        geometry: line
+        min_zoom: 0
+        include_when:
+          boundary: [administrative]
+        attributes:
+          - key: admin_level
+            tag_value: admin_level
+          - key: disputed
+            expression: 'tag("disputed") == "yes" ? 1 : 0'
+          - key: maritime
+            expression: 'tag("maritime") == "yes" ? 1 : 0'
+          - key: name
+            tag_value: name
+
+  - id: place
+    features:
+      - source: osm
+        geometry: point
+        min_zoom: 2
+        include_when:
+          place: [continent, country, state, region, city, town, village, suburb, neighbourhood, hamlet]
+        attributes:
+          - key: class
+            tag_value: place
+          - key: name
+            tag_value: name
+          - key: name:latin
+            tag_value: name:en
+          - key: rank
+            expression: 'coalesce(number(tag("population")), 0)'
+
+  - id: poi
+    features:
+      - source: osm
+        geometry: point
+        min_zoom: 11
+        include_when:
+          amenity: __any__
+        attributes:
+          - key: class
+            tag_value: amenity
+          - key: subclass
+            tag_value: amenity
+          - key: name
+            tag_value: name
+      - source: osm
+        geometry: point
+        min_zoom: 11
+        include_when:
+          tourism: __any__
+        attributes:
+          - key: class
+            tag_value: tourism
+          - key: subclass
+            tag_value: tourism
+          - key: name
+            tag_value: name
+
+  - id: water_name
+    features:
+      - source: osm
+        geometry: point
+        min_zoom: 5
+        include_when:
+          natural: [water]
+        attributes:
+          - key: class
+            tag_value: water
+          - key: name
+            tag_value: name
+
+  - id: mountain_peak
+    features:
+      - source: osm
+        geometry: point
+        min_zoom: 8
+        include_when:
+          natural: [peak, volcano]
+        attributes:
+          - key: class
+            tag_value: natural
+          - key: name
+            tag_value: name
+          - key: ele
+            tag_value: ele
+
+  - id: housenumber
+    features:
+      - source: osm
+        geometry: point
+        min_zoom: 16
+        include_when:
+          addr:housenumber: __any__
+        attributes:
+          - key: housenumber
+            tag_value: addr:housenumber
