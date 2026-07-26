@@ -1,0 +1,80 @@
+name: Revalidate Fresno PMTiles render
+
+on:
+  push:
+    branches:
+      - feat/custom-planetiler-pmtiles-basemap
+    paths:
+      - .github/workflows/revalidate-fresno-render.yml
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  render-existing-fresno-archive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Download the proven Fresno PMTiles artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: occumed-fresno-pmtiles-f009f3f8a2e9114f5cd89d5cb861f10a004f9949
+          path: prior-fresno
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          run-id: 30200415258
+
+      - name: Install map and Chromium dependencies
+        run: |
+          npm install
+          npm install --no-save playwright@1.54.1
+          npx playwright install --with-deps chromium
+
+      - name: Build current runtime against the proven archive
+        env:
+          OCCUMED_WORLD_MANIFEST_URL: off
+          OCCUMED_PMTILES_URL: __OCCUMED_PUBLIC_ORIGIN__/tiles/occumed-fresno.pmtiles
+        run: |
+          mkdir -p public/tiles artifacts/visual-preview
+          cp prior-fresno/occumed-fresno.pmtiles public/tiles/occumed-fresno.pmtiles
+          npm run build
+          test -s dist/tiles/occumed-fresno.pmtiles
+
+      - name: Verify ranges and render all four views
+        run: |
+          PORT=4173 HOST=127.0.0.1 npm start > artifacts/preview-server.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
+          for attempt in $(seq 1 60); do
+            curl --silent --fail http://127.0.0.1:4173/health >/dev/null && break
+            sleep 1
+          done
+          curl --fail http://127.0.0.1:4173/health
+          curl --silent --show-error --fail \
+            --header 'Range: bytes=0-126' \
+            --dump-header artifacts/pmtiles-range.headers.txt \
+            --output artifacts/pmtiles-header.bin \
+            http://127.0.0.1:4173/tiles/occumed-fresno.pmtiles
+          grep -Eiq '^HTTP/.* 206' artifacts/pmtiles-range.headers.txt
+          test "$(wc -c < artifacts/pmtiles-header.bin)" -eq 127
+          node scripts/capture-pmtiles-preview.mjs
+          cat artifacts/visual-preview/preview-report.json
+
+      - name: Upload current render proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: occumed-fresno-render-revalidation-${{ github.sha }}
+          path: |
+            artifacts/preview-server.log
+            artifacts/pmtiles-range.headers.txt
+            artifacts/visual-preview/
+          if-no-files-found: error
+          retention-days: 30
