@@ -44,14 +44,39 @@ runs:
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
+        RELEASE_TAG: ${{ inputs.release-tag }}
+        ASSET_NAME: ${{ inputs.asset-name }}
       run: |
-        if gh release view "${{ inputs.release-tag }}" \
-          --repo "$GITHUB_REPOSITORY" \
-          --json assets \
-          --jq '.assets[].name' | grep -Fxq '${{ inputs.asset-name }}'; then
+        set -euo pipefail
+        release_id="$(gh api "/repos/${GITHUB_REPOSITORY}/releases/tags/${RELEASE_TAG}" --jq '.id')"
+        existing_id="$(
+          gh api --paginate \
+            "/repos/${GITHUB_REPOSITORY}/releases/${release_id}/assets?per_page=100" \
+            --jq '.[] | [.id, .name] | @tsv' |
+          awk -F '\t' -v name="$ASSET_NAME" '$2 == name { print $1; exit }'
+        )"
+
+        if [ -z "$existing_id" ]; then
+          echo 'exists=false' >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        mkdir -p artifacts
+        url="https://github.com/${GITHUB_REPOSITORY}/releases/download/${RELEASE_TAG}/${ASSET_NAME}"
+        if curl --silent --show-error --fail --location \
+          --retry 5 --retry-delay 3 --retry-all-errors \
+          --header 'Range: bytes=0-126' \
+          --dump-header artifacts/existing-range.headers.txt \
+          --output artifacts/existing-range.bin \
+          "$url" \
+          && grep -Eiq '^HTTP/.* 206' artifacts/existing-range.headers.txt \
+          && test "$(wc -c < artifacts/existing-range.bin)" -eq 127 \
+          && test "$(head -c 7 artifacts/existing-range.bin)" = 'PMTiles'; then
           echo 'exists=true' >> "$GITHUB_OUTPUT"
-          echo "Reusing published archive: ${{ inputs.asset-name }}"
+          echo "Reusing published healthy archive: $ASSET_NAME"
         else
+          echo "Deleting unhealthy published archive before rebuild: $ASSET_NAME"
+          gh api --method DELETE "/repos/${GITHUB_REPOSITORY}/releases/assets/${existing_id}"
           echo 'exists=false' >> "$GITHUB_OUTPUT"
         fi
 
@@ -73,7 +98,7 @@ runs:
         target=".planetiler-data/${{ inputs.slug }}.osm.pbf"
         if [ -n "$EXTRACT_BBOX" ]; then
           source=".planetiler-data/${{ inputs.slug }}-source.osm.pbf"
-          curl --fail --location --retry 5 --retry-delay 10 \
+          curl --fail --location --retry 5 --retry-delay 10 --retry-all-errors \
             --output "$source" \
             "${{ inputs.pbf-url }}"
           sudo apt-get update
@@ -86,7 +111,7 @@ runs:
             "$source"
           rm -f "$source"
         else
-          curl --fail --location --retry 5 --retry-delay 10 \
+          curl --fail --location --retry 5 --retry-delay 10 --retry-all-errors \
             --output "$target" \
             "${{ inputs.pbf-url }}"
         fi
@@ -162,22 +187,61 @@ runs:
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
+        RELEASE_TAG: ${{ inputs.release-tag }}
+        ASSET_NAME: ${{ inputs.asset-name }}
       run: |
-        gh release upload "${{ inputs.release-tag }}" \
-          "artifacts/${{ inputs.asset-name }}" \
-          --repo "$GITHUB_REPOSITORY" \
-          --clobber
+        set -euo pipefail
+        release_id="$(gh api "/repos/${GITHUB_REPOSITORY}/releases/tags/${RELEASE_TAG}" --jq '.id')"
+
+        for attempt in 1 2 3 4 5; do
+          if gh release upload "$RELEASE_TAG" \
+            "artifacts/$ASSET_NAME" \
+            --repo "$GITHUB_REPOSITORY"; then
+            echo "Published archive: $ASSET_NAME"
+            exit 0
+          fi
+
+          existing_id="$(
+            gh api --paginate \
+              "/repos/${GITHUB_REPOSITORY}/releases/${release_id}/assets?per_page=100" \
+              --jq '.[] | [.id, .name] | @tsv' |
+            awk -F '\t' -v name="$ASSET_NAME" '$2 == name { print $1; exit }'
+          )"
+          if [ -n "$existing_id" ]; then
+            echo "Archive appeared during upload; treating concurrent publication as success: $ASSET_NAME"
+            exit 0
+          fi
+
+          sleep $((attempt * 10))
+        done
+
+        echo "Unable to publish archive after retries: $ASSET_NAME" >&2
+        exit 1
 
     - name: Verify published PMTiles byte ranges
       shell: bash
+      env:
+        RELEASE_TAG: ${{ inputs.release-tag }}
+        ASSET_NAME: ${{ inputs.asset-name }}
       run: |
         mkdir -p artifacts
-        url="https://github.com/${GITHUB_REPOSITORY}/releases/download/${{ inputs.release-tag }}/${{ inputs.asset-name }}"
-        curl --silent --show-error --fail --location \
-          --header 'Range: bytes=0-126' \
-          --dump-header artifacts/release-range.headers.txt \
-          --output artifacts/release-range.bin \
-          "$url"
-        grep -Eiq '^HTTP/.* 206' artifacts/release-range.headers.txt
-        test "$(wc -c < artifacts/release-range.bin)" -eq 127
-        test "$(head -c 7 artifacts/release-range.bin)" = 'PMTiles'
+        url="https://github.com/${GITHUB_REPOSITORY}/releases/download/${RELEASE_TAG}/${ASSET_NAME}"
+
+        for attempt in 1 2 3 4 5 6 7 8; do
+          rm -f artifacts/release-range.headers.txt artifacts/release-range.bin
+          if curl --silent --show-error --fail --location \
+            --retry 3 --retry-delay 3 --retry-all-errors \
+            --header 'Range: bytes=0-126' \
+            --dump-header artifacts/release-range.headers.txt \
+            --output artifacts/release-range.bin \
+            "$url" \
+            && grep -Eiq '^HTTP/.* 206' artifacts/release-range.headers.txt \
+            && test "$(wc -c < artifacts/release-range.bin)" -eq 127 \
+            && test "$(head -c 7 artifacts/release-range.bin)" = 'PMTiles'; then
+            exit 0
+          fi
+          sleep $((attempt * 5))
+        done
+
+        echo "Published archive did not pass byte-range verification: $ASSET_NAME" >&2
+        exit 1
