@@ -1,0 +1,300 @@
+2026-07-26T17:01:40.1809108Z [m[0m0:00:11 INF [osm_pass1] - Finished in 10s cpu:35s avg:3.6
+2026-07-26T17:01:40.1845150Z [m[0m0:00:11 INF [osm_pass1] -   read     1x(3% 0.3s wait:9s)
+2026-07-26T17:01:40.1847832Z [m[0m0:00:11 INF [osm_pass1] -   parse    4x(59% 6s wait:2s)
+2026-07-26T17:01:40.1850813Z [m[0m0:00:11 INF [osm_pass1] -   process  1x(58% 6s wait:3s)
+2026-07-26T17:01:40.1862454Z [m[0m0:00:11 INF [osm_pass2] - 
+2026-07-26T17:01:40.1865344Z [m[0m0:00:11 INF [osm_pass2] - Starting...
+2026-07-26T17:01:48.1543202Z [m[0m0:00:19 DEB [osm_pass2:process] - Sorting long long multimap...
+2026-07-26T17:01:48.1555741Z [m[0m0:00:19 DEB [osm_pass2:process] - Sorted long long multimap 0s cpu:0s avg:6.7
+2026-07-26T17:01:48.1566995Z [m[0m0:00:19 INF [osm_pass2:process] - Finished nodes: 58,884,937 (7.4M/s) in 8s cpu:31s avg:4
+2026-07-26T17:01:50.2649871Z [m[0m0:00:21 INF [osm_pass2] -  nodes: [32m[  58M 100% 5.8M/s ][0m 1.1G  ways: [32m[  11k   0% 1.1k/s ][0m rels: [    0   0%    0/s ] features: [ 3.7M 376k/s ] 1.7G  blocks: [ 7.3k  91%  733/s ]
+2026-07-26T17:01:50.2652149Z     cpus: [34m4[0m gc:  1% heap: 982M/5.3G direct: 216k postGC: [34m758M[0m relInfo: 1.2M mpGeoms: 1.4M 
+2026-07-26T17:01:50.2653354Z     read( 2%) ->   (11/15) -> process(80% 79% 79% 80%) -> (1.1k/55k) -> write( 8%)
+2026-07-26T17:02:00.3010427Z [m[0m0:00:31 INF [osm_pass2] -  nodes: [  58M 100%    0/s ] 1.1G  ways: [32m[ 229k   4%  21k/s ][0m rels: [    0   0%    0/s ] features: [ 7.6M 385k/s ] 1.7G  blocks: [ 7.3k  91%    2/s ]
+2026-07-26T17:02:00.3012193Z     cpus: [34m4[0m gc:  1% heap: 726M/5.3G direct: 216k postGC: [34m760M[0m relInfo: 1.2M mpGeoms: 6M   
+2026-07-26T17:02:00.3013187Z     read( 0%) ->   (11/15) -> process(68% 67% 69% 68%) -> (2.5k/55k) -> write(11%)
+2026-07-26T17:02:10.3218630Z [m[0m0:00:41 INF [osm_pass2] -  nodes: [  58M 100%    0/s ] 1.1G  ways: [32m[ 650k  11%  42k/s ][0m rels: [    0   0%    0/s ] features: [  13M 615k/s ] 1.7G  blocks: [ 7.4k  92%    5/s ]
+2026-07-26T17:02:10.3220785Z     cpus: [34m4[0m gc:  1% heap: 1.8G/5.3G direct: 216k postGC: [34m760M[0m relInfo: 1.2M mpGeoms: 14M  
+2026-07-26T17:02:10.3221756Z     read( 0%) ->   (11/15) -> process(90% 90% 92% 92%) -> (3.1k/55k) -> write(17%)
+2026-07-26T17:02:20.3396117Z [m[0m0:00:51 INF [osm_pass2] -  nodes: [  58M 100%    0/s ] 1.1G  ways: [32m[ 1.4M  24%  77k/s ][0m rels: [    0   0%    0/s ] features: [  19M 590k/s ] 2.8G  blocks: [ 7.5k  93%    9/s ]
+2026-07-26T17:02:20.3397819Z     cpus: [34m3.9[0m gc:  1% heap: 732M/5.3G direct: 216k postGC: [34m760M[0m relInfo: 1.2M mpGeoms: 29M  
+2026-07-26T17:02:20.3398766Z     read( 0%) ->   (11/15) -> process(94% 90% 93% 92%) -> (1.2k/55k) -> write(16%)
+2026-07-26T17:02:30.3578909Z [m[0m0:01:01 INF [osm_pass2] -  nodes: [  58M 100%    0/s ] 1.1G  ways: [32m[ 2.2M  38%  77k/s ][0m rels: [    0   0%    0/s ] features: [  24M 493k/s ] 2.8G  blocks: [ 7.6k  94%    9/s ]
+2026-07-26T17:02:30.3581838Z     cpus: [34m3.9[0m gc:  1% heap: 783M/5.3G direct: 216k postGC: [34m765M[0m relInfo: 1.2M mpGeoms: 43M  
+2026-07-26T17:02:30.3582831Z     read( 0%) ->   (11/15) -> process(92% 95% 97% 90%) ->  (2k/55k) -> write(14%)
+2026-07-26T17:02:40.3782002Z [m[0m0:01:11 INF [osm_pass2] -  nodes: [  58M 100%    0/s ] 1.1G  ways: [32m[ 2.7M  47%  52k/s ][0m rels: [    0   0%    0/s ] features: [  29M 456k/s ] 3.9G  blocks: [ 7.6k  95%    6/s ]
+2026-07-26T17:02:40.3783740Z     cpus: [34m3.9[0m gc:  1% heap: 839M/5.3G direct: 216k postGC: [34m767M[0m relInfo: 1.2M mpGeoms: 54M  
+2026-07-26T17:02:40.3784953Z     read( 0%) ->   (11/15) -> process(97% 94% 95% 88%) -> (2.3k/55k) -> write(13%)
+2026-07-26T17:02:50.3990804Z [m[0m0:01:21 INF [osm_pass2] -  nodes: [  58M 100%    0/s ] 1.1G  ways: [32m[ 3.4M  58%  68k/s ][0m rels: [    0   0%    0/s ] features: [  34M 494k/s ] 3.9G  blocks: [ 7.7k  96%    8/s ]
+2026-07-26T17:02:50.3993191Z     cpus: [34m3.9[0m gc:  1% heap: 1.5G/5.3G direct: 216k postGC: [34m766M[0m relInfo: 1.2M mpGeoms: 60M  
+2026-07-26T17:02:50.3994522Z     read( 0%) ->   (11/15) -> process(94% 92% 96% 92%) -> (818/55k) -> write(15%)
+2026-07-26T17:03:00.4215795Z [m[0m0:01:31 INF [osm_pass2] -  nodes: [  58M 100%    0/s ] 1.1G  ways: [32m[ 3.9M  67%  50k/s ][0m rels: [    0   0%    0/s ] features: [  38M 399k/s ] 3.9G  blocks: [ 7.8k  97%    6/s ]
+2026-07-26T17:03:00.4217964Z     cpus: [34m4[0m gc:  1% heap: 990M/5.3G direct: 216k postGC: [34m773M[0m relInfo: 1.2M mpGeoms: 72M  
+2026-07-26T17:03:00.4221691Z     read( 0%) ->   (11/15) -> process(94% 93% 95% 96%) -> (2.4k/55k) -> write(12%)
+2026-07-26T17:03:10.4379270Z [m[0m0:01:41 INF [osm_pass2] -  nodes: [  58M 100%    0/s ] 1.1G  ways: [32m[ 4.6M  79%  71k/s ][0m rels: [    0   0%    0/s ] features: [  41M 365k/s ] 4.9G  blocks: [ 7.9k  98%    9/s ]
+2026-07-26T17:03:10.4381629Z     cpus: [34m4[0m gc:  1% heap: 1.4G/5.3G direct: 216k postGC: [34m774M[0m relInfo: 1.2M mpGeoms: 76M  
+2026-07-26T17:03:10.4382875Z     read( 0%) ->   (11/15) -> process(97% 94% 97% 91%) -> (3.3k/55k) -> write(11%)
+2026-07-26T17:03:20.4579556Z [m[0m0:01:51 INF [osm_pass2] -  nodes: [  58M 100%    0/s ] 1.1G  ways: [32m[ 5.1M  89%  54k/s ][0m rels: [    0   0%    0/s ] features: [  45M 321k/s ] 4.9G  blocks: [   8k  99%    6/s ]
+2026-07-26T17:03:20.4581893Z     cpus: [34m4[0m gc:  1% heap: 1.7G/5.3G direct: 216k postGC: [34m772M[0m relInfo: 1.2M mpGeoms: 81M  
+2026-07-26T17:03:20.4585377Z     read( 0%) ->   (11/15) -> process(95% 94% 95% 96%) -> (1.1k/55k) -> write( 9%)
+2026-07-26T17:03:30.4766713Z [m[0m0:02:01 INF [osm_pass2] -  nodes: [  58M 100%    0/s ] 1.1G  ways: [32m[ 5.7M  98%  56k/s ][0m rels: [    0   0%    0/s ] features: [  48M 385k/s ] 4.9G  blocks: [   8k 100%    6/s ]
+2026-07-26T17:03:30.4768813Z     cpus: [34m4[0m gc:  1% heap: 1.2G/5.3G direct: 216k postGC: [34m774M[0m relInfo: 1.2M mpGeoms: 87M  
+2026-07-26T17:03:30.4770051Z     read( 0%) ->   (11/15) -> process(98% 91% 95% 97%) -> (2.9k/55k) -> write(10%)
+2026-07-26T17:03:31.8942985Z [m[0m0:02:03 INF [osm_pass2:process] - Finished ways: 5,838,952 (56k/s) in 1m44s cpu:6m50s gc:1s avg:4
+2026-07-26T17:03:40.4986913Z [m[0m0:02:11 INF [osm_pass2] -  nodes: [  58M 100%    0/s ] 1.1G  ways: [32m[ 5.8M 100% 9.4k/s ][0m rels: [32m[  15k  17% 1.5k/s ][0m features: [  50M 133k/s ] 4.9G  blocks: [   8k 100%    1/s ]
+2026-07-26T17:03:40.4988610Z     cpus: [34m3.9[0m gc:  2% heap: 1.5G/5.3G direct: 216k postGC: [34m809M[0m relInfo: 1.2M mpGeoms: 88M  
+2026-07-26T17:03:40.4989838Z     read( -%) ->    (6/15) -> process(77% 75% 76% 74%) ->  (2k/55k) -> write( 3%)
+2026-07-26T17:03:50.5149027Z [m[0m0:02:21 INF [osm_pass2] -  nodes: [  58M 100%    0/s ] 1.1G  ways: [ 5.8M 100%    0/s ] rels: [32m[  35k  40% 1.9k/s ][0m features: [  51M 147k/s ] 4.9G  blocks: [   8k 100%   <1/s ]
+2026-07-26T17:03:50.5151071Z     cpus: [34m4[0m gc:  1% heap: 1G/5.3G direct: 216k postGC: [34m809M[0m relInfo: 1.2M mpGeoms: 88M  
+2026-07-26T17:03:50.5151991Z     read( -%) ->    (5/15) -> process(93% 94% 95% 96%) ->  (1k/55k) -> write( 3%)
+2026-07-26T17:04:00.4498226Z [m[33m0:02:31 WAR [osm_pass2:process] - Unrecognized geometry type: GeometryCollection
+2026-07-26T17:04:00.5257262Z [m[0m0:02:31 INF [osm_pass2] -  nodes: [  58M 100%    0/s ] 1.1G  ways: [ 5.8M 100%    0/s ] rels: [32m[  63k  72% 2.8k/s ][0m features: [  53M 148k/s ] 4.9G  blocks: [   8k 100%   <1/s ]
+2026-07-26T17:04:00.5259324Z     cpus: [34m3.8[0m gc:  1% heap: 1G/5.3G direct: 216k postGC: [34m784M[0m relInfo: 1.2M mpGeoms: 88M  
+2026-07-26T17:04:00.5260674Z     read( -%) ->    (0/15) -> process(87% 87% 88% 87%) -> (1.4k/55k) -> write( 3%)
+2026-07-26T17:04:10.5426753Z [m[0m0:02:41 INF [osm_pass2] -  nodes: [  58M 100%    0/s ] 1.1G  ways: [ 5.8M 100%    0/s ] rels: [32m[  83k  96%   2k/s ][0m features: [  54M 162k/s ] 4.9G  blocks: [ 8.1k 100%   <1/s ]
+2026-07-26T17:04:10.5428882Z     cpus: [34m3.9[0m gc:  1% heap: 1.6G/5.3G direct: 216k postGC: [34m782M[0m relInfo: 1.2M mpGeoms: 88M  
+2026-07-26T17:04:10.5430092Z     read( -%) ->    (0/15) -> process(93% 94% 96% 96%) -> (1.7k/55k) -> write( 4%)
+2026-07-26T17:04:11.7417028Z [m[0m0:02:43 INF [osm_pass2:process] - Finished relations: 87,807 (2.2k/s) in 40s cpu:2m36s avg:3.9
+2026-07-26T17:04:11.9758699Z [m[0m0:02:43 INF [osm_pass2] -  nodes: [  58M 100%    0/s ] 1.1G  ways: [ 5.8M 100%    0/s ] rels: [32m[  87k 100% 2.6k/s ][0m features: [  55M 328k/s ] 4.2G  blocks: [ 8.1k 100%    1/s ]
+2026-07-26T17:04:11.9766476Z     cpus: [34m3.9[0m gc:  0% heap: 1.6G/5.3G direct: 16k postGC: [34m782M[0m relInfo: 1.2M mpGeoms: 88M  
+2026-07-26T17:04:11.9767476Z     read( -%) ->    (0/15) -> process( -%  -%  -%  -%) ->   (0/55k) -> write( -%)
+2026-07-26T17:04:11.9768324Z [m[0m0:02:43 DEB [osm_pass2] - Processed 8,102 blocks:
+2026-07-26T17:04:11.9770158Z [m[0m0:02:43 DEB [osm_pass2] -   nodes: 58,884,937 (7.4M/s) in 8s cpu:31s avg:4
+2026-07-26T17:04:11.9771788Z [m[0m0:02:43 DEB [osm_pass2] -   ways: 5,838,952 (56k/s) in 1m44s cpu:6m50s gc:1s avg:4
+2026-07-26T17:04:11.9772917Z [m[0m0:02:43 DEB [osm_pass2] -   relations: 87,807 (2.2k/s) in 40s cpu:2m36s avg:3.9
+2026-07-26T17:04:11.9776827Z [m[0m0:02:43 INF [osm_pass2] - Finished in 2m32s cpu:9m59s gc:2s avg:3.9
+2026-07-26T17:04:11.9785698Z [m[0m0:02:43 INF [osm_pass2] -   read     1x(0% 0.2s wait:1m51s done:40s)
+2026-07-26T17:04:11.9790601Z [m[0m0:02:43 INF [osm_pass2] -   process  4x(90% 2m16s)
+2026-07-26T17:04:11.9791713Z [m[0m0:02:43 INF [osm_pass2] -   write    1x(10% 15s wait:2m17s)
+2026-07-26T17:04:12.0537472Z [m[0m0:02:43 INF [osm_pass2] - Deleting node.db to make room for output file
+2026-07-26T17:04:12.0544930Z [m[0m0:02:43 INF [sort] - 
+2026-07-26T17:04:12.0545930Z [m[0m0:02:43 INF [sort] - Starting...
+2026-07-26T17:04:12.0575557Z [m[0m0:02:43 INF [sort] - Grouped 6 chunks into 5
+2026-07-26T17:04:22.0721044Z [m[0m0:02:53 INF [sort] -  chunks: [   1 /   5  20% ] 5G   
+2026-07-26T17:04:22.0723389Z     cpus: [34m2.6[0m gc:  8% heap: 1.9G/5.3G direct: 16k postGC: [34m2G[0m
+2026-07-26T17:04:22.0724899Z     ->     (3/7) -> worker(43%)
+2026-07-26T17:04:32.0812291Z [m[0m0:03:03 INF [sort] -  chunks: [   3 /   5  60% ] 4.2G 
+2026-07-26T17:04:32.0816044Z     cpus: [34m2.6[0m gc:  8% heap: 1.8G/5.3G direct: 16k postGC: [34m1.8G[0m
+2026-07-26T17:04:32.0817414Z     ->     (1/7) -> worker(47%)
+2026-07-26T17:04:34.8790629Z [m[0m0:03:06 INF [sort] -  chunks: [   5 /   5 100% ] 4.2G 
+2026-07-26T17:04:34.8792413Z     cpus: [34m1.4[0m gc:  0% heap: 1.8G/5.3G direct: 16k postGC: [34m1.8G[0m
+2026-07-26T17:04:34.8793296Z     ->     (0/7) -> worker( -%)
+2026-07-26T17:04:34.8794284Z [m[0m0:03:06 INF [sort] - Finished in 23s cpu:56s gc:2s avg:2.5
+2026-07-26T17:04:34.8797572Z [m[0m0:03:06 INF [sort] -   worker  1x(47% 11s wait:10s)
+2026-07-26T17:04:34.8798280Z [m[0m0:03:06 INF [sort] - read:3s write:6s sort:12s
+2026-07-26T17:04:34.8827449Z [m[0m0:03:06 INF [archive] - 
+2026-07-26T17:04:34.8828038Z [m[0m0:03:06 INF [archive] - Starting...
+2026-07-26T17:04:34.8942747Z [m[0m0:03:06 INF [archive] - Unable to load tile weights from /data/tile_weights.tsv.gz, falling back to top 100k
+2026-07-26T17:04:35.8278077Z [m[0m0:03:07 INF [archive:write] - Starting z0
+2026-07-26T17:04:35.8329178Z [m[0m0:03:07 INF [archive:write] - Finished z0 in 0s cpu:0s avg:0, now starting z1
+2026-07-26T17:04:35.8340022Z [m[0m0:03:07 INF [archive:write] - Finished z1 in 0s cpu:0s avg:0, now starting z2
+2026-07-26T17:04:35.8350062Z [m[0m0:03:07 INF [archive:write] - Finished z2 in 0s cpu:0s avg:0, now starting z3
+2026-07-26T17:04:40.9171075Z [m[0m0:03:12 INF [archive:write] - Finished z3 in 5s cpu:20s avg:4, now starting z4
+2026-07-26T17:04:44.9442645Z [m[0m0:03:16 INF [archive:write] - Finished z4 in 4s cpu:16s avg:3.9, now starting z5
+2026-07-26T17:04:45.1189012Z [m[0m0:03:16 INF [archive] -  features: [32m[ 538k   1%  53k/s ][0m 4.2G  tiles: [   17    1/s ] 384k 
+2026-07-26T17:04:45.1190691Z     cpus: [34m4[0m gc:  7% heap: 1.1G/5.3G direct: 128k postGC: [34m629M[0m
+2026-07-26T17:04:45.1191644Z     read( 4%) -> (258/273) -> encode(60% 64% 61% 62%) -> (269/270) -> write( 0%)
+2026-07-26T17:04:45.1192743Z     last tile: 5/10/18 (z5 47%) https://onthegomap.github.io/planetiler-demo/#5.5/-26.9476/-61.875
+2026-07-26T17:04:46.3841460Z [m[0m0:03:17 INF [archive:write] - Finished z5 in 1s cpu:6s avg:4, now starting z6
+2026-07-26T17:04:50.2955607Z [m[0m0:03:21 INF [archive:write] - Finished z6 in 4s cpu:16s avg:4, now starting z7
+2026-07-26T17:04:55.1315754Z [m[0m0:03:26 INF [archive] -  features: [32m[ 1.4M   3%  90k/s ][0m 4.2G  tiles: [   78    6/s ] 2.8M 
+2026-07-26T17:04:55.1316688Z     cpus: [34m4[0m gc:  4% heap: 843M/5.3G direct: 274k postGC: [34m589M[0m
+2026-07-26T17:04:55.1317577Z     read( 0%) -> (205/273) -> encode(78% 76% 77% 75%) -> (269/270) -> write( 0%)
+2026-07-26T17:04:55.1318409Z     last tile: 7/44/76 (z7 47%) https://onthegomap.github.io/planetiler-demo/#7.5/-33.12965/-54.84375
+2026-07-26T17:04:59.3416995Z [m[0m0:03:30 INF [archive:write] - Finished z7 in 9s cpu:36s avg:4, now starting z8
+2026-07-26T17:04:59.3657697Z [m[0m0:03:30 INF [archive:write] - Finished z8 in 0s cpu:0.1s avg:3.4, now starting z9
+2026-07-26T17:05:04.5025574Z [m[0m0:03:35 INF [archive:write] - Finished z9 in 5s cpu:20s avg:4, now starting z10
+2026-07-26T17:05:05.1471694Z [m[0m0:03:36 INF [archive] -  features: [32m[ 2.8M   5% 143k/s ][0m 4.2G  tiles: [ 1.9k  183/s ] 31M  
+2026-07-26T17:05:05.1472977Z     cpus: [34m4[0m gc:  3% heap: 804M/5.3G direct: 477k postGC: [34m542M[0m
+2026-07-26T17:05:05.1473866Z     read( 3%) -> (263/273) -> encode(89% 88% 89% 90%) -> (269/270) -> write( 0%)
+2026-07-26T17:05:05.1474956Z     last tile: 10/318/649 (z10 46%) https://onthegomap.github.io/planetiler-demo/#10.5/-43.45278/-68.02734
+2026-07-26T17:05:11.0525207Z [m[0m0:03:42 INF [archive:write] - Finished z10 in 7s cpu:26s avg:4, now starting z11
+2026-07-26T17:05:15.1614260Z [m[0m0:03:46 INF [archive] -  features: [32m[ 4.9M   9% 210k/s ][0m 4.2G  tiles: [  11k  916/s ] 81M  
+2026-07-26T17:05:15.1615413Z     cpus: [34m4[0m gc:  3% heap: 664M/5.3G direct: 477k postGC: [34m531M[0m
+2026-07-26T17:05:15.1616250Z     read( 3%) -> (266/273) -> encode(88% 90% 88% 90%) -> (269/270) -> write( 1%)
+2026-07-26T17:05:15.1617238Z     last tile: 11/651/1170 (z11 47%) https://onthegomap.github.io/planetiler-demo/#11.5/-24.92627/-65.47852
+2026-07-26T17:05:17.7607829Z [m[33m0:03:49 WAR [archive:encode] - {x=691 y=1234 z=11} 1537kb uncompressed
+2026-07-26T17:05:20.2455638Z [m[0m0:03:51 INF [archive:write] - Finished z11 in 9s cpu:36s avg:4, now starting z12
+2026-07-26T17:05:25.1809539Z [m[0m0:03:56 INF [archive] -  features: [32m[ 7.8M  14% 282k/s ][0m 4.2G  tiles: [  36k 2.4k/s ] 158M 
+2026-07-26T17:05:25.1810931Z     cpus: [34m4[0m gc:  3% heap: 599M/5.3G direct: 719k postGC: [34m562M[0m
+2026-07-26T17:05:25.1811743Z     read( 4%) -> (264/273) -> encode(90% 92% 90% 90%) -> (269/270) -> write( 2%)
+2026-07-26T17:05:25.1812764Z     last tile: 12/1385/2345 (z12 47%) https://onthegomap.github.io/planetiler-demo/#12.5/-25.28443/-58.22754
+2026-07-26T17:05:32.8594887Z [m[0m0:04:04 INF [archive:write] - Finished z12 in 13s cpu:50s avg:4, now starting z13
+2026-07-26T17:05:35.2006567Z [m[0m0:04:06 INF [archive] -  features: [32m[  11M  20% 340k/s ][0m 4.2G  tiles: [ 110k 7.4k/s ] 264M 
+2026-07-26T17:05:35.2007704Z     cpus: [34m4[0m gc:  4% heap: 769M/5.3G direct: 719k postGC: [34m683M[0m
+2026-07-26T17:05:35.2008489Z     read( 5%) -> (265/273) -> encode(87% 90% 89% 88%) -> (269/270) -> write( 3%)
+2026-07-26T17:05:35.2009466Z     last tile: 13/2589/5586 (z13 47%) https://onthegomap.github.io/planetiler-demo/#13.5/-54.6357/-66.20361
+2026-07-26T17:05:45.2162029Z [m[0m0:04:16 INF [archive] -  features: [32m[  14M  27% 370k/s ][0m 4.2G  tiles: [ 186k 7.5k/s ] 376M 
+2026-07-26T17:05:45.2163424Z     cpus: [34m4[0m gc:  4% heap: 1.5G/5.3G direct: 719k postGC: [34m600M[0m
+2026-07-26T17:05:45.2166600Z     read( 4%) -> (266/273) -> encode(91% 91% 89% 88%) -> (269/270) -> write( 3%)
+2026-07-26T17:05:45.2168042Z     last tile: 13/2768/4939 (z13 47%) https://onthegomap.github.io/planetiler-demo/#13.5/-34.72355/-58.3374
+2026-07-26T17:05:49.5957342Z [m[33m0:04:20 WAR [archive:encode] - {x=2536 y=4852 z=13} 1040kb uncompressed
+2026-07-26T17:05:49.7845512Z [m[0m0:04:21 INF [archive:write] - Finished z13 in 17s cpu:1m7s avg:4, now starting z14
+2026-07-26T17:05:55.2420512Z [m[0m0:04:26 INF [archive] -  features: [32m[  17M  32% 267k/s ][0m 4.2G  tiles: [ 388k  20k/s ] 495M 
+2026-07-26T17:05:55.2422119Z     cpus: [34m4[0m gc:  4% heap: 671M/5.3G direct: 719k postGC: [34m534M[0m
+2026-07-26T17:05:55.2423190Z     read( 4%) -> (266/273) -> encode(88% 88% 91% 87%) -> (269/270) -> write( 5%)
+2026-07-26T17:05:55.2424330Z     last tile: 14/5682/9515 (z14 47%) https://onthegomap.github.io/planetiler-demo/#14.5/-27.90706/-55.14038
+2026-07-26T17:06:05.2546879Z [m[0m0:04:36 INF [archive] -  features: [32m[  20M  38% 330k/s ][0m 4.2G  tiles: [ 643k  25k/s ] 633M 
+2026-07-26T17:06:05.2551216Z     cpus: [34m4[0m gc:  4% heap: 807M/5.3G direct: 719k postGC: [34m608M[0m
+2026-07-26T17:06:05.2552641Z     read( 4%) -> (266/273) -> encode(89% 90% 88% 86%) -> (269/270) -> write( 7%)
+2026-07-26T17:06:05.2553872Z     last tile: 14/5441/9743 (z14 47%) https://onthegomap.github.io/planetiler-demo/#14.5/-32.24068/-60.43579
+2026-07-26T17:06:12.6471382Z [m[0m0:04:43 INF [archive:write] - Finished z14 in 23s cpu:1m31s avg:4, now starting z15
+2026-07-26T17:06:15.2743965Z [m[0m0:04:46 INF [archive] -  features: [32m[  24M  44% 355k/s ][0m 4.2G  tiles: [   1M  40k/s ] 790M 
+2026-07-26T17:06:15.2746200Z     cpus: [34m4[0m gc:  4% heap: 1.1G/5.3G direct: 719k postGC: [34m586M[0m
+2026-07-26T17:06:15.2747615Z     read( 3%) -> (264/273) -> encode(89% 90% 91% 92%) -> (269/270) -> write(10%)
+2026-07-26T17:06:15.2748894Z     last tile: 15/10239/21083 (z15 46%) https://onthegomap.github.io/planetiler-demo/#15.5/-45.79434/-67.50549
+2026-07-26T17:06:25.2883024Z [m[0m0:04:56 INF [archive] -  features: [32m[  26M  49% 246k/s ][0m 4.2G  tiles: [ 1.5M  50k/s ] 932M 
+2026-07-26T17:06:25.2884225Z     cpus: [34m4[0m gc:  4% heap: 973M/5.3G direct: 719k postGC: [34m817M[0m
+2026-07-26T17:06:25.2884982Z     read( 3%) -> (265/273) -> encode(91% 88% 90% 92%) -> (269/270) -> write(11%)
+2026-07-26T17:06:25.2885956Z     last tile: 15/10552/18879 (z15 47%) https://onthegomap.github.io/planetiler-demo/#15.5/-26.42631/-64.06677
+2026-07-26T17:06:35.3035951Z [m[0m0:05:06 INF [archive] -  features: [32m[  30M  55% 322k/s ][0m 4.2G  tiles: [ 2.1M  60k/s ] 1G   
+2026-07-26T17:06:35.3037379Z     cpus: [34m4[0m gc:  5% heap: 1.1G/5.3G direct: 719k postGC: [34m670M[0m
+2026-07-26T17:06:35.3038334Z     read( 5%) -> (266/273) -> encode(86% 89% 88% 88%) -> (269/270) -> write(12%)
+2026-07-26T17:06:35.3039448Z     last tile: 15/10919/19634 (z15 47%) https://onthegomap.github.io/planetiler-demo/#15.5/-33.60089/-60.03479
+2026-07-26T17:06:45.3323089Z [m[0m0:05:16 INF [archive] -  features: [32m[  33M  61% 329k/s ][0m 4.2G  tiles: [ 2.6M  52k/s ] 1.2G 
+2026-07-26T17:06:45.3325083Z     cpus: [34m4[0m gc:  4% heap: 958M/5.3G direct: 719k postGC: [34m641M[0m
+2026-07-26T17:06:45.3326463Z     read( 3%) -> (262/273) -> encode(87% 87% 90% 93%) -> (268/270) -> write(11%)
+2026-07-26T17:06:45.3327739Z     last tile: 15/10152/19830 (z15 47%) https://onthegomap.github.io/planetiler-demo/#15.5/-35.37561/-68.4613
+2026-07-26T17:06:47.5763263Z [m[0m0:05:18 INF [archive:write] - Finished z15 in 35s cpu:2m19s gc:2s avg:4, now starting z16
+2026-07-26T17:06:55.3501352Z [m[0m0:05:26 INF [archive] -  features: [32m[  36M  66% 300k/s ][0m 4.2G  tiles: [ 3.7M 107k/s ] 1.4G 
+2026-07-26T17:06:55.3513001Z     cpus: [34m4[0m gc:  4% heap: 1.2G/5.3G direct: 719k postGC: [34m746M[0m
+2026-07-26T17:06:55.3513847Z     read( 3%) -> (254/273) -> encode(91% 88% 84% 90%) -> (269/270) -> write(19%)
+2026-07-26T17:06:55.3514883Z     last tile: 16/20963/41388 (z16 46%) https://onthegomap.github.io/planetiler-demo/#16.5/-42.73289/-64.84406
+2026-07-26T17:07:05.3681584Z [m[0m0:05:36 INF [archive] -  features: [32m[  39M  71% 279k/s ][0m 4.2G  tiles: [ 4.6M  86k/s ] 1.5G 
+2026-07-26T17:07:05.3683757Z     cpus: [34m4[0m gc:  4% heap: 1.2G/5.3G direct: 719k postGC: [34m884M[0m
+2026-07-26T17:07:05.3684990Z     read( 4%) -> (266/273) -> encode(93% 88% 87% 86%) -> (269/270) -> write(15%)
+2026-07-26T17:07:05.3686256Z     last tile: 16/22078/37947 (z16 47%) https://onthegomap.github.io/planetiler-demo/#16.5/-27.34981/-58.71918
+2026-07-26T17:07:15.3773881Z [m[0m0:05:46 INF [archive] -  features: [32m[  42M  77% 324k/s ][0m 4.2G  tiles: [ 5.8M 122k/s ] 1.7G 
+2026-07-26T17:07:15.3776239Z     cpus: [34m4[0m gc:  5% heap: 1.7G/5.3G direct: 719k postGC: [34m817M[0m
+2026-07-26T17:07:15.3777388Z     read( 4%) -> (265/273) -> encode(88% 89% 90% 84%) -> (269/270) -> write(18%)
+2026-07-26T17:07:15.3778755Z     last tile: 16/21076/38065 (z16 47%) https://onthegomap.github.io/planetiler-demo/#16.5/-27.92405/-64.22333
+2026-07-26T17:07:25.3963008Z [m[0m0:05:56 INF [archive] -  features: [32m[  45M  83% 338k/s ][0m 4.2G  tiles: [ 6.9M 115k/s ] 1.8G 
+2026-07-26T17:07:25.3965222Z     cpus: [34m4[0m gc:  5% heap: 1.6G/5.3G direct: 719k postGC: [34m825M[0m
+2026-07-26T17:07:25.3966368Z     read( 5%) -> (263/273) -> encode(85% 87% 83% 91%) -> (269/270) -> write(17%)
+2026-07-26T17:07:25.3967741Z     last tile: 16/21307/39015 (z16 47%) https://onthegomap.github.io/planetiler-demo/#16.5/-32.43329/-62.95441
+2026-07-26T17:07:35.4127365Z [m[0m0:06:06 INF [archive] -  features: [32m[  50M  91% 425k/s ][0m 4.2G  tiles: [ 7.5M  58k/s ] 2G   
+2026-07-26T17:07:35.4130933Z     cpus: [34m4[0m gc:  5% heap: 1.7G/5.3G direct: 719k postGC: [34m911M[0m
+2026-07-26T17:07:35.4132624Z     read( 5%) -> (263/273) -> encode(85% 84% 88% 88%) -> (268/270) -> write(12%)
+2026-07-26T17:07:35.4134676Z     last tile: 16/21688/39577 (z16 47%) https://onthegomap.github.io/planetiler-demo/#16.5/-35.00075/-60.86151
+2026-07-26T17:07:45.4340159Z [m[0m0:06:16 INF [archive] -  features: [32m[  53M  96% 306k/s ][0m 4.2G  tiles: [ 8.5M 100k/s ] 2.2G 
+2026-07-26T17:07:45.4341722Z     cpus: [34m4[0m gc:  5% heap: 817M/5.3G direct: 719k postGC: [34m672M[0m
+2026-07-26T17:07:45.4342499Z     read( 4%) -> (266/273) -> encode(86% 88% 86% 84%) -> (269/270) -> write(18%)
+2026-07-26T17:07:45.4343500Z     last tile: 16/19890/40344 (z16 47%) https://onthegomap.github.io/planetiler-demo/#16.5/-38.37827/-70.73822
+2026-07-26T17:07:51.5754817Z [m[0m0:06:22 INF [archive:write] - Finished z16 in 1m4s cpu:4m14s gc:3s avg:4
+2026-07-26T17:07:51.5785373Z [m[0m0:06:22 INF [archive:write] - Building directories with 4096 entries per leaf, attempt 1...
+2026-07-26T17:07:52.7899168Z [m[0m0:06:24 INF [archive:write] - Built directories with 1600 leaves, 6503B root directory
+2026-07-26T17:07:52.8723266Z [m[0m0:06:24 INF [archive:write] - Writing metadata and leaf directories...
+2026-07-26T17:07:52.8784736Z [m[0m0:06:24 INF [archive:write] - Writing header...
+2026-07-26T17:07:52.8788716Z [m[0m0:06:24 INF [archive:write] - # addressed tiles: 9310569
+2026-07-26T17:07:52.8794173Z [m[0m0:06:24 INF [archive:write] - # of tile entries: 6550288
+2026-07-26T17:07:52.8795594Z [m[0m0:06:24 INF [archive:write] - # of tile contents: 6088634
+2026-07-26T17:07:52.8796449Z [m[0m0:06:24 INF [archive:write] - Root directory: 6.5kB
+2026-07-26T17:07:52.8797102Z [m[0m0:06:24 INF [archive:write] - # leaves: 1600
+2026-07-26T17:07:52.8797717Z [m[0m0:06:24 INF [archive:write] - Leaf directories: 12MB
+2026-07-26T17:07:52.8798199Z [m[0m0:06:24 INF [archive:write] - Avg leaf size: 8kB
+2026-07-26T17:07:52.8798649Z [m[0m0:06:24 INF [archive:write] - Total dir bytes: 12MB
+2026-07-26T17:07:52.8799384Z [m[0m0:06:24 INF [archive:write] - Average bytes per addressed tile: 1.3805561185358275
+2026-07-26T17:07:52.8832059Z [m[0m0:06:24 INF [archive] -  features: [32m[  55M 100% 278k/s ][0m 4.2G  tiles: [ 9.3M  97k/s ] 2.3G 
+2026-07-26T17:07:52.8833906Z     cpus: [34m3.5[0m gc:  3% heap: 679M/5.3G direct: 16k postGC: [34m711M[0m
+2026-07-26T17:07:52.8834449Z     read( -%) ->   (0/273) -> encode( -%  -%  -%  -%) ->   (0/270) -> write( -%)
+2026-07-26T17:07:52.8835084Z     last tile: 16/21386/36849 (z16 48%) https://onthegomap.github.io/planetiler-demo/#16.5/-21.86915/-62.52045
+2026-07-26T17:07:52.8835654Z [m[0m0:06:24 DEB [archive] - Tile stats:
+2026-07-26T17:07:52.8908477Z [m[0m0:06:24 DEB [archive] - Biggest tiles (gzipped)
+2026-07-26T17:07:52.8909814Z 1. 11/691/1234 (702k) https://onthegomap.github.io/planetiler-demo/#11.5/-34.66933/-58.44727 (transportation:811k)
+2026-07-26T17:07:52.8911674Z 2. 13/2536/4852 (542k) https://onthegomap.github.io/planetiler-demo/#13.5/-31.52236/-68.53271 (building:760k)
+2026-07-26T17:07:52.8913185Z 3. 13/2536/4853 (469k) https://onthegomap.github.io/planetiler-demo/#13.5/-31.55981/-68.53271 (building:688k)
+2026-07-26T17:07:52.8914688Z 4. 9/172/308 (461k) https://onthegomap.github.io/planetiler-demo/#9.5/-34.59654/-58.71094 (transportation:580k)
+2026-07-26T17:07:52.8916183Z 5. 11/691/1233 (448k) https://onthegomap.github.io/planetiler-demo/#11.5/-34.52463/-58.44727 (transportation:448k)
+2026-07-26T17:07:52.8917686Z 6. 13/2535/4852 (439k) https://onthegomap.github.io/planetiler-demo/#13.5/-31.52236/-68.57666 (building:601k)
+2026-07-26T17:07:52.8919134Z 7. 13/2717/4916 (419k) https://onthegomap.github.io/planetiler-demo/#13.5/-33.88866/-60.57861 (building:761k)
+2026-07-26T17:07:52.8921029Z 8. 11/690/1234 (398k) https://onthegomap.github.io/planetiler-demo/#11.5/-34.66933/-58.62305 (transportation:573k)
+2026-07-26T17:07:52.8922575Z 9. 10/345/617 (396k) https://onthegomap.github.io/planetiler-demo/#10.5/-34.74149/-58.53516 (transportation:446k)
+2026-07-26T17:07:52.8924182Z 10. 12/1383/2468 (392k) https://onthegomap.github.io/planetiler-demo/#12.5/-34.6332/-58.40332 (poi:385k)
+2026-07-26T17:07:52.8951588Z [m[0m0:06:24 INF [archive] - Other tiles with large layers
+2026-07-26T17:07:52.8952836Z 8/85/153 (233k) https://onthegomap.github.io/planetiler-demo/#8.5/-33.72235/-59.76562 (landuse:233k)
+2026-07-26T17:07:52.8954216Z 6/21/38 (130k) https://onthegomap.github.io/planetiler-demo/#6.5/-34.27503/-59.0625 (water_name:130k)
+2026-07-26T17:07:52.9111136Z [m[0m0:06:24 DEB [archive] - Max tile sizes
+2026-07-26T17:07:52.9112106Z                       z0    z1    z2    z3    z4    z5    z6    z7    z8    z9   z10   z11   z12   z13   z14   z15   z16   all
+2026-07-26T17:07:52.9113265Z            boundary  828  1.8k  6.2k   18k   21k   18k   33k   16k   17k  7.5k  4.4k  2.8k  2.7k  1.5k  1.3k   852   696   33k
+2026-07-26T17:07:52.9114452Z               place    0     0   119   927    1k  2.9k  2.3k   10k   10k  9.5k   35k   23k   20k   11k  3.7k  1.6k    1k   35k
+2026-07-26T17:07:52.9115581Z           landcover    0     0     0   23k   48k   55k   45k   55k   78k   69k   60k   66k   28k   25k   19k   18k  9.7k   78k
+2026-07-26T17:07:52.9117581Z      transportation    0     0     0     0   63k   58k   79k   65k [33m 265k[0m [31m 580k[0m [33m 446k[0m [31m 811k[0m [33m 333k[0m [33m 169k[0m   68k   29k   15k [31m 811k[0m
+2026-07-26T17:07:52.9119652Z               water    0     0     0     0   18k   36k   50k   74k   69k   67k   59k   39k   22k   18k   11k    6k  2.6k   74k
+2026-07-26T17:07:52.9121418Z                park    0     0     0     0     0   22k   12k   16k   11k   16k   35k   34k   25k   13k  5.6k  3.7k  2.2k   35k
+2026-07-26T17:07:52.9122864Z          water_name    0     0     0     0     0   49k [33m 130k[0m   67k   60k   35k   24k   14k  9.8k  8.9k  5.4k  3.4k  2.3k [33m 130k[0m
+2026-07-26T17:07:52.9124548Z             landuse    0     0     0     0     0     0   88k [33m 225k[0m [33m 233k[0m [33m 199k[0m [33m 207k[0m [33m 199k[0m [33m 129k[0m   56k   36k   15k  7.6k [33m 233k[0m
+2026-07-26T17:07:52.9125914Z            waterway    0     0     0     0     0     0   31k   17k   14k   11k   30k   19k   14k  7.5k  5.3k  2.9k  1.5k   31k
+2026-07-26T17:07:52.9127083Z transportation_name    0     0     0     0     0     0     0  4.4k   16k   15k   62k   33k   95k   33k   16k  5.7k  2.7k   95k
+2026-07-26T17:07:52.9128247Z     aerodrome_label    0     0     0     0     0     0     0     0  2.1k    1k   467   351   306   302   302   302   210  2.1k
+2026-07-26T17:07:52.9129576Z       mountain_peak    0     0     0     0     0     0     0     0   25k   10k  4.8k  2.2k  1.3k   634   374   297   235   25k
+2026-07-26T17:07:52.9131190Z             aeroway    0     0     0     0     0     0     0     0     0  3.1k  3.2k  2.6k    3k  2.7k  2.2k  1.7k  1.2k  3.2k
+2026-07-26T17:07:52.9132874Z                 poi    0     0     0     0     0     0     0     0     0     0     0 [31m 508k[0m [33m 385k[0m [33m 183k[0m   64k   31k   18k [31m 508k[0m
+2026-07-26T17:07:52.9134677Z            building    0     0     0     0     0     0     0     0     0     0     0     0     0 [31m 761k[0m [31m 585k[0m [33m 232k[0m   80k [31m 761k[0m
+2026-07-26T17:07:52.9136069Z         housenumber    0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0   23k   23k
+2026-07-26T17:07:52.9137430Z           full tile  828  1.8k  6.3k   42k  153k  222k  447k  472k  551k  918k  804k  1.5M  852k    1M  687k  251k  104k  1.5M
+2026-07-26T17:07:52.9138861Z             gzipped  598  1.1k  3.5k   23k   82k  124k  257k  276k  286k  461k  396k  702k  392k  542k  355k  135k   55k  702k
+2026-07-26T17:07:52.9140567Z [m[0m0:06:24 DEB [archive] -    Max tile: 1.5M (gzipped: 702k)
+2026-07-26T17:07:52.9142003Z [m[0m0:06:24 DEB [archive] -    Avg tile: 144k (gzipped: 75k) using weighted average based on OSM traffic
+2026-07-26T17:07:52.9143335Z [m[0m0:06:24 DEB [archive] -     # tiles: 9,310,569
+2026-07-26T17:07:52.9144316Z [m[0m0:06:24 DEB [archive] -  # features: 55,359,217
+2026-07-26T17:07:52.9145459Z [m[0m0:06:24 INF [archive] - Finished in 3m18s cpu:13m2s gc:9s avg:3.9
+2026-07-26T17:07:52.9146709Z [m[0m0:06:24 INF [archive] -   read    1x(4% 7s wait:3m4s done:3s)
+2026-07-26T17:07:52.9147824Z [m[0m0:06:24 INF [archive] -   encode  4x(86% 2m50s done:2s)
+2026-07-26T17:07:52.9148941Z [m[0m0:06:24 INF [archive] -   write   1x(9% 17s wait:2m44s done:2s)
+2026-07-26T17:07:52.9152378Z [m[0m0:06:24 INF [archive] - Finished in 6m23s cpu:24m35s gc:12s avg:3.8
+2026-07-26T17:07:52.9155398Z [m[0m0:06:24 INF [archive] - FINISHED!
+2026-07-26T17:07:52.9161937Z [m[0m0:06:24 INF [archive] - 
+2026-07-26T17:07:52.9169121Z [m[0m0:06:24 INF [archive] - ----------------------------------------
+2026-07-26T17:07:52.9176101Z [m[0m0:06:24 INF [archive] - data errors:
+2026-07-26T17:07:52.9182910Z [m[0m0:06:24 INF [archive] - 	render_snap_fix_input	1,001,868
+2026-07-26T17:07:52.9184238Z [m[0m0:06:24 INF [archive] - 	osm_boundary_missing_way	874
+2026-07-26T17:07:52.9190271Z [m[0m0:06:24 INF [archive] - 	osm_multipolygon_missing_way	500
+2026-07-26T17:07:52.9191893Z [m[0m0:06:24 INF [archive] - 	feature_polygon_osm_invalid_multipolygon_empty_after_fix	83
+2026-07-26T17:07:52.9193210Z [m[0m0:06:24 INF [archive] - 	merge_snap_fix_input2	28
+2026-07-26T17:07:52.9194084Z [m[0m0:06:24 INF [archive] - 	merge_snap_fix_input3	17
+2026-07-26T17:07:52.9194958Z [m[0m0:06:24 INF [archive] - 	merge_snap_fix_input	15
+2026-07-26T17:07:52.9201360Z [m[0m0:06:24 INF [archive] - 	osm_boundary_duplicate_member	10
+2026-07-26T17:07:52.9202915Z [m[0m0:06:24 INF [archive] - ----------------------------------------
+2026-07-26T17:07:52.9204186Z [m[0m0:06:24 INF [archive] - 	overall   6m23s cpu:24m35s gc:12s avg:3.8
+2026-07-26T17:07:52.9209832Z [m[0m0:06:24 INF [archive] - 	osm_pass1 10s cpu:35s avg:3.6
+2026-07-26T17:07:52.9211379Z [m[0m0:06:24 INF [archive] - 	  read     1x(3% 0.3s wait:9s)
+2026-07-26T17:07:52.9217258Z [m[0m0:06:24 INF [archive] - 	  parse    4x(59% 6s wait:2s)
+2026-07-26T17:07:52.9218618Z [m[0m0:06:24 INF [archive] - 	  process  1x(58% 6s wait:3s)
+2026-07-26T17:07:52.9219841Z [m[0m0:06:24 INF [archive] - 	osm_pass2 2m32s cpu:9m59s gc:2s avg:3.9
+2026-07-26T17:07:52.9225809Z [m[0m0:06:24 INF [archive] - 	  read     1x(0% 0.2s wait:1m51s done:40s)
+2026-07-26T17:07:52.9227328Z [m[0m0:06:24 INF [archive] - 	  process  4x(90% 2m16s)
+2026-07-26T17:07:52.9233336Z [m[0m0:06:24 INF [archive] - 	  write    1x(10% 15s wait:2m17s)
+2026-07-26T17:07:52.9234803Z [m[0m0:06:24 INF [archive] - 	sort      23s cpu:56s gc:2s avg:2.5
+2026-07-26T17:07:52.9240829Z [m[0m0:06:24 INF [archive] - 	  worker  1x(47% 11s wait:10s)
+2026-07-26T17:07:52.9242113Z [m[0m0:06:24 INF [archive] - 	archive   3m18s cpu:13m2s gc:9s avg:3.9
+2026-07-26T17:07:52.9248055Z [m[0m0:06:24 INF [archive] - 	  read    1x(4% 7s wait:3m4s done:3s)
+2026-07-26T17:07:52.9249759Z [m[0m0:06:24 INF [archive] - 	  encode  4x(86% 2m50s done:2s)
+2026-07-26T17:07:52.9256087Z [m[0m0:06:24 INF [archive] - 	  write   1x(9% 17s wait:2m44s done:2s)
+2026-07-26T17:07:52.9257891Z [m[0m0:06:24 INF [archive] - ----------------------------------------
+2026-07-26T17:07:52.9264333Z [m[0m0:06:24 INF [archive] - 	archive	2.3GB
+2026-07-26T17:07:52.9276066Z [m[0m0:06:24 INF [archive] - 	features	4.2GB
+2026-07-26T17:07:54.9714367Z [m-rw-r--r-- 1 root   root   2.2G Jul 26 17:07 /home/runner/work/Map/Map/artifacts/occumed-argentina.pmtiles
+2026-07-26T17:07:54.9715427Z -rw-r--r-- 1 runner runner   92 Jul 26 17:07 /home/runner/work/Map/Map/artifacts/occumed-argentina.pmtiles.sha256
+2026-07-26T17:07:54.9716170Z Created /home/runner/work/Map/Map/artifacts/occumed-argentina.pmtiles
+2026-07-26T17:07:54.9717001Z Build the app with:
+2026-07-26T17:07:54.9717821Z   OCCUMED_PMTILES_URL=__OCCUMED_PUBLIC_ORIGIN__/tiles/occumed-argentina.pmtiles npm run build
+2026-07-26T17:07:55.0419311Z Archive exceeds GitHub Release's safe per-file ceiling and must be subdivided: argentina
+2026-07-26T17:07:55.0420461Z archive_size_bytes=2333853061
+2026-07-26T17:07:55.0493252Z ##[error]Process completed with exit code 1.
+2026-07-26T17:07:55.0648210Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-07-26T17:07:55.0649767Z Post job cleanup.
+2026-07-26T17:07:55.1540775Z [command]/usr/bin/git version
+2026-07-26T17:07:55.1587232Z git version 2.54.0
+2026-07-26T17:07:55.1628906Z Temporarily overriding HOME='/home/runner/work/_temp/a54dc32f-ecb0-433a-8a89-5ef41c872dcd' before making global git config changes
+2026-07-26T17:07:55.1630674Z Adding repository directory to the temporary git global config as a safe directory
+2026-07-26T17:07:55.1634811Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Map/Map
+2026-07-26T17:07:55.1679602Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-07-26T17:07:55.1722412Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-07-26T17:07:55.2014507Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-07-26T17:07:55.2047683Z http.https://github.com/.extraheader
+2026-07-26T17:07:55.2061244Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-07-26T17:07:55.2103144Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-07-26T17:07:55.2397447Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-07-26T17:07:55.2438005Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-07-26T17:07:55.2870629Z Cleaning up orphan processes
+2026-07-26T17:07:55.3247090Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
