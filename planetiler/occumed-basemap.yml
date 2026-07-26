@@ -1,6 +1,6 @@
 schema_name: Occu-Med Terrain
 schema_description: Custom Occu-Med vector schema for the reusable MapLibre basemap
-version: "0.2.0"
+version: "0.3.0"
 is_overlay: false
 attribution: '<a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors</a>'
 
@@ -10,7 +10,7 @@ args:
     default: california
   osm_source_path:
     description: Local OSM PBF path
-    default: '${ args.area + ".osm.pbf" }'
+    default: '${ args.area.replace("/", "_") + ".osm.pbf" }'
   maxzoom: 16
   render_maxzoom: 19
   force: true
@@ -105,7 +105,7 @@ layers:
         geometry: polygon
         min_zoom: 7
         include_when:
-          leisure: [park, garden, playground, golf_course, pitch, nature_reserve]
+          leisure: [garden, playground, golf_course, pitch]
         attributes:
           - key: class
             tag_value: leisure
@@ -495,7 +495,12 @@ layers:
                 ref: __any__
         attributes: &transport_name_attributes
           - key: class
-            tag_value: highway
+            value:
+              - if:
+                  highway: [unclassified, residential, living_street]
+                value: minor
+              - else:
+                  tag_value: highway
           - key: name
             tag_value: name
           - key: ref
@@ -717,6 +722,11 @@ layers:
             tag_value: place
           - key: name
             tag_value: name
+          - key: name:latin
+            value:
+              coalesce:
+                - tag_value: name:en
+                - tag_value: name
           - key: population
             tag_value: population_number
             type: long
@@ -728,15 +738,7 @@ layers:
         min_zoom: 5
         include_when:
           place: city
-        sort_key_descending:
-          tag_value: population_number
-        point_label_grid:
-          pixel_size:
-            maxzoom: 8
-            value: 64
-          limit:
-            maxzoom: 8
-            value: 2
+        # Population is retained as an attribute; unsupported per-feature sort/grid directives were removed.
         attributes:
           - key: class
             tag_value: place
@@ -763,6 +765,11 @@ layers:
             tag_value: place
           - key: name
             tag_value: name
+          - key: name:latin
+            value:
+              coalesce:
+                - tag_value: name:en
+                - tag_value: name
           - key: population
             tag_value: population_number
             type: long
@@ -779,6 +786,11 @@ layers:
             tag_value: place
           - key: name
             tag_value: name
+          - key: name:latin
+            value:
+              coalesce:
+                - tag_value: name:en
+                - tag_value: name
           - key: population
             tag_value: population_number
             type: long
@@ -795,6 +807,11 @@ layers:
             tag_value: place
           - key: name
             tag_value: name
+          - key: name:latin
+            value:
+              coalesce:
+                - tag_value: name:en
+                - tag_value: name
           - key: rank
             value: 7
             type: integer
@@ -853,6 +870,18 @@ layers:
               coalesce:
                 - tag_value: water
                 - lake
+          - key: name
+            tag_value: name
+      - source: osm
+        geometry: line
+        min_zoom: 6
+        include_when:
+          __all__:
+            waterway: [river, canal, stream]
+            name: __any__
+        attributes:
+          - key: class
+            tag_value: waterway
           - key: name
             tag_value: name
 
