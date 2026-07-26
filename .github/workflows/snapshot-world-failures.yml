@@ -50,15 +50,17 @@ jobs:
             'diagnostics/world-first-pass-failures/summary.json',
             `${JSON.stringify(summary, null, 2)}\n`
           );
-          fs.writeFileSync('/tmp/failed-job-ids.txt', failed.map((job) => `${job.id}\t${job.name}`).join('\n'));
+          fs.writeFileSync('/tmp/failed-job-ids.txt', failed.map((job) => String(job.id)).join('\n'));
           console.log(JSON.stringify(summary, null, 2));
           NODE
 
-          while IFS=$'\t' read -r job_id job_name; do
+          while read -r job_id; do
             [ -n "$job_id" ] || continue
-            safe_name="$(printf '%s' "$job_name" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-|-$//g' | cut -c1-100)"
-            gh api "/repos/${GITHUB_REPOSITORY}/actions/jobs/${job_id}/logs" > "/tmp/${job_id}.log"
-            tail -n 220 "/tmp/${job_id}.log" > "diagnostics/world-first-pass-failures/${job_id}-${safe_name}.log"
+            if gh api "/repos/${GITHUB_REPOSITORY}/actions/jobs/${job_id}/logs" > "/tmp/${job_id}.log"; then
+              tail -n 260 "/tmp/${job_id}.log" > "diagnostics/world-first-pass-failures/${job_id}.log"
+            else
+              printf 'Unable to download job log for %s\n' "$job_id" > "diagnostics/world-first-pass-failures/${job_id}.log"
+            fi
           done < /tmp/failed-job-ids.txt
 
       - name: Commit failure snapshot
