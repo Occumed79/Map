@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "prepare:sprites": "node scripts/build-sprites.mjs",
-    "prepare:style": "node scripts/build-runtime-style.mjs && node scripts/normalize-runtime-fonts.mjs && node scripts/normalize-runtime-filters.mjs && node scripts/normalize-boundary-filters.mjs && node scripts/force-runtime-filter-expressions.mjs && node scripts/apply-schema-parity.mjs && node scripts/apply-globe-parity.mjs && node scripts/apply-photo-reference.mjs && node scripts/restore-exported-cartography.mjs && node scripts/calibrate-reference-colors.mjs && node scripts/lock-exact-exported-swatches.mjs",
+    "prepare:style": "node scripts/build-runtime-style.mjs && node scripts/normalize-runtime-fonts.mjs && node scripts/normalize-runtime-filters.mjs && node scripts/normalize-boundary-filters.mjs && node scripts/force-runtime-filter-expressions.mjs && node scripts/apply-schema-parity.mjs && node scripts/apply-globe-parity.mjs && node scripts/apply-photo-reference.mjs && node scripts/restore-exported-cartography.mjs && node scripts/calibrate-reference-colors.mjs && node scripts/lock-exact-exported-swatches.mjs && node scripts/lock-reference-atmosphere.mjs",
     "prepare:assets": "npm run prepare:sprites && npm run prepare:style",
     "check:export": "node scripts/check-export.mjs",
     "check:runtime": "node scripts/check-runtime.mjs && node scripts/validate-maplibre-style.mjs && node scripts/check-globe-parity.mjs && node scripts/check-cartography-parity.mjs && node scripts/check-viewer-quality.mjs && node scripts/check-photo-reference.mjs && node scripts/check-exact-exported-swatches.mjs && node scripts/check-render-clarity.mjs",
