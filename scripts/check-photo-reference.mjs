@@ -41,7 +41,7 @@ function collectNonHexColors(value, colors = []) {
 
 assert(runtime.projection?.type === 'globe', 'Photo-reference build must use globe projection.');
 assert(runtime.sky?.['sky-color'] === '#03070B', 'Photo-reference build must preserve dark outer space.');
-assert(runtime.sky?.['horizon-color'] === '#F5FDFFFF', 'The luminous globe rim is missing.');
+assert(runtime.sky?.['horizon-color'] === '#F5FDFF', 'The luminous globe rim is missing.');
 assert(runtime.sky?.['fog-ground-blend'] === 0, 'Ground fog must remain disabled to prevent washout.');
 assert(runtime.sky?.['horizon-fog-blend'] === 0, 'Horizon fog must remain disabled to prevent washout.');
 assert(!runtime.light, 'Directional light must not be reintroduced.');
