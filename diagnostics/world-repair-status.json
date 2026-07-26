@@ -1,15 +1,15 @@
 {
-  "capturedAt": "2026-07-26T20:35:13.761Z",
+  "capturedAt": "2026-07-26T20:37:08.826Z",
   "runId": "30214445296",
   "runUrl": "https://github.com/Occumed79/Map/actions/runs/30214445296",
   "headSha": "8ce81de25fd42a3756fe320c6c689143fa329ff0",
   "status": "queued",
   "conclusion": null,
   "totalJobsObserved": 725,
-  "successCount": 308,
-  "failureCount": 333,
-  "inProgressCount": 10,
-  "queuedCount": 74,
+  "successCount": 309,
+  "failureCount": 334,
+  "inProgressCount": 13,
+  "queuedCount": 69,
   "cancelledCount": 0,
   "skippedCount": 0,
   "failures": [
@@ -1344,6 +1344,10 @@
     {
       "id": 89826330148,
       "name": "build-bucket-5 (vietnam, vietnam, Vietnam, asia, https://download.geofabrik.de/asia/vietnam-lates..."
+    },
+    {
+      "id": 89826330151,
+      "name": "build-bucket-5 (xinjiang, xinjiang, Xinjiang, asia, https://download.geofabrik.de/asia/china/xinj..."
     }
   ]
 }
