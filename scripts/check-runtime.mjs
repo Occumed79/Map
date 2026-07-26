@@ -23,8 +23,11 @@ if (runtime.name !== 'Occu-Med Terrain — Open') fail('Runtime style name is in
 if (runtime.projection?.type !== 'globe') fail('MapLibre globe projection is missing.');
 if (runtimeText.includes('mapbox://')) fail('Runtime style still contains a mapbox:// endpoint.');
 if (runtimeText.includes('api.mapbox.com')) fail('Runtime style still contains a Mapbox API endpoint.');
-if (!runtime.glyphs?.startsWith('https://fonts.openmaptiles.org/')) {
-  fail('Runtime glyph endpoint is not the no-key concatenated OpenMapTiles endpoint.');
+if (runtime.glyphs !== 'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf') {
+  fail('Runtime glyph endpoint is not the validated no-key MapLibre SDF glyph service.');
+}
+if (runtime.glyphs?.includes('fonts.openmaptiles.org')) {
+  fail('Runtime still uses the glyph endpoint that returned invalid PBF data in Chromium.');
 }
 if (runtime.glyphs?.includes('tiles.openfreemap.org/fonts')) {
   fail('Runtime still uses the glyph endpoint that rejects combined font stacks.');
@@ -98,15 +101,26 @@ const activeFontStrings = runtime.layers.flatMap((layer) =>
 );
 const unavailableFonts = [...new Set(
   activeFontStrings.filter(
-    (font) => font.includes('DIN Pro') || font.includes('Arial Unicode MS')
+    (font) => font.includes('DIN Pro') || font.includes('Arial Unicode MS') || font.includes('Noto Sans')
   )
 )];
 if (unavailableFonts.length) {
   fail(`Rendered layers still request unavailable font stacks: ${unavailableFonts.join(', ')}`);
 }
+const allowedFonts = new Set([
+  'Open Sans Regular',
+  'Open Sans Semibold',
+  'Open Sans Bold',
+  'Open Sans Italic'
+]);
+const unexpectedFonts = [...new Set(activeFontStrings.filter((font) => !allowedFonts.has(font)))];
+if (unexpectedFonts.length) {
+  fail(`Rendered layers request unvalidated glyph stacks: ${unexpectedFonts.join(', ')}`);
+}
 
 if (report.originalLayerCount !== original.layers.length) fail('Compatibility report source count is stale.');
 if (report.runtimeLayerCount !== runtime.layers.length) fail('Compatibility report runtime count is stale.');
+if (report.endpoints?.glyphs !== runtime.glyphs) fail('Compatibility report glyph endpoint is stale.');
 
 if (failures.length) {
   console.error('Occu-Med open basemap validation failed:');
