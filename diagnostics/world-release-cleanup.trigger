@@ -1,0 +1,3 @@
+requested_at=2026-07-26T21:46:00Z
+purpose=retain_only_verified_canonical_pmtiles_before_missing_only_repair
+canonical_shards=724
