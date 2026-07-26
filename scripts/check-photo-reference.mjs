@@ -67,9 +67,10 @@ const relief = layer('occumed-shaded-relief');
 assert(relief?.paint?.['raster-saturation'] === -1, 'The independent relief raster is recoloring the exported palette.');
 assert(relief?.paint?.['raster-contrast'] === 0.04, 'The neutral relief contrast changed.');
 assert(relief?.paint?.['raster-hue-rotate'] === 0, 'The independent relief raster is rotating exported hues.');
-assert(relief?.maxzoom === 8.5, 'Neutral relief must fade before city zooms.');
+assert(relief?.maxzoom === 7, 'Pixel-based relief must disappear before regional and city detail.');
 const reliefOpacity = relief?.paint?.['raster-opacity'] || [];
 assert(reliefOpacity.includes(0.12), 'The restrained neutral relief texture is missing.');
+assert(reliefOpacity.includes(7) && reliefOpacity.at(-1) === 0, 'Neutral relief does not fully disappear by zoom 7.');
 assert(!reliefOpacity.some((value) => typeof value === 'number' && value > 0.12 && value < 1), 'Relief opacity can distort the exported swatches.');
 
 const hillshade = layer('occumed-hillshade');
@@ -118,6 +119,7 @@ assert(runtime.metadata?.['occumed:live-visual-qa-pass'] === 9, 'Exact swatch bu
 assert(runtime.metadata?.['occumed:palette-format'] === 'fixed-hex-per-layer', 'Per-layer fixed-hex palette marker is missing.');
 assert(runtime.metadata?.['occumed:layer-specific-palette'] === true, 'Layer-specific palette protection is missing.');
 assert(runtime.metadata?.['occumed:colored-relief-disabled'] === true, 'Colored relief protection is missing.');
+assert(runtime.metadata?.['occumed:high-dpi-vector-clarity'] === true, 'High-DPI clarity protection is missing.');
 
 for (const [sourceId, source] of Object.entries(runtime.sources || {})) {
   const serialized = JSON.stringify(source);
@@ -128,4 +130,4 @@ assert(!/mapbox:\/\//i.test(runtime.sprite || ''), 'Runtime sprite must not use 
 assert(!/api\.mapbox\.com/i.test(runtime.glyphs || ''), 'Runtime glyphs must not use Mapbox.');
 assert(runtime.metadata?.['occumed:mapbox-runtime-dependency'] === false, 'No-Mapbox dependency marker is missing.');
 
-console.log(`Reference guard passed: exact exported greens/blues, neutral terrain shading, structure separation, and ${allColors.size} distinct colors.`);
+console.log(`Reference guard passed: exact exported greens/blues, high-DPI vector clarity, neutral terrain shading, and ${allColors.size} distinct colors.`);
