@@ -1,0 +1,80 @@
+name: Patch worldwide workflow for size-aware shards
+
+on:
+  push:
+    branches:
+      - feat/custom-planetiler-pmtiles-basemap
+    paths:
+      - .github/workflows/patch-world-workflow.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/custom-planetiler-pmtiles-basemap
+          fetch-depth: 0
+
+      - name: Patch matrices and single-pass planning
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+
+          path = Path('.github/workflows/build-world-pmtiles.yml')
+          text = path.read_text()
+
+          old_timeout = "  plan-world:\n    if: github.event_name != 'pull_request'\n    runs-on: ubuntu-latest\n    timeout-minutes: 15\n"
+          new_timeout = "  plan-world:\n    if: github.event_name != 'pull_request'\n    runs-on: ubuntu-latest\n    timeout-minutes: 30\n"
+          if text.count(old_timeout) != 1:
+              raise SystemExit('Unable to identify the plan-world timeout block.')
+          text = text.replace(old_timeout, new_timeout, 1)
+
+          old_plan = '''          node scripts/plan-world-shards.mjs --scope all > world-plan/world-plan.json
+          for bucket in 0 1 2 3 4 5; do
+            node scripts/plan-world-shards.mjs \\
+              --scope all \\
+              --buckets "$WORLD_BUCKETS" \\
+              --bucket "$bucket" \\
+              > "world-plan/bucket-${bucket}.json"
+            compact="$(jq -c . "world-plan/bucket-${bucket}.json")"
+            echo "bucket${bucket}=${compact}" >> "$GITHUB_OUTPUT"
+          done
+'''
+          new_plan = '''          node scripts/plan-world-shards.mjs --scope all > world-plan/world-plan.json
+          for bucket in 0 1 2 3 4 5; do
+            jq \\
+              --argjson bucket "$bucket" \\
+              --argjson buckets "$WORLD_BUCKETS" \\
+              '{include: [.include | to_entries[] | select((.key % $buckets) == $bucket) | .value]}' \\
+              world-plan/world-plan.json \\
+              > "world-plan/bucket-${bucket}.json"
+            compact="$(jq -c . "world-plan/bucket-${bucket}.json")"
+            echo "bucket${bucket}=${compact}" >> "$GITHUB_OUTPUT"
+          done
+'''
+          if text.count(old_plan) != 1:
+              raise SystemExit('Unable to identify the repeated planner block.')
+          text = text.replace(old_plan, new_plan, 1)
+
+          matrix_pbf = '          pbf-url: $' + '{{ matrix.pbf_url }}\n'
+          matrix_extract = '          extract-bbox: $' + '{{ matrix.extract_bbox }}\n'
+          if text.count(matrix_pbf) != 6:
+              raise SystemExit(f'Expected six matrix PBF inputs, found {text.count(matrix_pbf)}.')
+          text = text.replace(matrix_pbf, matrix_pbf + matrix_extract)
+
+          path.write_text(text)
+          PY
+
+      - name: Commit workflow patch and remove one-time workflow
+        run: |
+          git rm .github/workflows/patch-world-workflow.yml
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add .github/workflows/build-world-pmtiles.yml
+          git commit -m "Wire size-aware subdivisions into worldwide matrices"
+          git push origin HEAD:feat/custom-planetiler-pmtiles-basemap
