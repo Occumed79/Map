@@ -1,7 +1,13 @@
 node_modules/
 dist/
+.generated/
+public/style/occumed-open.json
+public/style/compatibility-report.json
+public/sprites/occumed.json
+public/sprites/occumed.png
+public/sprites/occumed@2x.json
+public/sprites/occumed@2x.png
 .env
 .env.*
 !.env.example
-public/style.json
 .DS_Store
