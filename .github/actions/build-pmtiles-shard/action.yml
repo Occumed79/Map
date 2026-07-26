@@ -1,0 +1,137 @@
+name: Build and publish Occu-Med PMTiles shard
+description: Builds one Geofabrik leaf extract with the Occu-Med Planetiler schema and publishes it to a GitHub Release.
+
+inputs:
+  id:
+    required: true
+    description: Geofabrik region id
+  slug:
+    required: true
+    description: Filesystem-safe region slug
+  name:
+    required: true
+    description: Human-readable region name
+  continent:
+    required: true
+    description: Root Geofabrik region
+  pbf-url:
+    required: true
+    description: Source OSM PBF URL
+  west:
+    required: true
+  south:
+    required: true
+  east:
+    required: true
+  north:
+    required: true
+  asset-name:
+    required: true
+  metadata-name:
+    required: true
+  release-tag:
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Reclaim runner disk
+      shell: bash
+      run: |
+        sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc || true
+        docker system prune --all --force || true
+        df -h
+
+    - name: Download OpenStreetMap shard
+      shell: bash
+      run: |
+        mkdir -p .planetiler-data/tmp artifacts
+        curl --fail --location --retry 5 --retry-delay 10 \
+          --output ".planetiler-data/${{ inputs.slug }}.osm.pbf" \
+          "${{ inputs.pbf-url }}"
+        test -s ".planetiler-data/${{ inputs.slug }}.osm.pbf"
+        ls -lh ".planetiler-data/${{ inputs.slug }}.osm.pbf"
+
+    - name: Build Occu-Med PMTiles shard
+      shell: bash
+      env:
+        OCCUMED_TILE_AREA: ${{ inputs.slug }}
+        OCCUMED_OSM_PBF: ${{ github.workspace }}/.planetiler-data/${{ inputs.slug }}.osm.pbf
+        OCCUMED_PMTILES_OUTPUT: ${{ github.workspace }}/artifacts/${{ inputs.asset-name }}
+        OCCUMED_PLANETILER_DATA_DIR: ${{ github.workspace }}/.planetiler-data
+        OCCUMED_PLANETILER_MEMORY: 5g
+      run: |
+        bash planetiler/build-region.sh
+        rm -f ".planetiler-data/${{ inputs.slug }}.osm.pbf"
+        size="$(stat --printf='%s' "artifacts/${{ inputs.asset-name }}")"
+        echo "archive_size_bytes=$size"
+        if [ "$size" -gt 2000000000 ]; then
+          echo "Archive exceeds GitHub Release's safe per-file ceiling and must be subdivided: ${{ inputs.id }}" >&2
+          exit 1
+        fi
+
+    - name: Write shard metadata
+      shell: bash
+      env:
+        REGION_ID: ${{ inputs.id }}
+        REGION_SLUG: ${{ inputs.slug }}
+        REGION_NAME: ${{ inputs.name }}
+        REGION_CONTINENT: ${{ inputs.continent }}
+        PBF_URL: ${{ inputs.pbf-url }}
+        WEST: ${{ inputs.west }}
+        SOUTH: ${{ inputs.south }}
+        EAST: ${{ inputs.east }}
+        NORTH: ${{ inputs.north }}
+        ASSET_NAME: ${{ inputs.asset-name }}
+        METADATA_NAME: ${{ inputs.metadata-name }}
+      run: |
+        node <<'NODE'
+        const fs = require('node:fs');
+        const path = require('node:path');
+        const metadata = {
+          id: process.env.REGION_ID,
+          slug: process.env.REGION_SLUG,
+          name: process.env.REGION_NAME,
+          continent: process.env.REGION_CONTINENT,
+          source: process.env.PBF_URL,
+          bounds: [
+            Number(process.env.WEST),
+            Number(process.env.SOUTH),
+            Number(process.env.EAST),
+            Number(process.env.NORTH)
+          ],
+          asset: process.env.ASSET_NAME,
+          profile: 'planetiler/occumed-basemap.yml',
+          commit: process.env.GITHUB_SHA,
+          builtAt: new Date().toISOString(),
+          sizeBytes: fs.statSync(path.join('artifacts', process.env.ASSET_NAME)).size
+        };
+        fs.writeFileSync(
+          path.join('artifacts', process.env.METADATA_NAME),
+          `${JSON.stringify(metadata, null, 2)}\n`
+        );
+        NODE
+
+    - name: Publish shard to GitHub Release
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        gh release upload "${{ inputs.release-tag }}" \
+          "artifacts/${{ inputs.asset-name }}" \
+          "artifacts/${{ inputs.asset-name }}.sha256" \
+          "artifacts/${{ inputs.metadata-name }}" \
+          --repo "$GITHUB_REPOSITORY" \
+          --clobber
+
+    - name: Verify published byte ranges
+      shell: bash
+      run: |
+        url="https://github.com/${GITHUB_REPOSITORY}/releases/download/${{ inputs.release-tag }}/${{ inputs.asset-name }}"
+        curl --silent --show-error --fail --location \
+          --header 'Range: bytes=0-126' \
+          --dump-header artifacts/release-range.headers.txt \
+          --output artifacts/release-range.bin \
+          "$url"
+        grep -Eiq '^HTTP/.* 206' artifacts/release-range.headers.txt
+        test "$(wc -c < artifacts/release-range.bin)" -eq 127
