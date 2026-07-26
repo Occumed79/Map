@@ -10,11 +10,22 @@ const runtime = JSON.parse(
 const failures = [];
 const fail = (message) => failures.push(message);
 
+function collectHex(value, colors = new Set()) {
+  if (Array.isArray(value)) {
+    for (const child of value) collectHex(child, colors);
+  } else if (value && typeof value === 'object') {
+    for (const child of Object.values(value)) collectHex(child, colors);
+  } else if (typeof value === 'string' && /^#[0-9A-F]{6}(?:[0-9A-F]{2})?$/.test(value)) {
+    colors.add(value);
+  }
+  return colors;
+}
+
 if (runtime.projection?.type !== 'globe') fail('The reusable style must use globe projection.');
 if (runtime.fog) fail('Mapbox fog must be translated instead of shipped to MapLibre unchanged.');
 if (!runtime.sky) fail('The MapLibre sky/atmosphere configuration is missing.');
 if (runtime.sky?.['sky-color'] !== '#03070B') fail('The fixed dark-space hex changed.');
-if (!runtime.sky?.['horizon-color']) fail('The atmospheric horizon color is missing.');
+if (runtime.sky?.['horizon-color'] !== '#F5FDFF') fail('The atmospheric horizon hex changed.');
 if (!runtime.sky?.['atmosphere-blend']) fail('The globe atmosphere blend is missing.');
 if (runtime.light) fail('Directional global light must remain disabled to prevent rotation-dependent washout.');
 if (runtime.sky?.['horizon-fog-blend'] !== 0) {
@@ -40,8 +51,8 @@ if (!relief) fail('The low-zoom relief layer is missing.');
 if (relief?.paint?.['raster-saturation'] !== -1) {
   fail('Hypsometric color remains active instead of neutral relief texture.');
 }
-if ((relief?.paint?.['raster-contrast'] ?? 1) > 0.08) {
-  fail('Neutral relief contrast is too aggressive for the screenshot palette.');
+if ((relief?.paint?.['raster-contrast'] ?? 1) > 0.05) {
+  fail('Neutral relief contrast is too aggressive for the exported palette.');
 }
 if ((relief?.maxzoom ?? 99) > 8) {
   fail('Raster relief persists too far into regional zooms.');
@@ -53,27 +64,25 @@ if (hillshade?.paint?.['hillshade-illumination-anchor'] !== 'map') {
   fail('Hillshade must remain geographically anchored while the globe rotates.');
 }
 if (hillshade?.paint?.['hillshade-shadow-color'] !== '#52685B') {
-  fail('The screenshot hillshade-shadow hex changed.');
+  fail('The neutral hillshade-shadow hex changed.');
 }
 
-const background = runtime.layers.find((layer) => layer.id === 'land');
-if (background?.paint?.['background-color'] !== '#D8DCB9') {
-  fail('The screenshot land hex changed.');
-}
-
-const water = runtime.layers.find((layer) => layer.id === 'water');
-if (water?.paint?.['fill-color'] !== '#70AFE0') {
-  fail('The screenshot ocean hex changed.');
+const allColors = collectHex(runtime.layers.map((layer) => layer.paint || {}));
+if (allColors.size < 25) {
+  fail(`The exported globe palette was flattened to only ${allColors.size} colors.`);
 }
 
 if (!runtime.metadata?.['occumed:exported-cartography-restored']) {
   fail('The final exported-cartography restoration pass did not run.');
 }
-if (runtime.metadata?.['occumed:reference-color-system'] !== 'mapbox-screenshot-hex-v5') {
-  fail('The final screenshot hex color pass did not run.');
+if (runtime.metadata?.['occumed:reference-color-system'] !== 'exported-per-layer-hex-v6') {
+  fail('The final exported per-layer hex pass did not run.');
 }
-if (runtime.metadata?.['occumed:palette-format'] !== 'fixed-hex') {
-  fail('The fixed-hex palette marker is missing.');
+if (runtime.metadata?.['occumed:palette-format'] !== 'fixed-hex-per-layer') {
+  fail('The per-layer fixed-hex palette marker is missing.');
+}
+if (runtime.metadata?.['occumed:layer-specific-palette'] !== true) {
+  fail('Layer-specific palette protection is missing.');
 }
 
 if (failures.length) {
@@ -82,4 +91,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('Globe parity validated: dark space, luminous rim, screenshot hex land/water, neutral relief, and anchored hillshade.');
+console.log(`Globe parity validated: dark space, luminous rim, ${allColors.size} structure-specific colors, neutral relief, and anchored hillshade.`);
