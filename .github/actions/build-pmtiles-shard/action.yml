@@ -70,7 +70,7 @@ runs:
           exit 1
         fi
 
-    - name: Write shard metadata
+    - name: Write local shard metadata
       shell: bash
       env:
         REGION_ID: ${{ inputs.id }}
@@ -112,15 +112,13 @@ runs:
         );
         NODE
 
-    - name: Publish shard to GitHub Release
+    - name: Publish PMTiles archive to GitHub Release
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
         gh release upload "${{ inputs.release-tag }}" \
           "artifacts/${{ inputs.asset-name }}" \
-          "artifacts/${{ inputs.asset-name }}.sha256" \
-          "artifacts/${{ inputs.metadata-name }}" \
           --repo "$GITHUB_REPOSITORY" \
           --clobber
 
