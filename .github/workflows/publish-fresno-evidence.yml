@@ -1,0 +1,71 @@
+name: Publish Fresno PMTiles visual evidence
+
+on:
+  push:
+    branches:
+      - feat/custom-planetiler-pmtiles-basemap
+    paths:
+      - .github/workflows/publish-fresno-evidence.yml
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  publish-evidence:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: feat/custom-planetiler-pmtiles-basemap
+          fetch-depth: 0
+
+      - name: Download successful Fresno build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: occumed-fresno-pmtiles-c9ce538093836aa5e071b3d7c7404bfc9e701b78
+          path: downloaded-fresno-artifact
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: 30195713223
+
+      - name: Publish screenshots and reports to the branch
+        run: |
+          test -s downloaded-fresno-artifact/visual-preview/fresno-regional-z8.png
+          test -s downloaded-fresno-artifact/visual-preview/fresno-city-z11.png
+          test -s downloaded-fresno-artifact/visual-preview/fresno-street-z14.png
+          test -s downloaded-fresno-artifact/visual-preview/sierra-terrain-z10.png
+          test -s downloaded-fresno-artifact/visual-preview/preview-report.json
+
+          rm -rf visual-validation/fresno-pmtiles
+          mkdir -p visual-validation/fresno-pmtiles
+          cp downloaded-fresno-artifact/visual-preview/*.png visual-validation/fresno-pmtiles/
+          cp downloaded-fresno-artifact/visual-preview/preview-report.json visual-validation/fresno-pmtiles/
+          cp downloaded-fresno-artifact/occumed-fresno.manifest.txt visual-validation/fresno-pmtiles/
+          cp downloaded-fresno-artifact/pmtiles-range.headers.txt visual-validation/fresno-pmtiles/
+
+          cat > visual-validation/fresno-pmtiles/README.md <<'EOF'
+          # Fresno custom PMTiles visual evidence
+
+          These files were generated from the real Occu-Med Planetiler archive, served by the production Node server with HTTP byte ranges, and rendered in headless Chromium at device scale factor 2.
+
+          - `fresno-regional-z8.png`
+          - `fresno-city-z11.png`
+          - `fresno-street-z14.png`
+          - `sierra-terrain-z10.png`
+          - `preview-report.json`
+          - `occumed-fresno.manifest.txt`
+          - `pmtiles-range.headers.txt`
+
+          This evidence validates the Fresno/central-Sierra regional archive only. It is not evidence of full-world coverage, global Natural Earth generalization, GEBCO bathymetry, generated contours, Overture enrichment, or complete route shields.
+          EOF
+
+          # Remove this one-time publishing workflow from the resulting branch commit.
+          git rm .github/workflows/publish-fresno-evidence.yml
+
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add visual-validation/fresno-pmtiles
+          git commit -m "Add Fresno PMTiles rendered visual evidence [skip ci]"
+          git push origin HEAD:feat/custom-planetiler-pmtiles-basemap
