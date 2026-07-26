@@ -115,20 +115,20 @@ waterwayShadow.paint['line-color'] = EXACT.waterShadow;
 waterwayShadow.paint['line-opacity'] = 1;
 
 // The independent Natural Earth raster was the source of the yellow/fluorescent
-// and later washed-out color drift. Keep only faint grayscale physical texture so
-// it cannot change the exported green and blue hues at different zoom levels.
+// and later washed-out color drift. Keep only faint grayscale physical texture at
+// globe zoom, then remove it before regional/city detail so vector edges stay crisp.
 const relief = requireLayer('occumed-shaded-relief');
-relief.maxzoom = 8.5;
+relief.maxzoom = 7;
 relief.paint = {
   'raster-opacity': [
     'interpolate',
     ['linear'],
     ['zoom'],
     0, 0.12,
-    2.5, 0.1,
-    4.5, 0.08,
-    6.5, 0.04,
-    8.5, 0
+    2.5, 0.09,
+    4.5, 0.05,
+    6, 0.02,
+    7, 0
   ],
   'raster-saturation': -1,
   'raster-contrast': 0.04,
@@ -140,7 +140,7 @@ relief.paint = {
 };
 relief.metadata = {
   ...(relief.metadata || {}),
-  'occumed:purpose': 'neutral physical texture that cannot recolor exported structure swatches',
+  'occumed:purpose': 'neutral globe texture that fades before regional vector detail',
   'occumed:exact-swatches-pass': 9
 };
 
@@ -175,8 +175,9 @@ runtime.metadata = {
   'occumed:palette-format': 'fixed-hex-per-layer',
   'occumed:layer-specific-palette': true,
   'occumed:colored-relief-disabled': true,
+  'occumed:high-dpi-vector-clarity': true,
   'occumed:exact-swatches': EXACT
 };
 
 await fs.writeFile(runtimePath, `${JSON.stringify(runtime, null, 2)}\n`);
-console.log('Locked the exact exported land, green, wetland, water, and water-shadow swatches and removed zoom-dependent raster recoloring.');
+console.log('Locked exact exported swatches, preserved vector detail, and faded pixel-based relief before regional zooms.');
