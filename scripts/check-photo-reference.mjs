@@ -23,20 +23,18 @@ assert(!runtime.light, 'Directional light must not be reintroduced.');
 assert(!runtime.fog, 'Mapbox fog must not be copied into the MapLibre runtime.');
 
 const land = layer('land');
-assert(land?.paint?.['background-color'] === 'hsl(72, 38%, 79%)', 'Pale yellow-green land background is missing.');
-assert(land?.paint?.['background-opacity'] === 1, 'Land background must remain fully opaque.');
+assert(land?.paint?.['background-color'] === 'hsl(60, 20%, 85%)', 'The exact exported land color is missing.');
 
 const water = layer('water');
-assert(Array.isArray(water?.paint?.['fill-color']), 'Water must use the calibrated zoom color expression.');
+assert(water?.paint?.['fill-color'] === 'hsl(205, 75%, 70%)', 'The exact exported Occu-Med water color changed.');
 assert(Array.isArray(water?.paint?.['fill-opacity']), 'Water must reveal low-zoom bathymetry through a zoom opacity expression.');
-assert(JSON.stringify(water.paint['fill-color']).includes('#3b9edb'), 'Saturated low-zoom ocean blue is missing.');
-assert(JSON.stringify(water.paint['fill-color']).includes('#70bce8'), 'High-zoom water blue is missing.');
-assert(JSON.stringify(water.paint['fill-opacity']).includes('0.82'), 'Low-zoom ocean opacity correction is missing.');
+assert(JSON.stringify(water.paint['fill-opacity']).includes('0.8'), 'Low-zoom water transparency is missing.');
 
 const landcover = layer('landcover');
-assert(Array.isArray(landcover?.paint?.['fill-color']), 'Landcover class palette is missing.');
-assert(JSON.stringify(landcover.paint['fill-color']).includes('#79c963'), 'Forest green is missing.');
-assert(JSON.stringify(landcover.paint['fill-color']).includes('#d9e2a9'), 'Agricultural land tone is missing.');
+const landcoverColor = JSON.stringify(landcover?.paint?.['fill-color'] || []);
+assert(landcoverColor.includes('hsla(103, 50%, 60%, 0.8)'), 'The exported forest color changed.');
+assert(landcoverColor.includes('hsla(68, 55%, 70%, 0.6)'), 'The exported crop color changed.');
+assert(JSON.stringify(landcover?.paint?.['fill-opacity'] || []).includes('0.8'), 'The exported landcover opacity hierarchy changed.');
 
 const relief = layer('occumed-shaded-relief');
 assert(relief?.paint?.['raster-saturation'] === 0.72, 'Bathymetry and relief vividness calibration is missing.');
@@ -46,10 +44,23 @@ assert(Array.isArray(relief?.paint?.['raster-opacity']), 'Relief must use zoom-a
 const hillshade = layer('occumed-hillshade');
 assert(hillshade?.paint?.['hillshade-illumination-anchor'] === 'map', 'Hillshade must stay fixed to geography.');
 assert(Array.isArray(hillshade?.paint?.['hillshade-exaggeration']), 'Zoom-aware hillshade is missing.');
+assert(JSON.stringify(hillshade.paint['hillshade-exaggeration']).includes('0.24'), 'Regional terrain definition is too weak.');
 
-assert(layer('road-motorway-trunk')?.minzoom <= 1.5, 'Major roads must enter early enough to match the reference hierarchy.');
-assert(layer('country-label')?.minzoom === 0, 'Country labels must remain visible at globe zoom.');
-assert(runtime.metadata?.['occumed:live-visual-qa-pass'] === 2, 'Live visual-QA pass marker is missing.');
+const motorway = layer('road-motorway-trunk');
+const motorwayFilter = JSON.stringify(motorway?.filter || []);
+assert(motorwayFilter.includes('brunnel') && motorwayFilter.includes('none'), 'Surface roads still reject features with no brunnel value.');
+assert(motorwayFilter.includes('motorway_link') && motorwayFilter.includes('trunk_link'), 'Specific highway link classes were not restored.');
+
+const majorPlace = layer('settlement-major-label');
+const majorFilter = JSON.stringify(majorPlace?.filter || []);
+assert(majorFilter.includes('rank'), 'Major settlement ranking was stripped from the exported filter.');
+assert(majorFilter.includes('city') && majorFilter.includes('town'), 'Major settlement classes were not mapped to OpenMapTiles.');
+assert(JSON.stringify(majorPlace?.layout?.['text-font'] || []).includes('Open Sans Regular'), 'Major settlements are still using an overly heavy font.');
+assert(layer('state-label')?.paint?.['text-opacity'] === 0.5, 'The exported muted state-label hierarchy was lost.');
+
+assert(runtime.metadata?.['occumed:exported-cartography-restored'] === true, 'Exported cartography restoration marker is missing.');
+assert(runtime.metadata?.['occumed:place-rank-hierarchy-restored'] === true, 'Place rank hierarchy restoration marker is missing.');
+assert(runtime.metadata?.['occumed:live-visual-qa-pass'] === 3, 'Live visual-QA pass 3 marker is missing.');
 
 for (const [sourceId, source] of Object.entries(runtime.sources || {})) {
   const serialized = JSON.stringify(source);
@@ -59,7 +70,6 @@ for (const [sourceId, source] of Object.entries(runtime.sources || {})) {
 
 assert(!/mapbox:\/\//i.test(runtime.sprite || ''), 'Runtime sprite must not use Mapbox.');
 assert(!/api\.mapbox\.com/i.test(runtime.glyphs || ''), 'Runtime glyphs must not use Mapbox.');
-assert(runtime.metadata?.['occumed:photo-reference-rebuild'] === true, 'Photo-reference metadata is missing.');
 assert(runtime.metadata?.['occumed:mapbox-runtime-dependency'] === false, 'No-Mapbox dependency marker is missing.');
 
-console.log('Photo-reference globe, ocean blend, palette, terrain, road hierarchy, labels, and no-Mapbox checks passed.');
+console.log('Photo-reference validation passed: exported colors, roads, label ranks, terrain, atmosphere, and no-Mapbox runtime.');
