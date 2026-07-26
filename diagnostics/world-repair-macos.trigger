@@ -1,2 +1,2 @@
-requested_at=2026-07-26T21:12:20Z
-purpose=verify_remaining_worldwide_jobs_stalled_or_complete
+requested_at=2026-07-26T21:22:00Z
+purpose=measure_paginated_release_coverage_before_failed_only_repair
