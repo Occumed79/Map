@@ -89,6 +89,7 @@ jobs:
 
       - name: Build production map with the custom archive
         env:
+          OCCUMED_WORLD_MANIFEST_URL: off
           OCCUMED_PMTILES_URL: __OCCUMED_PUBLIC_ORIGIN__/tiles/occumed-fresno.pmtiles
         run: |
           mkdir -p public/tiles artifacts/visual-preview
@@ -125,6 +126,10 @@ jobs:
 
       - name: Write archive manifest
         run: |
+          (
+            cd artifacts
+            sha256sum occumed-fresno.pmtiles > occumed-fresno.pmtiles.sha256
+          )
           {
             echo "commit=${GITHUB_SHA}"
             echo "source=https://download.geofabrik.de/north-america/us/california-latest.osm.pbf"
