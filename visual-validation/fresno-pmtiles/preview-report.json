@@ -1,0 +1,1845 @@
+{
+  "generatedAt": "2026-07-26T09:08:52.743Z",
+  "origin": "http://127.0.0.1:4173",
+  "browser": "chromium",
+  "viewport": {
+    "width": 1440,
+    "height": 1000,
+    "deviceScaleFactor": 2
+  },
+  "views": {
+    "fresnoRegional": {
+      "center": [
+        -119.55000000000001,
+        36.75
+      ],
+      "zoom": 8,
+      "source": {
+        "type": "vector",
+        "url": "pmtiles://http://127.0.0.1:4173/tiles/occumed-fresno.pmtiles",
+        "attribution": "<a href=\"https://www.openstreetmap.org/copyright\">© OpenStreetMap contributors</a>"
+      },
+      "canvas": {
+        "cssWidth": 1440,
+        "cssHeight": 1000,
+        "backingWidth": 2880,
+        "backingHeight": 2000,
+        "effectivePixelRatio": 2
+      },
+      "loaded": true,
+      "tilesLoaded": true,
+      "visibleLayers": [
+        "land",
+        "occumed-shaded-relief",
+        "landcover",
+        "national-park",
+        "national-park_tint-band",
+        "landuse",
+        "pitch-outline",
+        "waterway-shadow",
+        "water-shadow",
+        "waterway",
+        "water",
+        "wetland",
+        "wetland-pattern",
+        "occumed-hillshade",
+        "land-structure-polygon",
+        "land-structure-line",
+        "aeroway-polygon",
+        "aeroway-line",
+        "building",
+        "building-underground",
+        "tunnel-minor-case",
+        "tunnel-street-case",
+        "tunnel-minor-link-case",
+        "tunnel-secondary-tertiary-case",
+        "tunnel-primary-case",
+        "tunnel-major-link-case",
+        "tunnel-motorway-trunk-case",
+        "tunnel-path-trail",
+        "tunnel-path-cycleway-piste",
+        "tunnel-path",
+        "tunnel-steps",
+        "tunnel-pedestrian",
+        "tunnel-construction",
+        "tunnel-minor",
+        "tunnel-minor-link",
+        "tunnel-major-link",
+        "tunnel-street",
+        "tunnel-street-low",
+        "tunnel-secondary-tertiary",
+        "tunnel-primary",
+        "tunnel-motorway-trunk",
+        "tunnel-oneway-arrow-blue",
+        "tunnel-oneway-arrow-white",
+        "cliff",
+        "ferry",
+        "ferry-auto",
+        "road-pedestrian-polygon-fill",
+        "road-pedestrian-polygon-pattern",
+        "road-path-bg",
+        "road-steps-bg",
+        "road-pedestrian-case",
+        "road-path-trail",
+        "road-path-cycleway-piste",
+        "road-path",
+        "road-steps",
+        "road-pedestrian",
+        "golf-hole-line",
+        "road-polygon",
+        "turning-feature-outline",
+        "road-minor-case",
+        "road-street-case",
+        "road-minor-link-case",
+        "road-secondary-tertiary-case",
+        "road-primary-case",
+        "road-major-link-case",
+        "road-motorway-trunk-case",
+        "turning-feature",
+        "road-construction",
+        "road-minor",
+        "road-minor-link",
+        "road-major-link",
+        "road-street",
+        "road-street-low",
+        "road-secondary-tertiary",
+        "road-primary",
+        "road-motorway-trunk",
+        "road-rail",
+        "road-rail-tracks",
+        "level-crossing",
+        "road-oneway-arrow-blue",
+        "road-oneway-arrow-white",
+        "crosswalks",
+        "gate-fence-hedge",
+        "bridge-path-bg",
+        "bridge-steps-bg",
+        "bridge-pedestrian-case",
+        "bridge-path-trail",
+        "bridge-path-cycleway-piste",
+        "bridge-path",
+        "bridge-steps",
+        "bridge-pedestrian",
+        "gate-label",
+        "bridge-minor-case",
+        "bridge-street-case",
+        "bridge-minor-link-case",
+        "bridge-secondary-tertiary-case",
+        "bridge-primary-case",
+        "bridge-major-link-case",
+        "bridge-motorway-trunk-case",
+        "bridge-construction",
+        "bridge-minor",
+        "bridge-minor-link",
+        "bridge-major-link",
+        "bridge-street",
+        "bridge-street-low",
+        "bridge-secondary-tertiary",
+        "bridge-primary",
+        "bridge-motorway-trunk",
+        "bridge-major-link-2-case",
+        "bridge-motorway-trunk-2-case",
+        "bridge-major-link-2",
+        "bridge-motorway-trunk-2",
+        "bridge-oneway-arrow-blue",
+        "bridge-oneway-arrow-white",
+        "bridge-rail",
+        "bridge-rail-tracks",
+        "aerialway",
+        "admin-1-boundary-bg",
+        "admin-0-boundary-bg",
+        "admin-1-boundary",
+        "admin-0-boundary",
+        "admin-0-boundary-disputed",
+        "building-entrance",
+        "building-number-label",
+        "block-number-label",
+        "road-label",
+        "road-intersection",
+        "road-number-shield",
+        "road-exit-shield",
+        "path-pedestrian-label",
+        "golf-hole-label",
+        "ferry-aerialway-label",
+        "waterway-label",
+        "natural-line-label",
+        "natural-point-label",
+        "water-line-label",
+        "water-point-label",
+        "poi-label",
+        "transit-label",
+        "airport-label",
+        "settlement-subdivision-label",
+        "settlement-minor-label",
+        "settlement-major-label",
+        "state-label",
+        "country-label",
+        "continent-label"
+      ]
+    },
+    "fresnoCity": {
+      "center": [
+        -119.78710000000001,
+        36.7378
+      ],
+      "zoom": 11,
+      "source": {
+        "type": "vector",
+        "url": "pmtiles://http://127.0.0.1:4173/tiles/occumed-fresno.pmtiles",
+        "attribution": "<a href=\"https://www.openstreetmap.org/copyright\">© OpenStreetMap contributors</a>"
+      },
+      "canvas": {
+        "cssWidth": 1440,
+        "cssHeight": 1000,
+        "backingWidth": 2880,
+        "backingHeight": 2000,
+        "effectivePixelRatio": 2
+      },
+      "loaded": true,
+      "tilesLoaded": true,
+      "visibleLayers": [
+        "land",
+        "occumed-shaded-relief",
+        "landcover",
+        "national-park",
+        "national-park_tint-band",
+        "landuse",
+        "pitch-outline",
+        "waterway-shadow",
+        "water-shadow",
+        "waterway",
+        "water",
+        "wetland",
+        "wetland-pattern",
+        "occumed-hillshade",
+        "land-structure-polygon",
+        "land-structure-line",
+        "aeroway-polygon",
+        "aeroway-line",
+        "building",
+        "building-underground",
+        "tunnel-minor-case",
+        "tunnel-street-case",
+        "tunnel-minor-link-case",
+        "tunnel-secondary-tertiary-case",
+        "tunnel-primary-case",
+        "tunnel-major-link-case",
+        "tunnel-motorway-trunk-case",
+        "tunnel-path-trail",
+        "tunnel-path-cycleway-piste",
+        "tunnel-path",
+        "tunnel-steps",
+        "tunnel-pedestrian",
+        "tunnel-construction",
+        "tunnel-minor",
+        "tunnel-minor-link",
+        "tunnel-major-link",
+        "tunnel-street",
+        "tunnel-street-low",
+        "tunnel-secondary-tertiary",
+        "tunnel-primary",
+        "tunnel-motorway-trunk",
+        "tunnel-oneway-arrow-blue",
+        "tunnel-oneway-arrow-white",
+        "cliff",
+        "ferry",
+        "ferry-auto",
+        "road-pedestrian-polygon-fill",
+        "road-pedestrian-polygon-pattern",
+        "road-path-bg",
+        "road-steps-bg",
+        "road-pedestrian-case",
+        "road-path-trail",
+        "road-path-cycleway-piste",
+        "road-path",
+        "road-steps",
+        "road-pedestrian",
+        "golf-hole-line",
+        "road-polygon",
+        "turning-feature-outline",
+        "road-minor-case",
+        "road-street-case",
+        "road-minor-link-case",
+        "road-secondary-tertiary-case",
+        "road-primary-case",
+        "road-major-link-case",
+        "road-motorway-trunk-case",
+        "turning-feature",
+        "road-construction",
+        "road-minor",
+        "road-minor-link",
+        "road-major-link",
+        "road-street",
+        "road-street-low",
+        "road-secondary-tertiary",
+        "road-primary",
+        "road-motorway-trunk",
+        "road-rail",
+        "road-rail-tracks",
+        "level-crossing",
+        "road-oneway-arrow-blue",
+        "road-oneway-arrow-white",
+        "crosswalks",
+        "gate-fence-hedge",
+        "bridge-path-bg",
+        "bridge-steps-bg",
+        "bridge-pedestrian-case",
+        "bridge-path-trail",
+        "bridge-path-cycleway-piste",
+        "bridge-path",
+        "bridge-steps",
+        "bridge-pedestrian",
+        "gate-label",
+        "bridge-minor-case",
+        "bridge-street-case",
+        "bridge-minor-link-case",
+        "bridge-secondary-tertiary-case",
+        "bridge-primary-case",
+        "bridge-major-link-case",
+        "bridge-motorway-trunk-case",
+        "bridge-construction",
+        "bridge-minor",
+        "bridge-minor-link",
+        "bridge-major-link",
+        "bridge-street",
+        "bridge-street-low",
+        "bridge-secondary-tertiary",
+        "bridge-primary",
+        "bridge-motorway-trunk",
+        "bridge-major-link-2-case",
+        "bridge-motorway-trunk-2-case",
+        "bridge-major-link-2",
+        "bridge-motorway-trunk-2",
+        "bridge-oneway-arrow-blue",
+        "bridge-oneway-arrow-white",
+        "bridge-rail",
+        "bridge-rail-tracks",
+        "aerialway",
+        "admin-1-boundary-bg",
+        "admin-0-boundary-bg",
+        "admin-1-boundary",
+        "admin-0-boundary",
+        "admin-0-boundary-disputed",
+        "building-entrance",
+        "building-number-label",
+        "block-number-label",
+        "road-label",
+        "road-intersection",
+        "road-number-shield",
+        "road-exit-shield",
+        "path-pedestrian-label",
+        "golf-hole-label",
+        "ferry-aerialway-label",
+        "waterway-label",
+        "natural-line-label",
+        "natural-point-label",
+        "water-line-label",
+        "water-point-label",
+        "poi-label",
+        "transit-label",
+        "airport-label",
+        "settlement-subdivision-label",
+        "settlement-minor-label",
+        "settlement-major-label",
+        "state-label",
+        "country-label",
+        "continent-label"
+      ]
+    },
+    "fresnoStreet": {
+      "center": [
+        -119.78710000000001,
+        36.7378
+      ],
+      "zoom": 14,
+      "source": {
+        "type": "vector",
+        "url": "pmtiles://http://127.0.0.1:4173/tiles/occumed-fresno.pmtiles",
+        "attribution": "<a href=\"https://www.openstreetmap.org/copyright\">© OpenStreetMap contributors</a>"
+      },
+      "canvas": {
+        "cssWidth": 1440,
+        "cssHeight": 1000,
+        "backingWidth": 2880,
+        "backingHeight": 2000,
+        "effectivePixelRatio": 2
+      },
+      "loaded": true,
+      "tilesLoaded": true,
+      "visibleLayers": [
+        "land",
+        "occumed-shaded-relief",
+        "landcover",
+        "national-park",
+        "national-park_tint-band",
+        "landuse",
+        "pitch-outline",
+        "waterway-shadow",
+        "water-shadow",
+        "waterway",
+        "water",
+        "wetland",
+        "wetland-pattern",
+        "occumed-hillshade",
+        "land-structure-polygon",
+        "land-structure-line",
+        "aeroway-polygon",
+        "aeroway-line",
+        "building",
+        "building-underground",
+        "tunnel-minor-case",
+        "tunnel-street-case",
+        "tunnel-minor-link-case",
+        "tunnel-secondary-tertiary-case",
+        "tunnel-primary-case",
+        "tunnel-major-link-case",
+        "tunnel-motorway-trunk-case",
+        "tunnel-path-trail",
+        "tunnel-path-cycleway-piste",
+        "tunnel-path",
+        "tunnel-steps",
+        "tunnel-pedestrian",
+        "tunnel-construction",
+        "tunnel-minor",
+        "tunnel-minor-link",
+        "tunnel-major-link",
+        "tunnel-street",
+        "tunnel-street-low",
+        "tunnel-secondary-tertiary",
+        "tunnel-primary",
+        "tunnel-motorway-trunk",
+        "tunnel-oneway-arrow-blue",
+        "tunnel-oneway-arrow-white",
+        "cliff",
+        "ferry",
+        "ferry-auto",
+        "road-pedestrian-polygon-fill",
+        "road-pedestrian-polygon-pattern",
+        "road-path-bg",
+        "road-steps-bg",
+        "road-pedestrian-case",
+        "road-path-trail",
+        "road-path-cycleway-piste",
+        "road-path",
+        "road-steps",
+        "road-pedestrian",
+        "golf-hole-line",
+        "road-polygon",
+        "turning-feature-outline",
+        "road-minor-case",
+        "road-street-case",
+        "road-minor-link-case",
+        "road-secondary-tertiary-case",
+        "road-primary-case",
+        "road-major-link-case",
+        "road-motorway-trunk-case",
+        "turning-feature",
+        "road-construction",
+        "road-minor",
+        "road-minor-link",
+        "road-major-link",
+        "road-street",
+        "road-street-low",
+        "road-secondary-tertiary",
+        "road-primary",
+        "road-motorway-trunk",
+        "road-rail",
+        "road-rail-tracks",
+        "level-crossing",
+        "road-oneway-arrow-blue",
+        "road-oneway-arrow-white",
+        "crosswalks",
+        "gate-fence-hedge",
+        "bridge-path-bg",
+        "bridge-steps-bg",
+        "bridge-pedestrian-case",
+        "bridge-path-trail",
+        "bridge-path-cycleway-piste",
+        "bridge-path",
+        "bridge-steps",
+        "bridge-pedestrian",
+        "gate-label",
+        "bridge-minor-case",
+        "bridge-street-case",
+        "bridge-minor-link-case",
+        "bridge-secondary-tertiary-case",
+        "bridge-primary-case",
+        "bridge-major-link-case",
+        "bridge-motorway-trunk-case",
+        "bridge-construction",
+        "bridge-minor",
+        "bridge-minor-link",
+        "bridge-major-link",
+        "bridge-street",
+        "bridge-street-low",
+        "bridge-secondary-tertiary",
+        "bridge-primary",
+        "bridge-motorway-trunk",
+        "bridge-major-link-2-case",
+        "bridge-motorway-trunk-2-case",
+        "bridge-major-link-2",
+        "bridge-motorway-trunk-2",
+        "bridge-oneway-arrow-blue",
+        "bridge-oneway-arrow-white",
+        "bridge-rail",
+        "bridge-rail-tracks",
+        "aerialway",
+        "admin-1-boundary-bg",
+        "admin-0-boundary-bg",
+        "admin-1-boundary",
+        "admin-0-boundary",
+        "admin-0-boundary-disputed",
+        "building-entrance",
+        "building-number-label",
+        "block-number-label",
+        "road-label",
+        "road-intersection",
+        "road-number-shield",
+        "road-exit-shield",
+        "path-pedestrian-label",
+        "golf-hole-label",
+        "ferry-aerialway-label",
+        "waterway-label",
+        "natural-line-label",
+        "natural-point-label",
+        "water-line-label",
+        "water-point-label",
+        "poi-label",
+        "transit-label",
+        "airport-label",
+        "settlement-subdivision-label",
+        "settlement-minor-label",
+        "settlement-major-label",
+        "state-label",
+        "country-label",
+        "continent-label"
+      ]
+    },
+    "sierraTerrain": {
+      "center": [
+        -118.85,
+        36.85
+      ],
+      "zoom": 10,
+      "source": {
+        "type": "vector",
+        "url": "pmtiles://http://127.0.0.1:4173/tiles/occumed-fresno.pmtiles",
+        "attribution": "<a href=\"https://www.openstreetmap.org/copyright\">© OpenStreetMap contributors</a>"
+      },
+      "canvas": {
+        "cssWidth": 1440,
+        "cssHeight": 1000,
+        "backingWidth": 2880,
+        "backingHeight": 2000,
+        "effectivePixelRatio": 2
+      },
+      "loaded": true,
+      "tilesLoaded": true,
+      "visibleLayers": [
+        "land",
+        "occumed-shaded-relief",
+        "landcover",
+        "national-park",
+        "national-park_tint-band",
+        "landuse",
+        "pitch-outline",
+        "waterway-shadow",
+        "water-shadow",
+        "waterway",
+        "water",
+        "wetland",
+        "wetland-pattern",
+        "occumed-hillshade",
+        "land-structure-polygon",
+        "land-structure-line",
+        "aeroway-polygon",
+        "aeroway-line",
+        "building",
+        "building-underground",
+        "tunnel-minor-case",
+        "tunnel-street-case",
+        "tunnel-minor-link-case",
+        "tunnel-secondary-tertiary-case",
+        "tunnel-primary-case",
+        "tunnel-major-link-case",
+        "tunnel-motorway-trunk-case",
+        "tunnel-path-trail",
+        "tunnel-path-cycleway-piste",
+        "tunnel-path",
+        "tunnel-steps",
+        "tunnel-pedestrian",
+        "tunnel-construction",
+        "tunnel-minor",
+        "tunnel-minor-link",
+        "tunnel-major-link",
+        "tunnel-street",
+        "tunnel-street-low",
+        "tunnel-secondary-tertiary",
+        "tunnel-primary",
+        "tunnel-motorway-trunk",
+        "tunnel-oneway-arrow-blue",
+        "tunnel-oneway-arrow-white",
+        "cliff",
+        "ferry",
+        "ferry-auto",
+        "road-pedestrian-polygon-fill",
+        "road-pedestrian-polygon-pattern",
+        "road-path-bg",
+        "road-steps-bg",
+        "road-pedestrian-case",
+        "road-path-trail",
+        "road-path-cycleway-piste",
+        "road-path",
+        "road-steps",
+        "road-pedestrian",
+        "golf-hole-line",
+        "road-polygon",
+        "turning-feature-outline",
+        "road-minor-case",
+        "road-street-case",
+        "road-minor-link-case",
+        "road-secondary-tertiary-case",
+        "road-primary-case",
+        "road-major-link-case",
+        "road-motorway-trunk-case",
+        "turning-feature",
+        "road-construction",
+        "road-minor",
+        "road-minor-link",
+        "road-major-link",
+        "road-street",
+        "road-street-low",
+        "road-secondary-tertiary",
+        "road-primary",
+        "road-motorway-trunk",
+        "road-rail",
+        "road-rail-tracks",
+        "level-crossing",
+        "road-oneway-arrow-blue",
+        "road-oneway-arrow-white",
+        "crosswalks",
+        "gate-fence-hedge",
+        "bridge-path-bg",
+        "bridge-steps-bg",
+        "bridge-pedestrian-case",
+        "bridge-path-trail",
+        "bridge-path-cycleway-piste",
+        "bridge-path",
+        "bridge-steps",
+        "bridge-pedestrian",
+        "gate-label",
+        "bridge-minor-case",
+        "bridge-street-case",
+        "bridge-minor-link-case",
+        "bridge-secondary-tertiary-case",
+        "bridge-primary-case",
+        "bridge-major-link-case",
+        "bridge-motorway-trunk-case",
+        "bridge-construction",
+        "bridge-minor",
+        "bridge-minor-link",
+        "bridge-major-link",
+        "bridge-street",
+        "bridge-street-low",
+        "bridge-secondary-tertiary",
+        "bridge-primary",
+        "bridge-motorway-trunk",
+        "bridge-major-link-2-case",
+        "bridge-motorway-trunk-2-case",
+        "bridge-major-link-2",
+        "bridge-motorway-trunk-2",
+        "bridge-oneway-arrow-blue",
+        "bridge-oneway-arrow-white",
+        "bridge-rail",
+        "bridge-rail-tracks",
+        "aerialway",
+        "admin-1-boundary-bg",
+        "admin-0-boundary-bg",
+        "admin-1-boundary",
+        "admin-0-boundary",
+        "admin-0-boundary-disputed",
+        "building-entrance",
+        "building-number-label",
+        "block-number-label",
+        "road-label",
+        "road-intersection",
+        "road-number-shield",
+        "road-exit-shield",
+        "path-pedestrian-label",
+        "golf-hole-label",
+        "ferry-aerialway-label",
+        "waterway-label",
+        "natural-line-label",
+        "natural-point-label",
+        "water-line-label",
+        "water-point-label",
+        "poi-label",
+        "transit-label",
+        "airport-label",
+        "settlement-subdivision-label",
+        "settlement-minor-label",
+        "settlement-major-label",
+        "state-label",
+        "country-label",
+        "continent-label"
+      ]
+    }
+  },
+  "pageErrors": [],
+  "resourceFailures": [
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0041 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Semibold,Noto Sans Semibold/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0043 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Semibold,Noto Sans Semibold/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0046 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Semibold,Noto Sans Semibold/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0049 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Semibold,Noto Sans Semibold/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+004C locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Semibold,Noto Sans Semibold/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+004E locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Semibold,Noto Sans Semibold/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+004F locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Semibold,Noto Sans Semibold/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0052 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Semibold,Noto Sans Semibold/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0020 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+002E locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+002F locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0030 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0031 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0032 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0033 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0034 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0035 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0036 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0037 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0038 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0039 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0042 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0043 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0044 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0045 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0048 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+004A locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+004B locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+004C locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+004D locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+004E locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+004F locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0050 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0052 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0053 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0054 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0056 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0061 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0063 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0064 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0065 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0066 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0067 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0068 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0069 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+006B locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+006C locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+006D locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+006E locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+006F locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0070 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0071 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0072 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0073 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0074 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0075 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0076 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0077 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0079 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+007A locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0041 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0046 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0049 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0057 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0062 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0078 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+006A locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0020 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0031 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0041 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0042 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0043 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0044 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0045 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0046 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0047 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0048 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0049 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+004A locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+004B locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+004C locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+004D locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+004E locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+004F locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0050 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0052 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0053 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0054 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0056 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0057 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0059 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0061 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0062 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0063 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0064 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0065 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0066 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0067 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0068 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0069 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+006B locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+006C locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+006D locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+006E locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+006F locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0070 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0071 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0072 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0073 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0074 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0075 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0076 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0077 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0079 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+007A locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0027 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0033 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0039 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0055 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0035 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0038 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+003B locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+002F locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0030 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0032 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0037 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 32, 8192-8447. Rendering codepoint U+2013 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/8192-8447.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0051 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0034 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0036 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+002D locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+005A locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0026 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    }
+  ],
+  "consoleMessages": [
+    {
+      "type": "warning",
+      "text": "[GroupMarkerNotSet(crbug.com/242999)!:A0301F00143A0000]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader (about:flags#enable-unsafe-swiftshader) flag to opt in to lower security guarantees for trusted content."
+    },
+    {
+      "type": "warning",
+      "text": "[.WebGL-0x1aec000ea300]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "type": "warning",
+      "text": "[.WebGL-0x1aec000ea300]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "type": "warning",
+      "text": "[.WebGL-0x1aec000ea300]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "type": "warning",
+      "text": "[.WebGL-0x1aec000ea300]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0041 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Semibold,Noto Sans Semibold/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0043 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Semibold,Noto Sans Semibold/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0046 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Semibold,Noto Sans Semibold/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0049 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Semibold,Noto Sans Semibold/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+004C locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Semibold,Noto Sans Semibold/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+004E locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Semibold,Noto Sans Semibold/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+004F locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Semibold,Noto Sans Semibold/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0052 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Semibold,Noto Sans Semibold/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0020 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+002E locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+002F locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0030 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0031 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0032 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0033 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0034 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0035 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0036 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0037 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0038 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0039 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0042 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0043 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0044 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0045 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0048 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+004A locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+004B locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+004C locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+004D locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+004E locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+004F locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0050 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0052 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0053 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0054 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0056 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0061 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0063 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0064 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0065 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0066 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0067 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0068 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0069 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+006B locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+006C locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+006D locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+006E locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+006F locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0070 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0071 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0072 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0073 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0074 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0075 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0076 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0077 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0079 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+007A locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0041 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0046 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0049 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0057 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0062 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0078 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+006A locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Italic,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Expected value to be of type number, but found null instead."
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 ()"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0020 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0031 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0041 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0042 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0043 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0044 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0045 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0046 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0047 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0048 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0049 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+004A locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+004B locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+004C locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+004D locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+004E locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+004F locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0050 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0052 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0053 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0054 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0056 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0057 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0059 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0061 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0062 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0063 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0064 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0065 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0066 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0067 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0068 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0069 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+006B locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+006C locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+006D locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+006E locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+006F locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0070 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0071 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0072 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0073 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0074 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0075 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0076 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0077 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0079 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+007A locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0027 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0033 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0039 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0055 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0035 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0038 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+003B locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+002F locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0030 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0032 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0037 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 32, 8192-8447. Rendering codepoint U+2013 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/8192-8447.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Expected value to be of type number, but found null instead."
+    },
+    {
+      "type": "warning",
+      "text": "Expected value to be of type number, but found null instead."
+    },
+    {
+      "type": "warning",
+      "text": "Expected value to be of type number, but found null instead."
+    },
+    {
+      "type": "warning",
+      "text": "Expected value to be of type number, but found null instead."
+    },
+    {
+      "type": "warning",
+      "text": "Expected value to be of type number, but found null instead."
+    },
+    {
+      "type": "warning",
+      "text": "Expected value to be of type number, but found null instead."
+    },
+    {
+      "type": "warning",
+      "text": "Expected value to be of type number, but found null instead."
+    },
+    {
+      "type": "warning",
+      "text": "Expected value to be of type number, but found null instead."
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0051 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0034 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0036 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+002D locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+005A locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    },
+    {
+      "type": "warning",
+      "text": "Unable to load glyph range 0, 0-255. Rendering codepoint U+0026 locally instead. Error: AJAXError:  (404): https://tiles.openfreemap.org/fonts/Open Sans Regular,Noto Sans Regular/0-255.pbf"
+    }
+  ]
+}
