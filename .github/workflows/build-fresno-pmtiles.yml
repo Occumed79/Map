@@ -1,0 +1,86 @@
+name: Build Fresno Occu-Med PMTiles
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/custom-planetiler-pmtiles-basemap
+    paths:
+      - planetiler/**
+      - .github/workflows/build-fresno-pmtiles.yml
+
+permissions:
+  contents: read
+
+jobs:
+  build-fresno-archive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Show runner capacity
+        run: |
+          free -h
+          df -h
+          docker --version
+
+      - name: Install OSM extract tool
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends osmium-tool
+
+      - name: Download California OpenStreetMap extract
+        run: |
+          mkdir -p .planetiler-data artifacts
+          curl --fail --location --retry 4 --retry-delay 5 \
+            --output .planetiler-data/california-latest.osm.pbf \
+            https://download.geofabrik.de/north-america/us/california-latest.osm.pbf
+          ls -lh .planetiler-data/california-latest.osm.pbf
+
+      - name: Extract Fresno and central Sierra region
+        run: |
+          osmium extract \
+            --bbox=-120.55,35.50,-118.45,37.55 \
+            --strategy=complete_ways \
+            --overwrite \
+            --output=.planetiler-data/fresno.osm.pbf \
+            .planetiler-data/california-latest.osm.pbf
+          rm .planetiler-data/california-latest.osm.pbf
+          osmium fileinfo -e .planetiler-data/fresno.osm.pbf
+          ls -lh .planetiler-data/fresno.osm.pbf
+          df -h
+
+      - name: Build custom Fresno PMTiles archive
+        env:
+          OCCUMED_TILE_AREA: fresno
+          OCCUMED_PMTILES_OUTPUT: ${{ github.workspace }}/artifacts/occumed-fresno.pmtiles
+          OCCUMED_PLANETILER_DATA_DIR: ${{ github.workspace }}/.planetiler-data
+          OCCUMED_PLANETILER_MEMORY: 4g
+        run: bash planetiler/build-region.sh
+
+      - name: Write archive manifest
+        run: |
+          {
+            echo "commit=${GITHUB_SHA}"
+            echo "source=https://download.geofabrik.de/north-america/us/california-latest.osm.pbf"
+            echo "bounds=-120.55,35.50,-118.45,37.55"
+            echo "profile=planetiler/occumed-basemap.yml"
+            echo "built_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            stat --printf='size_bytes=%s\n' artifacts/occumed-fresno.pmtiles
+            cat artifacts/occumed-fresno.pmtiles.sha256
+          } | tee artifacts/occumed-fresno.manifest.txt
+
+      - name: Upload Fresno PMTiles artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: occured-fresno-pmtiles-${{ github.sha }}
+          path: |
+            artifacts/occumed-fresno.pmtiles
+            artifacts/occumed-fresno.pmtiles.sha256
+            artifacts/occumed-fresno.manifest.txt
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 30
