@@ -37,8 +37,11 @@ if (Array.isArray(atmosphereBlend)) {
 
 const relief = runtime.layers.find((layer) => layer.id === 'occumed-shaded-relief');
 if (!relief) fail('The low-zoom relief layer is missing.');
-if ((relief?.paint?.['raster-saturation'] ?? 0) < 0.7) {
-  fail('Low-zoom relief is not saturated enough for the exported green/blue globe target.');
+if ((relief?.paint?.['raster-saturation'] ?? 0) < 0.9) {
+  fail('Low-zoom relief is not saturated enough for the supplied green/blue globe reference.');
+}
+if ((relief?.paint?.['raster-contrast'] ?? 0) < 0.18) {
+  fail('Low-zoom relief is too flat for the supplied reference.');
 }
 
 const hillshade = runtime.layers.find((layer) => layer.id === 'occumed-hillshade');
@@ -48,12 +51,20 @@ if (hillshade?.paint?.['hillshade-illumination-anchor'] !== 'map') {
 }
 
 const background = runtime.layers.find((layer) => layer.id === 'land');
-if (background?.paint?.['background-color'] !== 'hsl(60, 20%, 85%)') {
-  fail('The exact exported Occu-Med land background color changed.');
+if (background?.paint?.['background-color'] !== 'hsl(68, 28%, 83%)') {
+  fail('The corrected warm green land background changed.');
+}
+
+const water = runtime.layers.find((layer) => layer.id === 'water');
+if (water?.paint?.['fill-color'] !== 'hsl(205, 76%, 66%)') {
+  fail('The corrected richer ocean color changed.');
 }
 
 if (!runtime.metadata?.['occumed:exported-cartography-restored']) {
   fail('The final exported-cartography restoration pass did not run.');
+}
+if (runtime.metadata?.['occumed:reference-color-system'] !== 'mapbox-photo-reference-v4') {
+  fail('The final reference color pass did not run.');
 }
 
 if (failures.length) {
@@ -62,4 +73,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('Globe parity validated: stable dark space, visible rim, exported land color, vivid relief, and anchored hillshade.');
+console.log('Globe parity validated: stable dark space, visible rim, corrected land and ocean colors, vivid relief, and anchored hillshade.');
