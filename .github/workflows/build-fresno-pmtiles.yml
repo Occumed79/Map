@@ -7,10 +7,20 @@ on:
       - feat/custom-planetiler-pmtiles-basemap
     paths:
       - planetiler/**
+      - scripts/capture-pmtiles-preview.mjs
+      - scripts/check-server-health.mjs
+      - server.mjs
+      - src/**
+      - package.json
       - .github/workflows/build-fresno-pmtiles.yml
   pull_request:
     paths:
       - planetiler/**
+      - scripts/capture-pmtiles-preview.mjs
+      - scripts/check-server-health.mjs
+      - server.mjs
+      - src/**
+      - package.json
       - .github/workflows/build-fresno-pmtiles.yml
 
 permissions:
@@ -66,6 +76,53 @@ jobs:
           OCCUMED_PLANETILER_MEMORY: 4g
         run: bash planetiler/build-region.sh
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install map and browser dependencies
+        run: |
+          npm install
+          npm install --no-save playwright@1.54.1
+          npx playwright install --with-deps chromium
+
+      - name: Build production map with the custom archive
+        env:
+          OCCUMED_PMTILES_URL: __OCCUMED_PUBLIC_ORIGIN__/tiles/occumed-fresno.pmtiles
+        run: |
+          mkdir -p public/tiles artifacts/visual-preview
+          cp artifacts/occumed-fresno.pmtiles public/tiles/occumed-fresno.pmtiles
+          npm run build
+          test -s dist/tiles/occumed-fresno.pmtiles
+          ls -lh dist/tiles/occumed-fresno.pmtiles
+
+      - name: Verify range serving and capture real map views
+        run: |
+          PORT=4173 HOST=127.0.0.1 npm start > artifacts/preview-server.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
+
+          for attempt in $(seq 1 60); do
+            if curl --silent --fail http://127.0.0.1:4173/health >/dev/null; then
+              break
+            fi
+            sleep 1
+          done
+          curl --fail http://127.0.0.1:4173/health
+
+          curl --silent --show-error --fail \
+            --header 'Range: bytes=0-126' \
+            --dump-header artifacts/pmtiles-range.headers.txt \
+            --output artifacts/pmtiles-header.bin \
+            http://127.0.0.1:4173/tiles/occumed-fresno.pmtiles
+          grep -Eiq '^HTTP/.* 206' artifacts/pmtiles-range.headers.txt
+          grep -Eiq '^accept-ranges: bytes' artifacts/pmtiles-range.headers.txt
+          test "$(wc -c < artifacts/pmtiles-header.bin)" -eq 127
+
+          node scripts/capture-pmtiles-preview.mjs
+          cat artifacts/visual-preview/preview-report.json
+
       - name: Write archive manifest
         run: |
           {
@@ -78,7 +135,7 @@ jobs:
             cat artifacts/occumed-fresno.pmtiles.sha256
           } | tee artifacts/occumed-fresno.manifest.txt
 
-      - name: Upload Fresno PMTiles artifact
+      - name: Upload Fresno archive and rendered previews
         uses: actions/upload-artifact@v4
         with:
           name: occumed-fresno-pmtiles-${{ github.sha }}
@@ -86,6 +143,9 @@ jobs:
             artifacts/occumed-fresno.pmtiles
             artifacts/occumed-fresno.pmtiles.sha256
             artifacts/occumed-fresno.manifest.txt
+            artifacts/pmtiles-range.headers.txt
+            artifacts/preview-server.log
+            artifacts/visual-preview/
           if-no-files-found: error
           compression-level: 0
           retention-days: 30
