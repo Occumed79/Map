@@ -7,13 +7,26 @@ const runtimePath = path.join(root, 'public/style/occumed-open.json');
 const runtime = JSON.parse(await fs.readFile(runtimePath, 'utf8'));
 
 const archiveUrl = process.env.OCCUMED_PMTILES_URL?.trim();
+const configuredWorldManifest = process.env.OCCUMED_WORLD_MANIFEST_URL?.trim();
+const worldManifestUrl = configuredWorldManifest === 'off'
+  ? null
+  : configuredWorldManifest || '__OCCUMED_PUBLIC_ORIGIN__/world-manifest.json';
 const source = runtime.sources?.['occumed-open'];
 
 if (!source || source.type !== 'vector') {
   throw new Error('The runtime style is missing the shared Occu-Med vector source.');
 }
 
-if (archiveUrl) {
+if (worldManifestUrl) {
+  runtime.metadata = {
+    ...(runtime.metadata || {}),
+    'occumed:vector-source-mode': 'world-sharded-planetiler-pmtiles',
+    'occumed:custom-pmtiles-enabled': true,
+    'occumed:world-pmtiles-enabled': true,
+    'occumed:world-manifest-url': worldManifestUrl,
+    'occumed:world-switch-zoom': 6
+  };
+} else if (archiveUrl) {
   const normalized = archiveUrl.startsWith('pmtiles://') ? archiveUrl : `pmtiles://${archiveUrl}`;
   source.url = normalized.replaceAll('__OCCUMED_PUBLIC_ORIGIN__', '__OCCUMED_PUBLIC_ORIGIN__');
   delete source.tiles;
@@ -23,19 +36,23 @@ if (archiveUrl) {
   runtime.metadata = {
     ...(runtime.metadata || {}),
     'occumed:vector-source-mode': 'custom-planetiler-pmtiles',
-    'occumed:custom-pmtiles-enabled': true
+    'occumed:custom-pmtiles-enabled': true,
+    'occumed:world-pmtiles-enabled': false
   };
 } else {
   runtime.metadata = {
     ...(runtime.metadata || {}),
     'occumed:vector-source-mode': 'open-source-fallback',
-    'occumed:custom-pmtiles-enabled': false
+    'occumed:custom-pmtiles-enabled': false,
+    'occumed:world-pmtiles-enabled': false
   };
 }
 
 await fs.writeFile(runtimePath, `${JSON.stringify(runtime, null, 2)}\n`);
 console.log(
-  archiveUrl
-    ? `Configured custom PMTiles source: ${archiveUrl}`
-    : 'OCCUMED_PMTILES_URL is not set; retained the existing open vector fallback.'
+  worldManifestUrl
+    ? `Configured worldwide PMTiles manifest: ${worldManifestUrl}`
+    : archiveUrl
+      ? `Configured custom PMTiles source: ${archiveUrl}`
+      : 'Custom PMTiles is disabled; retained the existing open vector fallback.'
 );
