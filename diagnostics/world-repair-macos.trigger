@@ -1,2 +1,2 @@
-requested_at=2026-07-26T21:49:00Z
-purpose=confirm_canonical_release_cleanup_state
+requested_at=2026-07-26T21:56:00Z
+purpose=refresh_canonical_release_cleanup_state
