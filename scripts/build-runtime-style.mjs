@@ -26,7 +26,7 @@ const fontMap = new Map([
   ['DIN Pro Medium', 'Open Sans Semibold'],
   ['DIN Pro Bold', 'Open Sans Bold'],
   ['DIN Pro Italic', 'Open Sans Italic'],
-  ['Arial Unicode MS Regular', 'Arial Unicode MS Regular']
+  ['Arial Unicode MS Regular', 'Open Sans Regular']
 ]);
 
 const get = (key) => ['get', key];
