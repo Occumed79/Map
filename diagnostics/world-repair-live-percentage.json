@@ -1,0 +1,410 @@
+{
+  "capturedAt": "2026-07-26T19:25:44.839Z",
+  "runId": "30214445296",
+  "runUrl": "https://github.com/Occumed79/Map/actions/runs/30214445296",
+  "runStatus": "queued",
+  "runConclusion": null,
+  "totalShardJobs": 724,
+  "successfulShardJobs": 219,
+  "failedShardJobs": 98,
+  "cancelledShardJobs": 0,
+  "skippedShardJobs": 0,
+  "inProgressShardJobs": 19,
+  "queuedShardJobs": 388,
+  "nonFailedTarget": 626,
+  "completionPercentageExcludingFailures": 34.98,
+  "failures": [
+    {
+      "id": 89826326886,
+      "name": "build-bucket-2 (austria--r2-c2, austria--r2-c2, Austria 2.2, europe, https://download.geofabrik.d..."
+    },
+    {
+      "id": 89826326900,
+      "name": "build-bucket-2 (argentina--r1-c1, argentina--r1-c1, Argentina 1.1, south-america, https://downloa..."
+    },
+    {
+      "id": 89826326961,
+      "name": "build-bucket-2 (belgium--r1-c2, belgium--r1-c2, Belgium 1.2, europe, https://download.geofabrik.d..."
+    },
+    {
+      "id": 89826326996,
+      "name": "build-bucket-2 (central-fed-district--r2-c2, central-fed-district--r2-c2, Central Federal Distric..."
+    },
+    {
+      "id": 89826327007,
+      "name": "build-bucket-2 (denmark--r2-c3, denmark--r2-c3, Denmark 2.3, europe, https://download.geofabrik.d..."
+    },
+    {
+      "id": 89826327031,
+      "name": "build-bucket-2 (chubu--r1-c1, chubu--r1-c1, Chūbu region 1.1, asia, https://download.geofabrik.d..."
+    },
+    {
+      "id": 89826327035,
+      "name": "build-bucket-2 (congo-democratic-republic--r2-c1, congo-democratic-republic--r2-c1, Congo (Democr..."
+    },
+    {
+      "id": 89826327047,
+      "name": "build-bucket-2 (finland--r2-c1, finland--r2-c1, Finland 2.1, europe, https://download.geofabrik.d..."
+    },
+    {
+      "id": 89826327076,
+      "name": "build-bucket-2 (ireland-and-northern-ireland--r1-c1, ireland-and-northern-ireland--r1-c1, Ireland..."
+    },
+    {
+      "id": 89826327095,
+      "name": "build-bucket-2 (kitikmeot--r2-c1, kitikmeot--r2-c1, Kitikmeot Region 2.1, north-america, https://..."
+    },
+    {
+      "id": 89826327096,
+      "name": "build-bucket-2 (kanto--r2-c1, kanto--r2-c1, Kantō region 2.1, asia, https://download.geofabrik.d..."
+    },
+    {
+      "id": 89826327129,
+      "name": "build-bucket-2 (norcal--r2-c2, norcal--r2-c2, Northern California 2.2, north-america, https://dow..."
+    },
+    {
+      "id": 89826327140,
+      "name": "build-bucket-2 (new-zealand--r1-c1, new-zealand--r1-c1, New Zealand 1.1, australia-oceania, https..."
+    },
+    {
+      "id": 89826327142,
+      "name": "build-bucket-2 (nepal--r2-c1, nepal--r2-c1, Nepal 2.1, asia, https://download.geofabrik.de/asia/n..."
+    },
+    {
+      "id": 89826327143,
+      "name": "build-bucket-2 (nigeria--r1-c3, nigeria--r1-c3, Nigeria 1.3, africa, https://download.geofabrik.d..."
+    },
+    {
+      "id": 89826327146,
+      "name": "build-bucket-2 (nord-norge--r1-c1, nord-norge--r1-c1, Nord-Norge<br />(Northern Norway) 1.1, euro..."
+    },
+    {
+      "id": 89826327160,
+      "name": "build-bucket-2 (niedersachsen--r2-c1, niedersachsen--r2-c1, Niedersachsen (mit Bremen) 2.1, europ..."
+    },
+    {
+      "id": 89826327170,
+      "name": "build-bucket-3 (belgium--r1-c3, belgium--r1-c3, Belgium 1.3, europe, https://download.geofabrik.d..."
+    },
+    {
+      "id": 89826327180,
+      "name": "build-bucket-2 (nord-ovest--r1-c1, nord-ovest--r1-c1, Nord-Ovest 1.1, europe, https://download.ge..."
+    },
+    {
+      "id": 89826327190,
+      "name": "build-bucket-2 (mexico--r1-c2, mexico--r1-c2, Mexico 1.2, north-america, https://download.geofabr..."
+    },
+    {
+      "id": 89826327201,
+      "name": "build-bucket-3 (chubu--r1-c2, chubu--r1-c2, Chūbu region 1.2, asia, https://download.geofabrik.d..."
+    },
+    {
+      "id": 89826327202,
+      "name": "build-bucket-2 (kivalliq--r2-c1, kivalliq--r2-c1, Kivalliq Region 2.1, north-america, https://dow..."
+    },
+    {
+      "id": 89826327211,
+      "name": "build-bucket-3 (argentina--r1-c2, argentina--r1-c2, Argentina 1.2, south-america, https://downloa..."
+    },
+    {
+      "id": 89826327212,
+      "name": "build-bucket-3 (austria--r2-c3, austria--r2-c3, Austria 2.3, europe, https://download.geofabrik.d..."
+    },
+    {
+      "id": 89826327220,
+      "name": "build-bucket-3 (far-eastern-fed-district, far-eastern-fed-district, Far Eastern Federal District,..."
+    },
+    {
+      "id": 89826327222,
+      "name": "build-bucket-3 (congo-democratic-republic--r2-c2, congo-democratic-republic--r2-c2, Congo (Democr..."
+    },
+    {
+      "id": 89826327252,
+      "name": "build-bucket-3 (kanto--r2-c2, kanto--r2-c2, Kantō region 2.2, asia, https://download.geofabrik.d..."
+    },
+    {
+      "id": 89826327255,
+      "name": "build-bucket-3 (kivalliq--r2-c2, kivalliq--r2-c2, Kivalliq Region 2.2, north-america, https://dow..."
+    },
+    {
+      "id": 89826327257,
+      "name": "build-bucket-3 (kitikmeot--r2-c2, kitikmeot--r2-c2, Kitikmeot Region 2.2, north-america, https://..."
+    },
+    {
+      "id": 89826327268,
+      "name": "build-bucket-3 (finland--r2-c2, finland--r2-c2, Finland 2.2, europe, https://download.geofabrik.d..."
+    },
+    {
+      "id": 89826327274,
+      "name": "build-bucket-3 (ireland-and-northern-ireland--r1-c2, ireland-and-northern-ireland--r1-c2, Ireland..."
+    },
+    {
+      "id": 89826327276,
+      "name": "build-bucket-3 (denmark--r1-c1, denmark--r1-c1, Denmark 1.1, europe, https://download.geofabrik.d..."
+    },
+    {
+      "id": 89826327294,
+      "name": "build-bucket-3 (new-zealand--r1-c2-s1, new-zealand--r1-c2-s1, New Zealand 1.2-s1, australia-ocean..."
+    },
+    {
+      "id": 89826327300,
+      "name": "build-bucket-3 (niedersachsen--r2-c2, niedersachsen--r2-c2, Niedersachsen (mit Bremen) 2.2, europ..."
+    },
+    {
+      "id": 89826327310,
+      "name": "build-bucket-3 (mexico--r1-c3, mexico--r1-c3, Mexico 1.3, north-america, https://download.geofabr..."
+    },
+    {
+      "id": 89826327317,
+      "name": "build-bucket-3 (nepal--r2-c2, nepal--r2-c2, Nepal 2.2, asia, https://download.geofabrik.de/asia/n..."
+    },
+    {
+      "id": 89826327325,
+      "name": "build-bucket-3 (norcal--r2-c3, norcal--r2-c3, Northern California 2.3, north-america, https://dow..."
+    },
+    {
+      "id": 89826327335,
+      "name": "build-bucket-3 (nord-ovest--r1-c2, nord-ovest--r1-c2, Nord-Ovest 1.2, europe, https://download.ge..."
+    },
+    {
+      "id": 89826327337,
+      "name": "build-bucket-3 (nigeria--r2-c1, nigeria--r2-c1, Nigeria 2.1, africa, https://download.geofabrik.d..."
+    },
+    {
+      "id": 89826327343,
+      "name": "build-bucket-3 (java--r1-c2, java--r1-c2, Java 1.2, asia, https://download.geofabrik.de/asia/indo..."
+    },
+    {
+      "id": 89826327350,
+      "name": "build-bucket-3 (nord-norge--r1-c2, nord-norge--r1-c2, Nord-Norge<br />(Northern Norway) 1.2, euro..."
+    },
+    {
+      "id": 89826327361,
+      "name": "build-bucket-1 (central-fed-district--r2-c1, central-fed-district--r2-c1, Central Federal Distric..."
+    },
+    {
+      "id": 89826327362,
+      "name": "build-bucket-1 (congo-democratic-republic--r1-c3, congo-democratic-republic--r1-c3, Congo (Democr..."
+    },
+    {
+      "id": 89826327363,
+      "name": "build-bucket-1 (enfield, enfield, Enfield, europe, https://download.geofabrik.de/europe/united-ki..."
+    },
+    {
+      "id": 89826327387,
+      "name": "build-bucket-3 (nordeste--r1-c1, nordeste--r1-c1, Nordeste 1.1, south-america, https://download.g..."
+    },
+    {
+      "id": 89826327393,
+      "name": "build-bucket-1 (austria--r2-c1, austria--r2-c1, Austria 2.1, europe, https://download.geofabrik.d..."
+    },
+    {
+      "id": 89826327403,
+      "name": "build-bucket-1 (denmark--r2-c2, denmark--r2-c2, Denmark 2.2, europe, https://download.geofabrik.d..."
+    },
+    {
+      "id": 89826327408,
+      "name": "build-bucket-1 (finland--r1-c2, finland--r1-c2, Finland 1.2, europe, https://download.geofabrik.d..."
+    },
+    {
+      "id": 89826327428,
+      "name": "build-bucket-1 (kivalliq--r1-c3, kivalliq--r1-c3, Kivalliq Region 1.3, north-america, https://dow..."
+    },
+    {
+      "id": 89826327430,
+      "name": "build-bucket-1 (kitikmeot--r1-c3, kitikmeot--r1-c3, Kitikmeot Region 1.3, north-america, https://..."
+    },
+    {
+      "id": 89826327438,
+      "name": "build-bucket-1 (java--r2-c3, java--r2-c3, Java 2.3, asia, https://download.geofabrik.de/asia/indo..."
+    },
+    {
+      "id": 89826327456,
+      "name": "build-bucket-1 (kanto--r1-c3, kanto--r1-c3, Kantō region 1.3, asia, https://download.geofabrik.d..."
+    },
+    {
+      "id": 89826327460,
+      "name": "build-bucket-1 (mexico--r1-c1, mexico--r1-c1, Mexico 1.1, north-america, https://download.geofabr..."
+    },
+    {
+      "id": 89826327462,
+      "name": "build-bucket-1 (belgium--r1-c1, belgium--r1-c1, Belgium 1.1, europe, https://download.geofabrik.d..."
+    },
+    {
+      "id": 89826327464,
+      "name": "build-bucket-1 (new-zealand--r2-c2-s2, new-zealand--r2-c2-s2, New Zealand 2.2-s2, australia-ocean..."
+    },
+    {
+      "id": 89826327469,
+      "name": "build-bucket-1 (myanmar, myanmar, Myanmar (a.k.a. Burma), asia, https://download.geofabrik.de/asi..."
+    },
+    {
+      "id": 89826327477,
+      "name": "build-bucket-1 (niedersachsen--r1-c3, niedersachsen--r1-c3, Niedersachsen (mit Bremen) 1.3, europ..."
+    },
+    {
+      "id": 89826327480,
+      "name": "build-bucket-1 (nepal--r1-c3, nepal--r1-c3, Nepal 1.3, asia, https://download.geofabrik.de/asia/n..."
+    },
+    {
+      "id": 89826327496,
+      "name": "build-bucket-1 (nord-norge--r2-c3, nord-norge--r2-c3, Nord-Norge<br />(Northern Norway) 2.3, euro..."
+    },
+    {
+      "id": 89826327499,
+      "name": "build-bucket-1 (nigeria--r1-c2, nigeria--r1-c2, Nigeria 1.2, africa, https://download.geofabrik.d..."
+    },
+    {
+      "id": 89826327501,
+      "name": "build-bucket-1 (nord-ovest--r2-c3, nord-ovest--r2-c3, Nord-Ovest 2.3, europe, https://download.ge..."
+    },
+    {
+      "id": 89826327508,
+      "name": "build-bucket-5 (argentina--r2-c2, argentina--r2-c2, Argentina 2.2, south-america, https://downloa..."
+    },
+    {
+      "id": 89826327539,
+      "name": "build-bucket-5 (austria--r1-c2, austria--r1-c2, Austria 1.2, europe, https://download.geofabrik.d..."
+    },
+    {
+      "id": 89826327549,
+      "name": "build-bucket-5 (central-fed-district--r1-c1, central-fed-district--r1-c1, Central Federal Distric..."
+    },
+    {
+      "id": 89826327580,
+      "name": "build-bucket-5 (denmark--r1-c3, denmark--r1-c3, Denmark 1.3, europe, https://download.geofabrik.d..."
+    },
+    {
+      "id": 89826327581,
+      "name": "build-bucket-1 (norcal--r2-c1, norcal--r2-c1, Northern California 2.1, north-america, https://dow..."
+    },
+    {
+      "id": 89826327588,
+      "name": "build-bucket-5 (congo-democratic-republic--r1-c1, congo-democratic-republic--r1-c1, Congo (Democr..."
+    },
+    {
+      "id": 89826327620,
+      "name": "build-bucket-5 (belgium--r2-c2, belgium--r2-c2, Belgium 2.2, europe, https://download.geofabrik.d..."
+    },
+    {
+      "id": 89826327671,
+      "name": "build-bucket-5 (ireland-and-northern-ireland--r2-c2, ireland-and-northern-ireland--r2-c2, Ireland..."
+    },
+    {
+      "id": 89826327685,
+      "name": "build-bucket-5 (kanto--r1-c1, kanto--r1-c1, Kantō region 1.1, asia, https://download.geofabrik.d..."
+    },
+    {
+      "id": 89826327687,
+      "name": "build-bucket-5 (kitikmeot--r1-c1, kitikmeot--r1-c1, Kitikmeot Region 1.1, north-america, https://..."
+    },
+    {
+      "id": 89826327693,
+      "name": "build-bucket-5 (kivalliq--r1-c1, kivalliq--r1-c1, Kivalliq Region 1.1, north-america, https://dow..."
+    },
+    {
+      "id": 89826327713,
+      "name": "build-bucket-5 (java--r2-c1, java--r2-c1, Java 2.1, asia, https://download.geofabrik.de/asia/indo..."
+    },
+    {
+      "id": 89826327750,
+      "name": "build-bucket-5 (mexico--r2-c2, mexico--r2-c2, Mexico 2.2, north-america, https://download.geofabr..."
+    },
+    {
+      "id": 89826327807,
+      "name": "build-bucket-5 (nepal--r1-c1, nepal--r1-c1, Nepal 1.1, asia, https://download.geofabrik.de/asia/n..."
+    },
+    {
+      "id": 89826327808,
+      "name": "build-bucket-5 (new-zealand--r2-c1, new-zealand--r2-c1, New Zealand 2.1, australia-oceania, https..."
+    },
+    {
+      "id": 89826327809,
+      "name": "build-bucket-5 (niedersachsen--r1-c1, niedersachsen--r1-c1, Niedersachsen (mit Bremen) 1.1, europ..."
+    },
+    {
+      "id": 89826327833,
+      "name": "build-bucket-5 (norcal--r1-c2, norcal--r1-c2, Northern California 1.2, north-america, https://dow..."
+    },
+    {
+      "id": 89826327843,
+      "name": "build-bucket-5 (nigeria--r2-c3, nigeria--r2-c3, Nigeria 2.3, africa, https://download.geofabrik.d..."
+    },
+    {
+      "id": 89826327849,
+      "name": "build-bucket-5 (nord-norge--r2-c1, nord-norge--r2-c1, Nord-Norge<br />(Northern Norway) 2.1, euro..."
+    },
+    {
+      "id": 89826327880,
+      "name": "build-bucket-5 (nord-est--r1-c2, nord-est--r1-c2, Nord-Est 1.2, europe, https://download.geofabri..."
+    },
+    {
+      "id": 89826327888,
+      "name": "build-bucket-5 (nord-ovest--r2-c1, nord-ovest--r2-c1, Nord-Ovest 2.1, europe, https://download.ge..."
+    },
+    {
+      "id": 89826327900,
+      "name": "build-bucket-5 (nordeste--r2-c1, nordeste--r2-c1, Nordeste 2.1, south-america, https://download.g..."
+    },
+    {
+      "id": 89826327904,
+      "name": "build-bucket-2 (java--r1-c1, java--r1-c1, Java 1.1, asia, https://download.geofabrik.de/asia/indo..."
+    },
+    {
+      "id": 89826327946,
+      "name": "build-bucket-0 (austria--r1-c3, austria--r1-c3, Austria 1.3, europe, https://download.geofabrik.d..."
+    },
+    {
+      "id": 89826327952,
+      "name": "build-bucket-0 (belgium--r2-c3, belgium--r2-c3, Belgium 2.3, europe, https://download.geofabrik.d..."
+    },
+    {
+      "id": 89826327976,
+      "name": "build-bucket-0 (central-fed-district--r1-c2, central-fed-district--r1-c2, Central Federal Distric..."
+    },
+    {
+      "id": 89826327979,
+      "name": "build-bucket-0 (congo-democratic-republic--r1-c2, congo-democratic-republic--r1-c2, Congo (Democr..."
+    },
+    {
+      "id": 89826327996,
+      "name": "build-bucket-0 (denmark--r2-c1, denmark--r2-c1, Denmark 2.1, europe, https://download.geofabrik.d..."
+    },
+    {
+      "id": 89826328054,
+      "name": "build-bucket-0 (kitikmeot--r1-c2, kitikmeot--r1-c2, Kitikmeot Region 1.2, north-america, https://..."
+    },
+    {
+      "id": 89826328056,
+      "name": "build-bucket-0 (java--r2-c2, java--r2-c2, Java 2.2, asia, https://download.geofabrik.de/asia/indo..."
+    },
+    {
+      "id": 89826328075,
+      "name": "build-bucket-0 (kanto--r1-c2, kanto--r1-c2, Kantō region 1.2, asia, https://download.geofabrik.d..."
+    },
+    {
+      "id": 89826328096,
+      "name": "build-bucket-0 (kivalliq--r1-c2, kivalliq--r1-c2, Kivalliq Region 1.2, north-america, https://dow..."
+    },
+    {
+      "id": 89826328105,
+      "name": "build-bucket-0 (nepal--r1-c2, nepal--r1-c2, Nepal 1.2, asia, https://download.geofabrik.de/asia/n..."
+    },
+    {
+      "id": 89826328121,
+      "name": "build-bucket-0 (nigeria--r1-c1, nigeria--r1-c1, Nigeria 1.1, africa, https://download.geofabrik.d..."
+    },
+    {
+      "id": 89826328152,
+      "name": "build-bucket-4 (argentina--r2-c1, argentina--r2-c1, Argentina 2.1, south-america, https://downloa..."
+    },
+    {
+      "id": 89826328197,
+      "name": "build-bucket-4 (chubu--r2-c1, chubu--r2-c1, Chūbu region 2.1, asia, https://download.geofabrik.d..."
+    },
+    {
+      "id": 89826328733,
+      "name": "build-bucket-5 (chubu--r2-c2, chubu--r2-c2, Chūbu region 2.2, asia, https://download.geofabrik.d..."
+    }
+  ]
+}
