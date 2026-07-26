@@ -37,7 +37,7 @@ if (Array.isArray(atmosphereBlend)) {
 
 const relief = runtime.layers.find((layer) => layer.id === 'occumed-shaded-relief');
 if (!relief) fail('The low-zoom relief layer is missing.');
-if ((relief?.paint?.['raster-saturation'] ?? 0) < 0.3) {
+if ((relief?.paint?.['raster-saturation'] ?? 0) < 0.7) {
   fail('Low-zoom relief is not saturated enough for the exported green/blue globe target.');
 }
 
@@ -48,8 +48,8 @@ if (hillshade?.paint?.['hillshade-illumination-anchor'] !== 'map') {
 }
 
 const background = runtime.layers.find((layer) => layer.id === 'land');
-if (background?.paint?.['background-color'] !== 'hsl(60, 20%, 85%)') {
-  fail('The exported Occu-Med land background color changed.');
+if (background?.paint?.['background-color'] !== 'hsl(72, 38%, 79%)') {
+  fail('The live-QA pale yellow-green land background changed.');
 }
 
 if (failures.length) {
@@ -58,4 +58,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('Globe parity validated: stable dark space, restrained atmosphere, vivid relief, and anchored hillshade.');
+console.log('Globe parity validated: stable dark space, visible rim, vivid relief, saturated oceans, and anchored hillshade.');
