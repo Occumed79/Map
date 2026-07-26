@@ -1,4 +1,4 @@
-name: Snapshot worldwide PMTiles progress (macOS)
+name: Snapshot worldwide PMTiles release coverage (macOS)
 
 on:
   push:
@@ -14,86 +14,89 @@ permissions:
 jobs:
   snapshot:
     runs-on: macos-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with:
           ref: feat/custom-planetiler-pmtiles-basemap
           fetch-depth: 0
 
-      - name: Count every worldwide shard job
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Compare canonical plan with every paginated release asset
         env:
           GH_TOKEN: ${{ github.token }}
+          WORLD_RELEASE_TAG: occumed-world-v1
         run: |
-          mkdir -p diagnostics
-          gh api \
-            "/repos/${GITHUB_REPOSITORY}/actions/workflows/repair-world-pmtiles.yml/runs?branch=feat%2Fcustom-planetiler-pmtiles-basemap&event=push&per_page=10" \
-            > /tmp/repair-runs.json
+          mkdir -p diagnostics /tmp/world-coverage
+          node scripts/plan-world-shards.mjs --scope all > /tmp/world-coverage/raw-plan.json
 
           node <<'NODE'
           const fs = require('node:fs');
-          const payload = JSON.parse(fs.readFileSync('/tmp/repair-runs.json', 'utf8'));
-          const run = (payload.workflow_runs || [])[0];
-          if (!run) throw new Error('No worldwide repair run found.');
-          fs.writeFileSync('/tmp/run.json', JSON.stringify(run));
-          fs.writeFileSync('/tmp/run-id.txt', String(run.id));
-          NODE
-
-          RUN_ID="$(cat /tmp/run-id.txt)"
-          gh api --paginate --slurp \
-            "/repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/jobs?per_page=100" \
-            > /tmp/job-pages.json
-
-          node <<'NODE'
-          const fs = require('node:fs');
-          const run = JSON.parse(fs.readFileSync('/tmp/run.json', 'utf8'));
-          const pages = JSON.parse(fs.readFileSync('/tmp/job-pages.json', 'utf8'));
-          const jobs = pages.flatMap((page) => page.jobs || []);
-          const shards = jobs.filter((job) => job.name.startsWith('build-bucket-'));
-          const count = (predicate) => shards.filter(predicate).length;
-          const successful = count((job) => job.conclusion === 'success');
-          const failed = count((job) => job.conclusion === 'failure');
-          const cancelled = count((job) => job.conclusion === 'cancelled');
-          const skipped = count((job) => job.conclusion === 'skipped');
-          const inProgress = count((job) => job.status === 'in_progress');
-          const queued = count((job) => job.status === 'queued');
-          const nonFailedTarget = shards.length - failed;
-          const completionPercentageExcludingFailures = nonFailedTarget > 0
-            ? Number(((successful / nonFailedTarget) * 100).toFixed(2))
-            : 0;
-          const failures = shards
-            .filter((job) => job.conclusion === 'failure')
-            .map((job) => ({ id: job.id, name: job.name }));
-          const status = {
-            capturedAt: new Date().toISOString(),
-            runId: String(run.id),
-            runUrl: run.html_url,
-            runStatus: run.status,
-            runConclusion: run.conclusion,
-            totalShardJobs: shards.length,
-            successfulShardJobs: successful,
-            failedShardJobs: failed,
-            cancelledShardJobs: cancelled,
-            skippedShardJobs: skipped,
-            inProgressShardJobs: inProgress,
-            queuedShardJobs: queued,
-            nonFailedTarget,
-            completionPercentageExcludingFailures,
-            failures
-          };
-          fs.writeFileSync(
-            'diagnostics/world-repair-live-percentage.json',
-            `${JSON.stringify(status, null, 2)}\n`
+          const input = JSON.parse(fs.readFileSync('/tmp/world-coverage/raw-plan.json', 'utf8'));
+          const excluded = new Set([
+            'alps', 'britain-and-ireland', 'dach', 'great-britain', 'sea',
+            'south-africa-and-lesotho', 'us', 'us-midwest', 'us-northeast',
+            'us-pacific', 'us-south', 'us-west'
+          ]);
+          const include = input.include.filter((region) =>
+            !excluded.has(region.id) && !excluded.has(region.source_region_id)
           );
-          console.log(JSON.stringify(status, null, 2));
+          fs.writeFileSync(
+            '/tmp/world-coverage/world-plan.json',
+            `${JSON.stringify({ ...input, canonical: true, include }, null, 2)}\n`
+          );
           NODE
 
-      - name: Commit live percentage
+          release_id="$(gh api "/repos/${GITHUB_REPOSITORY}/releases/tags/${WORLD_RELEASE_TAG}" --jq '.id')"
+          gh api --paginate --slurp \
+            "/repos/${GITHUB_REPOSITORY}/releases/${release_id}/assets?per_page=100" \
+            > /tmp/world-coverage/asset-pages.json
+
+          node <<'NODE'
+          const fs = require('node:fs');
+          const pages = JSON.parse(fs.readFileSync('/tmp/world-coverage/asset-pages.json', 'utf8'));
+          const assets = pages.flatMap((page) => page || []);
+          fs.writeFileSync(
+            '/tmp/world-coverage/assets.json',
+            `${JSON.stringify({ assets }, null, 2)}\n`
+          );
+          NODE
+
+          node scripts/build-world-manifest.mjs \
+            --plan /tmp/world-coverage/world-plan.json \
+            --assets /tmp/world-coverage/assets.json \
+            --repository "$GITHUB_REPOSITORY" \
+            --tag "$WORLD_RELEASE_TAG" \
+            --output diagnostics/world-release-coverage.json
+
+          node <<'NODE'
+          const fs = require('node:fs');
+          const manifest = JSON.parse(fs.readFileSync('diagnostics/world-release-coverage.json', 'utf8'));
+          const assetsPayload = JSON.parse(fs.readFileSync('/tmp/world-coverage/assets.json', 'utf8'));
+          manifest.releaseAssetCount = assetsPayload.assets.length;
+          manifest.capturedAt = new Date().toISOString();
+          fs.writeFileSync(
+            'diagnostics/world-release-coverage.json',
+            `${JSON.stringify(manifest, null, 2)}\n`
+          );
+          console.log(JSON.stringify({
+            planned: manifest.plannedRegionCount,
+            available: manifest.availableRegionCount,
+            missing: manifest.missingRegionCount,
+            releaseAssets: manifest.releaseAssetCount,
+            missingRegions: manifest.missingRegions
+          }, null, 2));
+          NODE
+
+      - name: Commit release coverage
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add diagnostics/world-repair-live-percentage.json
+          git add diagnostics/world-release-coverage.json
           git diff --cached --quiet && exit 0
-          git commit -m "Snapshot worldwide PMTiles completion percentage"
+          git commit -m "Snapshot worldwide PMTiles release coverage"
           git pull --rebase origin feat/custom-planetiler-pmtiles-basemap
           git push origin HEAD:feat/custom-planetiler-pmtiles-basemap
