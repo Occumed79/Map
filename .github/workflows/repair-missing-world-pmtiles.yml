@@ -31,6 +31,8 @@ jobs:
       bucket1: ${{ steps.plan.outputs.bucket1 }}
       bucket2: ${{ steps.plan.outputs.bucket2 }}
       missing_count: ${{ steps.plan.outputs.missing_count }}
+      published_count: ${{ steps.plan.outputs.published_count }}
+      release_asset_count: ${{ steps.plan.outputs.release_asset_count }}
     steps:
       - uses: actions/checkout@v4
 
@@ -43,6 +45,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          set -euo pipefail
           mkdir -p world-plan
           node scripts/plan-world-shards.mjs --scope all > world-plan/raw-world-plan.json
 
@@ -61,7 +64,8 @@ jobs:
           const fs = require('node:fs');
           const input = JSON.parse(fs.readFileSync('world-plan/raw-world-plan.json', 'utf8'));
           const assetPages = JSON.parse(fs.readFileSync('world-plan/release-asset-pages.json', 'utf8'));
-          const assetNames = new Set(assetPages.flatMap((page) => page || []).map((asset) => asset.name));
+          const releaseAssets = assetPages.flatMap((page) => page || []);
+          const assetNames = new Set(releaseAssets.map((asset) => asset.name));
           const excluded = new Set([
             'alps', 'britain-and-ireland', 'dach', 'great-britain', 'sea',
             'south-africa-and-lesotho', 'us', 'us-midwest', 'us-northeast',
@@ -80,6 +84,16 @@ jobs:
           }
 
           const missing = include.filter((region) => !assetNames.has(region.asset_name));
+          const publishedCount = include.length - missing.length;
+          const requiredFinalAssets = missing.length + 1;
+          const remainingReleaseSlots = 1000 - releaseAssets.length;
+          if (requiredFinalAssets > remainingReleaseSlots) {
+            throw new Error(
+              `Release capacity is insufficient: ${releaseAssets.length} assets already exist, ` +
+              `${requiredFinalAssets} additional slots are required, and only ${remainingReleaseSlots} remain.`
+            );
+          }
+
           const fullPlan = {
             ...input,
             generatedAt: new Date().toISOString(),
@@ -95,6 +109,8 @@ jobs:
 
           const output = process.env.GITHUB_OUTPUT;
           fs.appendFileSync(output, `missing_count=${missing.length}\n`);
+          fs.appendFileSync(output, `published_count=${publishedCount}\n`);
+          fs.appendFileSync(output, `release_asset_count=${releaseAssets.length}\n`);
           for (let bucket = 0; bucket < 3; bucket += 1) {
             const assigned = missing.filter((_, index) => index % 3 === bucket);
             const includeForMatrix = assigned.length ? assigned : [{
@@ -115,15 +131,12 @@ jobs:
             fs.appendFileSync(output, `bucket${bucket}=${JSON.stringify({ include: includeForMatrix })}\n`);
           }
           console.log(`Canonical plan: ${include.length} shards.`);
-          console.log(`Already published: ${include.length - missing.length} shards.`);
+          console.log(`Already published: ${publishedCount} shards.`);
           console.log(`Missing and scheduled: ${missing.length} shards.`);
+          console.log(`Release assets before repair: ${releaseAssets.length}.`);
+          console.log(`Release slots required, including final manifest: ${requiredFinalAssets}.`);
+          console.log(`Release slots available: ${remainingReleaseSlots}.`);
           NODE
-
-          gh release upload "$WORLD_RELEASE_TAG" \
-            world-plan/world-plan.json \
-            world-plan/missing-world-plan.json \
-            --repo "$GITHUB_REPOSITORY" \
-            --clobber
 
       - name: Preserve canonical plans
         uses: actions/upload-artifact@v4
@@ -238,6 +251,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          set -euo pipefail
           mkdir -p world-release
           release_id="$(gh api "/repos/${GITHUB_REPOSITORY}/releases/tags/${WORLD_RELEASE_TAG}" --jq '.id')"
           gh api --paginate --slurp \
