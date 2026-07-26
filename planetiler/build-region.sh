@@ -8,8 +8,13 @@ MEMORY="${OCCUMED_PLANETILER_MEMORY:-6g}"
 IMAGE="${OCCUMED_PLANETILER_IMAGE:-ghcr.io/onthegomap/planetiler:0.10.2}"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DATA_DIR="${OCCUMED_PLANETILER_DATA_DIR:-$ROOT/.planetiler-data}"
+PROFILE_DIR="$DATA_DIR/generated-profile"
+PROFILE_PATH="$PROFILE_DIR/occumed-basemap.yml"
 
-mkdir -p "$DATA_DIR/tmp" "$(dirname "$OUTPUT")"
+mkdir -p "$DATA_DIR/tmp" "$PROFILE_DIR" "$(dirname "$OUTPUT")"
+node "$ROOT/scripts/prepare-planetiler-profile.mjs" \
+  "$ROOT/planetiler/occumed-basemap.yml" \
+  "$PROFILE_PATH"
 
 OUTPUT_DIR="$(cd "$(dirname "$OUTPUT")" && pwd)"
 OUTPUT_NAME="$(basename "$OUTPUT")"
@@ -48,16 +53,17 @@ echo "  source: ${OSM_PBF:-Geofabrik download}"
 echo "  output: $OUTPUT"
 echo "  memory: $MEMORY"
 echo "  image:  $IMAGE"
+echo "  schema: $PROFILE_PATH"
 
-# Parse and validate the schema before processing the real extract.
+# Parse and validate the exact generated schema before processing the real extract.
 docker run --rm \
-  -v "$ROOT/planetiler:/profile:ro" \
+  -v "$PROFILE_DIR:/profile:ro" \
   "$IMAGE" \
   verify /profile/occumed-basemap.yml
 
 docker run --rm \
   -e JAVA_TOOL_OPTIONS="-Xmx${MEMORY}" \
-  -v "$ROOT/planetiler:/profile:ro" \
+  -v "$PROFILE_DIR:/profile:ro" \
   -v "$DATA_DIR:/data" \
   -v "$OUTPUT_DIR:/output" \
   "$IMAGE" \
