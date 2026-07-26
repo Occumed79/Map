@@ -1,0 +1,11 @@
+{
+  "capturedAt": "2026-07-26T21:52:44.126Z",
+  "cleanup": {
+    "id": "30221895012",
+    "url": "https://github.com/Occumed79/Map/actions/runs/30221895012",
+    "status": "completed",
+    "conclusion": "failure",
+    "createdAt": "2026-07-26T21:50:19Z",
+    "updatedAt": "2026-07-26T21:51:52Z"
+  }
+}
