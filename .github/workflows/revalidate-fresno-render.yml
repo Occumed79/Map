@@ -6,6 +6,13 @@ on:
       - feat/custom-planetiler-pmtiles-basemap
     paths:
       - .github/workflows/revalidate-fresno-render.yml
+  pull_request:
+    paths:
+      - .github/workflows/revalidate-fresno-render.yml
+      - scripts/build-runtime-style.mjs
+      - scripts/check-runtime.mjs
+      - scripts/capture-pmtiles-preview.mjs
+      - server.mjs
 
 permissions:
   actions: read
