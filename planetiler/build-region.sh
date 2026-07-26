@@ -2,14 +2,14 @@
 set -euo pipefail
 
 AREA="${OCCUMED_TILE_AREA:-california}"
-BOUNDS="${OCCUMED_TILE_BOUNDS:-}"
+OSM_PBF="${OCCUMED_OSM_PBF:-}"
 OUTPUT="${OCCUMED_PMTILES_OUTPUT:-$PWD/public/tiles/occumed.pmtiles}"
 MEMORY="${OCCUMED_PLANETILER_MEMORY:-6g}"
 IMAGE="${OCCUMED_PLANETILER_IMAGE:-ghcr.io/onthegomap/planetiler:latest}"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DATA_DIR="${OCCUMED_PLANETILER_DATA_DIR:-$ROOT/.planetiler-data}"
 
-mkdir -p "$DATA_DIR" "$(dirname "$OUTPUT")"
+mkdir -p "$DATA_DIR/tmp" "$(dirname "$OUTPUT")"
 
 OUTPUT_DIR="$(cd "$(dirname "$OUTPUT")" && pwd)"
 OUTPUT_NAME="$(basename "$OUTPUT")"
@@ -17,24 +17,38 @@ OUTPUT_NAME="$(basename "$OUTPUT")"
 COMMON_ARGS=(
   generate-custom
   --schema=/profile/occumed-basemap.yml
-  --download
   --area="$AREA"
   --output="/output/$OUTPUT_NAME"
   --tmpdir=/data/tmp
   --force
 )
 
-if [[ -n "$BOUNDS" ]]; then
-  COMMON_ARGS+=(--bounds="$BOUNDS")
+if [[ -n "$OSM_PBF" ]]; then
+  if [[ ! -s "$OSM_PBF" ]]; then
+    echo "OSM extract does not exist or is empty: $OSM_PBF" >&2
+    exit 1
+  fi
+  case "$OSM_PBF" in
+    "$DATA_DIR"/*)
+      CONTAINER_OSM_PATH="/data/${OSM_PBF#"$DATA_DIR"/}"
+      ;;
+    *)
+      echo "OCCUMED_OSM_PBF must be inside OCCUMED_PLANETILER_DATA_DIR so Docker can read it." >&2
+      exit 1
+      ;;
+  esac
+  COMMON_ARGS+=(--osm-source-path="$CONTAINER_OSM_PATH")
+else
+  COMMON_ARGS+=(--download)
 fi
 
 echo "Building Occu-Med PMTiles"
 echo "  area:   $AREA"
-echo "  bounds: ${BOUNDS:-full extract}"
+echo "  source: ${OSM_PBF:-Geofabrik download}"
 echo "  output: $OUTPUT"
 echo "  memory: $MEMORY"
 
-# Verify embedded schema examples before spending time downloading and processing data.
+# Parse and validate the schema before processing the real extract.
 docker run --rm \
   -v "$ROOT/planetiler:/profile:ro" \
   "$IMAGE" \
