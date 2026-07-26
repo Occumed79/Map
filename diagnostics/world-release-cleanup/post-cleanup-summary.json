@@ -1,0 +1,1670 @@
+{
+  "capturedAt": "2026-07-26T21:57:45.976Z",
+  "releaseTag": "occumed-world-v1",
+  "canonicalShardCount": 724,
+  "releaseAssetCountBefore": 1000,
+  "deletedAssetCount": 690,
+  "retainedCanonicalCount": 310,
+  "missingCanonicalCount": 414,
+  "remainingReleaseCapacity": 690,
+  "requiredSlotsForMissingPlusManifest": 415,
+  "capacityReady": true,
+  "missingRegions": [
+    {
+      "id": "argentina--r1-c1",
+      "asset": "occumed-argentina--r1-c1.pmtiles"
+    },
+    {
+      "id": "argentina--r1-c2",
+      "asset": "occumed-argentina--r1-c2.pmtiles"
+    },
+    {
+      "id": "argentina--r2-c1",
+      "asset": "occumed-argentina--r2-c1.pmtiles"
+    },
+    {
+      "id": "argentina--r2-c2",
+      "asset": "occumed-argentina--r2-c2.pmtiles"
+    },
+    {
+      "id": "austria--r1-c1",
+      "asset": "occumed-austria--r1-c1.pmtiles"
+    },
+    {
+      "id": "austria--r1-c2",
+      "asset": "occumed-austria--r1-c2.pmtiles"
+    },
+    {
+      "id": "austria--r1-c3",
+      "asset": "occumed-austria--r1-c3.pmtiles"
+    },
+    {
+      "id": "austria--r2-c1",
+      "asset": "occumed-austria--r2-c1.pmtiles"
+    },
+    {
+      "id": "austria--r2-c2",
+      "asset": "occumed-austria--r2-c2.pmtiles"
+    },
+    {
+      "id": "austria--r2-c3",
+      "asset": "occumed-austria--r2-c3.pmtiles"
+    },
+    {
+      "id": "belgium--r1-c1",
+      "asset": "occumed-belgium--r1-c1.pmtiles"
+    },
+    {
+      "id": "belgium--r1-c2",
+      "asset": "occumed-belgium--r1-c2.pmtiles"
+    },
+    {
+      "id": "belgium--r1-c3",
+      "asset": "occumed-belgium--r1-c3.pmtiles"
+    },
+    {
+      "id": "belgium--r2-c1",
+      "asset": "occumed-belgium--r2-c1.pmtiles"
+    },
+    {
+      "id": "belgium--r2-c2",
+      "asset": "occumed-belgium--r2-c2.pmtiles"
+    },
+    {
+      "id": "belgium--r2-c3",
+      "asset": "occumed-belgium--r2-c3.pmtiles"
+    },
+    {
+      "id": "central-fed-district--r1-c2",
+      "asset": "occumed-central-fed-district--r1-c2.pmtiles"
+    },
+    {
+      "id": "central-fed-district--r2-c1",
+      "asset": "occumed-central-fed-district--r2-c1.pmtiles"
+    },
+    {
+      "id": "central-fed-district--r2-c2",
+      "asset": "occumed-central-fed-district--r2-c2.pmtiles"
+    },
+    {
+      "id": "chubu--r1-c1",
+      "asset": "occumed-chubu--r1-c1.pmtiles"
+    },
+    {
+      "id": "chubu--r1-c2",
+      "asset": "occumed-chubu--r1-c2.pmtiles"
+    },
+    {
+      "id": "chubu--r2-c1",
+      "asset": "occumed-chubu--r2-c1.pmtiles"
+    },
+    {
+      "id": "chubu--r2-c2",
+      "asset": "occumed-chubu--r2-c2.pmtiles"
+    },
+    {
+      "id": "congo-democratic-republic--r1-c1",
+      "asset": "occumed-congo-democratic-republic--r1-c1.pmtiles"
+    },
+    {
+      "id": "congo-democratic-republic--r1-c2",
+      "asset": "occumed-congo-democratic-republic--r1-c2.pmtiles"
+    },
+    {
+      "id": "congo-democratic-republic--r1-c3",
+      "asset": "occumed-congo-democratic-republic--r1-c3.pmtiles"
+    },
+    {
+      "id": "congo-democratic-republic--r2-c1",
+      "asset": "occumed-congo-democratic-republic--r2-c1.pmtiles"
+    },
+    {
+      "id": "congo-democratic-republic--r2-c2",
+      "asset": "occumed-congo-democratic-republic--r2-c2.pmtiles"
+    },
+    {
+      "id": "congo-democratic-republic--r2-c3",
+      "asset": "occumed-congo-democratic-republic--r2-c3.pmtiles"
+    },
+    {
+      "id": "denmark--r1-c1",
+      "asset": "occumed-denmark--r1-c1.pmtiles"
+    },
+    {
+      "id": "denmark--r1-c2",
+      "asset": "occumed-denmark--r1-c2.pmtiles"
+    },
+    {
+      "id": "denmark--r1-c3",
+      "asset": "occumed-denmark--r1-c3.pmtiles"
+    },
+    {
+      "id": "denmark--r2-c1",
+      "asset": "occumed-denmark--r2-c1.pmtiles"
+    },
+    {
+      "id": "denmark--r2-c2",
+      "asset": "occumed-denmark--r2-c2.pmtiles"
+    },
+    {
+      "id": "denmark--r2-c3",
+      "asset": "occumed-denmark--r2-c3.pmtiles"
+    },
+    {
+      "id": "enfield",
+      "asset": "occumed-enfield.pmtiles"
+    },
+    {
+      "id": "far-eastern-fed-district",
+      "asset": "occumed-far-eastern-fed-district.pmtiles"
+    },
+    {
+      "id": "finland--r1-c1",
+      "asset": "occumed-finland--r1-c1.pmtiles"
+    },
+    {
+      "id": "finland--r1-c2",
+      "asset": "occumed-finland--r1-c2.pmtiles"
+    },
+    {
+      "id": "finland--r2-c1",
+      "asset": "occumed-finland--r2-c1.pmtiles"
+    },
+    {
+      "id": "finland--r2-c2",
+      "asset": "occumed-finland--r2-c2.pmtiles"
+    },
+    {
+      "id": "iceland",
+      "asset": "occumed-iceland.pmtiles"
+    },
+    {
+      "id": "ireland-and-northern-ireland--r1-c1",
+      "asset": "occumed-ireland-and-northern-ireland--r1-c1.pmtiles"
+    },
+    {
+      "id": "ireland-and-northern-ireland--r1-c2",
+      "asset": "occumed-ireland-and-northern-ireland--r1-c2.pmtiles"
+    },
+    {
+      "id": "ireland-and-northern-ireland--r2-c1",
+      "asset": "occumed-ireland-and-northern-ireland--r2-c1.pmtiles"
+    },
+    {
+      "id": "ireland-and-northern-ireland--r2-c2",
+      "asset": "occumed-ireland-and-northern-ireland--r2-c2.pmtiles"
+    },
+    {
+      "id": "java--r1-c1",
+      "asset": "occumed-java--r1-c1.pmtiles"
+    },
+    {
+      "id": "java--r1-c2",
+      "asset": "occumed-java--r1-c2.pmtiles"
+    },
+    {
+      "id": "java--r1-c3",
+      "asset": "occumed-java--r1-c3.pmtiles"
+    },
+    {
+      "id": "java--r2-c1",
+      "asset": "occumed-java--r2-c1.pmtiles"
+    },
+    {
+      "id": "java--r2-c2",
+      "asset": "occumed-java--r2-c2.pmtiles"
+    },
+    {
+      "id": "java--r2-c3",
+      "asset": "occumed-java--r2-c3.pmtiles"
+    },
+    {
+      "id": "kanto--r1-c1",
+      "asset": "occumed-kanto--r1-c1.pmtiles"
+    },
+    {
+      "id": "kanto--r1-c2",
+      "asset": "occumed-kanto--r1-c2.pmtiles"
+    },
+    {
+      "id": "kanto--r1-c3",
+      "asset": "occumed-kanto--r1-c3.pmtiles"
+    },
+    {
+      "id": "kanto--r2-c1",
+      "asset": "occumed-kanto--r2-c1.pmtiles"
+    },
+    {
+      "id": "kanto--r2-c2",
+      "asset": "occumed-kanto--r2-c2.pmtiles"
+    },
+    {
+      "id": "kanto--r2-c3",
+      "asset": "occumed-kanto--r2-c3.pmtiles"
+    },
+    {
+      "id": "kitikmeot--r1-c1",
+      "asset": "occumed-kitikmeot--r1-c1.pmtiles"
+    },
+    {
+      "id": "kitikmeot--r1-c2",
+      "asset": "occumed-kitikmeot--r1-c2.pmtiles"
+    },
+    {
+      "id": "kitikmeot--r1-c3",
+      "asset": "occumed-kitikmeot--r1-c3.pmtiles"
+    },
+    {
+      "id": "kitikmeot--r2-c1",
+      "asset": "occumed-kitikmeot--r2-c1.pmtiles"
+    },
+    {
+      "id": "kitikmeot--r2-c2",
+      "asset": "occumed-kitikmeot--r2-c2.pmtiles"
+    },
+    {
+      "id": "kitikmeot--r2-c3",
+      "asset": "occumed-kitikmeot--r2-c3.pmtiles"
+    },
+    {
+      "id": "kivalliq--r1-c1",
+      "asset": "occumed-kivalliq--r1-c1.pmtiles"
+    },
+    {
+      "id": "kivalliq--r1-c2",
+      "asset": "occumed-kivalliq--r1-c2.pmtiles"
+    },
+    {
+      "id": "kivalliq--r1-c3",
+      "asset": "occumed-kivalliq--r1-c3.pmtiles"
+    },
+    {
+      "id": "kivalliq--r2-c1",
+      "asset": "occumed-kivalliq--r2-c1.pmtiles"
+    },
+    {
+      "id": "kivalliq--r2-c2",
+      "asset": "occumed-kivalliq--r2-c2.pmtiles"
+    },
+    {
+      "id": "kivalliq--r2-c3",
+      "asset": "occumed-kivalliq--r2-c3.pmtiles"
+    },
+    {
+      "id": "mexico--r1-c1",
+      "asset": "occumed-mexico--r1-c1.pmtiles"
+    },
+    {
+      "id": "mexico--r1-c2",
+      "asset": "occumed-mexico--r1-c2.pmtiles"
+    },
+    {
+      "id": "mexico--r1-c3",
+      "asset": "occumed-mexico--r1-c3.pmtiles"
+    },
+    {
+      "id": "mexico--r2-c1",
+      "asset": "occumed-mexico--r2-c1.pmtiles"
+    },
+    {
+      "id": "mexico--r2-c2",
+      "asset": "occumed-mexico--r2-c2.pmtiles"
+    },
+    {
+      "id": "mexico--r2-c3",
+      "asset": "occumed-mexico--r2-c3.pmtiles"
+    },
+    {
+      "id": "nepal--r1-c1",
+      "asset": "occumed-nepal--r1-c1.pmtiles"
+    },
+    {
+      "id": "nepal--r1-c2",
+      "asset": "occumed-nepal--r1-c2.pmtiles"
+    },
+    {
+      "id": "nepal--r1-c3",
+      "asset": "occumed-nepal--r1-c3.pmtiles"
+    },
+    {
+      "id": "nepal--r2-c1",
+      "asset": "occumed-nepal--r2-c1.pmtiles"
+    },
+    {
+      "id": "nepal--r2-c2",
+      "asset": "occumed-nepal--r2-c2.pmtiles"
+    },
+    {
+      "id": "nepal--r2-c3",
+      "asset": "occumed-nepal--r2-c3.pmtiles"
+    },
+    {
+      "id": "new-zealand--r1-c1",
+      "asset": "occumed-new-zealand--r1-c1.pmtiles"
+    },
+    {
+      "id": "new-zealand--r1-c2-s1",
+      "asset": "occumed-new-zealand--r1-c2-s1.pmtiles"
+    },
+    {
+      "id": "new-zealand--r1-c2-s2",
+      "asset": "occumed-new-zealand--r1-c2-s2.pmtiles"
+    },
+    {
+      "id": "new-zealand--r2-c1",
+      "asset": "occumed-new-zealand--r2-c1.pmtiles"
+    },
+    {
+      "id": "new-zealand--r2-c2-s1",
+      "asset": "occumed-new-zealand--r2-c2-s1.pmtiles"
+    },
+    {
+      "id": "new-zealand--r2-c2-s2",
+      "asset": "occumed-new-zealand--r2-c2-s2.pmtiles"
+    },
+    {
+      "id": "niedersachsen--r1-c1",
+      "asset": "occumed-niedersachsen--r1-c1.pmtiles"
+    },
+    {
+      "id": "niedersachsen--r1-c2",
+      "asset": "occumed-niedersachsen--r1-c2.pmtiles"
+    },
+    {
+      "id": "niedersachsen--r1-c3",
+      "asset": "occumed-niedersachsen--r1-c3.pmtiles"
+    },
+    {
+      "id": "niedersachsen--r2-c1",
+      "asset": "occumed-niedersachsen--r2-c1.pmtiles"
+    },
+    {
+      "id": "niedersachsen--r2-c2",
+      "asset": "occumed-niedersachsen--r2-c2.pmtiles"
+    },
+    {
+      "id": "niedersachsen--r2-c3",
+      "asset": "occumed-niedersachsen--r2-c3.pmtiles"
+    },
+    {
+      "id": "nigeria--r1-c1",
+      "asset": "occumed-nigeria--r1-c1.pmtiles"
+    },
+    {
+      "id": "nigeria--r1-c2",
+      "asset": "occumed-nigeria--r1-c2.pmtiles"
+    },
+    {
+      "id": "nigeria--r1-c3",
+      "asset": "occumed-nigeria--r1-c3.pmtiles"
+    },
+    {
+      "id": "nigeria--r2-c1",
+      "asset": "occumed-nigeria--r2-c1.pmtiles"
+    },
+    {
+      "id": "nigeria--r2-c2",
+      "asset": "occumed-nigeria--r2-c2.pmtiles"
+    },
+    {
+      "id": "nigeria--r2-c3",
+      "asset": "occumed-nigeria--r2-c3.pmtiles"
+    },
+    {
+      "id": "norcal--r1-c1",
+      "asset": "occumed-norcal--r1-c1.pmtiles"
+    },
+    {
+      "id": "norcal--r1-c2",
+      "asset": "occumed-norcal--r1-c2.pmtiles"
+    },
+    {
+      "id": "norcal--r1-c3",
+      "asset": "occumed-norcal--r1-c3.pmtiles"
+    },
+    {
+      "id": "norcal--r2-c1",
+      "asset": "occumed-norcal--r2-c1.pmtiles"
+    },
+    {
+      "id": "norcal--r2-c2",
+      "asset": "occumed-norcal--r2-c2.pmtiles"
+    },
+    {
+      "id": "norcal--r2-c3",
+      "asset": "occumed-norcal--r2-c3.pmtiles"
+    },
+    {
+      "id": "nord-est--r1-c1",
+      "asset": "occumed-nord-est--r1-c1.pmtiles"
+    },
+    {
+      "id": "nord-est--r1-c2",
+      "asset": "occumed-nord-est--r1-c2.pmtiles"
+    },
+    {
+      "id": "nord-norge--r1-c1",
+      "asset": "occumed-nord-norge--r1-c1.pmtiles"
+    },
+    {
+      "id": "nord-norge--r1-c2",
+      "asset": "occumed-nord-norge--r1-c2.pmtiles"
+    },
+    {
+      "id": "nord-norge--r1-c3",
+      "asset": "occumed-nord-norge--r1-c3.pmtiles"
+    },
+    {
+      "id": "nord-norge--r2-c1",
+      "asset": "occumed-nord-norge--r2-c1.pmtiles"
+    },
+    {
+      "id": "nord-norge--r2-c2",
+      "asset": "occumed-nord-norge--r2-c2.pmtiles"
+    },
+    {
+      "id": "nord-norge--r2-c3",
+      "asset": "occumed-nord-norge--r2-c3.pmtiles"
+    },
+    {
+      "id": "nord-ovest--r1-c1",
+      "asset": "occumed-nord-ovest--r1-c1.pmtiles"
+    },
+    {
+      "id": "nord-ovest--r1-c2",
+      "asset": "occumed-nord-ovest--r1-c2.pmtiles"
+    },
+    {
+      "id": "nord-ovest--r1-c3",
+      "asset": "occumed-nord-ovest--r1-c3.pmtiles"
+    },
+    {
+      "id": "nord-ovest--r2-c1",
+      "asset": "occumed-nord-ovest--r2-c1.pmtiles"
+    },
+    {
+      "id": "nord-ovest--r2-c2",
+      "asset": "occumed-nord-ovest--r2-c2.pmtiles"
+    },
+    {
+      "id": "nord-ovest--r2-c3",
+      "asset": "occumed-nord-ovest--r2-c3.pmtiles"
+    },
+    {
+      "id": "nordeste--r1-c1",
+      "asset": "occumed-nordeste--r1-c1.pmtiles"
+    },
+    {
+      "id": "nordeste--r1-c2",
+      "asset": "occumed-nordeste--r1-c2.pmtiles"
+    },
+    {
+      "id": "nordeste--r2-c1",
+      "asset": "occumed-nordeste--r2-c1.pmtiles"
+    },
+    {
+      "id": "nordeste--r2-c2",
+      "asset": "occumed-nordeste--r2-c2.pmtiles"
+    },
+    {
+      "id": "north-admreg--r1-c1",
+      "asset": "occumed-north-admreg--r1-c1.pmtiles"
+    },
+    {
+      "id": "north-admreg--r1-c2",
+      "asset": "occumed-north-admreg--r1-c2.pmtiles"
+    },
+    {
+      "id": "north-admreg--r1-c3",
+      "asset": "occumed-north-admreg--r1-c3.pmtiles"
+    },
+    {
+      "id": "north-admreg--r2-c1",
+      "asset": "occumed-north-admreg--r2-c1.pmtiles"
+    },
+    {
+      "id": "north-admreg--r2-c2",
+      "asset": "occumed-north-admreg--r2-c2.pmtiles"
+    },
+    {
+      "id": "north-admreg--r2-c3",
+      "asset": "occumed-north-admreg--r2-c3.pmtiles"
+    },
+    {
+      "id": "north-caucasus-fed-district",
+      "asset": "occumed-north-caucasus-fed-district.pmtiles"
+    },
+    {
+      "id": "north-eastern-zone",
+      "asset": "occumed-north-eastern-zone.pmtiles"
+    },
+    {
+      "id": "northumberland",
+      "asset": "occumed-northumberland.pmtiles"
+    },
+    {
+      "id": "northwest-territories--r1-c1",
+      "asset": "occumed-northwest-territories--r1-c1.pmtiles"
+    },
+    {
+      "id": "northwest-territories--r1-c2",
+      "asset": "occumed-northwest-territories--r1-c2.pmtiles"
+    },
+    {
+      "id": "northwest-territories--r2-c1",
+      "asset": "occumed-northwest-territories--r2-c1.pmtiles"
+    },
+    {
+      "id": "northwest-territories--r2-c2",
+      "asset": "occumed-northwest-territories--r2-c2.pmtiles"
+    },
+    {
+      "id": "northwestern-fed-district--r1-c1",
+      "asset": "occumed-northwestern-fed-district--r1-c1.pmtiles"
+    },
+    {
+      "id": "northwestern-fed-district--r1-c2",
+      "asset": "occumed-northwestern-fed-district--r1-c2.pmtiles"
+    },
+    {
+      "id": "northwestern-fed-district--r2-c1",
+      "asset": "occumed-northwestern-fed-district--r2-c1.pmtiles"
+    },
+    {
+      "id": "northwestern-fed-district--r2-c2",
+      "asset": "occumed-northwestern-fed-district--r2-c2.pmtiles"
+    },
+    {
+      "id": "ontario--r1-c1",
+      "asset": "occumed-ontario--r1-c1.pmtiles"
+    },
+    {
+      "id": "ontario--r1-c2",
+      "asset": "occumed-ontario--r1-c2.pmtiles"
+    },
+    {
+      "id": "ontario--r2-c1",
+      "asset": "occumed-ontario--r2-c1.pmtiles"
+    },
+    {
+      "id": "ontario--r2-c2",
+      "asset": "occumed-ontario--r2-c2.pmtiles"
+    },
+    {
+      "id": "opolskie",
+      "asset": "occumed-opolskie.pmtiles"
+    },
+    {
+      "id": "ostlandet--r1-c1",
+      "asset": "occumed-ostlandet--r1-c1.pmtiles"
+    },
+    {
+      "id": "ostlandet--r1-c2",
+      "asset": "occumed-ostlandet--r1-c2.pmtiles"
+    },
+    {
+      "id": "ostlandet--r2-c1",
+      "asset": "occumed-ostlandet--r2-c1.pmtiles"
+    },
+    {
+      "id": "ostlandet--r2-c2",
+      "asset": "occumed-ostlandet--r2-c2.pmtiles"
+    },
+    {
+      "id": "palau",
+      "asset": "occumed-palau.pmtiles"
+    },
+    {
+      "id": "panama",
+      "asset": "occumed-panama.pmtiles"
+    },
+    {
+      "id": "pays-de-la-loire",
+      "asset": "occumed-pays-de-la-loire.pmtiles"
+    },
+    {
+      "id": "philippines--r1-c1",
+      "asset": "occumed-philippines--r1-c1.pmtiles"
+    },
+    {
+      "id": "philippines--r1-c2",
+      "asset": "occumed-philippines--r1-c2.pmtiles"
+    },
+    {
+      "id": "philippines--r2-c1",
+      "asset": "occumed-philippines--r2-c1.pmtiles"
+    },
+    {
+      "id": "philippines--r2-c2",
+      "asset": "occumed-philippines--r2-c2.pmtiles"
+    },
+    {
+      "id": "podkarpackie",
+      "asset": "occumed-podkarpackie.pmtiles"
+    },
+    {
+      "id": "portugal--r1-c1",
+      "asset": "occumed-portugal--r1-c1.pmtiles"
+    },
+    {
+      "id": "portugal--r1-c2",
+      "asset": "occumed-portugal--r1-c2.pmtiles"
+    },
+    {
+      "id": "portugal--r1-c3",
+      "asset": "occumed-portugal--r1-c3.pmtiles"
+    },
+    {
+      "id": "portugal--r2-c1",
+      "asset": "occumed-portugal--r2-c1.pmtiles"
+    },
+    {
+      "id": "portugal--r2-c2",
+      "asset": "occumed-portugal--r2-c2.pmtiles"
+    },
+    {
+      "id": "portugal--r2-c3",
+      "asset": "occumed-portugal--r2-c3.pmtiles"
+    },
+    {
+      "id": "praha",
+      "asset": "occumed-praha.pmtiles"
+    },
+    {
+      "id": "qikiqtaaluk--r1-c1",
+      "asset": "occumed-qikiqtaaluk--r1-c1.pmtiles"
+    },
+    {
+      "id": "qikiqtaaluk--r1-c2",
+      "asset": "occumed-qikiqtaaluk--r1-c2.pmtiles"
+    },
+    {
+      "id": "qikiqtaaluk--r2-c1",
+      "asset": "occumed-qikiqtaaluk--r2-c1.pmtiles"
+    },
+    {
+      "id": "qikiqtaaluk--r2-c2",
+      "asset": "occumed-qikiqtaaluk--r2-c2.pmtiles"
+    },
+    {
+      "id": "quebec--r1-c1",
+      "asset": "occumed-quebec--r1-c1.pmtiles"
+    },
+    {
+      "id": "quebec--r1-c2",
+      "asset": "occumed-quebec--r1-c2.pmtiles"
+    },
+    {
+      "id": "quebec--r2-c1",
+      "asset": "occumed-quebec--r2-c1.pmtiles"
+    },
+    {
+      "id": "quebec--r2-c2",
+      "asset": "occumed-quebec--r2-c2.pmtiles"
+    },
+    {
+      "id": "quebec--r3-c1",
+      "asset": "occumed-quebec--r3-c1.pmtiles"
+    },
+    {
+      "id": "quebec--r3-c2",
+      "asset": "occumed-quebec--r3-c2.pmtiles"
+    },
+    {
+      "id": "queensland",
+      "asset": "occumed-queensland.pmtiles"
+    },
+    {
+      "id": "rhone-alpes--r1-c1",
+      "asset": "occumed-rhone-alpes--r1-c1.pmtiles"
+    },
+    {
+      "id": "rhone-alpes--r1-c2",
+      "asset": "occumed-rhone-alpes--r1-c2.pmtiles"
+    },
+    {
+      "id": "rhone-alpes--r1-c3",
+      "asset": "occumed-rhone-alpes--r1-c3.pmtiles"
+    },
+    {
+      "id": "rhone-alpes--r2-c1",
+      "asset": "occumed-rhone-alpes--r2-c1.pmtiles"
+    },
+    {
+      "id": "rhone-alpes--r2-c2",
+      "asset": "occumed-rhone-alpes--r2-c2.pmtiles"
+    },
+    {
+      "id": "rhone-alpes--r2-c3",
+      "asset": "occumed-rhone-alpes--r2-c3.pmtiles"
+    },
+    {
+      "id": "romania",
+      "asset": "occumed-romania.pmtiles"
+    },
+    {
+      "id": "rwanda",
+      "asset": "occumed-rwanda.pmtiles"
+    },
+    {
+      "id": "saint-helena-ascension-and-tristan-da-cunha",
+      "asset": "occumed-saint-helena-ascension-and-tristan-da-cunha.pmtiles"
+    },
+    {
+      "id": "sao-tome-and-principe",
+      "asset": "occumed-sao-tome-and-principe.pmtiles"
+    },
+    {
+      "id": "saskatchewan",
+      "asset": "occumed-saskatchewan.pmtiles"
+    },
+    {
+      "id": "scotland",
+      "asset": "occumed-scotland.pmtiles"
+    },
+    {
+      "id": "senegal-and-gambia",
+      "asset": "occumed-senegal-and-gambia.pmtiles"
+    },
+    {
+      "id": "serbia",
+      "asset": "occumed-serbia.pmtiles"
+    },
+    {
+      "id": "shandong",
+      "asset": "occumed-shandong.pmtiles"
+    },
+    {
+      "id": "shanxi",
+      "asset": "occumed-shanxi.pmtiles"
+    },
+    {
+      "id": "shikoku",
+      "asset": "occumed-shikoku.pmtiles"
+    },
+    {
+      "id": "siberian-fed-district--r1-c1",
+      "asset": "occumed-siberian-fed-district--r1-c1.pmtiles"
+    },
+    {
+      "id": "siberian-fed-district--r1-c2",
+      "asset": "occumed-siberian-fed-district--r1-c2.pmtiles"
+    },
+    {
+      "id": "siberian-fed-district--r2-c1",
+      "asset": "occumed-siberian-fed-district--r2-c1.pmtiles"
+    },
+    {
+      "id": "siberian-fed-district--r2-c2",
+      "asset": "occumed-siberian-fed-district--r2-c2.pmtiles"
+    },
+    {
+      "id": "sichuan",
+      "asset": "occumed-sichuan.pmtiles"
+    },
+    {
+      "id": "sierra-leone",
+      "asset": "occumed-sierra-leone.pmtiles"
+    },
+    {
+      "id": "slaskie",
+      "asset": "occumed-slaskie.pmtiles"
+    },
+    {
+      "id": "slovakia",
+      "asset": "occumed-slovakia.pmtiles"
+    },
+    {
+      "id": "socal--r1-c1",
+      "asset": "occumed-socal--r1-c1.pmtiles"
+    },
+    {
+      "id": "socal--r1-c2",
+      "asset": "occumed-socal--r1-c2.pmtiles"
+    },
+    {
+      "id": "socal--r1-c3",
+      "asset": "occumed-socal--r1-c3.pmtiles"
+    },
+    {
+      "id": "socal--r2-c1",
+      "asset": "occumed-socal--r2-c1.pmtiles"
+    },
+    {
+      "id": "socal--r2-c2",
+      "asset": "occumed-socal--r2-c2.pmtiles"
+    },
+    {
+      "id": "socal--r2-c3",
+      "asset": "occumed-socal--r2-c3.pmtiles"
+    },
+    {
+      "id": "solomon-islands",
+      "asset": "occumed-solomon-islands.pmtiles"
+    },
+    {
+      "id": "somalia",
+      "asset": "occumed-somalia.pmtiles"
+    },
+    {
+      "id": "somerset",
+      "asset": "occumed-somerset.pmtiles"
+    },
+    {
+      "id": "sorlandet",
+      "asset": "occumed-sorlandet.pmtiles"
+    },
+    {
+      "id": "south-africa--r1-c1",
+      "asset": "occumed-south-africa--r1-c1.pmtiles"
+    },
+    {
+      "id": "south-africa--r1-c2",
+      "asset": "occumed-south-africa--r1-c2.pmtiles"
+    },
+    {
+      "id": "south-africa--r2-c1",
+      "asset": "occumed-south-africa--r2-c1.pmtiles"
+    },
+    {
+      "id": "south-africa--r2-c2",
+      "asset": "occumed-south-africa--r2-c2.pmtiles"
+    },
+    {
+      "id": "south-australia",
+      "asset": "occumed-south-australia.pmtiles"
+    },
+    {
+      "id": "south-fed-district",
+      "asset": "occumed-south-fed-district.pmtiles"
+    },
+    {
+      "id": "south-korea",
+      "asset": "occumed-south-korea.pmtiles"
+    },
+    {
+      "id": "south-sudan",
+      "asset": "occumed-south-sudan.pmtiles"
+    },
+    {
+      "id": "south-yorkshire",
+      "asset": "occumed-south-yorkshire.pmtiles"
+    },
+    {
+      "id": "southcoast-admreg",
+      "asset": "occumed-southcoast-admreg.pmtiles"
+    },
+    {
+      "id": "southern-zone--r1-c1",
+      "asset": "occumed-southern-zone--r1-c1.pmtiles"
+    },
+    {
+      "id": "southern-zone--r1-c2",
+      "asset": "occumed-southern-zone--r1-c2.pmtiles"
+    },
+    {
+      "id": "southern-zone--r1-c3",
+      "asset": "occumed-southern-zone--r1-c3.pmtiles"
+    },
+    {
+      "id": "southern-zone--r2-c1",
+      "asset": "occumed-southern-zone--r2-c1.pmtiles"
+    },
+    {
+      "id": "southern-zone--r2-c2",
+      "asset": "occumed-southern-zone--r2-c2.pmtiles"
+    },
+    {
+      "id": "southern-zone--r2-c3",
+      "asset": "occumed-southern-zone--r2-c3.pmtiles"
+    },
+    {
+      "id": "sri-lanka",
+      "asset": "occumed-sri-lanka.pmtiles"
+    },
+    {
+      "id": "staffordshire",
+      "asset": "occumed-staffordshire.pmtiles"
+    },
+    {
+      "id": "stredocesky",
+      "asset": "occumed-stredocesky.pmtiles"
+    },
+    {
+      "id": "stuttgart-regbez",
+      "asset": "occumed-stuttgart-regbez.pmtiles"
+    },
+    {
+      "id": "sud--r1-c1",
+      "asset": "occumed-sud--r1-c1.pmtiles"
+    },
+    {
+      "id": "sud--r1-c2",
+      "asset": "occumed-sud--r1-c2.pmtiles"
+    },
+    {
+      "id": "sud--r2-c1",
+      "asset": "occumed-sud--r2-c1.pmtiles"
+    },
+    {
+      "id": "sud--r2-c2",
+      "asset": "occumed-sud--r2-c2.pmtiles"
+    },
+    {
+      "id": "sudan",
+      "asset": "occumed-sudan.pmtiles"
+    },
+    {
+      "id": "sudeste--r1-c1",
+      "asset": "occumed-sudeste--r1-c1.pmtiles"
+    },
+    {
+      "id": "sudeste--r1-c2",
+      "asset": "occumed-sudeste--r1-c2.pmtiles"
+    },
+    {
+      "id": "sudeste--r1-c3",
+      "asset": "occumed-sudeste--r1-c3.pmtiles"
+    },
+    {
+      "id": "sudeste--r2-c1",
+      "asset": "occumed-sudeste--r2-c1.pmtiles"
+    },
+    {
+      "id": "sudeste--r2-c2",
+      "asset": "occumed-sudeste--r2-c2.pmtiles"
+    },
+    {
+      "id": "sudeste--r2-c3",
+      "asset": "occumed-sudeste--r2-c3.pmtiles"
+    },
+    {
+      "id": "suffolk",
+      "asset": "occumed-suffolk.pmtiles"
+    },
+    {
+      "id": "sul--r1-c1",
+      "asset": "occumed-sul--r1-c1.pmtiles"
+    },
+    {
+      "id": "sul--r1-c2",
+      "asset": "occumed-sul--r1-c2.pmtiles"
+    },
+    {
+      "id": "sul--r2-c1",
+      "asset": "occumed-sul--r2-c1.pmtiles"
+    },
+    {
+      "id": "sul--r2-c2",
+      "asset": "occumed-sul--r2-c2.pmtiles"
+    },
+    {
+      "id": "sulawesi",
+      "asset": "occumed-sulawesi.pmtiles"
+    },
+    {
+      "id": "sumatra",
+      "asset": "occumed-sumatra.pmtiles"
+    },
+    {
+      "id": "suriname",
+      "asset": "occumed-suriname.pmtiles"
+    },
+    {
+      "id": "surrey",
+      "asset": "occumed-surrey.pmtiles"
+    },
+    {
+      "id": "svalbard-janmayen",
+      "asset": "occumed-svalbard-janmayen.pmtiles"
+    },
+    {
+      "id": "swaziland",
+      "asset": "occumed-swaziland.pmtiles"
+    },
+    {
+      "id": "sweden--r1-c1",
+      "asset": "occumed-sweden--r1-c1.pmtiles"
+    },
+    {
+      "id": "sweden--r1-c2",
+      "asset": "occumed-sweden--r1-c2.pmtiles"
+    },
+    {
+      "id": "sweden--r2-c1",
+      "asset": "occumed-sweden--r2-c1.pmtiles"
+    },
+    {
+      "id": "sweden--r2-c2",
+      "asset": "occumed-sweden--r2-c2.pmtiles"
+    },
+    {
+      "id": "swietokrzyskie",
+      "asset": "occumed-swietokrzyskie.pmtiles"
+    },
+    {
+      "id": "switzerland--r1-c1",
+      "asset": "occumed-switzerland--r1-c1.pmtiles"
+    },
+    {
+      "id": "switzerland--r1-c2",
+      "asset": "occumed-switzerland--r1-c2.pmtiles"
+    },
+    {
+      "id": "switzerland--r1-c3",
+      "asset": "occumed-switzerland--r1-c3.pmtiles"
+    },
+    {
+      "id": "switzerland--r2-c1",
+      "asset": "occumed-switzerland--r2-c1.pmtiles"
+    },
+    {
+      "id": "switzerland--r2-c2",
+      "asset": "occumed-switzerland--r2-c2.pmtiles"
+    },
+    {
+      "id": "switzerland--r2-c3",
+      "asset": "occumed-switzerland--r2-c3.pmtiles"
+    },
+    {
+      "id": "syria",
+      "asset": "occumed-syria.pmtiles"
+    },
+    {
+      "id": "taiwan",
+      "asset": "occumed-taiwan.pmtiles"
+    },
+    {
+      "id": "tajikistan",
+      "asset": "occumed-tajikistan.pmtiles"
+    },
+    {
+      "id": "tanzania--r1-c1",
+      "asset": "occumed-tanzania--r1-c1.pmtiles"
+    },
+    {
+      "id": "tanzania--r1-c2",
+      "asset": "occumed-tanzania--r1-c2.pmtiles"
+    },
+    {
+      "id": "tanzania--r1-c3",
+      "asset": "occumed-tanzania--r1-c3.pmtiles"
+    },
+    {
+      "id": "tanzania--r2-c1",
+      "asset": "occumed-tanzania--r2-c1.pmtiles"
+    },
+    {
+      "id": "tanzania--r2-c2",
+      "asset": "occumed-tanzania--r2-c2.pmtiles"
+    },
+    {
+      "id": "tanzania--r2-c3",
+      "asset": "occumed-tanzania--r2-c3.pmtiles"
+    },
+    {
+      "id": "tasmania",
+      "asset": "occumed-tasmania.pmtiles"
+    },
+    {
+      "id": "thailand",
+      "asset": "occumed-thailand.pmtiles"
+    },
+    {
+      "id": "thueringen",
+      "asset": "occumed-thueringen.pmtiles"
+    },
+    {
+      "id": "tianjin",
+      "asset": "occumed-tianjin.pmtiles"
+    },
+    {
+      "id": "tibet",
+      "asset": "occumed-tibet.pmtiles"
+    },
+    {
+      "id": "togo",
+      "asset": "occumed-togo.pmtiles"
+    },
+    {
+      "id": "tohoku",
+      "asset": "occumed-tohoku.pmtiles"
+    },
+    {
+      "id": "tokelau",
+      "asset": "occumed-tokelau.pmtiles"
+    },
+    {
+      "id": "tonga",
+      "asset": "occumed-tonga.pmtiles"
+    },
+    {
+      "id": "trondelag",
+      "asset": "occumed-trondelag.pmtiles"
+    },
+    {
+      "id": "tuebingen-regbez",
+      "asset": "occumed-tuebingen-regbez.pmtiles"
+    },
+    {
+      "id": "tunisia",
+      "asset": "occumed-tunisia.pmtiles"
+    },
+    {
+      "id": "turkey--r1-c1",
+      "asset": "occumed-turkey--r1-c1.pmtiles"
+    },
+    {
+      "id": "turkey--r1-c2",
+      "asset": "occumed-turkey--r1-c2.pmtiles"
+    },
+    {
+      "id": "turkey--r1-c3",
+      "asset": "occumed-turkey--r1-c3.pmtiles"
+    },
+    {
+      "id": "turkey--r2-c1",
+      "asset": "occumed-turkey--r2-c1.pmtiles"
+    },
+    {
+      "id": "turkey--r2-c2",
+      "asset": "occumed-turkey--r2-c2.pmtiles"
+    },
+    {
+      "id": "turkey--r2-c3",
+      "asset": "occumed-turkey--r2-c3.pmtiles"
+    },
+    {
+      "id": "turkmenistan",
+      "asset": "occumed-turkmenistan.pmtiles"
+    },
+    {
+      "id": "tuvalu",
+      "asset": "occumed-tuvalu.pmtiles"
+    },
+    {
+      "id": "tyne-and-wear",
+      "asset": "occumed-tyne-and-wear.pmtiles"
+    },
+    {
+      "id": "uganda",
+      "asset": "occumed-uganda.pmtiles"
+    },
+    {
+      "id": "ukraine--r1-c1",
+      "asset": "occumed-ukraine--r1-c1.pmtiles"
+    },
+    {
+      "id": "ukraine--r1-c2",
+      "asset": "occumed-ukraine--r1-c2.pmtiles"
+    },
+    {
+      "id": "ukraine--r1-c3",
+      "asset": "occumed-ukraine--r1-c3.pmtiles"
+    },
+    {
+      "id": "ukraine--r2-c1",
+      "asset": "occumed-ukraine--r2-c1.pmtiles"
+    },
+    {
+      "id": "ukraine--r2-c2",
+      "asset": "occumed-ukraine--r2-c2.pmtiles"
+    },
+    {
+      "id": "ukraine--r2-c3",
+      "asset": "occumed-ukraine--r2-c3.pmtiles"
+    },
+    {
+      "id": "unterfranken",
+      "asset": "occumed-unterfranken.pmtiles"
+    },
+    {
+      "id": "ural-fed-district",
+      "asset": "occumed-ural-fed-district.pmtiles"
+    },
+    {
+      "id": "uruguay",
+      "asset": "occumed-uruguay.pmtiles"
+    },
+    {
+      "id": "us/alabama",
+      "asset": "occumed-us--alabama.pmtiles"
+    },
+    {
+      "id": "us/alaska",
+      "asset": "occumed-us--alaska.pmtiles"
+    },
+    {
+      "id": "us/arizona",
+      "asset": "occumed-us--arizona.pmtiles"
+    },
+    {
+      "id": "us/arkansas",
+      "asset": "occumed-us--arkansas.pmtiles"
+    },
+    {
+      "id": "us/colorado",
+      "asset": "occumed-us--colorado.pmtiles"
+    },
+    {
+      "id": "us/connecticut",
+      "asset": "occumed-us--connecticut.pmtiles"
+    },
+    {
+      "id": "us/delaware",
+      "asset": "occumed-us--delaware.pmtiles"
+    },
+    {
+      "id": "us/district-of-columbia",
+      "asset": "occumed-us--district-of-columbia.pmtiles"
+    },
+    {
+      "id": "us/florida--r1-c1",
+      "asset": "occumed-us--florida--r1-c1.pmtiles"
+    },
+    {
+      "id": "us/florida--r1-c2",
+      "asset": "occumed-us--florida--r1-c2.pmtiles"
+    },
+    {
+      "id": "us/florida--r1-c3",
+      "asset": "occumed-us--florida--r1-c3.pmtiles"
+    },
+    {
+      "id": "us/florida--r2-c1",
+      "asset": "occumed-us--florida--r2-c1.pmtiles"
+    },
+    {
+      "id": "us/florida--r2-c2",
+      "asset": "occumed-us--florida--r2-c2.pmtiles"
+    },
+    {
+      "id": "us/florida--r2-c3",
+      "asset": "occumed-us--florida--r2-c3.pmtiles"
+    },
+    {
+      "id": "us/georgia",
+      "asset": "occumed-us--georgia.pmtiles"
+    },
+    {
+      "id": "us/hawaii",
+      "asset": "occumed-us--hawaii.pmtiles"
+    },
+    {
+      "id": "us/idaho",
+      "asset": "occumed-us--idaho.pmtiles"
+    },
+    {
+      "id": "us/illinois",
+      "asset": "occumed-us--illinois.pmtiles"
+    },
+    {
+      "id": "us/indiana",
+      "asset": "occumed-us--indiana.pmtiles"
+    },
+    {
+      "id": "us/iowa",
+      "asset": "occumed-us--iowa.pmtiles"
+    },
+    {
+      "id": "us/kansas",
+      "asset": "occumed-us--kansas.pmtiles"
+    },
+    {
+      "id": "us/kentucky",
+      "asset": "occumed-us--kentucky.pmtiles"
+    },
+    {
+      "id": "us/louisiana",
+      "asset": "occumed-us--louisiana.pmtiles"
+    },
+    {
+      "id": "us/maine",
+      "asset": "occumed-us--maine.pmtiles"
+    },
+    {
+      "id": "us/maryland",
+      "asset": "occumed-us--maryland.pmtiles"
+    },
+    {
+      "id": "us/massachusetts",
+      "asset": "occumed-us--massachusetts.pmtiles"
+    },
+    {
+      "id": "us/michigan",
+      "asset": "occumed-us--michigan.pmtiles"
+    },
+    {
+      "id": "us/minnesota",
+      "asset": "occumed-us--minnesota.pmtiles"
+    },
+    {
+      "id": "us/mississippi",
+      "asset": "occumed-us--mississippi.pmtiles"
+    },
+    {
+      "id": "us/missouri",
+      "asset": "occumed-us--missouri.pmtiles"
+    },
+    {
+      "id": "us/montana",
+      "asset": "occumed-us--montana.pmtiles"
+    },
+    {
+      "id": "us/nebraska",
+      "asset": "occumed-us--nebraska.pmtiles"
+    },
+    {
+      "id": "us/nevada",
+      "asset": "occumed-us--nevada.pmtiles"
+    },
+    {
+      "id": "us/new-hampshire",
+      "asset": "occumed-us--new-hampshire.pmtiles"
+    },
+    {
+      "id": "us/new-jersey",
+      "asset": "occumed-us--new-jersey.pmtiles"
+    },
+    {
+      "id": "us/new-mexico",
+      "asset": "occumed-us--new-mexico.pmtiles"
+    },
+    {
+      "id": "us/new-york--r1-c1",
+      "asset": "occumed-us--new-york--r1-c1.pmtiles"
+    },
+    {
+      "id": "us/new-york--r1-c2",
+      "asset": "occumed-us--new-york--r1-c2.pmtiles"
+    },
+    {
+      "id": "us/new-york--r1-c3",
+      "asset": "occumed-us--new-york--r1-c3.pmtiles"
+    },
+    {
+      "id": "us/new-york--r2-c1",
+      "asset": "occumed-us--new-york--r2-c1.pmtiles"
+    },
+    {
+      "id": "us/new-york--r2-c2",
+      "asset": "occumed-us--new-york--r2-c2.pmtiles"
+    },
+    {
+      "id": "us/new-york--r2-c3",
+      "asset": "occumed-us--new-york--r2-c3.pmtiles"
+    },
+    {
+      "id": "us/north-carolina--r1-c1",
+      "asset": "occumed-us--north-carolina--r1-c1.pmtiles"
+    },
+    {
+      "id": "us/north-carolina--r1-c2",
+      "asset": "occumed-us--north-carolina--r1-c2.pmtiles"
+    },
+    {
+      "id": "us/north-carolina--r1-c3",
+      "asset": "occumed-us--north-carolina--r1-c3.pmtiles"
+    },
+    {
+      "id": "us/north-carolina--r1-c4",
+      "asset": "occumed-us--north-carolina--r1-c4.pmtiles"
+    },
+    {
+      "id": "us/north-dakota",
+      "asset": "occumed-us--north-dakota.pmtiles"
+    },
+    {
+      "id": "us/ohio",
+      "asset": "occumed-us--ohio.pmtiles"
+    },
+    {
+      "id": "us/oklahoma",
+      "asset": "occumed-us--oklahoma.pmtiles"
+    },
+    {
+      "id": "us/oregon",
+      "asset": "occumed-us--oregon.pmtiles"
+    },
+    {
+      "id": "us/pennsylvania",
+      "asset": "occumed-us--pennsylvania.pmtiles"
+    },
+    {
+      "id": "us/puerto-rico",
+      "asset": "occumed-us--puerto-rico.pmtiles"
+    },
+    {
+      "id": "us/rhode-island",
+      "asset": "occumed-us--rhode-island.pmtiles"
+    },
+    {
+      "id": "us/south-carolina",
+      "asset": "occumed-us--south-carolina.pmtiles"
+    },
+    {
+      "id": "us/south-dakota",
+      "asset": "occumed-us--south-dakota.pmtiles"
+    },
+    {
+      "id": "us/tennessee",
+      "asset": "occumed-us--tennessee.pmtiles"
+    },
+    {
+      "id": "us/texas--r1-c1",
+      "asset": "occumed-us--texas--r1-c1.pmtiles"
+    },
+    {
+      "id": "us/texas--r1-c2",
+      "asset": "occumed-us--texas--r1-c2.pmtiles"
+    },
+    {
+      "id": "us/texas--r1-c3",
+      "asset": "occumed-us--texas--r1-c3.pmtiles"
+    },
+    {
+      "id": "us/texas--r2-c1",
+      "asset": "occumed-us--texas--r2-c1.pmtiles"
+    },
+    {
+      "id": "us/texas--r2-c2",
+      "asset": "occumed-us--texas--r2-c2.pmtiles"
+    },
+    {
+      "id": "us/texas--r2-c3",
+      "asset": "occumed-us--texas--r2-c3.pmtiles"
+    },
+    {
+      "id": "us/us-virgin-islands",
+      "asset": "occumed-us--us-virgin-islands.pmtiles"
+    },
+    {
+      "id": "us/utah",
+      "asset": "occumed-us--utah.pmtiles"
+    },
+    {
+      "id": "us/vermont",
+      "asset": "occumed-us--vermont.pmtiles"
+    },
+    {
+      "id": "us/virginia--r1-c1",
+      "asset": "occumed-us--virginia--r1-c1.pmtiles"
+    },
+    {
+      "id": "us/virginia--r1-c2",
+      "asset": "occumed-us--virginia--r1-c2.pmtiles"
+    },
+    {
+      "id": "us/virginia--r1-c3",
+      "asset": "occumed-us--virginia--r1-c3.pmtiles"
+    },
+    {
+      "id": "us/virginia--r1-c4",
+      "asset": "occumed-us--virginia--r1-c4.pmtiles"
+    },
+    {
+      "id": "us/washington",
+      "asset": "occumed-us--washington.pmtiles"
+    },
+    {
+      "id": "us/west-virginia",
+      "asset": "occumed-us--west-virginia.pmtiles"
+    },
+    {
+      "id": "us/wisconsin",
+      "asset": "occumed-us--wisconsin.pmtiles"
+    },
+    {
+      "id": "us/wyoming",
+      "asset": "occumed-us--wyoming.pmtiles"
+    },
+    {
+      "id": "ustecky",
+      "asset": "occumed-ustecky.pmtiles"
+    },
+    {
+      "id": "utrecht",
+      "asset": "occumed-utrecht.pmtiles"
+    },
+    {
+      "id": "uzbekistan",
+      "asset": "occumed-uzbekistan.pmtiles"
+    },
+    {
+      "id": "valencia",
+      "asset": "occumed-valencia.pmtiles"
+    },
+    {
+      "id": "vanuatu",
+      "asset": "occumed-vanuatu.pmtiles"
+    },
+    {
+      "id": "venezuela",
+      "asset": "occumed-venezuela.pmtiles"
+    },
+    {
+      "id": "vestlandet",
+      "asset": "occumed-vestlandet.pmtiles"
+    },
+    {
+      "id": "victoria",
+      "asset": "occumed-victoria.pmtiles"
+    },
+    {
+      "id": "vietnam",
+      "asset": "occumed-vietnam.pmtiles"
+    },
+    {
+      "id": "volga-fed-district--r1-c1",
+      "asset": "occumed-volga-fed-district--r1-c1.pmtiles"
+    },
+    {
+      "id": "volga-fed-district--r1-c2",
+      "asset": "occumed-volga-fed-district--r1-c2.pmtiles"
+    },
+    {
+      "id": "volga-fed-district--r2-c1",
+      "asset": "occumed-volga-fed-district--r2-c1.pmtiles"
+    },
+    {
+      "id": "volga-fed-district--r2-c2",
+      "asset": "occumed-volga-fed-district--r2-c2.pmtiles"
+    },
+    {
+      "id": "vysocina",
+      "asset": "occumed-vysocina.pmtiles"
+    },
+    {
+      "id": "wales",
+      "asset": "occumed-wales.pmtiles"
+    },
+    {
+      "id": "wallis-et-futuna",
+      "asset": "occumed-wallis-et-futuna.pmtiles"
+    },
+    {
+      "id": "warminsko-mazurskie",
+      "asset": "occumed-warminsko-mazurskie.pmtiles"
+    },
+    {
+      "id": "warwickshire",
+      "asset": "occumed-warwickshire.pmtiles"
+    },
+    {
+      "id": "west-midlands",
+      "asset": "occumed-west-midlands.pmtiles"
+    },
+    {
+      "id": "west-sussex",
+      "asset": "occumed-west-sussex.pmtiles"
+    },
+    {
+      "id": "west-yorkshire",
+      "asset": "occumed-west-yorkshire.pmtiles"
+    },
+    {
+      "id": "western-australia",
+      "asset": "occumed-western-australia.pmtiles"
+    },
+    {
+      "id": "western-zone",
+      "asset": "occumed-western-zone.pmtiles"
+    },
+    {
+      "id": "wielkopolskie",
+      "asset": "occumed-wielkopolskie.pmtiles"
+    },
+    {
+      "id": "wiltshire",
+      "asset": "occumed-wiltshire.pmtiles"
+    },
+    {
+      "id": "worcestershire",
+      "asset": "occumed-worcestershire.pmtiles"
+    },
+    {
+      "id": "xinjiang",
+      "asset": "occumed-xinjiang.pmtiles"
+    },
+    {
+      "id": "yemen",
+      "asset": "occumed-yemen.pmtiles"
+    },
+    {
+      "id": "yukon",
+      "asset": "occumed-yukon.pmtiles"
+    },
+    {
+      "id": "yunnan",
+      "asset": "occumed-yunnan.pmtiles"
+    },
+    {
+      "id": "zachodniopomorskie",
+      "asset": "occumed-zachodniopomorskie.pmtiles"
+    },
+    {
+      "id": "zambia",
+      "asset": "occumed-zambia.pmtiles"
+    },
+    {
+      "id": "zeeland",
+      "asset": "occumed-zeeland.pmtiles"
+    },
+    {
+      "id": "zhejiang",
+      "asset": "occumed-zhejiang.pmtiles"
+    },
+    {
+      "id": "zimbabwe",
+      "asset": "occumed-zimbabwe.pmtiles"
+    },
+    {
+      "id": "zlinsky",
+      "asset": "occumed-zlinsky.pmtiles"
+    },
+    {
+      "id": "zuid-holland",
+      "asset": "occumed-zuid-holland.pmtiles"
+    }
+  ]
+}
