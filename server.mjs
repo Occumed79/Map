@@ -3,6 +3,7 @@ import fs from 'node:fs/promises';
 import http from 'node:http';
 import path from 'node:path';
 import { Readable } from 'node:stream';
+import { pipeline } from 'node:stream/promises';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'dist');
@@ -11,6 +12,10 @@ const host = process.env.HOST?.trim() || '0.0.0.0';
 const worldReleaseRepository = process.env.OCCUMED_WORLD_RELEASE_REPOSITORY?.trim() || 'Occumed79/Map';
 const worldReleaseTag = process.env.OCCUMED_WORLD_RELEASE_TAG?.trim() || 'occumed-world-v1';
 const worldManifestAsset = 'occumed-world-manifest.json';
+const configuredUpstreamTimeout = Number(process.env.OCCUMED_UPSTREAM_TIMEOUT_MS || 20_000);
+const upstreamTimeoutMs = Number.isFinite(configuredUpstreamTimeout)
+  ? Math.max(configuredUpstreamTimeout, 1_000)
+  : 20_000;
 
 const contentTypes = {
   '.css': 'text/css; charset=utf-8',
@@ -106,6 +111,58 @@ function copyUpstreamHeaders(upstream, response, cacheControl) {
   for (const [name, value] of Object.entries(corsHeaders)) response.setHeader(name, value);
 }
 
+function createUpstreamContext(request, response) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => {
+    controller.abort(new Error(`Upstream request exceeded ${upstreamTimeoutMs}ms.`));
+  }, upstreamTimeoutMs);
+  timeout.unref?.();
+
+  const abortForRequest = () => {
+    controller.abort(new Error('Client disconnected before the upstream request completed.'));
+  };
+  const abortForResponse = () => {
+    if (!response.writableFinished) abortForRequest();
+  };
+
+  request.once('aborted', abortForRequest);
+  response.once('close', abortForResponse);
+
+  return {
+    signal: controller.signal,
+    cleanup() {
+      clearTimeout(timeout);
+      request.off('aborted', abortForRequest);
+      response.off('close', abortForResponse);
+    }
+  };
+}
+
+function isUpstreamAbort(error, signal) {
+  return Boolean(
+    signal.aborted ||
+    error?.name === 'AbortError' ||
+    error?.name === 'TimeoutError' ||
+    error?.code === 'ABORT_ERR'
+  );
+}
+
+function handleUpstreamAbort(request, response, label) {
+  if (request.aborted || response.destroyed) return;
+  if (!response.headersSent) {
+    send(
+      response,
+      504,
+      `${label} upstream timed out`,
+      'text/plain; charset=utf-8',
+      'no-store',
+      request.method
+    );
+  } else {
+    response.destroy();
+  }
+}
+
 async function proxyReleaseAsset(request, response, assetName, contentType, cacheControl) {
   const headers = {
     'User-Agent': 'Occu-Med-Map/world-pmtiles-proxy',
@@ -113,63 +170,89 @@ async function proxyReleaseAsset(request, response, assetName, contentType, cach
   };
   if (request.headers.range) headers.Range = request.headers.range;
 
-  const upstream = await fetch(releaseAssetUrl(assetName), {
-    method: request.method,
-    headers,
-    redirect: 'follow'
-  });
+  const upstreamContext = createUpstreamContext(request, response);
+  try {
+    const upstream = await fetch(releaseAssetUrl(assetName), {
+      method: request.method,
+      headers,
+      redirect: 'follow',
+      signal: upstreamContext.signal
+    });
 
-  if (!upstream.ok && upstream.status !== 206) {
-    send(
-      response,
-      upstream.status === 404 ? 404 : 502,
-      upstream.status === 404 ? 'Worldwide map asset not built yet' : 'Worldwide map asset upstream failed',
-      'text/plain; charset=utf-8',
-      'no-store',
-      request.method
-    );
-    return;
-  }
+    if (!upstream.ok && upstream.status !== 206 && upstream.status !== 416) {
+      send(
+        response,
+        upstream.status === 404 ? 404 : 502,
+        upstream.status === 404 ? 'Worldwide map asset not built yet' : 'Worldwide map asset upstream failed',
+        'text/plain; charset=utf-8',
+        'no-store',
+        request.method
+      );
+      return;
+    }
 
-  response.statusCode = upstream.status;
-  copyUpstreamHeaders(upstream, response, cacheControl);
-  response.setHeader('Content-Type', upstream.headers.get('content-type') || contentType);
-  if (request.method === 'HEAD' || !upstream.body) {
-    response.end();
-    return;
+    response.statusCode = upstream.status;
+    copyUpstreamHeaders(upstream, response, cacheControl);
+    response.setHeader('Content-Type', upstream.headers.get('content-type') || contentType);
+    if (request.method === 'HEAD' || !upstream.body) {
+      response.end();
+      return;
+    }
+    await pipeline(Readable.fromWeb(upstream.body), response, {
+      signal: upstreamContext.signal
+    });
+  } catch (error) {
+    if (isUpstreamAbort(error, upstreamContext.signal)) {
+      handleUpstreamAbort(request, response, 'Worldwide map asset');
+      return;
+    }
+    throw error;
+  } finally {
+    upstreamContext.cleanup();
   }
-  Readable.fromWeb(upstream.body).on('error', (error) => response.destroy(error)).pipe(response);
 }
 
 async function serveWorldManifest(request, response) {
-  const upstream = await fetch(releaseAssetUrl(worldManifestAsset), {
-    headers: {
-      'User-Agent': 'Occu-Med-Map/world-manifest-proxy',
-      Accept: 'application/json'
-    },
-    redirect: 'follow'
-  });
-  if (!upstream.ok) {
+  const upstreamContext = createUpstreamContext(request, response);
+  try {
+    const upstream = await fetch(releaseAssetUrl(worldManifestAsset), {
+      headers: {
+        'User-Agent': 'Occu-Med-Map/world-manifest-proxy',
+        Accept: 'application/json'
+      },
+      redirect: 'follow',
+      signal: upstreamContext.signal
+    });
+    if (!upstream.ok) {
+      send(
+        response,
+        upstream.status === 404 ? 404 : 502,
+        upstream.status === 404 ? 'Worldwide map manifest not built yet' : 'Worldwide map manifest upstream failed',
+        'text/plain; charset=utf-8',
+        'no-store',
+        request.method
+      );
+      return;
+    }
+    const manifest = (await upstream.text())
+      .replaceAll('__OCCUMED_PUBLIC_ORIGIN__', requestOrigin(request));
     send(
       response,
-      upstream.status === 404 ? 404 : 502,
-      upstream.status === 404 ? 'Worldwide map manifest not built yet' : 'Worldwide map manifest upstream failed',
-      'text/plain; charset=utf-8',
-      'no-store',
+      200,
+      manifest,
+      contentTypes['.json'],
+      'public, max-age=300, must-revalidate',
       request.method
     );
-    return;
+  } catch (error) {
+    if (isUpstreamAbort(error, upstreamContext.signal)) {
+      handleUpstreamAbort(request, response, 'Worldwide map manifest');
+      return;
+    }
+    throw error;
+  } finally {
+    upstreamContext.cleanup();
   }
-  const manifest = (await upstream.text())
-    .replaceAll('__OCCUMED_PUBLIC_ORIGIN__', requestOrigin(request));
-  send(
-    response,
-    200,
-    manifest,
-    contentTypes['.json'],
-    'public, max-age=300, must-revalidate',
-    request.method
-  );
 }
 
 function parseByteRange(header, size) {
