@@ -1,106 +1,250 @@
-Prepared corrected Planetiler profile at /home/runner/work/Map/Map/.planetiler-data/generated-profile/occumed-basemap.yml.
-Building Occu-Med PMTiles
-  area:   monaco
-  source: /home/runner/work/Map/Map/.planetiler-data/monaco.osm.pbf
-  output: /home/runner/work/Map/Map/artifacts/occumed-monaco.pmtiles
-  memory: 3g
-  image:  ghcr.io/onthegomap/planetiler:0.10.2
-  schema: /home/runner/work/Map/Map/.planetiler-data/generated-profile/occumed-basemap.yml
-Unable to find image 'ghcr.io/onthegomap/planetiler:0.10.2' locally
-0.10.2: Pulling from onthegomap/planetiler
-5a7813e071bf: Pulling fs layer
-d1504bee8985: Pulling fs layer
-7b5a3507f742: Pulling fs layer
-4f4fb700ef54: Pulling fs layer
-ea28f6f7f0aa: Pulling fs layer
-dea4d5cc16e5: Pulling fs layer
-e349fa8d207a: Pulling fs layer
-1424843df450: Pulling fs layer
-b2a6ec97a57e: Pulling fs layer
-8e666be9a63a: Pulling fs layer
-4f4fb700ef54: Waiting
-ea28f6f7f0aa: Waiting
-dea4d5cc16e5: Waiting
-e349fa8d207a: Waiting
-1424843df450: Waiting
-b2a6ec97a57e: Waiting
-8e666be9a63a: Waiting
-d1504bee8985: Verifying Checksum
-d1504bee8985: Download complete
-5a7813e071bf: Verifying Checksum
-5a7813e071bf: Download complete
-4f4fb700ef54: Verifying Checksum
-4f4fb700ef54: Download complete
-ea28f6f7f0aa: Download complete
-e349fa8d207a: Verifying Checksum
-e349fa8d207a: Download complete
-1424843df450: Verifying Checksum
-1424843df450: Download complete
-b2a6ec97a57e: Verifying Checksum
-b2a6ec97a57e: Download complete
-8e666be9a63a: Verifying Checksum
-8e666be9a63a: Download complete
-dea4d5cc16e5: Verifying Checksum
-dea4d5cc16e5: Download complete
-7b5a3507f742: Verifying Checksum
-7b5a3507f742: Download complete
-5a7813e071bf: Pull complete
-d1504bee8985: Pull complete
-7b5a3507f742: Pull complete
-4f4fb700ef54: Pull complete
-ea28f6f7f0aa: Pull complete
-dea4d5cc16e5: Pull complete
-e349fa8d207a: Pull complete
-1424843df450: Pull complete
-b2a6ec97a57e: Pull complete
-8e666be9a63a: Pull complete
-Digest: sha256:cf32202dbc001a9ab4bc11534b642b13de3798179817da8558e567a3d13dd403
-Status: Downloaded newer image for ghcr.io/onthegomap/planetiler:0.10.2
-Picked up JAVA_TOOL_OPTIONS: -Xmx3g
-[0m0:00:00 DEB - argument: schema=/profile/occumed-basemap.yml (Location of YML-format schema definition file)
-[mException in thread "main" java.lang.IllegalArgumentException: Unrecognized field "sort_key_descending" (class com.onthegomap.planetiler.custommap.configschema.FeatureItem), not marked as ignorable (12 known properties: "min_zoom", "include_when", "geometry", "attributes", "tolerance_at_max_zoom", "min_size_at_max_zoom", "source", "tolerance", "max_zoom", "exclude_when", "id", "min_size")
- at [Source: UNKNOWN; byte offset: #UNKNOWN] (through reference chain: com.onthegomap.planetiler.custommap.configschema.SchemaConfig["layers"]->java.util.ArrayList[11]->com.onthegomap.planetiler.custommap.configschema.FeatureLayer["features"]->java.util.ArrayList[4]->com.onthegomap.planetiler.custommap.configschema.FeatureItem["sort_key_descending"])
-	at com.fasterxml.jackson.databind.ObjectMapper._convert(ObjectMapper.java:4742)
-	at com.fasterxml.jackson.databind.ObjectMapper.convertValue(ObjectMapper.java:4661)
-	at com.onthegomap.planetiler.util.YAML.convertValue(YAML.java:118)
-	at com.onthegomap.planetiler.util.YAML.load(YAML.java:44)
-	at com.onthegomap.planetiler.util.YAML.load(YAML.java:34)
-	at com.onthegomap.planetiler.custommap.configschema.SchemaConfig.load(SchemaConfig.java:46)
-	at com.onthegomap.planetiler.custommap.ConfiguredMapMain.main(ConfiguredMapMain.java:36)
-	at com.onthegomap.planetiler.Main.main(Main.java:116)
-Caused by: com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException: Unrecognized field "sort_key_descending" (class com.onthegomap.planetiler.custommap.configschema.FeatureItem), not marked as ignorable (12 known properties: "min_zoom", "include_when", "geometry", "attributes", "tolerance_at_max_zoom", "min_size_at_max_zoom", "source", "tolerance", "max_zoom", "exclude_when", "id", "min_size")
- at [Source: UNKNOWN; byte offset: #UNKNOWN] (through reference chain: com.onthegomap.planetiler.custommap.configschema.SchemaConfig["layers"]->java.util.ArrayList[11]->com.onthegomap.planetiler.custommap.configschema.FeatureLayer["features"]->java.util.ArrayList[4]->com.onthegomap.planetiler.custommap.configschema.FeatureItem["sort_key_descending"])
-	at com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException.from(UnrecognizedPropertyException.java:61)
-	at com.fasterxml.jackson.databind.DeserializationContext.handleUnknownProperty(DeserializationContext.java:1200)
-	at com.fasterxml.jackson.databind.deser.std.StdDeserializer.handleUnknownProperty(StdDeserializer.java:2380)
-	at com.fasterxml.jackson.databind.deser.BeanDeserializerBase.handleUnknownProperty(BeanDeserializerBase.java:1823)
-	at com.fasterxml.jackson.databind.deser.BeanDeserializerBase.handleUnknownProperties(BeanDeserializerBase.java:1773)
-	at com.fasterxml.jackson.databind.deser.BeanDeserializer._deserializeUsingPropertyBased(BeanDeserializer.java:579)
-	at com.fasterxml.jackson.databind.deser.BeanDeserializerBase.deserializeFromObjectUsingNonDefault(BeanDeserializerBase.java:1499)
-	at com.fasterxml.jackson.databind.deser.BeanDeserializer.deserializeFromObject(BeanDeserializer.java:340)
-	at com.fasterxml.jackson.databind.deser.BeanDeserializer.deserialize(BeanDeserializer.java:177)
-	at com.fasterxml.jackson.databind.deser.std.CollectionDeserializer._deserializeNoNullChecks(CollectionDeserializer.java:545)
-	at com.fasterxml.jackson.databind.deser.std.CollectionDeserializer._deserializeFromArray(CollectionDeserializer.java:358)
-	at com.fasterxml.jackson.databind.deser.std.CollectionDeserializer.deserialize(CollectionDeserializer.java:245)
-	at com.fasterxml.jackson.databind.deser.std.CollectionDeserializer.deserialize(CollectionDeserializer.java:29)
-	at com.fasterxml.jackson.databind.deser.SettableBeanProperty.deserialize(SettableBeanProperty.java:562)
-	at com.fasterxml.jackson.databind.deser.BeanDeserializer._deserializeWithErrorWrapping(BeanDeserializer.java:603)
-	at com.fasterxml.jackson.databind.deser.BeanDeserializer._deserializeUsingPropertyBased(BeanDeserializer.java:446)
-	at com.fasterxml.jackson.databind.deser.BeanDeserializerBase.deserializeFromObjectUsingNonDefault(BeanDeserializerBase.java:1499)
-	at com.fasterxml.jackson.databind.deser.BeanDeserializer.deserializeFromObject(BeanDeserializer.java:340)
-	at com.fasterxml.jackson.databind.deser.BeanDeserializer.deserialize(BeanDeserializer.java:177)
-	at com.fasterxml.jackson.databind.deser.std.CollectionDeserializer._deserializeNoNullChecks(CollectionDeserializer.java:545)
-	at com.fasterxml.jackson.databind.deser.std.CollectionDeserializer._deserializeFromArray(CollectionDeserializer.java:358)
-	at com.fasterxml.jackson.databind.deser.std.CollectionDeserializer.deserialize(CollectionDeserializer.java:245)
-	at com.fasterxml.jackson.databind.deser.std.CollectionDeserializer.deserialize(CollectionDeserializer.java:29)
-	at com.fasterxml.jackson.databind.deser.SettableBeanProperty.deserialize(SettableBeanProperty.java:562)
-	at com.fasterxml.jackson.databind.deser.BeanDeserializer._deserializeWithErrorWrapping(BeanDeserializer.java:603)
-	at com.fasterxml.jackson.databind.deser.BeanDeserializer._deserializeUsingPropertyBased(BeanDeserializer.java:446)
-	at com.fasterxml.jackson.databind.deser.BeanDeserializerBase.deserializeFromObjectUsingNonDefault(BeanDeserializerBase.java:1499)
-	at com.fasterxml.jackson.databind.deser.BeanDeserializer.deserializeFromObject(BeanDeserializer.java:340)
-	at com.fasterxml.jackson.databind.deser.BeanDeserializer.deserialize(BeanDeserializer.java:177)
-	at com.fasterxml.jackson.databind.ObjectMapper._convert(ObjectMapper.java:4737)
-	... 7 more
+[m[0m0:00:01 DEB - argument: maxzoom=16 (no description provided)
+[m[0m0:00:01 DEB - argument: render_maxzoom=19 (no description provided)
+[m[0m0:00:01 DEB - argument: min_feature_size_at_max_zoom=0.0625 (no description provided)
+[m[0m0:00:01 DEB - argument: area=monaco (Geofabrik area to download)
+[m[0m0:00:01 DEB - argument: force=true (no description provided)
+[m[0m0:00:01 DEB - argument: osm_source_path=monaco.osm.pbf (Local OSM PBF path)
+[m[0m0:00:01 DEB - argument: madvise=true (default value for whether to use linux madvise(random) to improve memory-mapped read performance for temporary storage)
+[m[0m0:00:01 DEB - argument: storage=mmap (default storage type for temporary data, one of [ram, mmap, direct])
+[m[0m0:00:01 DEB - argument: parallel_tmp_io=false (Use unlimited parallelism reading/writing temp files (ie. if using tmpfs or ramfs for temp storage))
+[m[0m0:00:01 DEB - argument: threads=4 (num threads)
+[m[0m0:00:01 DEB - argument: write_threads=1 (number of threads to use when writing temp features)
+[m[0m0:00:01 DEB - argument: process_threads=4 (number of threads to use when processing input features)
+[m[0m0:00:01 DEB - argument: bounds=null (bounds)
+[m[0m0:00:01 DEB - argument: polygon=null (a .poly file that limits output to tiles intersecting the shape)
+[m[0m0:00:01 DEB - argument: minzoom=0 (minimum zoom level)
+[m[0m0:00:01 DEB - argument: tmpdir=/data/tmp (temp directory)
+[m[0m0:00:01 DEB - argument: extra_name_tags= (Extra name tags to copy from OSM to output)
+[m[0m0:00:01 DEB - argument: mlt_advanced=false (Use FSST and FastPFOR encoding schemes when tile format=MLT)
+[m[0m0:00:01 DEB - argument: feature_read_threads=1 (number of threads to use when reading features at tile write time)
+[m[0m0:00:01 DEB - argument: tile_write_threads=1 (number of threads used to write tiles - only supported by [files, csv, tsv, proto, pbf, json])
+[m[0m0:00:01 DEB - argument: loginterval=10 seconds (time between logs)
+[m[0m0:00:01 DEB - argument: append=false (append to the output file - only supported by [files, csv, tsv, proto, pbf, json])
+[m[0m0:00:01 DEB - argument: compress_temp=false (compress temporary feature storage (uses more CPU, but less disk space))
+[m[0m0:00:01 DEB - argument: mmap_temp=true (use memory-mapped IO for temp feature files)
+[m[0m0:00:01 DEB - argument: sort_max_readers=6 (maximum number of concurrent read threads to use when sorting chunks)
+[m[0m0:00:01 DEB - argument: sort_max_writers=6 (maximum number of concurrent write threads to use when sorting chunks)
+[m[0m0:00:01 DEB - argument: nodemap_type=sparsearray (type of node location map, one of [noop, sortedtable, sparsearray, array])
+[m[0m0:00:01 DEB - argument: nodemap_storage=mmap (storage for node location map, one of [ram, mmap, direct])
+[m[0m0:00:01 DEB - argument: nodemap_madvise=true (use linux madvise(random) for node locations)
+[m[0m0:00:01 DEB - argument: multipolygon_geometry_storage=mmap (storage for multipolygon geometries, one of [ram, mmap, direct])
+[m[0m0:00:01 DEB - argument: multipolygon_geometry_madvise=true (use linux madvise(random) for temporary multipolygon geometry storage)
+[m[0m0:00:01 DEB - argument: http_user_agent=Planetiler downloader (https://github.com/onthegomap/planetiler) (User-Agent header to set when downloading files over HTTP)
+[m[0m0:00:01 DEB - argument: http_timeout=30 seconds (Timeout to use when downloading files over HTTP)
+[m[0m0:00:01 DEB - argument: http_retries=5 (Retries to use when downloading files over HTTP)
+[m[0m0:00:01 DEB - argument: http_retry_wait=5 seconds (How long to wait before retrying HTTP request)
+[m[0m0:00:01 DEB - argument: download_chunk_size_mb=100 (Size of file chunks to download in parallel in megabytes)
+[m[0m0:00:01 DEB - argument: download_threads=1 (Number of parallel threads to use when downloading each file)
+[m[0m0:00:01 DEB - argument: download_max_bandwidth= (Maximum bandwidth to consume when downloading files in units mb/s, mbps, kbps, etc.)
+[m[0m0:00:01 DEB - argument: simplify_tolerance_at_max_zoom=0.0625 (Default value for the tile pixel tolerance to use when simplifying features at the maximum zoom level to allow for overzooming)
+[m[0m0:00:01 DEB - argument: simplify_tolerance=0.1 (Default value for the tile pixel tolerance to use when simplifying features below the maximum zoom level)
+[m[0m0:00:01 DEB - argument: osm_lazy_reads=true (Read OSM blocks from disk in worker threads)
+[m[0m0:00:01 DEB - argument: skip_filled_tiles=false (Skip writing tiles containing only polygon fills to the output)
+[m[0m0:00:01 DEB - argument: tile_warning_size_mb=1.0 (Maximum size in megabytes of a tile to emit a warning about)
+[m[0m0:00:01 DEB - argument: color=null (Color the terminal output)
+[m[0m0:00:01 DEB - argument: keep_unzipped=false (keep unzipped sources by default after reading)
+[m[0m0:00:01 DEB - argument: tile_compression=gzip (the tile compression, one of [gzip, none])
+[m[0m0:00:01 DEB - argument: tile_format=mvt (the tile format, one of [mvt, mlt])
+[m[0m0:00:01 DEB - argument: exclude_ids=false (Exclude feature IDs from generated vector tiles)
+[m[0m0:00:01 DEB - argument: mlt_fastpfor=false (Use FastPFOR encoding when tile format=MLT)
+[m[0m0:00:01 DEB - argument: mlt_fsst=false (Use FSST encoding when tile format=MLT)
+[m[0m0:00:01 DEB - argument: mlt_tessellate_polygons=false (Pre-triangulate polygons when tile format=MLT so that clients do not need to)
+[m[0m0:00:01 DEB - argument: mlt_reorder_features=false (Allow re-ordering output features within each layer when tile format=MLT to reduce tile sizes)
+[m[0m0:00:01 DEB - argument: mlt_shared_dict=false (Share dictionaries between string fields when tile format=MLT)
+[m[0m0:00:01 DEB - argument: output_layerstats=false (output a tsv.gz file for each tile/layer size)
+[m[0m0:00:01 DEB - argument: debug_url=https://onthegomap.github.io/planetiler-demo/#{z}/{lat}/{lon} (debug url to use for displaying tiles with {z} {lat} {lon} placeholders)
+[m[0m0:00:01 DEB - argument: tile_weights=/data/tile_weights.tsv.gz (tsv.gz file with columns z,x,y,loads to generate weighted average tile size stat)
+[m[0m0:00:01 DEB - argument: max_point_buffer=Infinity (Additional global limit for the max tile pixels to include points outside tile bounds of all layers. Set to a lower value to reduce tile size for clients that handle label collisions across tiles (most web and native clients). NOTE: Do not reduce if you need to support raster tile rendering)
+[m[0m0:00:01 DEB - argument: log_jts_exceptions=false (Emit verbose details to debug JTS geometry errors)
+[m[0m0:00:01 DEB - argument: feature_source_id_multiplier=10 (Set vector tile feature IDs to (featureId * thisValue) + sourceId where sourceId is 1 for OSM nodes, 2 for ways, 3 for relations, and 0 for other sources. Set to false to disable.)
+[m[0m0:00:01 DEB - argument: reuse_featuredb=false (Reuse existing feature DB on disk, skipping source reading stages (for iterating on post-processing logic))
+[m[0m0:00:01 INF - argument: stats=use in-memory stats
+[m[0m0:00:01 DEB - argument: only_download=false (download source data then exit)
+[m[0m0:00:01 DEB - argument: tests=null (run test cases in a yaml then quit)
+[m[0m0:00:01 DEB - argument: download=false (download sources)
+[m[0m0:00:01 DEB - argument: refresh_sources=false (download new version of source files if they have changed)
+[m[0m0:00:01 DEB - argument: download_osm_tile_weights=false (download OSM tile weights file)
+[m[0m0:00:01 DEB - argument: temp_nodes=/data/tmp/node.db (temp node db location)
+[m[0m0:00:01 DEB - argument: temp_multipolygons=/data/tmp/multipolygon.db (temp multipolygon db location)
+[m[0m0:00:01 DEB - argument: temp_features=/data/tmp/feature.db (temp feature db location)
+[m[0m0:00:01 DEB - argument: osm_parse_node_bounds=false (parse bounds from OSM nodes instead of header)
+[m[0m0:00:01 DEB - argument: osm_path=/data/monaco.osm.pbf (osm OSM input file path)
+[m[0m0:00:01 DEB - argument: refresh_osm=false (Download new version of osm if changed)
+[m[0m0:00:01 DEB - argument: free_osm_after_read=false (delete osm input file after reading to make space for output (reduces peak disk usage))
+[m[0m0:00:01 DEB - argument: output=/output/occumed-monaco.pmtiles (output tile archive URI)
+[m[0m0:00:01 DEB - argument: version=false (show version then exit)
+[m[0m0:00:01 INF - Planetiler build git hash: 0e5588c4a6e8c29a270a33afe8df62027d889604
+[m[0m0:00:01 INF - Planetiler build version: 0.10.2
+[m[0m0:00:01 INF - Planetiler build timestamp: 2026-03-28T14:40:55.764Z
+[m[0m0:00:01 DEB - argument: help=false (show arguments then exit)
+[m[0m0:00:01 DEB - argument: layer_stats=/output/occumed-monaco.pmtiles.layerstats.tsv.gz (layer stats output path)
+[m[0m0:00:01 INF - Building ConfiguredProfile profile into file:///output/occumed-monaco.pmtiles in these phases:
+[m[0m0:00:01 INF -   osm_pass1: Pre-process OpenStreetMap input (store node locations then relation members)
+[m[0m0:00:01 INF -   osm_pass2: Process OpenStreetMap nodes, ways, then relations
+[m[0m0:00:01 INF -   sort: Sort rendered features by tile ID
+[m[0m0:00:01 INF -   archive: Encode each tile and write to TileArchiveConfig[format=PMTILES, scheme=FILE, uri=file:///output/occumed-monaco.pmtiles, options={}]
+[m[0m0:00:01 DEB - ✓ 799k storage on /data (/dev/root) requested for read phase disk, 93G available
+[m[0m0:00:01 DEB -  - 694k used for temporary node location cache
+[m[0m0:00:01 DEB -  - 105k used for temporary multipolygon geometry cache
+[m[0m0:00:01 DEB - ✓ 799k storage on /data (/dev/root) requested for read phase, 93G available
+[m[0m0:00:01 DEB -  - 694k used for sparsearray node location cache
+[m[0m0:00:01 DEB -  - 105k used for multipolygon way geometries
+[m[0m0:00:01 DEB - ✓ 300M JVM heap requested for read phase, 3.2G available
+[m[0m0:00:01 DEB -  - 300M used for sparsearray node location in-memory index
+[m[0m0:00:01 DEB - ✓ 799k temporary files and 13G of free memory for OS to cache them
+[m[0m0:00:01 INF - Setting map bounds from input: Envelope(7.408583,43.483817,7.595671,43.75293)
+[m[0m0:00:01 DEB - argument: archive_name=Occu-Med Terrain ('name' attribute for tileset metadata)
+[m[0m0:00:01 DEB - argument: archive_description=Custom Occu-Med vector schema for the reusable MapLibre basemap ('description' attribute for tileset metadata)
+[m[0m0:00:01 DEB - argument: archive_attribution=<a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors</a> ('attribution' attribute for tileset metadata)
+[m[0m0:00:01 DEB - argument: archive_version=0.3.0 ('version' attribute for tileset metadata)
+[m[0m0:00:01 DEB - argument: archive_type=baselayer ('type' attribute for tileset metadata)
+[m[0m0:00:01 INF - Using merge sort feature map, chunk size=1073mb max workers=4
+[m[0m0:00:01 INF [osm_pass1] - 
+[m[0m0:00:01 INF [osm_pass1] - Starting...
+[m[0m0:00:02 INF [osm_pass1:process] - Finished nodes: 41,524 (55k/s) in 0.7s cpu:1s avg:1.9
+[m[0m0:00:02 INF [osm_pass1:process] - Finished ways: 6,209 (2.5M/s) in 0s cpu:0s avg:4.2
+[m[0m0:00:02 INF [osm_pass1:process] - Finished relations: 348 (9.6k/s) in 0s cpu:0.1s avg:2.8
+[m[0m0:00:02 INF [osm_pass1] -  nodes: [32m[  41k  46k/s ][0m 518M  ways: [32m[ 6.2k 6.9k/s ][0m rels: [32m[  348  388/s ][0m blocks: [    8    8/s ]
+    cpus: [34m2.1[0m gc:  3% heap: 990M/3.2G direct: 16k postGC: [34m1G[0m hppc: 386k
+    read( -%) ->    (0/13) -> parse( -%  -%  -%  -%) ->    (0/10) -> process( -%)
+[m[0m0:00:02 DEB [osm_pass1] - Processed 8 blocks:
+[m[0m0:00:02 DEB [osm_pass1] -   nodes: 41,524 (55k/s) in 0.7s cpu:1s avg:1.9
+[m[0m0:00:02 DEB [osm_pass1] -   ways: 6,209 (2.5M/s) in 0s cpu:0s avg:4.2
+[m[0m0:00:02 DEB [osm_pass1] -   relations: 348 (9.6k/s) in 0s cpu:0.1s avg:2.8
+[m[0m0:00:02 INF [osm_pass1] - Finished in 0.9s cpu:2s avg:2.1
+[m[0m0:00:02 INF [osm_pass1] -   read     1x(0% 0s)
+[m[0m0:00:02 INF [osm_pass1] -   parse    4x(7% 0.1s)
+[m[0m0:00:02 INF [osm_pass1] -   process  1x(81% 0.7s)
+[m[0m0:00:02 INF [osm_pass2] - 
+[m[0m0:00:02 INF [osm_pass2] - Starting...
+[m[0m0:00:02 DEB [osm_pass2:process] - Sorting long long multimap...
+[m[0m0:00:02 DEB [osm_pass2:process] - Sorted long long multimap 0s cpu:0s avg:8
+[m[0m0:00:02 INF [osm_pass2:process] - Finished nodes: 41,524 (206k/s) in 0.2s cpu:0.8s avg:3.9
+[m[0m0:00:04 INF [osm_pass2:process] - Finished ways: 6,209 (4.7k/s) in 1s cpu:4s avg:3.3
+[m[0m0:00:04 INF [osm_pass2:process] - Finished relations: 348 (37k/s) in 0s cpu:0s avg:3.2
+[m[0m0:00:04 INF [osm_pass2] -  nodes: [32m[  41k 100%  26k/s ][0m 518M  ways: [32m[ 6.2k 100% 3.9k/s ][0m rels: [32m[  348 100%  219/s ][0m features: [  41k  25k/s ] 2.8M  blocks: [    8 100%    5/s ]
+    cpus: [34m3.4[0m gc:  1% heap: 1G/3.2G direct: 16k postGC: [34m1G[0m relInfo: 386k mpGeoms: 36k  
+    read() ->    (0/15) -> process( -%  -%  -%  -%) ->   (0/55k) -> write( -%)
+[m[0m0:00:04 DEB [osm_pass2] - Processed 8 blocks:
+[m[0m0:00:04 DEB [osm_pass2] -   nodes: 41,524 (206k/s) in 0.2s cpu:0.8s avg:3.9
+[m[0m0:00:04 DEB [osm_pass2] -   ways: 6,209 (4.7k/s) in 1s cpu:4s avg:3.3
+[m[0m0:00:04 DEB [osm_pass2] -   relations: 348 (37k/s) in 0s cpu:0s avg:3.2
+[m[0m0:00:04 INF [osm_pass2] - Finished in 2s cpu:5s avg:3.4
+[m[0m0:00:04 INF [osm_pass2] -   read     1x(0% 0s done:2s)
+[m[0m0:00:04 INF [osm_pass2] -   process  4x(28% 0.5s)
+[m[0m0:00:04 INF [osm_pass2] -   write    1x(3% 0.1s wait:2s)
+[m[0m0:00:04 INF [osm_pass2] - Deleting node.db to make room for output file
+[m[0m0:00:04 INF [sort] - 
+[m[0m0:00:04 INF [sort] - Starting...
+[m[0m0:00:04 INF [sort] - Grouped 2 chunks into 1
+[m[0m0:00:04 INF [sort] -  chunks: [   1 /   1 100% ] 2.8M 
+    cpus: [34m3.6[0m gc:  0% heap: 1G/3.2G direct: 16k postGC: [34m1G[0m
+    ->     (0/3) -> worker(47%)
+[m[0m0:00:04 INF [sort] - Finished in 0.1s cpu:0.3s avg:3.6
+[m[0m0:00:04 INF [sort] -   worker  1x(49% 0s)
+[m[0m0:00:04 INF [sort] - read:0s write:0s sort:0s
+[m[0m0:00:04 INF [archive] - 
+[m[0m0:00:04 INF [archive] - Starting...
+[m[0m0:00:04 INF [archive] - Unable to load tile weights from /data/tile_weights.tsv.gz, falling back to top 100k
+[m[0m0:00:05 INF [archive:write] - Starting z16
+[m[0m0:00:05 INF [archive:write] - Finished z16 in 0s cpu:0s avg:4.4, now starting z1
+[m[0m0:00:05 INF [archive:write] - Finished z1 in 0s cpu:0s avg:0, now starting z2
+[m[0m0:00:05 INF [archive:write] - Finished z2 in 0s cpu:0s avg:0, now starting z3
+[m[0m0:00:05 INF [archive:write] - Finished z3 in 0s cpu:0s avg:0, now starting z4
+[m[0m0:00:05 INF [archive:write] - Finished z4 in 0s cpu:0s avg:0, now starting z5
+[m[0m0:00:05 INF [archive:write] - Finished z5 in 0s cpu:0s avg:47.3, now starting z6
+[m[0m0:00:05 INF [archive:write] - Finished z6 in 0s cpu:0s avg:0, now starting z7
+[m[0m0:00:05 INF [archive:write] - Finished z7 in 0s cpu:0s avg:0, now starting z8
+[m[0m0:00:05 INF [archive:write] - Finished z8 in 0s cpu:0s avg:0, now starting z9
+[m[0m0:00:05 INF [archive:write] - Finished z9 in 0s cpu:0s avg:0, now starting z10
+[m[0m0:00:05 INF [archive:write] - Finished z10 in 0s cpu:0s avg:0, now starting z11
+[m[0m0:00:05 INF [archive:write] - Finished z11 in 0s cpu:0s avg:0, now starting z12
+[m[0m0:00:05 INF [archive:write] - Finished z12 in 0s cpu:0s avg:0, now starting z13
+[m[0m0:00:05 INF [archive:write] - Finished z13 in 0s cpu:0s avg:0, now starting z14
+[m[0m0:00:05 INF [archive:write] - Finished z14 in 0s cpu:0s avg:0, now starting z15
+[m[0m0:00:05 INF [archive:write] - Finished z15 in 0s cpu:0s avg:0
+[m[0m0:00:05 INF [archive:write] - Tile data was not written in order, sorting entries...
+[m[0m0:00:05 INF [archive:write] - Done sorting.
+[m[0m0:00:05 INF [archive:write] - Writing metadata and leaf directories...
+[m[0m0:00:05 INF [archive:write] - Writing header...
+[m[0m0:00:05 INF [archive:write] - # addressed tiles: 439
+[m[0m0:00:05 INF [archive:write] - # of tile entries: 439
+[m[0m0:00:05 INF [archive:write] - # of tile contents: 439
+[m[0m0:00:05 INF [archive:write] - Root directory: 727B
+[m[0m0:00:05 INF [archive:write] - # leaves: 0
+[m[0m0:00:05 INF [archive:write] - Total dir bytes: 727B
+[m[0m0:00:05 INF [archive:write] - Average bytes per addressed tile: 1.6560364464692483
+[m[0m0:00:05 INF [archive] -  features: [32m[  41k 100%  72k/s ][0m 2.8M  tiles: [  439  775/s ] 926k 
+    cpus: [34m3.9[0m gc:  0% heap: 1.2G/3.2G direct: 107k postGC: [34m1G[0m
+    read( -%) ->   (0/166) -> encode( -%  -%  -%  -%) ->   (0/163) -> write( -%)
+    last tile: 15/17062/11961 (z15 85%) https://onthegomap.github.io/planetiler-demo/#15.5/43.6321/7.45422
+[m[0m0:00:05 DEB [archive] - Tile stats:
+[m[0m0:00:05 DEB [archive] - Biggest tiles (gzipped)
+1. 14/8529/5974 (91k) https://onthegomap.github.io/planetiler-demo/#14.5/43.73141/7.41577 (transportation:80k)
+2. 13/4264/2987 (80k) https://onthegomap.github.io/planetiler-demo/#13.5/43.72347/7.40479 (transportation:70k)
+3. 12/2132/1493 (54k) https://onthegomap.github.io/planetiler-demo/#12.5/43.73934/7.42676 (poi:49k)
+4. 15/17059/11948 (52k) https://onthegomap.github.io/planetiler-demo/#15.5/43.73538/7.42126 (transportation:44k)
+5. 14/8530/5973 (39k) https://onthegomap.github.io/planetiler-demo/#14.5/43.74729/7.43774 (transportation:32k)
+6. 11/1066/746 (37k) https://onthegomap.github.io/planetiler-demo/#11.5/43.77106/7.4707 (poi:44k)
+7. 13/4265/2986 (34k) https://onthegomap.github.io/planetiler-demo/#13.5/43.75522/7.44873 (transportation:28k)
+8. 15/17059/11949 (31k) https://onthegomap.github.io/planetiler-demo/#15.5/43.72744/7.42126 (transportation:27k)
+9. 15/17060/11947 (29k) https://onthegomap.github.io/planetiler-demo/#15.5/43.74332/7.43225 (transportation:23k)
+10. 16/34118/23897 (23k) https://onthegomap.github.io/planetiler-demo/#16.5/43.7334/7.41852 (transportation:17k)
+[m[0m0:00:05 DEB [archive] - Max tile sizes
+                      z1    z2    z3    z4    z5    z6    z7    z8    z9   z10   z11   z12   z13   z14   z15   z16   all
+           boundary  148   228   228   260   324   419   533   774   698   845   990  1.2k   673   668   504   420  1.2k
+              place    0    96    96    96    96    96   155   155   155   582   582   582   417   417   226   168   582
+         water_name    0     0     0     0   149   149   149   149   149   149   149   149   104   104   104   104   149
+            landuse    0     0     0     0     0    75    92   393   800  1.8k  2.7k  3.6k  2.9k  3.2k  1.7k  1.2k  3.6k
+     transportation    0     0     0     0     0   160   198  1.7k  4.3k  7.9k   21k   41k   70k   80k   44k   17k   80k
+    aerodrome_label    0     0     0     0     0     0     0   134   134   134   134   134   134   134   134   134   134
+      mountain_peak    0     0     0     0     0     0     0   107   107   107   107   107   107   107   107   107   107
+transportation_name    0     0     0     0     0     0     0   121   284  1.9k  3.1k   10k  8.9k  9.8k  6.8k  3.6k   10k
+               park    0     0     0     0     0     0     0     0   102   530   967  1.1k   767   698   650   544  1.1k
+          landcover    0     0     0     0     0     0     0     0     0    61   153   325   424   725   965   711   965
+           waterway    0     0     0     0     0     0     0     0     0    55    90    93    95   100   107   107   107
+                poi    0     0     0     0     0     0     0     0     0     0   44k   49k   34k   33k   14k  7.7k   49k
+            aeroway    0     0     0     0     0     0     0     0     0     0     0   163   511   564   542   550   564
+              water    0     0     0     0     0     0     0     0     0     0     0   282   386   603   552   625   625
+           building    0     0     0     0     0     0     0     0     0     0     0     0   33k   37k   23k   10k   37k
+        housenumber    0     0     0     0     0     0     0     0     0     0     0     0     0     0     0  1.9k  1.9k
+          full tile  148   324   324   356   569   899  1.1k  3.5k  6.8k   14k   75k  109k  153k  168k   92k   41k  168k
+            gzipped  165   285   286   303   450   662   831  2.2k  3.9k  7.6k   37k   54k   80k   91k   52k   23k   91k
+[m[0m0:00:05 DEB [archive] -    Max tile: 168k (gzipped: 91k)
+[m[0m0:00:05 DEB [archive] -    Avg tile: 3.5k (gzipped: 2k) using weighted average based on OSM traffic
+[m[0m0:00:05 DEB [archive] -     # tiles: 439
+[m[0m0:00:05 DEB [archive] -  # features: 41,192
+[m[0m0:00:05 INF [archive] - Finished in 0.9s cpu:3s avg:3.7
+[m[0m0:00:05 INF [archive] -   read    1x(1% 0s)
+[m[0m0:00:05 INF [archive] -   encode  4x(28% 0.2s)
+[m[0m0:00:05 INF [archive] -   write   1x(2% 0s)
+[m[0m0:00:05 INF [archive] - Finished in 4s cpu:13s avg:3.1
+[m[0m0:00:05 INF [archive] - FINISHED!
+[m[0m0:00:05 INF [archive] - 
+[m[0m0:00:05 INF [archive] - ----------------------------------------
+[m[0m0:00:05 INF [archive] - data errors:
+[m[0m0:00:05 INF [archive] - 	osm_boundary_missing_way	2,449
+[m[0m0:00:05 INF [archive] - 	render_snap_fix_input	107
+[m[0m0:00:05 INF [archive] - 	osm_multipolygon_missing_way	1
+[m[0m0:00:05 INF [archive] - ----------------------------------------
+[m[0m0:00:05 INF [archive] - 	overall   4s cpu:13s avg:3.1
+[m[0m0:00:05 INF [archive] - 	osm_pass1 0.9s cpu:2s avg:2.1
+[m[0m0:00:05 INF [archive] - 	osm_pass2 2s cpu:5s avg:3.4
+[m[0m0:00:05 INF [archive] - 	  read     1x(0% 0s done:2s)
+[m[0m0:00:05 INF [archive] - 	  process  4x(28% 0.5s)
+[m[0m0:00:05 INF [archive] - 	  write    1x(3% 0.1s wait:2s)
+[m[0m0:00:05 INF [archive] - 	sort      0.1s cpu:0.3s avg:3.6
+[m[0m0:00:05 INF [archive] - 	archive   0.9s cpu:3s avg:3.7
+[m[0m0:00:05 INF [archive] - ----------------------------------------
+[m[0m0:00:05 INF [archive] - 	archive	926kB
+[m[0m0:00:05 INF [archive] - 	features	2.8MB
+[m-rw-r--r-- 1 root   root   905K Jul 26 11:21 /home/runner/work/Map/Map/artifacts/occumed-monaco.pmtiles
+-rw-r--r-- 1 runner runner   89 Jul 26 11:21 /home/runner/work/Map/Map/artifacts/occumed-monaco.pmtiles.sha256
+Created /home/runner/work/Map/Map/artifacts/occumed-monaco.pmtiles
+Build the app with:
+  OCCUMED_PMTILES_URL=__OCCUMED_PUBLIC_ORIGIN__/tiles/occumed-monaco.pmtiles npm run build
 
-exit_status=1
-commit=9cda56cfc90804a34fbfd38c4ab53920ff93c834
+exit_status=0
+commit=e014d4510ef081f90dc280f1cd1af942245b49c8
+archive_size_bytes=926330
+798c174ad3c00eecd629f2790c382ad8c73ee0fd56acb0b30a38d2aa22a2a463  artifacts/occumed-monaco.pmtiles
