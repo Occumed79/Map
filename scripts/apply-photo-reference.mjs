@@ -11,7 +11,7 @@ const palette = {
   waterLow: '#55a7df',
   waterMid: '#68afe0',
   waterHigh: '#76b8e4',
-  land: '#e7e7d5',
+  land: 'hsl(60, 20%, 85%)',
   forest: '#8ecf76',
   grass: '#b8d99c',
   scrub: '#c7dda5',
@@ -78,7 +78,7 @@ for (const layer of runtime.layers || []) {
   const paint = ensurePaint(layer);
 
   if (layer.type === 'background') {
-    paint['background-color'] = palette.waterLow;
+    paint['background-color'] = palette.land;
     paint['background-opacity'] = 1;
     continue;
   }
@@ -88,9 +88,9 @@ for (const layer of runtime.layers || []) {
     layer.paint = {
       'raster-opacity': [
         'interpolate', ['linear'], ['zoom'],
-        0, 0.72,
-        2.5, 0.64,
-        4.5, 0.48,
+        0, 0.38,
+        2.5, 0.34,
+        4.5, 0.24,
         6.5, 0
       ],
       'raster-saturation': 0.32,
@@ -129,12 +129,6 @@ for (const layer of runtime.layers || []) {
     continue;
   }
 
-  if (id === 'land') {
-    paint['fill-color'] = palette.land;
-    paint['fill-opacity'] = 1;
-    continue;
-  }
-
   if (id === 'landcover' || isSourceLayer(layer, 'landcover')) {
     if (layer.type === 'fill') {
       paint['fill-color'] = [
@@ -142,7 +136,8 @@ for (const layer of runtime.layers || []) {
         ['wood', 'forest'], palette.forest,
         ['grass', 'grassland', 'meadow'], palette.grass,
         ['farmland', 'crop', 'orchard', 'vineyard'], palette.crop,
-        ['scrub', 'heath', 'sand'], palette.scrub,
+        ['scrub', 'heath'], palette.scrub,
+        ['sand', 'desert'], '#e8e0bd',
         ['wetland', 'marsh'], palette.wetland,
         ['ice', 'snow', 'glacier'], palette.snow,
         palette.grass
@@ -201,7 +196,13 @@ for (const layer of runtime.layers || []) {
       6, palette.waterMid,
       12, palette.waterHigh
     ];
-    paint['fill-opacity'] = 1;
+    paint['fill-opacity'] = [
+      'interpolate', ['linear'], ['zoom'],
+      0, 0.58,
+      3.5, 0.68,
+      7, 0.9,
+      10, 1
+    ];
     continue;
   }
 
