@@ -80,7 +80,11 @@ for (const marker of [
 }
 
 if (!planner.includes('https://download.geofabrik.de/index-v1.json')) fail('The worldwide planner is not sourced from the Geofabrik index.');
-if (!planner.includes('downloadableChildren.length > 0')) fail('The worldwide planner is not selecting leaf extracts.');
+if (!planner.includes('hasDownloadableDescendant')) fail('The worldwide planner does not reject overlapping parent extracts recursively.');
+if (!planner.includes('DIRECT_PBF_LIMIT_BYTES')) fail('The worldwide planner does not identify oversized source extracts.');
+if (!planner.includes('splitRegion(region, sourceSizeBytes)')) fail('The worldwide planner cannot subdivide oversized sources.');
+if (!planner.includes("extract_bbox: `${roundedWest},${roundedSouth},${roundedEast},${roundedNorth}`")) fail('Bounded subdivision metadata is missing from the worldwide plan.');
+if (!planner.includes('coveredWidth > 300')) fail('The worldwide planner does not preserve global versus antimeridian-aware bounds.');
 if (!planner.includes('asset_name: `occumed-${slug}.pmtiles`')) fail('The worldwide planner does not produce deterministic archive names.');
 if (!manifestBuilder.includes("archiveTransport: 'same-origin-release-proxy'")) fail('The worldwide manifest does not use the release proxy transport.');
 if (!manifestBuilder.includes("url: `__OCCUMED_PUBLIC_ORIGIN__/world-tiles/${region.asset_name}`")) fail('The worldwide manifest does not route archives through the deployed origin.');
@@ -92,10 +96,15 @@ if (!server.includes('if (request.headers.range) headers.Range = request.headers
 
 if (!workflow.includes('Build Worldwide Occu-Med PMTiles')) fail('The worldwide build workflow is missing.');
 if (!workflow.includes('WORLD_BUCKETS: 6')) fail('The worldwide workflow is not partitioned into bounded matrices.');
+if (!workflow.includes('extract-bbox: ${{ matrix.extract_bbox }}')) fail('Worldwide matrices do not pass bounded subdivision coordinates to the shard action.');
+if ((workflow.match(/node scripts\/plan-world-shards\.mjs --scope all/g) || []).length !== 1) fail('The size-aware worldwide plan must be generated exactly once per run.');
 if (!workflow.includes('publish-world-manifest')) fail('The worldwide workflow does not publish a final manifest.');
 if (!workflow.includes('Require complete worldwide coverage')) fail('The worldwide workflow does not reject missing regions.');
+if (!action.includes('Reuse an already-published healthy archive')) fail('Repair runs do not reuse healthy published worldwide archives.');
+if (!action.includes('osmium extract')) fail('Oversized-region subdivisions are not extracted before Planetiler runs.');
 if (!action.includes('gh release upload')) fail('Worldwide PMTiles shards are not published to GitHub Releases.');
 if (!action.includes("--header 'Range: bytes=0-126'")) fail('Published shard byte ranges are not validated.');
+if (!action.includes("head -c 7 artifacts/release-range.bin")) fail('Published archive verification does not assert the PMTiles magic header.');
 
 for (const requiredLayer of [
   'landcover', 'landuse', 'park', 'water', 'waterway', 'transportation',
@@ -124,4 +133,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('PMTiles integration validated: supported Planetiler YAML invocation, corrected schema generation, protocol registration, worldwide routing, release proxying, shard builds, strict visual evidence, and manifest publication are present.');
+console.log('PMTiles integration validated: supported Planetiler YAML invocation, recursive true-leaf planning, antimeridian-safe bounds, automatic oversized-region subdivision, published-shard reuse, protocol registration, worldwide routing, release proxying, strict visual evidence, and zero-missing manifest publication are present.');
