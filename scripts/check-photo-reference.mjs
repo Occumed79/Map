@@ -23,11 +23,12 @@ assert(!runtime.light, 'Directional light must not be reintroduced.');
 assert(!runtime.fog, 'Mapbox fog must not be copied into the MapLibre runtime.');
 
 const land = layer('land');
-assert(land?.paint?.['fill-color'] === '#e7e7d5', 'Opaque pale land base is missing.');
-assert(land?.paint?.['fill-opacity'] === 1, 'Land must cover the relief raster at low zoom.');
+assert(land?.paint?.['background-color'] === 'hsl(60, 20%, 85%)', 'Neutral pale land background is missing.');
+assert(land?.paint?.['background-opacity'] === 1, 'Land background must remain fully opaque.');
 
 const water = layer('water');
-assert(Array.isArray(water?.paint?.['fill-color']), 'Water must use the calibrated zoom expression.');
+assert(Array.isArray(water?.paint?.['fill-color']), 'Water must use the calibrated zoom color expression.');
+assert(Array.isArray(water?.paint?.['fill-opacity']), 'Water must reveal low-zoom bathymetry through a zoom opacity expression.');
 assert(JSON.stringify(water.paint['fill-color']).includes('#55a7df'), 'Low-zoom ocean blue is missing.');
 assert(JSON.stringify(water.paint['fill-color']).includes('#76b8e4'), 'High-zoom water blue is missing.');
 
@@ -39,6 +40,7 @@ assert(JSON.stringify(landcover.paint['fill-color']).includes('#d7e1b6'), 'Agric
 const relief = layer('occumed-shaded-relief');
 assert(relief?.paint?.['raster-saturation'] === 0.32, 'Bathymetry calibration is missing.');
 assert(relief?.paint?.['raster-contrast'] === 0.1, 'Bathymetry contrast calibration is missing.');
+assert(Array.isArray(relief?.paint?.['raster-opacity']), 'Relief must use zoom-aware opacity.');
 
 const hillshade = layer('occumed-hillshade');
 assert(hillshade?.paint?.['hillshade-illumination-anchor'] === 'map', 'Hillshade must stay fixed to geography.');
