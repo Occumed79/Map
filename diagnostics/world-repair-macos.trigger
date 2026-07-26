@@ -1,0 +1,2 @@
+requested_at=2026-07-26T19:22:30Z
+purpose=calculate_non_failed_completion_percentage
