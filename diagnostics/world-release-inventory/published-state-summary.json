@@ -1,15 +1,15 @@
 {
-  "capturedAt": "2026-07-26T21:38:25.459Z",
+  "capturedAt": "2026-07-26T22:08:12.041Z",
   "releaseTag": "occumed-world-v1",
   "canonicalShardCount": 724,
-  "totalReleaseAssetCount": 1000,
-  "totalReleasePmtilesCount": 333,
-  "publishedCanonicalCount": 309,
-  "missingCanonicalCount": 415,
-  "publishedCanonicalPercentage": 42.68,
-  "publishedCanonicalBytes": 97573736839,
+  "totalReleaseAssetCount": 329,
+  "totalReleasePmtilesCount": 317,
+  "publishedCanonicalCount": 313,
+  "missingCanonicalCount": 411,
+  "publishedCanonicalPercentage": 43.23,
+  "publishedCanonicalBytes": 99440197266,
   "zeroSizePublishedCount": 0,
-  "extraPmtilesAssetCount": 24,
+  "extraPmtilesAssetCount": 4,
   "publishedRegions": [
     {
       "id": "act",
@@ -108,6 +108,13 @@
       "asset": "occumed-aragon.pmtiles",
       "sizeBytes": 321522392,
       "updatedAt": "2026-07-26T18:23:06Z"
+    },
+    {
+      "id": "argentina--r1-c1",
+      "name": "Argentina 1.1",
+      "asset": "occumed-argentina--r1-c1.pmtiles",
+      "sizeBytes": 494017218,
+      "updatedAt": "2026-07-26T22:07:34Z"
     },
     {
       "id": "armenia",
@@ -516,6 +523,13 @@
       "updatedAt": "2026-07-26T21:35:57Z"
     },
     {
+      "id": "congo-democratic-republic--r1-c2",
+      "name": "Congo (Democratic Republic/Kinshasa) 1.2",
+      "asset": "occumed-congo-democratic-republic--r1-c2.pmtiles",
+      "sizeBytes": 159413055,
+      "updatedAt": "2026-07-26T22:06:58Z"
+    },
+    {
       "id": "cook-islands",
       "name": "Cook Islands",
       "asset": "occumed-cook-islands.pmtiles",
@@ -534,56 +548,56 @@
       "name": "Cornwall",
       "asset": "occumed-cornwall.pmtiles",
       "sizeBytes": 84225998,
-      "updatedAt": "2026-07-26T18:48:40Z"
+      "updatedAt": "2026-07-26T21:39:20Z"
     },
     {
       "id": "corse",
       "name": "Corse",
       "asset": "occumed-corse.pmtiles",
       "sizeBytes": 96962099,
-      "updatedAt": "2026-07-26T18:35:30Z"
+      "updatedAt": "2026-07-26T21:43:09Z"
     },
     {
       "id": "costa-rica",
       "name": "Costa Rica",
       "asset": "occumed-costa-rica.pmtiles",
       "sizeBytes": 168033754,
-      "updatedAt": "2026-07-26T18:32:32Z"
+      "updatedAt": "2026-07-26T21:50:33Z"
     },
     {
       "id": "crimean-fed-district",
       "name": "Crimean Federal District",
       "asset": "occumed-crimean-fed-district.pmtiles",
       "sizeBytes": 138737670,
-      "updatedAt": "2026-07-26T19:26:38Z"
+      "updatedAt": "2026-07-26T21:42:56Z"
     },
     {
       "id": "croatia",
       "name": "Croatia",
       "asset": "occumed-croatia.pmtiles",
       "sizeBytes": 635107281,
-      "updatedAt": "2026-07-26T18:51:53Z"
+      "updatedAt": "2026-07-26T21:48:02Z"
     },
     {
       "id": "cuba",
       "name": "Cuba",
       "asset": "occumed-cuba.pmtiles",
       "sizeBytes": 259848036,
-      "updatedAt": "2026-07-26T19:16:19Z"
+      "updatedAt": "2026-07-26T21:47:20Z"
     },
     {
       "id": "cumbria",
       "name": "Cumbria",
       "asset": "occumed-cumbria.pmtiles",
-      "sizeBytes": 100981348,
-      "updatedAt": "2026-07-26T18:54:15Z"
+      "sizeBytes": 100982605,
+      "updatedAt": "2026-07-26T21:47:46Z"
     },
     {
       "id": "cyprus",
       "name": "Cyprus",
       "asset": "occumed-cyprus.pmtiles",
       "sizeBytes": 113616868,
-      "updatedAt": "2026-07-26T18:43:51Z"
+      "updatedAt": "2026-07-26T21:46:25Z"
     },
     {
       "id": "derbyshire",
@@ -597,35 +611,35 @@
       "name": "Regierungsbezirk Detmold",
       "asset": "occumed-detmold-regbez.pmtiles",
       "sizeBytes": 307454046,
-      "updatedAt": "2026-07-26T19:25:28Z"
+      "updatedAt": "2026-07-26T21:54:06Z"
     },
     {
       "id": "devon",
       "name": "Devon",
       "asset": "occumed-devon.pmtiles",
       "sizeBytes": 138566839,
-      "updatedAt": "2026-07-26T19:09:24Z"
+      "updatedAt": "2026-07-26T21:49:21Z"
     },
     {
       "id": "djibouti",
       "name": "Djibouti",
       "asset": "occumed-djibouti.pmtiles",
       "sizeBytes": 20762518,
-      "updatedAt": "2026-07-26T19:21:12Z"
+      "updatedAt": "2026-07-26T21:47:53Z"
     },
     {
       "id": "dolnoslaskie",
       "name": "Województwo dolnośląskie<br />(Lower Silesian Voivodeship)",
       "asset": "occumed-dolnoslaskie.pmtiles",
       "sizeBytes": 413964274,
-      "updatedAt": "2026-07-26T17:48:45Z"
+      "updatedAt": "2026-07-26T21:53:22Z"
     },
     {
       "id": "dorset",
       "name": "Dorset",
       "asset": "occumed-dorset.pmtiles",
       "sizeBytes": 65597283,
-      "updatedAt": "2026-07-26T18:39:02Z"
+      "updatedAt": "2026-07-26T21:55:27Z"
     },
     {
       "id": "drenthe",
@@ -639,7 +653,7 @@
       "name": "Regierungsbezirk Düsseldorf",
       "asset": "occumed-duesseldorf-regbez.pmtiles",
       "sizeBytes": 400838386,
-      "updatedAt": "2026-07-26T19:25:17Z"
+      "updatedAt": "2026-07-26T21:56:15Z"
     },
     {
       "id": "durham",
@@ -653,21 +667,21 @@
       "name": "East Sussex",
       "asset": "occumed-east-sussex.pmtiles",
       "sizeBytes": 47857312,
-      "updatedAt": "2026-07-26T19:15:09Z"
+      "updatedAt": "2026-07-26T21:59:55Z"
     },
     {
       "id": "east-timor",
       "name": "East Timor",
       "asset": "occumed-east-timor.pmtiles",
       "sizeBytes": 55603406,
-      "updatedAt": "2026-07-26T18:50:22Z"
+      "updatedAt": "2026-07-26T22:00:25Z"
     },
     {
       "id": "east-yorkshire-with-hull",
       "name": "East Yorkshire with Hull",
       "asset": "occumed-east-yorkshire-with-hull.pmtiles",
       "sizeBytes": 59191237,
-      "updatedAt": "2026-07-26T18:43:47Z"
+      "updatedAt": "2026-07-26T21:58:04Z"
     },
     {
       "id": "eastern-zone",
@@ -688,21 +702,21 @@
       "name": "Egypt",
       "asset": "occumed-egypt.pmtiles",
       "sizeBytes": 540285024,
-      "updatedAt": "2026-07-26T19:11:24Z"
+      "updatedAt": "2026-07-26T22:04:02Z"
     },
     {
       "id": "el-salvador",
       "name": "El Salvador",
       "asset": "occumed-el-salvador.pmtiles",
       "sizeBytes": 110160930,
-      "updatedAt": "2026-07-26T19:17:40Z"
+      "updatedAt": "2026-07-26T22:00:22Z"
     },
     {
       "id": "equatorial-guinea",
       "name": "Equatorial Guinea",
       "asset": "occumed-equatorial-guinea.pmtiles",
       "sizeBytes": 30257207,
-      "updatedAt": "2026-07-26T18:36:27Z"
+      "updatedAt": "2026-07-26T22:07:41Z"
     },
     {
       "id": "eritrea",
@@ -723,14 +737,14 @@
       "name": "Estonia",
       "asset": "occumed-estonia.pmtiles",
       "sizeBytes": 439119935,
-      "updatedAt": "2026-07-26T18:48:37Z"
+      "updatedAt": "2026-07-26T22:07:43Z"
     },
     {
       "id": "ethiopia",
       "name": "Ethiopia",
       "asset": "occumed-ethiopia.pmtiles",
       "sizeBytes": 585906172,
-      "updatedAt": "2026-07-26T19:23:37Z"
+      "updatedAt": "2026-07-26T22:08:09Z"
     },
     {
       "id": "extremadura",
@@ -759,6 +773,13 @@
       "asset": "occumed-fiji.pmtiles",
       "sizeBytes": 49961412,
       "updatedAt": "2026-07-26T19:13:11Z"
+    },
+    {
+      "id": "finland--r2-c1",
+      "name": "Finland 2.1",
+      "asset": "occumed-finland--r2-c1.pmtiles",
+      "sizeBytes": 204259001,
+      "updatedAt": "2026-07-26T22:08:01Z"
     },
     {
       "id": "flevoland",
@@ -1521,7 +1542,7 @@
       "name": "Malaysia, Singapore, and Brunei",
       "asset": "occumed-malaysia-singapore-brunei.pmtiles",
       "sizeBytes": 734072913,
-      "updatedAt": "2026-07-26T20:54:46Z"
+      "updatedAt": "2026-07-26T21:44:45Z"
     },
     {
       "id": "maldives",
@@ -1556,14 +1577,14 @@
       "name": "Maluku",
       "asset": "occumed-maluku.pmtiles",
       "sizeBytes": 90581034,
-      "updatedAt": "2026-07-26T21:17:53Z"
+      "updatedAt": "2026-07-26T21:43:12Z"
     },
     {
       "id": "manitoba",
       "name": "Manitoba",
       "asset": "occumed-manitoba.pmtiles",
-      "sizeBytes": 930534162,
-      "updatedAt": "2026-07-26T20:56:41Z"
+      "sizeBytes": 930534158,
+      "updatedAt": "2026-07-26T21:48:16Z"
     },
     {
       "id": "marshall-islands",
@@ -1584,7 +1605,7 @@
       "name": "Mauritania",
       "asset": "occumed-mauritania.pmtiles",
       "sizeBytes": 138229665,
-      "updatedAt": "2026-07-26T21:07:39Z"
+      "updatedAt": "2026-07-26T21:39:12Z"
     },
     {
       "id": "mauritius",
@@ -1598,14 +1619,14 @@
       "name": "Mayotte",
       "asset": "occumed-mayotte.pmtiles",
       "sizeBytes": 15608467,
-      "updatedAt": "2026-07-26T21:24:32Z"
+      "updatedAt": "2026-07-26T21:47:51Z"
     },
     {
       "id": "mazowieckie",
       "name": "Województwo mazowieckie<br />(Mazovian Voivodeship)",
       "asset": "occumed-mazowieckie.pmtiles",
       "sizeBytes": 802981589,
-      "updatedAt": "2026-07-26T21:08:39Z"
+      "updatedAt": "2026-07-26T21:48:43Z"
     },
     {
       "id": "mecklenburg-vorpommern",
@@ -1626,21 +1647,21 @@
       "name": "Merseyside",
       "asset": "occumed-merseyside.pmtiles",
       "sizeBytes": 58023276,
-      "updatedAt": "2026-07-26T21:13:20Z"
+      "updatedAt": "2026-07-26T21:49:23Z"
     },
     {
       "id": "micronesia",
       "name": "Micronesia",
       "asset": "occumed-micronesia.pmtiles",
       "sizeBytes": 9245571,
-      "updatedAt": "2026-07-26T21:26:00Z"
+      "updatedAt": "2026-07-26T21:48:20Z"
     },
     {
       "id": "midi-pyrenees",
       "name": "Midi-Pyrenees",
       "asset": "occumed-midi-pyrenees.pmtiles",
       "sizeBytes": 875187851,
-      "updatedAt": "2026-07-26T21:15:52Z"
+      "updatedAt": "2026-07-26T22:00:40Z"
     },
     {
       "id": "mittelfranken",
@@ -1661,7 +1682,7 @@
       "name": "Monaco",
       "asset": "occumed-monaco.pmtiles",
       "sizeBytes": 926330,
-      "updatedAt": "2026-07-26T21:12:52Z"
+      "updatedAt": "2026-07-26T21:50:00Z"
     },
     {
       "id": "mongolia",
@@ -1675,77 +1696,84 @@
       "name": "Montenegro",
       "asset": "occumed-montenegro.pmtiles",
       "sizeBytes": 105749928,
-      "updatedAt": "2026-07-26T21:30:08Z"
+      "updatedAt": "2026-07-26T21:56:42Z"
     },
     {
       "id": "moravskoslezky",
       "name": "Moravskoslezský kraj",
       "asset": "occumed-moravskoslezky.pmtiles",
       "sizeBytes": 160708737,
-      "updatedAt": "2026-07-26T21:12:52Z"
+      "updatedAt": "2026-07-26T22:03:37Z"
     },
     {
       "id": "morocco",
       "name": "Morocco",
       "asset": "occumed-morocco.pmtiles",
       "sizeBytes": 810224394,
-      "updatedAt": "2026-07-26T20:54:32Z"
+      "updatedAt": "2026-07-26T21:42:40Z"
     },
     {
       "id": "mozambique",
       "name": "Mozambique",
       "asset": "occumed-mozambique.pmtiles",
       "sizeBytes": 716464411,
-      "updatedAt": "2026-07-26T20:46:54Z"
+      "updatedAt": "2026-07-26T21:46:00Z"
     },
     {
       "id": "muenster-regbez",
       "name": "Regierungsbezirk Münster",
       "asset": "occumed-muenster-regbez.pmtiles",
       "sizeBytes": 325261521,
-      "updatedAt": "2026-07-26T21:17:43Z"
+      "updatedAt": "2026-07-26T21:53:06Z"
     },
     {
       "id": "murcia",
       "name": "Murcia",
       "asset": "occumed-murcia.pmtiles",
       "sizeBytes": 104248441,
-      "updatedAt": "2026-07-26T20:30:35Z"
+      "updatedAt": "2026-07-26T21:44:53Z"
+    },
+    {
+      "id": "myanmar",
+      "name": "Myanmar (a.k.a. Burma)",
+      "asset": "occumed-myanmar.pmtiles",
+      "sizeBytes": 1008768919,
+      "updatedAt": "2026-07-26T22:03:48Z"
     },
     {
       "id": "namibia",
       "name": "Namibia",
       "asset": "occumed-namibia.pmtiles",
       "sizeBytes": 308169670,
-      "updatedAt": "2026-07-26T21:19:05Z"
+      "updatedAt": "2026-07-26T22:05:33Z"
     },
     {
       "id": "nauru",
       "name": "Nauru",
       "asset": "occumed-nauru.pmtiles",
       "sizeBytes": 617080,
-      "updatedAt": "2026-07-26T20:52:03Z"
+      "updatedAt": "2026-07-26T21:43:10Z"
     },
     {
       "id": "navarra",
       "name": "Navarra",
       "asset": "occumed-navarra.pmtiles",
       "sizeBytes": 122297353,
-      "updatedAt": "2026-07-26T20:46:46Z"
+      "updatedAt": "2026-07-26T21:45:23Z"
     },
     {
       "id": "new-brunswick",
       "name": "New Brunswick",
       "asset": "occumed-new-brunswick.pmtiles",
       "sizeBytes": 269490704,
-      "updatedAt": "2026-07-26T20:45:15Z"
+      "updatedAt": "2026-07-26T21:46:03Z"
     },
     {
       "id": "new-caledonia",
       "name": "New Caledonia",
       "asset": "occumed-new-caledonia.pmtiles",
       "sizeBytes": 45828531,
-      "updatedAt": "2026-07-26T21:38:09Z"
+      "updatedAt": "2026-07-26T22:03:49Z"
     },
     {
       "id": "new-south-wales",
@@ -1758,22 +1786,22 @@
       "id": "newfoundland-and-labrador",
       "name": "Newfoundland and Labrador",
       "asset": "occumed-newfoundland-and-labrador.pmtiles",
-      "sizeBytes": 1123080122,
-      "updatedAt": "2026-07-26T21:11:52Z"
+      "sizeBytes": 1123080111,
+      "updatedAt": "2026-07-26T21:51:53Z"
     },
     {
       "id": "nicaragua",
       "name": "Nicaragua",
       "asset": "occumed-nicaragua.pmtiles",
       "sizeBytes": 255715698,
-      "updatedAt": "2026-07-26T21:24:22Z"
+      "updatedAt": "2026-07-26T22:07:59Z"
     },
     {
       "id": "niederbayern",
       "name": "Niederbayern",
       "asset": "occumed-niederbayern.pmtiles",
       "sizeBytes": 261315005,
-      "updatedAt": "2026-07-26T20:50:46Z"
+      "updatedAt": "2026-07-26T21:51:04Z"
     },
     {
       "id": "niger",
@@ -1787,7 +1815,7 @@
       "name": "Ningxia",
       "asset": "occumed-ningxia.pmtiles",
       "sizeBytes": 60084762,
-      "updatedAt": "2026-07-26T21:07:41Z"
+      "updatedAt": "2026-07-26T21:56:09Z"
     },
     {
       "id": "niue",
@@ -1801,14 +1829,14 @@
       "name": "Noord-Brabant",
       "asset": "occumed-noord-brabant.pmtiles",
       "sizeBytes": 336002229,
-      "updatedAt": "2026-07-26T20:55:29Z"
+      "updatedAt": "2026-07-26T21:58:18Z"
     },
     {
       "id": "noord-holland",
       "name": "Noord-Holland",
       "asset": "occumed-noord-holland.pmtiles",
-      "sizeBytes": 280699670,
-      "updatedAt": "2026-07-26T19:00:08Z"
+      "sizeBytes": 280700662,
+      "updatedAt": "2026-07-26T21:52:37Z"
     },
     {
       "id": "nord-est--r2-c1",
@@ -1829,7 +1857,7 @@
       "name": "Nord-Pas-de-Calais",
       "asset": "occumed-nord-pas-de-calais.pmtiles",
       "sizeBytes": 481703554,
-      "updatedAt": "2026-07-26T21:10:02Z"
+      "updatedAt": "2026-07-26T21:58:46Z"
     },
     {
       "id": "norfolk",
@@ -1857,7 +1885,7 @@
       "name": "North Korea",
       "asset": "occumed-north-korea.pmtiles",
       "sizeBytes": 366502334,
-      "updatedAt": "2026-07-26T19:39:20Z"
+      "updatedAt": "2026-07-26T21:40:17Z"
     },
     {
       "id": "north-yorkshire",
@@ -1878,7 +1906,7 @@
       "name": "Northern Territory",
       "asset": "occumed-northern-territory.pmtiles",
       "sizeBytes": 152751139,
-      "updatedAt": "2026-07-26T20:11:43Z"
+      "updatedAt": "2026-07-26T21:42:27Z"
     },
     {
       "id": "northern-zone",
@@ -1899,7 +1927,7 @@
       "name": "Nova Scotia",
       "asset": "occumed-nova-scotia.pmtiles",
       "sizeBytes": 325779081,
-      "updatedAt": "2026-07-26T20:11:16Z"
+      "updatedAt": "2026-07-26T21:53:50Z"
     },
     {
       "id": "nusa-tenggara",
@@ -1920,7 +1948,7 @@
       "name": "Oberfranken",
       "asset": "occumed-oberfranken.pmtiles",
       "sizeBytes": 221737240,
-      "updatedAt": "2026-07-26T20:01:56Z"
+      "updatedAt": "2026-07-26T21:51:40Z"
     },
     {
       "id": "oberpfalz",
@@ -1941,14 +1969,14 @@
       "name": "Olomoucký kraj",
       "asset": "occumed-olomoucky.pmtiles",
       "sizeBytes": 125317272,
-      "updatedAt": "2026-07-26T20:08:39Z"
+      "updatedAt": "2026-07-26T21:54:16Z"
     },
     {
       "id": "overijssel",
       "name": "Overijssel",
       "asset": "occumed-overijssel.pmtiles",
       "sizeBytes": 189753866,
-      "updatedAt": "2026-07-26T20:19:14Z"
+      "updatedAt": "2026-07-26T21:43:24Z"
     },
     {
       "id": "oxfordshire",
@@ -1976,21 +2004,21 @@
       "name": "Papua",
       "asset": "occumed-papua.pmtiles",
       "sizeBytes": 156028728,
-      "updatedAt": "2026-07-26T20:19:53Z"
+      "updatedAt": "2026-07-26T21:46:32Z"
     },
     {
       "id": "papua-new-guinea",
       "name": "Papua New Guinea",
       "asset": "occumed-papua-new-guinea.pmtiles",
       "sizeBytes": 238334734,
-      "updatedAt": "2026-07-26T19:50:37Z"
+      "updatedAt": "2026-07-26T21:42:28Z"
     },
     {
       "id": "paraguay",
       "name": "Paraguay",
       "asset": "occumed-paraguay.pmtiles",
       "sizeBytes": 427539955,
-      "updatedAt": "2026-07-26T20:14:53Z"
+      "updatedAt": "2026-07-26T22:05:50Z"
     },
     {
       "id": "pardubicky",
@@ -2011,7 +2039,7 @@
       "name": "Picardie",
       "asset": "occumed-picardie.pmtiles",
       "sizeBytes": 365939074,
-      "updatedAt": "2026-07-26T20:29:34Z"
+      "updatedAt": "2026-07-26T21:46:46Z"
     },
     {
       "id": "pitcairn-islands",
@@ -2025,7 +2053,7 @@
       "name": "Plzeňský kraj",
       "asset": "occumed-plzensky.pmtiles",
       "sizeBytes": 165787623,
-      "updatedAt": "2026-07-26T20:25:32Z"
+      "updatedAt": "2026-07-26T21:40:09Z"
     },
     {
       "id": "podlaskie",
@@ -2039,14 +2067,14 @@
       "name": "Poitou-Charentes",
       "asset": "occumed-poitou-charentes.pmtiles",
       "sizeBytes": 497011306,
-      "updatedAt": "2026-07-26T20:04:22Z"
+      "updatedAt": "2026-07-26T22:00:42Z"
     },
     {
       "id": "polynesie-francaise",
       "name": "Polynésie française (French Polynesia)",
       "asset": "occumed-polynesie-francaise.pmtiles",
       "sizeBytes": 46427708,
-      "updatedAt": "2026-07-26T20:41:57Z"
+      "updatedAt": "2026-07-26T21:47:59Z"
     },
     {
       "id": "pomorskie",
@@ -2067,7 +2095,7 @@
       "name": "Provence Alpes-Cote-d'Azur",
       "asset": "occumed-provence-alpes-cote-d-azur.pmtiles",
       "sizeBytes": 717173463,
-      "updatedAt": "2026-07-26T20:15:31Z"
+      "updatedAt": "2026-07-26T22:07:24Z"
     },
     {
       "id": "qinghai",
@@ -2116,7 +2144,7 @@
       "name": "Sachsen-Anhalt",
       "asset": "occumed-sachsen-anhalt.pmtiles",
       "sizeBytes": 446249015,
-      "updatedAt": "2026-07-26T20:31:14Z"
+      "updatedAt": "2026-07-26T22:02:01Z"
     },
     {
       "id": "samoa",
@@ -2176,11 +2204,6 @@
     }
   ],
   "missingRegions": [
-    {
-      "id": "argentina--r1-c1",
-      "name": "Argentina 1.1",
-      "asset": "occumed-argentina--r1-c1.pmtiles"
-    },
     {
       "id": "argentina--r1-c2",
       "name": "Argentina 1.2",
@@ -2297,11 +2320,6 @@
       "asset": "occumed-congo-democratic-republic--r1-c1.pmtiles"
     },
     {
-      "id": "congo-democratic-republic--r1-c2",
-      "name": "Congo (Democratic Republic/Kinshasa) 1.2",
-      "asset": "occumed-congo-democratic-republic--r1-c2.pmtiles"
-    },
-    {
       "id": "congo-democratic-republic--r1-c3",
       "name": "Congo (Democratic Republic/Kinshasa) 1.3",
       "asset": "occumed-congo-democratic-republic--r1-c3.pmtiles"
@@ -2370,11 +2388,6 @@
       "id": "finland--r1-c2",
       "name": "Finland 1.2",
       "asset": "occumed-finland--r1-c2.pmtiles"
-    },
-    {
-      "id": "finland--r2-c1",
-      "name": "Finland 2.1",
-      "asset": "occumed-finland--r2-c1.pmtiles"
     },
     {
       "id": "finland--r2-c2",
@@ -2555,11 +2568,6 @@
       "id": "mexico--r2-c3",
       "name": "Mexico 2.3",
       "asset": "occumed-mexico--r2-c3.pmtiles"
-    },
-    {
-      "id": "myanmar",
-      "name": "Myanmar (a.k.a. Burma)",
-      "asset": "occumed-myanmar.pmtiles"
     },
     {
       "id": "nepal--r1-c1",
@@ -4255,148 +4263,28 @@
   "zeroSizePublished": [],
   "extraPmtilesAssets": [
     {
-      "id": 490535911,
-      "name": "occumed-austria.pmtiles",
-      "sizeBytes": 1903504605,
-      "updatedAt": "2026-07-26T17:19:54Z"
-    },
-    {
-      "id": 490536288,
-      "name": "occumed-belgium.pmtiles",
-      "sizeBytes": 1533838734,
-      "updatedAt": "2026-07-26T17:20:35Z"
-    },
-    {
-      "id": 490547172,
-      "name": "occumed-chubu.pmtiles",
-      "sizeBytes": 1148741604,
-      "updatedAt": "2026-07-26T17:37:01Z"
-    },
-    {
-      "id": 490551864,
-      "name": "occumed-congo-democratic-republic.pmtiles",
-      "sizeBytes": 1493353009,
-      "updatedAt": "2026-07-26T17:45:26Z"
-    },
-    {
-      "id": 490556892,
-      "name": "occumed-denmark.pmtiles",
-      "sizeBytes": 1214926184,
-      "updatedAt": "2026-07-26T17:54:30Z"
-    },
-    {
-      "id": 490589029,
-      "name": "occumed-ireland-and-northern-ireland.pmtiles",
-      "sizeBytes": 1095210935,
-      "updatedAt": "2026-07-26T18:37:00Z"
-    },
-    {
-      "id": 490699305,
-      "name": "occumed-kanto.pmtiles",
-      "sizeBytes": 1037945473,
-      "updatedAt": "2026-07-26T21:12:49Z"
-    },
-    {
-      "id": 490701781,
-      "name": "occumed-kitikmeot.pmtiles",
-      "sizeBytes": 1983537467,
-      "updatedAt": "2026-07-26T21:17:22Z"
-    },
-    {
-      "id": 490689034,
-      "name": "occumed-kivalliq.pmtiles",
-      "sizeBytes": 1996809291,
-      "updatedAt": "2026-07-26T20:56:17Z"
-    },
-    {
-      "id": 490707330,
-      "name": "occumed-nepal.pmtiles",
-      "sizeBytes": 1135340946,
-      "updatedAt": "2026-07-26T21:26:26Z"
-    },
-    {
-      "id": 490698315,
-      "name": "occumed-new-zealand.pmtiles",
-      "sizeBytes": 1183760949,
-      "updatedAt": "2026-07-26T21:11:19Z"
-    },
-    {
-      "id": 490327616,
-      "name": "occumed-nigeria.pmtiles",
-      "sizeBytes": 1997435733,
-      "updatedAt": "2026-07-26T12:15:46Z"
-    },
-    {
-      "id": 490712983,
-      "name": "occumed-norcal.pmtiles",
-      "sizeBytes": 1553037489,
-      "updatedAt": "2026-07-26T21:35:19Z"
-    },
-    {
-      "id": 490703578,
+      "id": 490729336,
       "name": "occumed-nord-est.pmtiles",
       "sizeBytes": 1453480826,
-      "updatedAt": "2026-07-26T21:19:48Z"
+      "updatedAt": "2026-07-26T22:04:21Z"
     },
     {
-      "id": 490701111,
+      "id": 490729271,
       "name": "occumed-nord-norge.pmtiles",
       "sizeBytes": 1397214689,
-      "updatedAt": "2026-07-26T21:16:14Z"
+      "updatedAt": "2026-07-26T22:03:52Z"
     },
     {
-      "id": 490339497,
-      "name": "occumed-nord-ovest.pmtiles",
-      "sizeBytes": 1354519456,
-      "updatedAt": "2026-07-26T12:35:29Z"
-    },
-    {
-      "id": 490345722,
-      "name": "occumed-north-admreg.pmtiles",
-      "sizeBytes": 1886985115,
-      "updatedAt": "2026-07-26T12:44:42Z"
-    },
-    {
-      "id": 490354272,
-      "name": "occumed-ostlandet.pmtiles",
-      "sizeBytes": 1459207172,
-      "updatedAt": "2026-07-26T12:57:37Z"
-    },
-    {
-      "id": 490345667,
+      "id": 490728291,
       "name": "occumed-philippines.pmtiles",
-      "sizeBytes": 1512751851,
-      "updatedAt": "2026-07-26T12:44:11Z"
+      "sizeBytes": 1531038596,
+      "updatedAt": "2026-07-26T22:02:26Z"
     },
     {
-      "id": 490345533,
-      "name": "occumed-portugal.pmtiles",
-      "sizeBytes": 1096054508,
-      "updatedAt": "2026-07-26T12:43:43Z"
-    },
-    {
-      "id": 490345656,
+      "id": 490731837,
       "name": "occumed-rhone-alpes.pmtiles",
-      "sizeBytes": 1108181732,
-      "updatedAt": "2026-07-26T12:44:01Z"
-    },
-    {
-      "id": 490357552,
-      "name": "occumed-socal.pmtiles",
-      "sizeBytes": 1286194194,
-      "updatedAt": "2026-07-26T13:03:36Z"
-    },
-    {
-      "id": 490359369,
-      "name": "occumed-south-africa-and-lesotho.pmtiles",
-      "sizeBytes": 1844707573,
-      "updatedAt": "2026-07-26T13:05:53Z"
-    },
-    {
-      "id": 490360045,
-      "name": "occumed-south-africa.pmtiles",
-      "sizeBytes": 1578077143,
-      "updatedAt": "2026-07-26T13:06:52Z"
+      "sizeBytes": 1130386990,
+      "updatedAt": "2026-07-26T22:07:57Z"
     }
   ]
 }
