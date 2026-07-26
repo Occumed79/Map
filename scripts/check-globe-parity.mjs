@@ -25,7 +25,7 @@ if (runtime.projection?.type !== 'globe') fail('The reusable style must use glob
 if (runtime.fog) fail('Mapbox fog must be translated instead of shipped to MapLibre unchanged.');
 if (!runtime.sky) fail('The MapLibre sky/atmosphere configuration is missing.');
 if (runtime.sky?.['sky-color'] !== '#03070B') fail('The fixed dark-space hex changed.');
-if (runtime.sky?.['horizon-color'] !== '#F5FDFFFF') fail('The atmospheric horizon hex changed.');
+if (runtime.sky?.['horizon-color'] !== '#F5FDFF') fail('The atmospheric horizon hex changed.');
 if (!runtime.sky?.['atmosphere-blend']) fail('The globe atmosphere blend is missing.');
 if (runtime.light) fail('Directional global light must remain disabled to prevent rotation-dependent washout.');
 if (runtime.sky?.['horizon-fog-blend'] !== 0) {
