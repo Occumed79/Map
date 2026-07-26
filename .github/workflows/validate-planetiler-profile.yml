@@ -1,0 +1,61 @@
+name: Validate Occu-Med Planetiler Profile
+
+on:
+  pull_request:
+    paths:
+      - planetiler/**
+      - scripts/prepare-planetiler-profile.mjs
+      - .github/workflows/validate-planetiler-profile.yml
+  push:
+    branches:
+      - feat/custom-planetiler-pmtiles-basemap
+      - main
+    paths:
+      - planetiler/**
+      - scripts/prepare-planetiler-profile.mjs
+      - .github/workflows/validate-planetiler-profile.yml
+
+permissions:
+  contents: read
+
+jobs:
+  build-monaco-archive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Download tiny real OSM extract
+        run: |
+          mkdir -p .planetiler-data artifacts
+          curl --fail --location --retry 4 \
+            --output .planetiler-data/monaco.osm.pbf \
+            https://download.geofabrik.de/europe/monaco-latest.osm.pbf
+
+      - name: Build and checksum Monaco PMTiles
+        env:
+          OCCUMED_TILE_AREA: monaco
+          OCCUMED_OSM_PBF: ${{ github.workspace }}/.planetiler-data/monaco.osm.pbf
+          OCCUMED_PMTILES_OUTPUT: ${{ github.workspace }}/artifacts/occumed-monaco.pmtiles
+          OCCUMED_PLANETILER_DATA_DIR: ${{ github.workspace }}/.planetiler-data
+          OCCUMED_PLANETILER_MEMORY: 3g
+        run: |
+          bash planetiler/build-region.sh
+          test -s artifacts/occumed-monaco.pmtiles
+          test -s artifacts/occumed-monaco.pmtiles.sha256
+          stat --printf='archive_size_bytes=%s\n' artifacts/occumed-monaco.pmtiles
+          cat artifacts/occumed-monaco.pmtiles.sha256
+
+      - name: Upload validation archive metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: occumed-monaco-profile-validation-${{ github.sha }}
+          path: |
+            artifacts/occumed-monaco.pmtiles.sha256
+            .planetiler-data/generated-profile/occumed-basemap.yml
+          if-no-files-found: error
+          retention-days: 7
