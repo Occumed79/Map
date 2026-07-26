@@ -8,6 +8,10 @@ on:
     paths:
       - planetiler/**
       - .github/workflows/build-fresno-pmtiles.yml
+  pull_request:
+    paths:
+      - planetiler/**
+      - .github/workflows/build-fresno-pmtiles.yml
 
 permissions:
   contents: read
@@ -76,7 +80,7 @@ jobs:
       - name: Upload Fresno PMTiles artifact
         uses: actions/upload-artifact@v4
         with:
-          name: occured-fresno-pmtiles-${{ github.sha }}
+          name: occumed-fresno-pmtiles-${{ github.sha }}
           path: |
             artifacts/occumed-fresno.pmtiles
             artifacts/occumed-fresno.pmtiles.sha256
