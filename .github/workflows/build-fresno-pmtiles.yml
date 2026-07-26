@@ -7,6 +7,7 @@ on:
       - feat/custom-planetiler-pmtiles-basemap
     paths:
       - planetiler/**
+      - scripts/prepare-planetiler-profile.mjs
       - scripts/capture-pmtiles-preview.mjs
       - scripts/check-server-health.mjs
       - server.mjs
@@ -16,6 +17,7 @@ on:
   pull_request:
     paths:
       - planetiler/**
+      - scripts/prepare-planetiler-profile.mjs
       - scripts/capture-pmtiles-preview.mjs
       - scripts/check-server-health.mjs
       - server.mjs
@@ -121,11 +123,22 @@ jobs:
           grep -Eiq '^accept-ranges: bytes' artifacts/pmtiles-range.headers.txt
           test "$(wc -c < artifacts/pmtiles-header.bin)" -eq 127
 
+          set +e
           node scripts/capture-pmtiles-preview.mjs
-          cat artifacts/visual-preview/preview-report.json
+          capture_status=$?
+          set -e
+          if [ -s artifacts/visual-preview/preview-report.json ]; then
+            cat artifacts/visual-preview/preview-report.json
+          fi
+          exit "$capture_status"
 
       - name: Write archive manifest
+        if: always()
         run: |
+          if [ ! -s artifacts/occumed-fresno.pmtiles ]; then
+            echo "Fresno archive was not generated; no archive manifest can be written."
+            exit 0
+          fi
           (
             cd artifacts
             sha256sum occumed-fresno.pmtiles > occumed-fresno.pmtiles.sha256
@@ -140,7 +153,8 @@ jobs:
             cat artifacts/occumed-fresno.pmtiles.sha256
           } | tee artifacts/occumed-fresno.manifest.txt
 
-      - name: Upload Fresno archive and rendered previews
+      - name: Upload Fresno archive and rendered diagnostics
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: occumed-fresno-pmtiles-${{ github.sha }}
