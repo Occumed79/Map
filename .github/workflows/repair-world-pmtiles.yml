@@ -13,7 +13,7 @@ permissions:
 
 concurrency:
   group: occumed-world-pmtiles-publication
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 env:
   WORLD_RELEASE_TAG: occumed-world-v1
@@ -130,7 +130,6 @@ jobs:
     timeout-minutes: 240
     strategy:
       fail-fast: false
-      max-parallel: 3
       matrix: ${{ fromJson(needs.plan-world.outputs.bucket0) }}
     steps:
       - uses: actions/checkout@v4
@@ -156,7 +155,6 @@ jobs:
     timeout-minutes: 240
     strategy:
       fail-fast: false
-      max-parallel: 3
       matrix: ${{ fromJson(needs.plan-world.outputs.bucket1) }}
     steps:
       - uses: actions/checkout@v4
@@ -182,7 +180,6 @@ jobs:
     timeout-minutes: 240
     strategy:
       fail-fast: false
-      max-parallel: 3
       matrix: ${{ fromJson(needs.plan-world.outputs.bucket2) }}
     steps:
       - uses: actions/checkout@v4
@@ -208,7 +205,6 @@ jobs:
     timeout-minutes: 240
     strategy:
       fail-fast: false
-      max-parallel: 3
       matrix: ${{ fromJson(needs.plan-world.outputs.bucket3) }}
     steps:
       - uses: actions/checkout@v4
@@ -234,7 +230,6 @@ jobs:
     timeout-minutes: 240
     strategy:
       fail-fast: false
-      max-parallel: 3
       matrix: ${{ fromJson(needs.plan-world.outputs.bucket4) }}
     steps:
       - uses: actions/checkout@v4
@@ -260,7 +255,6 @@ jobs:
     timeout-minutes: 240
     strategy:
       fail-fast: false
-      max-parallel: 3
       matrix: ${{ fromJson(needs.plan-world.outputs.bucket5) }}
     steps:
       - uses: actions/checkout@v4
