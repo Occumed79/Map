@@ -1,0 +1,326 @@
+name: Clean Worldwide Occu-Med PMTiles Release
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/custom-planetiler-pmtiles-basemap
+    paths:
+      - diagnostics/world-release-cleanup.trigger
+
+permissions:
+  contents: write
+
+concurrency:
+  group: occumed-world-pmtiles-release-cleanup
+  cancel-in-progress: false
+
+env:
+  WORLD_RELEASE_TAG: occumed-world-v1
+  OCCUMED_DIRECT_PBF_LIMIT_BYTES: 400000000
+  OCCUMED_TARGET_SPLIT_PBF_BYTES: 250000000
+  OCCUMED_MAX_SPLIT_CELLS: 24
+
+jobs:
+  audit-and-clean:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/custom-planetiler-pmtiles-basemap
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Build authoritative canonical plan and inventory release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          rm -rf release-cleanup
+          mkdir -p release-cleanup/verification
+          node scripts/plan-world-shards.mjs --scope all > release-cleanup/raw-world-plan.json
+
+          node <<'NODE'
+          const fs = require('node:fs');
+          const input = JSON.parse(fs.readFileSync('release-cleanup/raw-world-plan.json', 'utf8'));
+          const excluded = new Set([
+            'alps', 'britain-and-ireland', 'dach', 'great-britain', 'sea',
+            'south-africa-and-lesotho', 'us', 'us-midwest', 'us-northeast',
+            'us-pacific', 'us-south', 'us-west'
+          ]);
+          const include = input.include.filter((region) =>
+            !excluded.has(region.id) && !excluded.has(region.source_region_id)
+          );
+          if (include.length !== 724) {
+            throw new Error(`Expected 724 canonical shards, found ${include.length}.`);
+          }
+          const ids = include.map((region) => region.id);
+          const assets = include.map((region) => region.asset_name);
+          if (new Set(ids).size !== ids.length) throw new Error('Canonical plan contains duplicate IDs.');
+          if (new Set(assets).size !== assets.length) throw new Error('Canonical plan contains duplicate asset names.');
+          fs.writeFileSync(
+            'release-cleanup/canonical-world-plan.json',
+            `${JSON.stringify({ ...input, canonical: true, excludedSourceRegions: [...excluded], include }, null, 2)}\n`
+          );
+          NODE
+
+          release_id="$(gh api "/repos/${GITHUB_REPOSITORY}/releases/tags/${WORLD_RELEASE_TAG}" --jq '.id')"
+          printf '%s\n' "$release_id" > release-cleanup/release-id.txt
+          gh api --paginate --slurp \
+            "/repos/${GITHUB_REPOSITORY}/releases/${release_id}/assets?per_page=100" \
+            > release-cleanup/release-asset-pages-before.json
+
+          node <<'NODE'
+          const fs = require('node:fs');
+          const plan = JSON.parse(fs.readFileSync('release-cleanup/canonical-world-plan.json', 'utf8'));
+          const pages = JSON.parse(fs.readFileSync('release-cleanup/release-asset-pages-before.json', 'utf8'));
+          const releaseAssets = pages.flatMap((page) => page || []);
+          const byName = new Map(releaseAssets.map((asset) => [asset.name, asset]));
+          const candidates = plan.include
+            .filter((region) => byName.has(region.asset_name))
+            .map((region) => {
+              const asset = byName.get(region.asset_name);
+              return [asset.id, region.id, asset.name, asset.size].join('\t');
+            });
+          fs.writeFileSync(
+            'release-cleanup/release-assets-before.json',
+            `${JSON.stringify({ assets: releaseAssets }, null, 2)}\n`
+          );
+          fs.writeFileSync(
+            'release-cleanup/canonical-candidates.tsv',
+            candidates.join('\n') + (candidates.length ? '\n' : '')
+          );
+          console.log(`Release assets before cleanup: ${releaseAssets.length}.`);
+          console.log(`Canonical PMTiles candidates by name: ${candidates.length}.`);
+          NODE
+
+      - name: Verify every published canonical PMTiles archive
+        run: |
+          set -euo pipefail
+          export GITHUB_REPOSITORY WORLD_RELEASE_TAG
+
+          verify_asset() {
+            asset_id="$1"
+            region_id="$2"
+            asset_name="$3"
+            api_size="$4"
+            result="release-cleanup/verification/${asset_id}.json"
+            headers="$(mktemp)"
+            body="$(mktemp)"
+            url="https://github.com/${GITHUB_REPOSITORY}/releases/download/${WORLD_RELEASE_TAG}/${asset_name}"
+            healthy=false
+            reason=unknown
+            http_status=""
+            body_size=0
+            magic=""
+
+            if [ "$api_size" -le 0 ]; then
+              reason=zero_size_asset
+            else
+              for attempt in 1 2 3 4 5 6; do
+                rm -f "$headers" "$body"
+                if curl --silent --show-error --fail --location \
+                  --retry 3 --retry-delay 3 --retry-all-errors \
+                  --header 'Range: bytes=0-126' \
+                  --dump-header "$headers" \
+                  --output "$body" \
+                  "$url"; then
+                  http_status="$(awk '/^HTTP\// {code=$2} END {print code}' "$headers")"
+                  body_size="$(wc -c < "$body" | tr -d ' ')"
+                  magic="$(head -c 7 "$body" || true)"
+                  if [ "$http_status" = 206 ] && [ "$body_size" -eq 127 ] && [ "$magic" = PMTiles ]; then
+                    healthy=true
+                    reason=ok
+                    break
+                  fi
+                  if [ "$http_status" != 206 ]; then reason=range_not_supported;
+                  elif [ "$body_size" -ne 127 ]; then reason=wrong_range_length;
+                  else reason=invalid_pmtiles_magic;
+                  fi
+                else
+                  reason=download_failed
+                fi
+                sleep $((attempt * 3))
+              done
+            fi
+
+            node - "$asset_id" "$region_id" "$asset_name" "$api_size" "$healthy" "$reason" "$http_status" "$body_size" "$magic" "$result" <<'NODE'
+            const fs = require('node:fs');
+            const [assetId, regionId, assetName, apiSize, healthy, reason, httpStatus, bodySize, magic, result] = process.argv.slice(2);
+            fs.writeFileSync(result, `${JSON.stringify({
+              assetId: Number(assetId),
+              regionId,
+              assetName,
+              apiSizeBytes: Number(apiSize),
+              healthy: healthy === 'true',
+              reason,
+              httpStatus: httpStatus ? Number(httpStatus) : null,
+              returnedBytes: Number(bodySize),
+              magic
+            }, null, 2)}\n`);
+            NODE
+            rm -f "$headers" "$body"
+          }
+          export -f verify_asset
+
+          if [ -s release-cleanup/canonical-candidates.tsv ]; then
+            xargs -P 12 -n 4 bash -c 'verify_asset "$@"' _ < release-cleanup/canonical-candidates.tsv
+          fi
+
+      - name: Classify cleanup targets
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const plan = JSON.parse(fs.readFileSync('release-cleanup/canonical-world-plan.json', 'utf8'));
+          const release = JSON.parse(fs.readFileSync('release-cleanup/release-assets-before.json', 'utf8'));
+          const verificationDir = 'release-cleanup/verification';
+          const verification = fs.existsSync(verificationDir)
+            ? fs.readdirSync(verificationDir)
+                .filter((name) => name.endsWith('.json'))
+                .map((name) => JSON.parse(fs.readFileSync(path.join(verificationDir, name), 'utf8')))
+            : [];
+          const healthyByName = new Map(
+            verification.filter((item) => item.healthy).map((item) => [item.assetName, item])
+          );
+          const canonicalNames = new Set(plan.include.map((region) => region.asset_name));
+          const invalidCanonical = verification.filter((item) => !item.healthy);
+          const deleteTargets = release.assets
+            .filter((asset) => !canonicalNames.has(asset.name) || !healthyByName.has(asset.name))
+            .map((asset) => ({
+              id: asset.id,
+              name: asset.name,
+              sizeBytes: asset.size,
+              reason: canonicalNames.has(asset.name)
+                ? (verification.find((item) => item.assetName === asset.name)?.reason || 'canonical_not_verified')
+                : (asset.name.endsWith('.pmtiles') ? 'noncanonical_pmtiles' : 'noncanonical_release_asset')
+            }));
+          const retained = release.assets.filter((asset) => healthyByName.has(asset.name));
+          fs.writeFileSync(
+            'release-cleanup/delete-targets.json',
+            `${JSON.stringify(deleteTargets, null, 2)}\n`
+          );
+          fs.writeFileSync(
+            'release-cleanup/delete-ids.txt',
+            deleteTargets.map((asset) => String(asset.id)).join('\n') + (deleteTargets.length ? '\n' : '')
+          );
+          fs.writeFileSync(
+            'release-cleanup/pre-cleanup-summary.json',
+            `${JSON.stringify({
+              capturedAt: new Date().toISOString(),
+              canonicalShardCount: plan.include.length,
+              releaseAssetCountBefore: release.assets.length,
+              canonicalCandidates: verification.length,
+              healthyCanonicalCandidates: retained.length,
+              invalidCanonicalCandidates: invalidCanonical.length,
+              deleteTargetCount: deleteTargets.length,
+              deleteReasonCounts: deleteTargets.reduce((counts, item) => {
+                counts[item.reason] = (counts[item.reason] || 0) + 1;
+                return counts;
+              }, {}),
+              invalidCanonicalAssets: invalidCanonical
+            }, null, 2)}\n`
+          );
+          console.log(`Healthy canonical PMTiles retained: ${retained.length}.`);
+          console.log(`Release assets scheduled for deletion: ${deleteTargets.length}.`);
+          NODE
+
+      - name: Delete obsolete, noncanonical, and unhealthy release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          delete_asset() {
+            asset_id="$1"
+            for attempt in 1 2 3 4 5; do
+              if gh api --method DELETE "/repos/${GITHUB_REPOSITORY}/releases/assets/${asset_id}"; then
+                exit 0
+              fi
+              sleep $((attempt * 5))
+            done
+            echo "Unable to delete release asset ${asset_id}." >&2
+            exit 1
+          }
+          export -f delete_asset
+          if [ -s release-cleanup/delete-ids.txt ]; then
+            xargs -P 8 -n 1 bash -c 'delete_asset "$1"' _ < release-cleanup/delete-ids.txt
+          fi
+
+      - name: Verify post-cleanup release state
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          release_id="$(cat release-cleanup/release-id.txt)"
+          gh api --paginate --slurp \
+            "/repos/${GITHUB_REPOSITORY}/releases/${release_id}/assets?per_page=100" \
+            > release-cleanup/release-asset-pages-after.json
+
+          node <<'NODE'
+          const fs = require('node:fs');
+          const plan = JSON.parse(fs.readFileSync('release-cleanup/canonical-world-plan.json', 'utf8'));
+          const before = JSON.parse(fs.readFileSync('release-cleanup/pre-cleanup-summary.json', 'utf8'));
+          const pages = JSON.parse(fs.readFileSync('release-cleanup/release-asset-pages-after.json', 'utf8'));
+          const assets = pages.flatMap((page) => page || []);
+          const canonicalNames = new Set(plan.include.map((region) => region.asset_name));
+          const remainingUnexpected = assets.filter((asset) => !canonicalNames.has(asset.name));
+          if (remainingUnexpected.length) {
+            throw new Error(`Cleanup left ${remainingUnexpected.length} noncanonical release assets.`);
+          }
+          const remainingNames = new Set(assets.map((asset) => asset.name));
+          const missing = plan.include.filter((region) => !remainingNames.has(region.asset_name));
+          const summary = {
+            capturedAt: new Date().toISOString(),
+            releaseTag: process.env.WORLD_RELEASE_TAG,
+            canonicalShardCount: plan.include.length,
+            releaseAssetCountBefore: before.releaseAssetCountBefore,
+            deletedAssetCount: before.deleteTargetCount,
+            retainedHealthyCanonicalCount: assets.length,
+            missingCanonicalCount: missing.length,
+            remainingReleaseCapacity: 1000 - assets.length,
+            requiredSlotsForMissingPlusManifest: missing.length + 1,
+            capacityReady: missing.length + 1 <= 1000 - assets.length,
+            invalidCanonicalDeletedCount: before.invalidCanonicalCandidates,
+            missingRegions: missing.map((region) => ({ id: region.id, asset: region.asset_name }))
+          };
+          if (!summary.capacityReady) {
+            throw new Error('Post-cleanup release still lacks capacity for missing shards and the final manifest.');
+          }
+          fs.writeFileSync(
+            'release-cleanup/post-cleanup-summary.json',
+            `${JSON.stringify(summary, null, 2)}\n`
+          );
+          fs.writeFileSync(
+            'release-cleanup/missing-only-plan.json',
+            `${JSON.stringify({ ...plan, include: missing }, null, 2)}\n`
+          );
+          console.log(JSON.stringify(summary, null, 2));
+          NODE
+
+      - name: Commit exact cleanup assessment
+        run: |
+          set -euo pipefail
+          mkdir -p diagnostics/world-release-cleanup
+          cp release-cleanup/post-cleanup-summary.json diagnostics/world-release-cleanup/post-cleanup-summary.json
+          cp release-cleanup/missing-only-plan.json diagnostics/world-release-cleanup/missing-only-plan.json
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add diagnostics/world-release-cleanup
+          git diff --cached --quiet && exit 0
+          git commit -m "Clean worldwide PMTiles release inventory"
+          git pull --rebase origin feat/custom-planetiler-pmtiles-basemap
+          git push origin HEAD:feat/custom-planetiler-pmtiles-basemap
+
+      - name: Preserve full cleanup audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: occumed-world-release-cleanup-${{ github.sha }}
+          path: release-cleanup
+          if-no-files-found: error
+          retention-days: 30
