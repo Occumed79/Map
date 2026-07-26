@@ -1,7 +1,18 @@
-import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
+import * as maplibregl from 'maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
 
-export const DEFAULT_STYLE_URL = '/style.json';
+export const DEFAULT_STYLE_URL = '/style/occumed-open.json';
+
+function resolvePublicOrigin(style, styleUrl) {
+  const resolved = structuredClone(style);
+  const styleOrigin = new URL(styleUrl, window.location.href).origin;
+
+  if (typeof resolved.sprite === 'string') {
+    resolved.sprite = resolved.sprite.replaceAll('__OCCUMED_PUBLIC_ORIGIN__', styleOrigin);
+  }
+
+  return resolved;
+}
 
 function versionedStyleUrl(styleUrl) {
   const url = new URL(styleUrl, window.location.href);
@@ -20,60 +31,58 @@ export async function loadOccumedStyle(styleUrl = DEFAULT_STYLE_URL) {
   });
 
   if (!response.ok) {
-    throw new Error(`Unable to load the uploaded Occu-Med style (${response.status}).`);
+    throw new Error(`Unable to load the Occu-Med style (${response.status}).`);
   }
 
-  return response.json();
+  return resolvePublicOrigin(await response.json(), requestUrl);
 }
 
 /**
- * Creates one independent Mapbox map instance from the untouched Occu-Med
- * Terrain export hosted by this service. Each consuming application adds and
- * owns its own overlay sources and layers after the basemap loads.
+ * Creates one independent map instance using the shared Occu-Med basemap.
+ * Each application adds and owns its own overlay sources and layers.
  */
 export async function createOccumedMap({
   container,
-  accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN,
   styleUrl = DEFAULT_STYLE_URL,
-  center,
-  zoom,
-  bearing,
-  pitch,
+  center = [-98.5, 28],
+  zoom = 2.05,
+  minZoom = 0,
+  maxZoom = 19,
   controls = true,
+  scaleControl = false,
   mapOptions = {}
 }) {
   if (!container) {
     throw new TypeError('createOccumedMap requires a map container.');
   }
 
-  const token = accessToken?.trim();
-  if (!token) {
-    throw new Error('VITE_MAPBOX_ACCESS_TOKEN is required to render the original Mapbox data, fonts, and sprite.');
-  }
-
-  mapboxgl.accessToken = token;
   const style = await loadOccumedStyle(styleUrl);
-
-  const map = new mapboxgl.Map({
+  const map = new maplibregl.Map({
     container,
     style,
-    center: center ?? style.center ?? [-98.5, 24],
-    zoom: zoom ?? style.zoom ?? 2.43,
-    bearing: bearing ?? style.bearing ?? 0,
-    pitch: pitch ?? style.pitch ?? 0,
+    center,
+    zoom,
+    minZoom,
+    maxZoom,
+    pitch: 0,
+    bearing: 0,
     hash: false,
-    antialias: true,
+    renderWorldCopies: false,
     attributionControl: false,
     cooperativeGestures: false,
     ...mapOptions
   });
 
   if (controls) {
-    map.addControl(new mapboxgl.NavigationControl({ visualizePitch: true }), 'top-right');
+    map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-right');
   }
 
-  map.addControl(new mapboxgl.AttributionControl({ compact: true }), 'bottom-right');
+  if (scaleControl) {
+    map.addControl(new maplibregl.ScaleControl({ unit: 'imperial' }), 'bottom-left');
+  }
+
+  map.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-right');
   return map;
 }
 
-export { mapboxgl };
+export { maplibregl };
