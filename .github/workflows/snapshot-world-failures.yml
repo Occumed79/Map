@@ -1,0 +1,70 @@
+name: Snapshot worldwide PMTiles failures
+
+on:
+  push:
+    branches:
+      - feat/custom-planetiler-pmtiles-basemap
+    paths:
+      - diagnostics/world-failure-snapshot.trigger
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/custom-planetiler-pmtiles-basemap
+          fetch-depth: 0
+
+      - name: Capture every current failed shard
+        env:
+          GH_TOKEN: ${{ github.token }}
+          WORLD_RUN_ID: '30211467213'
+        run: |
+          rm -rf diagnostics/world-first-pass-failures
+          mkdir -p diagnostics/world-first-pass-failures
+          gh api --paginate --slurp \
+            "/repos/${GITHUB_REPOSITORY}/actions/runs/${WORLD_RUN_ID}/jobs?per_page=100" \
+            > /tmp/world-job-pages.json
+          node <<'NODE'
+          const fs = require('node:fs');
+          const pages = JSON.parse(fs.readFileSync('/tmp/world-job-pages.json', 'utf8'));
+          const jobs = pages.flatMap((page) => page.jobs || []);
+          const failed = jobs.filter((job) => job.conclusion === 'failure');
+          const summary = {
+            capturedAt: new Date().toISOString(),
+            runId: process.env.WORLD_RUN_ID,
+            totalJobsObserved: jobs.length,
+            completedSuccessCount: jobs.filter((job) => job.conclusion === 'success').length,
+            failedCount: failed.length,
+            inProgressCount: jobs.filter((job) => job.status === 'in_progress').length,
+            queuedCount: jobs.filter((job) => job.status === 'queued').length,
+            failures: failed.map((job) => ({ id: job.id, name: job.name }))
+          };
+          fs.writeFileSync(
+            'diagnostics/world-first-pass-failures/summary.json',
+            `${JSON.stringify(summary, null, 2)}\n`
+          );
+          fs.writeFileSync('/tmp/failed-job-ids.txt', failed.map((job) => `${job.id}\t${job.name}`).join('\n'));
+          console.log(JSON.stringify(summary, null, 2));
+          NODE
+
+          while IFS=$'\t' read -r job_id job_name; do
+            [ -n "$job_id" ] || continue
+            safe_name="$(printf '%s' "$job_name" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-|-$//g' | cut -c1-100)"
+            gh api "/repos/${GITHUB_REPOSITORY}/actions/jobs/${job_id}/logs" > "/tmp/${job_id}.log"
+            tail -n 220 "/tmp/${job_id}.log" > "diagnostics/world-first-pass-failures/${job_id}-${safe_name}.log"
+          done < /tmp/failed-job-ids.txt
+
+      - name: Commit failure snapshot
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add diagnostics/world-first-pass-failures
+          git diff --cached --quiet || git commit -m "Snapshot worldwide PMTiles shard failures"
+          git push origin HEAD:feat/custom-planetiler-pmtiles-basemap
