@@ -48,8 +48,12 @@ if (hillshade?.paint?.['hillshade-illumination-anchor'] !== 'map') {
 }
 
 const background = runtime.layers.find((layer) => layer.id === 'land');
-if (background?.paint?.['background-color'] !== 'hsl(72, 38%, 79%)') {
-  fail('The live-QA pale yellow-green land background changed.');
+if (background?.paint?.['background-color'] !== 'hsl(60, 20%, 85%)') {
+  fail('The exact exported Occu-Med land background color changed.');
+}
+
+if (!runtime.metadata?.['occumed:exported-cartography-restored']) {
+  fail('The final exported-cartography restoration pass did not run.');
 }
 
 if (failures.length) {
@@ -58,4 +62,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('Globe parity validated: stable dark space, visible rim, vivid relief, saturated oceans, and anchored hillshade.');
+console.log('Globe parity validated: stable dark space, visible rim, exported land color, vivid relief, and anchored hillshade.');
