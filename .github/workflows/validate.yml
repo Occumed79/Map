@@ -53,6 +53,12 @@ jobs:
       - name: Check screenshot-reference calibration
         run: node scripts/check-photo-reference.mjs
 
+      - name: Check exact exported swatches
+        run: node scripts/check-exact-exported-swatches.mjs
+
+      - name: Check high-DPI render clarity
+        run: node scripts/check-render-clarity.mjs
+
       - name: Build MapLibre viewer
         run: npx vite build
 
