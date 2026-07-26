@@ -24,7 +24,7 @@ jobs:
         with:
           node-version: 24
 
-      - name: Generate and verify the replacement worldwide plan
+      - name: Generate and verify the final replacement worldwide plan
         run: |
           mkdir -p diagnostics
           node scripts/plan-world-shards.mjs --scope all > /tmp/size-aware-world-plan.json
@@ -40,6 +40,7 @@ jobs:
               .map((region) => region.source_region_id)
           )].sort();
           const argentinaPieces = regions.filter((region) => region.source_region_id === 'argentina');
+          const alpsPieces = regions.filter((region) => region.source_region_id === 'alps');
           const fiji = regions.find((region) => region.id === 'fiji');
           const probedCount = regions.filter((region) => Number.isFinite(region.source_size_bytes)).length;
 
@@ -52,11 +53,14 @@ jobs:
           if (new Set(assetNames).size !== assetNames.length) {
             throw new Error('Worldwide plan contains duplicate PMTiles asset names.');
           }
-          if (byId.has('argentina')) {
-            throw new Error('Oversized Argentina archive was not replaced by bounded subdivisions.');
+          if (byId.has('argentina') || byId.has('alps')) {
+            throw new Error('An oversized parent archive was not replaced by bounded subdivisions.');
           }
           if (argentinaPieces.length < 4 || argentinaPieces.some((region) => !region.extract_bbox)) {
             throw new Error(`Argentina subdivision is incomplete: ${argentinaPieces.length} pieces.`);
+          }
+          if (alpsPieces.length < 4 || alpsPieces.some((region) => !region.extract_bbox)) {
+            throw new Error(`Alps subdivision is incomplete: ${alpsPieces.length} pieces.`);
           }
           if (byId.has('us')) {
             throw new Error('Overlapping United States parent extract remains in the true-leaf plan.');
@@ -76,6 +80,7 @@ jobs:
             splitSourceCount: splitSources.length,
             splitSources,
             argentinaPieceCount: argentinaPieces.length,
+            alpsPieceCount: alpsPieces.length,
             antimeridianFijiBounds: [fiji.west, fiji.south, fiji.east, fiji.north],
             overlappingUsParentRemoved: !byId.has('us')
           };
