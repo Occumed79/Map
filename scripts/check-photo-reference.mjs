@@ -38,7 +38,7 @@ assert(JSON.stringify(landcover.paint['fill-color']).includes('#8ecf76'), 'Fores
 assert(JSON.stringify(landcover.paint['fill-color']).includes('#d7e1b6'), 'Agricultural land tone is missing.');
 
 const relief = layer('occumed-shaded-relief');
-assert(relief?.paint?.['raster-saturation'] === 0.32, 'Bathymetry calibration is missing.');
+assert(relief?.paint?.['raster-saturation'] === 0.58, 'Bathymetry and relief vividness calibration is missing.');
 assert(relief?.paint?.['raster-contrast'] === 0.1, 'Bathymetry contrast calibration is missing.');
 assert(Array.isArray(relief?.paint?.['raster-opacity']), 'Relief must use zoom-aware opacity.');
 
