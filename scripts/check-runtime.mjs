@@ -23,8 +23,11 @@ if (runtime.name !== 'Occu-Med Terrain — Open') fail('Runtime style name is in
 if (runtime.projection?.type !== 'globe') fail('MapLibre globe projection is missing.');
 if (runtimeText.includes('mapbox://')) fail('Runtime style still contains a mapbox:// endpoint.');
 if (runtimeText.includes('api.mapbox.com')) fail('Runtime style still contains a Mapbox API endpoint.');
-if (!runtime.glyphs?.startsWith('https://tiles.openfreemap.org/fonts/')) {
-  fail('Runtime glyph endpoint is not the no-key OpenFreeMap endpoint.');
+if (!runtime.glyphs?.startsWith('https://fonts.openmaptiles.org/')) {
+  fail('Runtime glyph endpoint is not the no-key concatenated OpenMapTiles endpoint.');
+}
+if (runtime.glyphs?.includes('tiles.openfreemap.org/fonts')) {
+  fail('Runtime still uses the glyph endpoint that rejects combined font stacks.');
 }
 if (!String(runtime.sprite).includes('/sprites/occumed')) fail('Local Occu-Med sprite endpoint is missing.');
 
