@@ -1,0 +1,41 @@
+name: Capture Fresno production-build failure
+
+on:
+  push:
+    branches:
+      - feat/custom-planetiler-pmtiles-basemap
+    paths:
+      - .github/workflows/capture-fresno-build-failure.yml
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/custom-planetiler-pmtiles-basemap
+          fetch-depth: 0
+
+      - name: Download exact failed Fresno job log
+        env:
+          GH_TOKEN: ${{ github.token }}
+          FAILED_JOB_ID: '89819467946'
+        run: |
+          mkdir -p diagnostics
+          gh api "/repos/${GITHUB_REPOSITORY}/actions/jobs/${FAILED_JOB_ID}/logs" > /tmp/fresno-full.log
+          tail -n 350 /tmp/fresno-full.log > diagnostics/fresno-production-build-failure.log
+          grep -Ein 'validation failed|error|failed|glyph|font|runtime|integration|missing|unsupported' diagnostics/fresno-production-build-failure.log || true
+
+      - name: Commit diagnostic and remove one-time workflow
+        run: |
+          git rm .github/workflows/capture-fresno-build-failure.yml
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add diagnostics/fresno-production-build-failure.log
+          git commit -m "Capture exact Fresno production-build failure"
+          git push origin HEAD:feat/custom-planetiler-pmtiles-basemap
