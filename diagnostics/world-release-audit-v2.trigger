@@ -1,0 +1,2 @@
+requested_at=2026-07-26T21:36:00Z
+purpose=authoritative_release_only_audit_without_rebuilding_any_pmtiles
