@@ -1,2 +1,2 @@
-requested_at=2026-07-26T22:06:00Z
-purpose=measure_publication_growth_without_cancelling_repair
+requested_at=2026-07-26T22:12:00Z
+purpose=refresh_publication_growth_after_capacity_safe_repair_launch
