@@ -1,11 +1,24 @@
 schema_name: Occu-Med Terrain
 schema_description: Custom Occu-Med vector schema for the reusable MapLibre basemap
+version: 0.1.0
+is_overlay: false
 attribution: '<a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors</a>'
+
+args:
+  area:
+    description: Geofabrik area to download
+    default: california
+  maxzoom: 16
+  render_maxzoom: 19
+  force: true
+  min_feature_size: 0.5
+  min_feature_size_at_max_zoom: 0.0625
 
 sources:
   osm:
     type: osm
-    url: geofabrik:california
+    url: '${ "geofabrik:" + args.area }'
+    local_path: '${ args.area.replace("/", "-") + ".osm.pbf" }'
 
 layers:
   - id: landcover
@@ -13,19 +26,27 @@ layers:
       - source: osm
         geometry: polygon
         min_zoom: 3
+        min_size: 1
         include_when:
-          natural: [wood, scrub, heath, grassland, fell, glacier, sand]
+          natural: [wood, scrub, heath, grassland, fell, glacier, sand, beach, wetland]
         attributes:
           - key: class
-            tag_value: natural
+            value: '${ feature.tags.natural == "wood" ? "wood" : feature.tags.natural == "glacier" ? "ice" : feature.tags.natural }'
       - source: osm
         geometry: polygon
         min_zoom: 3
+        min_size: 1
         include_when:
           landuse: [forest, meadow, farmland, orchard, vineyard, grass]
         attributes:
           - key: class
-            tag_value: landuse
+            value: '${ feature.tags.landuse == "forest" ? "wood" : feature.tags.landuse == "farmland" ? "farmland" : feature.tags.landuse }'
+    tile_post_process:
+      merge_polygons:
+        min_area: 1
+        min_area_at_max_zoom: 0.25
+        tolerance: 0.5
+        tolerance_at_max_zoom: 0.125
 
   - id: landuse
     features:
@@ -33,7 +54,7 @@ layers:
         geometry: polygon
         min_zoom: 6
         include_when:
-          landuse: [residential, commercial, industrial, retail, cemetery, recreation_ground, quarry]
+          landuse: [residential, commercial, industrial, retail, cemetery, recreation_ground, quarry, farmland, farmyard]
         attributes:
           - key: class
             tag_value: landuse
@@ -41,7 +62,7 @@ layers:
             tag_value: name
       - source: osm
         geometry: polygon
-        min_zoom: 6
+        min_zoom: 7
         include_when:
           leisure: [park, garden, playground, golf_course, pitch, nature_reserve]
         attributes:
@@ -77,12 +98,12 @@ layers:
     features:
       - source: osm
         geometry: polygon
-        min_zoom: 0
+        min_zoom: 4
         include_when:
-          natural: [water]
+          natural: water
         attributes:
           - key: class
-            tag_value: water
+            value: '${ feature.tags.getOrDefault("water", "lake") }'
           - key: name
             tag_value: name
       - source: osm
@@ -100,7 +121,15 @@ layers:
     features:
       - source: osm
         geometry: line
-        min_zoom: 6
+        min_zoom:
+          default_value: 11
+          overrides:
+            6:
+              waterway: river
+            8:
+              waterway: canal
+            10:
+              waterway: [stream, drain, ditch]
         include_when:
           waterway: [river, canal, stream, drain, ditch]
         attributes:
@@ -108,23 +137,45 @@ layers:
             tag_value: waterway
           - key: name
             tag_value: name
+    tile_post_process:
+      merge_line_strings:
+        min_length: 1
+        min_length_at_max_zoom: 0.125
+        tolerance: 0.5
+        tolerance_at_max_zoom: 0.0625
+        buffer: 5
 
   - id: transportation
     features:
       - source: osm
         geometry: line
-        min_zoom: 4
+        min_zoom:
+          default_value: 13
+          overrides:
+            4:
+              highway: [motorway, motorway_link, trunk, trunk_link]
+            6:
+              highway: [primary, primary_link]
+            8:
+              highway: [secondary, secondary_link]
+            9:
+              highway: [tertiary, tertiary_link]
+            11:
+              highway: [unclassified, residential, living_street]
+            12:
+              highway: [service, track, pedestrian]
         include_when:
           highway: [motorway, motorway_link, trunk, trunk_link, primary, primary_link, secondary, secondary_link, tertiary, tertiary_link, unclassified, residential, living_street, service, track, pedestrian, path, footway, cycleway, steps]
         attributes:
           - key: class
-            tag_value: highway
+            value: '${ feature.tags.highway in ["motorway", "motorway_link"] ? "motorway" : feature.tags.highway in ["trunk", "trunk_link"] ? "trunk" : feature.tags.highway in ["primary", "primary_link"] ? "primary" : feature.tags.highway in ["secondary", "secondary_link"] ? "secondary" : feature.tags.highway in ["tertiary", "tertiary_link"] ? "tertiary" : feature.tags.highway in ["unclassified", "residential", "living_street"] ? "minor" : feature.tags.highway == "service" ? "service" : feature.tags.highway == "track" ? "track" : feature.tags.highway == "pedestrian" ? "pedestrian" : feature.tags.highway == "steps" ? "steps" : "path" }'
           - key: subclass
             tag_value: highway
           - key: brunnel
-            expression: 'coalesce(tag("bridge") == "yes" ? "bridge" : null, tag("tunnel") == "yes" ? "tunnel" : null, "none")'
+            value: '${ feature.tags.getOrDefault("bridge", "no") != "no" ? "bridge" : feature.tags.getOrDefault("tunnel", "no") != "no" ? "tunnel" : "none" }'
           - key: ramp
-            expression: 'tag("highway").endsWith("_link") ? 1 : 0'
+            value: '${ feature.tags.highway.indexOf("_link") >= 0 ? 1 : 0 }'
+            type: integer
           - key: surface
             tag_value: surface
           - key: ref
@@ -138,11 +189,39 @@ layers:
           railway: [rail, light_rail, subway, tram, narrow_gauge, monorail]
         attributes:
           - key: class
-            tag_value: railway
+            value: '${ feature.tags.railway in ["rail", "narrow_gauge"] ? "rail" : "transit" }'
           - key: subclass
             tag_value: railway
           - key: brunnel
-            expression: 'coalesce(tag("bridge") == "yes" ? "bridge" : null, tag("tunnel") == "yes" ? "tunnel" : null, "none")'
+            value: '${ feature.tags.getOrDefault("bridge", "no") != "no" ? "bridge" : feature.tags.getOrDefault("tunnel", "no") != "no" ? "tunnel" : "none" }'
+          - key: name
+            tag_value: name
+      - source: osm
+        geometry: line
+        min_zoom: 7
+        include_when:
+          route: ferry
+        attributes:
+          - key: class
+            value: ferry
+          - key: subclass
+            value: ferry
+          - key: brunnel
+            value: none
+          - key: name
+            tag_value: name
+      - source: osm
+        geometry: line
+        min_zoom: 10
+        include_when:
+          aerialway: [cable_car, gondola, chair_lift, drag_lift, platter, t-bar, rope_tow]
+        attributes:
+          - key: class
+            value: aerialway
+          - key: subclass
+            tag_value: aerialway
+          - key: brunnel
+            value: none
           - key: name
             tag_value: name
 
@@ -150,16 +229,35 @@ layers:
     features:
       - source: osm
         geometry: line
-        min_zoom: 8
+        min_zoom:
+          default_value: 12
+          overrides:
+            7:
+              highway: [motorway, trunk]
+            8:
+              highway: primary
+            10:
+              highway: [secondary, tertiary]
         include_when:
-          highway: [motorway, trunk, primary, secondary, tertiary, unclassified, residential]
+          __all__:
+            - highway: [motorway, trunk, primary, secondary, tertiary, unclassified, residential]
+            - name: __any__
         attributes:
           - key: class
-            tag_value: highway
+            value: '${ feature.tags.highway in ["motorway", "trunk", "primary", "secondary", "tertiary"] ? feature.tags.highway : "minor" }'
           - key: name
             tag_value: name
           - key: ref
             tag_value: ref
+          - key: brunnel
+            value: '${ feature.tags.getOrDefault("bridge", "no") != "no" ? "bridge" : feature.tags.getOrDefault("tunnel", "no") != "no" ? "tunnel" : "none" }'
+    tile_post_process:
+      merge_line_strings:
+        min_length: 2
+        min_length_at_max_zoom: 0.125
+        tolerance: 0.5
+        tolerance_at_max_zoom: 0.0625
+        buffer: 5
 
   - id: building
     features:
@@ -173,10 +271,12 @@ layers:
             tag_value: building
           - key: render_height
             tag_value: height
+            type: double
           - key: render_min_height
             tag_value: min_height
+            type: double
           - key: underground
-            expression: 'tag("location") == "underground" ? "true" : "false"'
+            value: '${ feature.tags.getOrDefault("location", "") == "underground" ? "true" : "false" }'
 
   - id: aeroway
     features:
@@ -203,20 +303,50 @@ layers:
           - key: name
             tag_value: name
 
+  - id: aerodrome_label
+    features:
+      - source: osm
+        geometry: centroid
+        min_zoom: 8
+        include_when:
+          aeroway: [aerodrome, heliport]
+        attributes:
+          - key: class
+            tag_value: aeroway
+          - key: name
+            tag_value: name
+          - key: iata
+            tag_value: iata
+          - key: icao
+            tag_value: icao
+
   - id: boundary
     features:
       - source: osm
         geometry: line
-        min_zoom: 0
+        min_zoom:
+          default_value: 9
+          overrides:
+            0:
+              admin_level: "2"
+            3:
+              admin_level: "4"
+            6:
+              admin_level: ["5", "6"]
+            8:
+              admin_level: ["7", "8"]
         include_when:
-          boundary: [administrative]
+          boundary: administrative
         attributes:
           - key: admin_level
             tag_value: admin_level
+            type: integer
           - key: disputed
-            expression: 'tag("disputed") == "yes" ? 1 : 0'
+            value: '${ feature.tags.getOrDefault("disputed", "no") == "yes" ? 1 : 0 }'
+            type: integer
           - key: maritime
-            expression: 'tag("maritime") == "yes" ? 1 : 0'
+            value: '${ feature.tags.getOrDefault("maritime", "no") == "yes" ? 1 : 0 }'
+            type: integer
           - key: name
             tag_value: name
 
@@ -224,24 +354,62 @@ layers:
     features:
       - source: osm
         geometry: point
-        min_zoom: 2
+        min_zoom:
+          default_value: 11
+          overrides:
+            0:
+              place: continent
+            2:
+              place: country
+            3:
+              place: state
+            4:
+              place: region
+            5:
+              place: city
+            7:
+              place: town
+            9:
+              place: village
+            10:
+              place: [suburb, neighbourhood]
         include_when:
           place: [continent, country, state, region, city, town, village, suburb, neighbourhood, hamlet]
+        sort_key: '${ feature.tags.place == "city" ? 1 : feature.tags.place == "town" ? 2 : feature.tags.place == "village" ? 3 : 4 }'
         attributes:
           - key: class
             tag_value: place
           - key: name
             tag_value: name
           - key: name:latin
-            tag_value: name:en
+            value:
+              coalesce:
+                - tag_value: name:en
+                - tag_value: name
+          - key: population
+            tag_value: population
+            type: long
           - key: rank
-            expression: 'coalesce(number(tag("population")), 0)'
+            value: '${ feature.tags.place == "continent" ? 1 : feature.tags.place == "country" ? 1 : feature.tags.place == "state" ? 2 : feature.tags.place == "region" ? 3 : feature.tags.place == "city" ? 4 : feature.tags.place == "town" ? 5 : feature.tags.place == "village" ? 6 : feature.tags.place == "suburb" ? 7 : 8 }'
+            type: integer
 
   - id: poi
     features:
       - source: osm
         geometry: point
         min_zoom: 11
+        include_when:
+          amenity: __any__
+        attributes:
+          - key: class
+            tag_value: amenity
+          - key: subclass
+            tag_value: amenity
+          - key: name
+            tag_value: name
+      - source: osm
+        geometry: polygon_centroid
+        min_zoom: 12
         include_when:
           amenity: __any__
         attributes:
@@ -263,17 +431,29 @@ layers:
             tag_value: tourism
           - key: name
             tag_value: name
+      - source: osm
+        geometry: polygon_centroid
+        min_zoom: 12
+        include_when:
+          tourism: __any__
+        attributes:
+          - key: class
+            tag_value: tourism
+          - key: subclass
+            tag_value: tourism
+          - key: name
+            tag_value: name
 
   - id: water_name
     features:
       - source: osm
-        geometry: point
+        geometry: polygon_point_on_surface
         min_zoom: 5
         include_when:
-          natural: [water]
+          natural: water
         attributes:
           - key: class
-            tag_value: water
+            value: '${ feature.tags.getOrDefault("water", "lake") }'
           - key: name
             tag_value: name
 
@@ -291,6 +471,7 @@ layers:
             tag_value: name
           - key: ele
             tag_value: ele
+            type: double
 
   - id: housenumber
     features:
@@ -302,3 +483,60 @@ layers:
         attributes:
           - key: housenumber
             tag_value: addr:housenumber
+      - source: osm
+        geometry: polygon_centroid
+        min_zoom: 16
+        include_when:
+          addr:housenumber: __any__
+        attributes:
+          - key: housenumber
+            tag_value: addr:housenumber
+
+examples:
+  - name: motorway bridge normalization
+    input:
+      source: osm
+      geometry: line
+      tags:
+        highway: motorway_link
+        bridge: yes
+        ref: CA 41
+    output:
+      - layer: transportation
+        geometry: line
+        min_zoom: 4
+        tags:
+          class: motorway
+          subclass: motorway_link
+          brunnel: bridge
+          ramp: 1
+          ref: CA 41
+  - name: forest normalization
+    input:
+      source: osm
+      geometry: polygon
+      tags:
+        landuse: forest
+    output:
+      - layer: landcover
+        geometry: polygon
+        min_zoom: 3
+        tags:
+          class: wood
+  - name: city rank
+    input:
+      source: osm
+      geometry: point
+      tags:
+        place: city
+        name: Fresno
+        population: "542107"
+    output:
+      - layer: place
+        geometry: point
+        min_zoom: 5
+        tags:
+          class: city
+          name: Fresno
+          population: 542107
+          rank: 4
