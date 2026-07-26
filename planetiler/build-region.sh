@@ -5,7 +5,7 @@ AREA="${OCCUMED_TILE_AREA:-california}"
 OSM_PBF="${OCCUMED_OSM_PBF:-}"
 OUTPUT="${OCCUMED_PMTILES_OUTPUT:-$PWD/public/tiles/occumed.pmtiles}"
 MEMORY="${OCCUMED_PLANETILER_MEMORY:-6g}"
-IMAGE="${OCCUMED_PLANETILER_IMAGE:-ghcr.io/onthegomap/planetiler:v0.10.2}"
+IMAGE="${OCCUMED_PLANETILER_IMAGE:-ghcr.io/onthegomap/planetiler:0.10.2}"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DATA_DIR="${OCCUMED_PLANETILER_DATA_DIR:-$ROOT/.planetiler-data}"
 
