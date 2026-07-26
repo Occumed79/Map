@@ -1,0 +1,19 @@
+{
+  "capturedAt": "2026-07-26T21:40:13.180Z",
+  "inventory": {
+    "id": "30221460199",
+    "url": "https://github.com/Occumed79/Map/actions/runs/30221460199",
+    "status": "completed",
+    "conclusion": "success",
+    "createdAt": "2026-07-26T21:37:24Z",
+    "updatedAt": "2026-07-26T21:38:34Z"
+  },
+  "missingRepair": {
+    "id": "30221065995",
+    "url": "https://github.com/Occumed79/Map/actions/runs/30221065995",
+    "status": "completed",
+    "conclusion": "failure",
+    "createdAt": "2026-07-26T21:26:08Z",
+    "updatedAt": "2026-07-26T21:27:25Z"
+  }
+}
