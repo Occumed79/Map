@@ -32,20 +32,28 @@ if (fonts.includes("'DIN Pro Medium', 'Open Sans Semibold'")) {
 }
 
 const relief = layer('occumed-shaded-relief');
-if ((relief?.paint?.['raster-saturation'] ?? 0) < 0.7) {
-  fail('The low-zoom terrain palette is too desaturated.');
+if ((relief?.paint?.['raster-saturation'] ?? 0) < 0.9) {
+  fail('The low-zoom terrain palette is still too desaturated.');
 }
-if ((relief?.paint?.['raster-contrast'] ?? 0) < 0.15) {
+if ((relief?.paint?.['raster-contrast'] ?? 0) < 0.18) {
   fail('The low-zoom terrain palette lacks sufficient definition.');
+}
+if ((relief?.maxzoom ?? 0) < 9) {
+  fail('Relief disappears before the regional reference zooms.');
+}
+
+const land = layer('land');
+if (land?.paint?.['background-color'] !== 'hsl(68, 28%, 83%)') {
+  fail('The viewer reverted to the washed-out beige land base.');
 }
 
 const water = layer('water');
 const waterOpacity = JSON.stringify(water?.paint?.['fill-opacity'] || []);
-if (!waterOpacity.includes('0.8')) {
-  fail('Low-zoom water no longer reveals the relief layer without washing out the ocean.');
+if (!waterOpacity.includes('0.9')) {
+  fail('Low-zoom water no longer reveals restrained bathymetry.');
 }
-if (water?.paint?.['fill-color'] !== 'hsl(205, 75%, 70%)') {
-  fail('The viewer is not using the exact exported Occu-Med water color.');
+if (water?.paint?.['fill-color'] !== 'hsl(205, 76%, 66%)') {
+  fail('The viewer reverted to the pale cyan ocean.');
 }
 
 const motorwayFilter = JSON.stringify(layer('road-motorway-trunk')?.filter || []);
@@ -62,7 +70,10 @@ if (layer('state-label')?.paint?.['text-opacity'] !== 0.5) {
 }
 
 if (!runtime.metadata?.['occumed:exported-cartography-restored']) {
-  fail('The exact exported vector cartography was not restored after endpoint translation.');
+  fail('The exported vector cartography was not restored after endpoint translation.');
+}
+if (runtime.metadata?.['occumed:reference-color-system'] !== 'mapbox-photo-reference-v4') {
+  fail('The final screenshot-calibrated color pass did not run.');
 }
 
 if (failures.length) {
@@ -71,4 +82,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('Viewer quality validated: clean chrome, full-globe framing, exported colors, visible roads, ranked labels, and terrain.');
+console.log('Viewer quality validated: clean chrome, full-globe framing, corrected reference colors, visible roads, ranked labels, and terrain.');
