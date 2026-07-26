@@ -20,32 +20,36 @@ jobs:
           ref: feat/custom-planetiler-pmtiles-basemap
           fetch-depth: 0
 
-      - name: Apply verified size-aware workflow patch
+      - name: Wire the size-aware plan into all six matrices
         run: |
           python3 <<'PY'
           from pathlib import Path
+          import re
 
           path = Path('.github/workflows/build-world-pmtiles.yml')
           text = path.read_text()
 
-          old_timeout = "  plan-world:\n    if: github.event_name != 'pull_request'\n    runs-on: ubuntu-latest\n    timeout-minutes: 15\n"
-          new_timeout = "  plan-world:\n    if: github.event_name != 'pull_request'\n    runs-on: ubuntu-latest\n    timeout-minutes: 30\n"
-          if text.count(old_timeout) != 1:
-              raise SystemExit('Unable to identify the plan-world timeout block.')
-          text = text.replace(old_timeout, new_timeout, 1)
+          plan_header = re.compile(
+              r"(  plan-world:\n    if: github\.event_name != 'pull_request'\n"
+              r"    runs-on: ubuntu-latest\n    timeout-minutes: )15(\n)"
+          )
+          text, timeout_count = plan_header.subn(r"\g<1>30\g<2>", text, count=1)
+          if timeout_count != 1:
+              raise SystemExit(f'Expected one plan timeout replacement, got {timeout_count}.')
 
-          old_plan = '''          node scripts/plan-world-shards.mjs --scope all > world-plan/world-plan.json
-          for bucket in 0 1 2 3 4 5; do
-            node scripts/plan-world-shards.mjs \\
-              --scope all \\
-              --buckets "$WORLD_BUCKETS" \\
-              --bucket "$bucket" \\
-              > "world-plan/bucket-${bucket}.json"
-            compact="$(jq -c . "world-plan/bucket-${bucket}.json")"
-            echo "bucket${bucket}=${compact}" >> "$GITHUB_OUTPUT"
-          done
-'''
-          new_plan = '''          node scripts/plan-world-shards.mjs --scope all > world-plan/world-plan.json
+          repeated_plan = re.compile(
+              r"          node scripts/plan-world-shards\.mjs --scope all > world-plan/world-plan\.json\n"
+              r"          for bucket in 0 1 2 3 4 5; do\n"
+              r"            node scripts/plan-world-shards\.mjs \\\n"
+              r"              --scope all \\\n"
+              r"              --buckets \"\$WORLD_BUCKETS\" \\\n"
+              r"              --bucket \"\$bucket\" \\\n"
+              r"              > \"world-plan/bucket-\$\{bucket\}\.json\"\n"
+              r"            compact=\"\$\(jq -c \. \"world-plan/bucket-\$\{bucket\}\.json\"\)\"\n"
+              r"            echo \"bucket\$\{bucket\}=\$\{compact\}\" >> \"\$GITHUB_OUTPUT\"\n"
+              r"          done\n"
+          )
+          single_plan = '''          node scripts/plan-world-shards.mjs --scope all > world-plan/world-plan.json
           for bucket in 0 1 2 3 4 5; do
             jq \\
               --argjson bucket "$bucket" \\
@@ -57,20 +61,36 @@ jobs:
             echo "bucket${bucket}=${compact}" >> "$GITHUB_OUTPUT"
           done
 '''
-          if text.count(old_plan) != 1:
-              raise SystemExit('Unable to identify the repeated planner block.')
-          text = text.replace(old_plan, new_plan, 1)
+          text, planner_count = repeated_plan.subn(single_plan, text, count=1)
+          if planner_count != 1:
+              raise SystemExit(f'Expected one repeated planner replacement, got {planner_count}.')
 
-          matrix_pbf = '          pbf-url: $' + '{{ matrix.pbf_url }}\n'
-          matrix_extract = '          extract-bbox: $' + '{{ matrix.extract_bbox }}\n'
-          if text.count(matrix_pbf) != 6:
-              raise SystemExit(f'Expected six matrix PBF inputs, found {text.count(matrix_pbf)}.')
-          text = text.replace(matrix_pbf, matrix_pbf + matrix_extract)
+          pbf_line = '          pbf-url: ${{ matrix.pbf_url }}\n'
+          extract_line = '          extract-bbox: ${{ matrix.extract_bbox }}\n'
+          if extract_line in text:
+              raise SystemExit('extract-bbox is already wired; refusing to duplicate it.')
+          pbf_count = text.count(pbf_line)
+          if pbf_count != 6:
+              raise SystemExit(f'Expected six matrix pbf-url inputs, got {pbf_count}.')
+          text = text.replace(pbf_line, pbf_line + extract_line)
+
+          if text.count(extract_line) != 6:
+              raise SystemExit('Not all six matrices received extract-bbox.')
+          if 'timeout-minutes: 30' not in text:
+              raise SystemExit('Plan timeout was not raised.')
+          if text.count('node scripts/plan-world-shards.mjs --scope all') != 1:
+              raise SystemExit('Worldwide planner must execute exactly once.')
 
           path.write_text(text)
           PY
 
-      - name: Commit workflow patch and remove one-time workflow
+      - name: Validate patched YAML text
+        run: |
+          grep -c 'extract-bbox: ${{ matrix.extract_bbox }}' .github/workflows/build-world-pmtiles.yml | grep -qx 6
+          grep -c 'node scripts/plan-world-shards.mjs --scope all' .github/workflows/build-world-pmtiles.yml | grep -qx 1
+          grep -q 'timeout-minutes: 30' .github/workflows/build-world-pmtiles.yml
+
+      - name: Commit the patch and remove this one-time workflow
         run: |
           git rm .github/workflows/patch-world-workflow.yml
           git config user.name github-actions[bot]
