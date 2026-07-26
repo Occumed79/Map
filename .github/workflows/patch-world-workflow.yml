@@ -65,8 +65,8 @@ jobs:
           if planner_count != 1:
               raise SystemExit(f'Expected one repeated planner replacement, got {planner_count}.')
 
-          pbf_line = '          pbf-url: ${{ matrix.pbf_url }}\n'
-          extract_line = '          extract-bbox: ${{ matrix.extract_bbox }}\n'
+          pbf_line = '          pbf-url: $' + '{{ matrix.pbf_url }}\n'
+          extract_line = '          extract-bbox: $' + '{{ matrix.extract_bbox }}\n'
           if extract_line in text:
               raise SystemExit('extract-bbox is already wired; refusing to duplicate it.')
           pbf_count = text.count(pbf_line)
@@ -84,11 +84,16 @@ jobs:
           path.write_text(text)
           PY
 
-      - name: Validate patched YAML text
+      - name: Validate patched workflow text
         run: |
-          grep -c 'extract-bbox: ${{ matrix.extract_bbox }}' .github/workflows/build-world-pmtiles.yml | grep -qx 6
-          grep -c 'node scripts/plan-world-shards.mjs --scope all' .github/workflows/build-world-pmtiles.yml | grep -qx 1
-          grep -q 'timeout-minutes: 30' .github/workflows/build-world-pmtiles.yml
+          python3 <<'PY'
+          from pathlib import Path
+          text = Path('.github/workflows/build-world-pmtiles.yml').read_text()
+          extract_line = '          extract-bbox: $' + '{{ matrix.extract_bbox }}\n'
+          assert text.count(extract_line) == 6
+          assert text.count('node scripts/plan-world-shards.mjs --scope all') == 1
+          assert 'timeout-minutes: 30' in text
+          PY
 
       - name: Commit the patch and remove this one-time workflow
         run: |
