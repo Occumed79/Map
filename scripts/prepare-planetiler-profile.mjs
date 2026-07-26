@@ -35,6 +35,18 @@ const replacements = [
       '              - else:\n' +
       '                  tag_value: highway\n'
   ],
+  [
+    '        sort_key_descending:\n' +
+      '          tag_value: population_number\n' +
+      '        point_label_grid:\n' +
+      '          pixel_size:\n' +
+      '            maxzoom: 8\n' +
+      '            value: 64\n' +
+      '          limit:\n' +
+      '            maxzoom: 8\n' +
+      '            value: 2\n',
+    '        # Population is retained as an attribute; unsupported per-feature sort/grid directives were removed.\n'
+  ],
   ...['region', 'town', 'village'].map((place) => [
     `          place: ${place}\n` +
       '        attributes:\n' +
@@ -116,10 +128,14 @@ const requiredMarkers = [
   'leisure: [garden, playground, golf_course, pitch]',
   '- id: aerodrome_label',
   'highway: [unclassified, residential, living_street]',
-  'waterway: [river, canal, stream]'
+  'waterway: [river, canal, stream]',
+  'unsupported per-feature sort/grid directives were removed'
 ];
 for (const marker of requiredMarkers) {
   if (!profile.includes(marker)) throw new Error(`Generated Planetiler profile is missing: ${marker}`);
+}
+if (profile.includes('sort_key_descending') || profile.includes('point_label_grid')) {
+  throw new Error('Generated Planetiler profile still contains unsupported feature directives.');
 }
 if ((profile.match(/          - key: name:latin/g) || []).length < 7) {
   throw new Error('Generated Planetiler profile does not provide name:latin across the place hierarchy.');
