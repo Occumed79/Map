@@ -21,8 +21,19 @@ function openFont(font) {
   }
 
   if (font.startsWith('Arial Unicode MS')) {
-    if (/Italic/i.test(font)) return 'Noto Sans Italic';
-    return 'Noto Sans Regular';
+    if (/Bold/i.test(font)) {
+      return /Italic/i.test(font) ? 'Open Sans Semibold Italic' : 'Open Sans Semibold';
+    }
+    if (/Italic/i.test(font)) return 'Open Sans Italic';
+    return 'Open Sans Regular';
+  }
+
+  if (font.startsWith('Noto Sans')) {
+    if (/Bold|Semibold/i.test(font)) {
+      return /Italic/i.test(font) ? 'Open Sans Semibold Italic' : 'Open Sans Semibold';
+    }
+    if (/Italic/i.test(font)) return 'Open Sans Italic';
+    return 'Open Sans Regular';
   }
 
   return font;
