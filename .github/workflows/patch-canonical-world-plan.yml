@@ -20,13 +20,21 @@ jobs:
           ref: feat/custom-planetiler-pmtiles-basemap
           fetch-depth: 0
 
-      - name: Exclude alternate overlapping Geofabrik bundles
+      - name: Enforce canonical non-overlapping source coverage
         run: |
           python3 <<'PY'
           from pathlib import Path
 
           planner = Path('scripts/plan-world-shards.mjs')
           text = planner.read_text()
+
+          old_limit = "const DIRECT_PBF_LIMIT_BYTES = Number(process.env.OCCUMED_DIRECT_PBF_LIMIT_BYTES || 850_000_000);"
+          new_limit = "const DIRECT_PBF_LIMIT_BYTES = Number(process.env.OCCUMED_DIRECT_PBF_LIMIT_BYTES || 650_000_000);"
+          if old_limit in text:
+              text = text.replace(old_limit, new_limit, 1)
+          elif new_limit not in text:
+              raise SystemExit('Unable to identify the direct-PBF split threshold.')
+
           anchor = '''const rootIds = new Set([
   'africa',
   'antarctica',
@@ -47,6 +55,7 @@ const NON_CANONICAL_OVERLAY_IDS = new Set([
   'britain-and-ireland',
   'dach',
   'great-britain',
+  'kaliningrad',
   'sea',
   'south-africa-and-lesotho',
   'us',
@@ -61,6 +70,8 @@ const NON_CANONICAL_OVERLAY_IDS = new Set([
               if text.count(anchor) != 1:
                   raise SystemExit('Unable to find root-id anchor in worldwide planner.')
               text = text.replace(anchor, replacement, 1)
+          elif "  'kaliningrad',\n" not in text:
+              text = text.replace("  'great-britain',\n", "  'great-britain',\n  'kaliningrad',\n", 1)
 
           selection = '''  for (const entry of entries) {
     if (!entry.pbfUrl || !entry.bounds) continue;
@@ -74,6 +85,10 @@ const NON_CANONICAL_OVERLAY_IDS = new Set([
                   raise SystemExit('Unable to find worldwide selection loop.')
               text = text.replace(selection, selection_replacement, 1)
 
+          if new_limit not in text:
+              raise SystemExit('Conservative split threshold was not applied.')
+          if 'NON_CANONICAL_OVERLAY_IDS.has(entry.id)' not in text:
+              raise SystemExit('Canonical overlay exclusion was not applied.')
           planner.write_text(text)
 
           validation = Path('.github/workflows/validate-size-aware-world-plan.yml')
@@ -81,19 +96,19 @@ const NON_CANONICAL_OVERLAY_IDS = new Set([
               check = validation.read_text()
               check = check.replace(
                   "          const alpsPieces = regions.filter((region) => region.source_region_id === 'alps');\n",
-                  "          const excludedOverlays = ['alps', 'britain-and-ireland', 'dach', 'great-britain', 'sea', 'south-africa-and-lesotho', 'us', 'us-midwest', 'us-northeast', 'us-pacific', 'us-south', 'us-west'];\n"
+                  "          const expectedSplitSources = ['argentina', 'central-fed-district', 'volga-fed-district'];\n          const excludedOverlays = ['alps', 'britain-and-ireland', 'dach', 'great-britain', 'kaliningrad', 'sea', 'south-africa-and-lesotho', 'us', 'us-midwest', 'us-northeast', 'us-pacific', 'us-south', 'us-west'];\n"
               )
               check = check.replace(
                   "          if (byId.has('argentina') || byId.has('alps')) {\n            throw new Error('An oversized parent archive was not replaced by bounded subdivisions.');\n          }\n",
-                  "          if (byId.has('argentina')) {\n            throw new Error('Oversized Argentina archive was not replaced by bounded subdivisions.');\n          }\n          const retainedOverlays = excludedOverlays.filter((id) => byId.has(id));\n          if (retainedOverlays.length) {\n            throw new Error(`Non-canonical overlapping bundles remain: ${retainedOverlays.join(', ')}`);\n          }\n"
+                  "          const unsplitLargeSources = expectedSplitSources.filter((id) => byId.has(id));\n          if (unsplitLargeSources.length) {\n            throw new Error(`Oversized source archives were not subdivided: ${unsplitLargeSources.join(', ')}`);\n          }\n          const retainedOverlays = excludedOverlays.filter((id) => byId.has(id));\n          if (retainedOverlays.length) {\n            throw new Error(`Non-canonical overlapping bundles remain: ${retainedOverlays.join(', ')}`);\n          }\n"
               )
               check = check.replace(
                   "          if (alpsPieces.length < 4 || alpsPieces.some((region) => !region.extract_bbox)) {\n            throw new Error(`Alps subdivision is incomplete: ${alpsPieces.length} pieces.`);\n          }\n",
-                  ""
+                  "          for (const sourceId of expectedSplitSources) {\n            const pieces = regions.filter((region) => region.source_region_id === sourceId);\n            if (pieces.length < 4 || pieces.some((region) => !region.extract_bbox)) {\n              throw new Error(`${sourceId} subdivision is incomplete: ${pieces.length} pieces.`);\n            }\n          }\n"
               )
               check = check.replace(
                   "            alpsPieceCount: alpsPieces.length,\n",
-                  "            excludedOverlays,\n"
+                  "            expectedSplitSources,\n            excludedOverlays,\n"
               )
               validation.write_text(check)
           PY
@@ -104,5 +119,5 @@ const NON_CANONICAL_OVERLAY_IDS = new Set([
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add scripts/plan-world-shards.mjs .github/workflows/validate-size-aware-world-plan.yml
-          git commit -m "Exclude overlapping convenience bundles from world routing"
+          git commit -m "Use canonical size-aware worldwide routing shards"
           git push origin HEAD:feat/custom-planetiler-pmtiles-basemap
