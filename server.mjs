@@ -1,3 +1,4 @@
+import { createReadStream } from 'node:fs';
 import fs from 'node:fs/promises';
 import http from 'node:http';
 import path from 'node:path';
@@ -14,9 +15,19 @@ const contentTypes = {
   '.json': 'application/json; charset=utf-8',
   '.map': 'application/json; charset=utf-8',
   '.pbf': 'application/x-protobuf',
+  '.pmtiles': 'application/vnd.pmtiles',
   '.png': 'image/png',
   '.svg': 'image/svg+xml; charset=utf-8',
   '.webp': 'image/webp'
+};
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Cache-Control, Pragma, Range',
+  'Access-Control-Expose-Headers': 'Accept-Ranges, Content-Length, Content-Range',
+  'Cross-Origin-Resource-Policy': 'cross-origin',
+  'X-Content-Type-Options': 'nosniff'
 };
 
 function requestOrigin(request) {
@@ -32,15 +43,11 @@ function requestOrigin(request) {
 
 function send(response, status, body, contentType, cacheControl = 'no-store', method = 'GET') {
   response.writeHead(status, {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Cache-Control, Pragma',
+    ...corsHeaders,
     'Cache-Control': cacheControl,
     'CDN-Cache-Control': cacheControl,
     'Surrogate-Control': cacheControl,
-    'Content-Type': contentType,
-    'Cross-Origin-Resource-Policy': 'cross-origin',
-    'X-Content-Type-Options': 'nosniff'
+    'Content-Type': contentType
   });
   if (method === 'HEAD') response.end();
   else response.end(body);
@@ -73,6 +80,93 @@ async function serveStyle(request, response) {
   );
 }
 
+function parseByteRange(header, size) {
+  const match = /^bytes=(\d*)-(\d*)$/.exec(String(header || '').trim());
+  if (!match) return null;
+
+  const startText = match[1];
+  const endText = match[2];
+  if (!startText && !endText) return null;
+
+  let start;
+  let end;
+
+  if (!startText) {
+    const suffixLength = Number(endText);
+    if (!Number.isSafeInteger(suffixLength) || suffixLength <= 0) return null;
+    start = Math.max(size - suffixLength, 0);
+    end = size - 1;
+  } else {
+    start = Number(startText);
+    end = endText ? Number(endText) : size - 1;
+  }
+
+  if (
+    !Number.isSafeInteger(start) ||
+    !Number.isSafeInteger(end) ||
+    start < 0 ||
+    end < start ||
+    start >= size
+  ) {
+    return null;
+  }
+
+  return { start, end: Math.min(end, size - 1) };
+}
+
+function pipeFile(response, absolute, options = {}) {
+  const stream = createReadStream(absolute, options);
+  stream.on('error', (error) => response.destroy(error));
+  stream.pipe(response);
+}
+
+async function servePmtiles(request, response, absolute, stat) {
+  const cacheControl = 'public, max-age=3600, must-revalidate';
+  const rangeHeader = request.headers.range;
+
+  if (!rangeHeader) {
+    response.writeHead(200, {
+      ...corsHeaders,
+      'Accept-Ranges': 'bytes',
+      'Cache-Control': cacheControl,
+      'CDN-Cache-Control': cacheControl,
+      'Surrogate-Control': cacheControl,
+      'Content-Length': stat.size,
+      'Content-Type': contentTypes['.pmtiles']
+    });
+    if (request.method === 'HEAD') response.end();
+    else pipeFile(response, absolute);
+    return;
+  }
+
+  const range = parseByteRange(rangeHeader, stat.size);
+  if (!range) {
+    response.writeHead(416, {
+      ...corsHeaders,
+      'Accept-Ranges': 'bytes',
+      'Content-Range': `bytes */${stat.size}`,
+      'Content-Type': 'text/plain; charset=utf-8'
+    });
+    response.end('Requested range not satisfiable');
+    return;
+  }
+
+  const length = range.end - range.start + 1;
+  response.writeHead(206, {
+    ...corsHeaders,
+    'Accept-Ranges': 'bytes',
+    'Cache-Control': cacheControl,
+    'CDN-Cache-Control': cacheControl,
+    'Surrogate-Control': cacheControl,
+    'Content-Length': length,
+    'Content-Range': `bytes ${range.start}-${range.end}/${stat.size}`,
+    'Content-Type': contentTypes['.pmtiles']
+  });
+
+  if (request.method === 'HEAD') response.end();
+  else pipeFile(response, absolute, { start: range.start, end: range.end });
+}
+
 async function serveStatic(request, response, pathname) {
   const requested = pathname === '/' ? '/index.html' : pathname;
   const decoded = decodeURIComponent(requested);
@@ -86,8 +180,14 @@ async function serveStatic(request, response, pathname) {
   try {
     const stat = await fs.stat(absolute);
     if (!stat.isFile()) throw new Error('Not a file');
-    const body = await fs.readFile(absolute);
+
     const extension = path.extname(absolute).toLowerCase();
+    if (extension === '.pmtiles') {
+      await servePmtiles(request, response, absolute, stat);
+      return;
+    }
+
+    const body = await fs.readFile(absolute);
     const longLived = decoded.startsWith('/sprites/') || decoded.startsWith('/assets/');
     send(
       response,
@@ -115,9 +215,7 @@ async function handleRequest(request, response) {
 
   if (method === 'OPTIONS') {
     response.writeHead(204, {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Cache-Control, Pragma',
+      ...corsHeaders,
       'Cache-Control': 'no-store'
     });
     response.end();
