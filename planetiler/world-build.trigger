@@ -1,14 +1,12 @@
-Occu-Med worldwide PMTiles build
+Occu-Med worldwide PMTiles canonical repair
 release=occumed-world-v1
-requested_at=2026-07-26T16:51:00Z
-scope=all-geofabrik-leaf-regions
+requested_at=2026-07-26T17:58:30Z
+scope=all-canonical-geofabrik-regions
 buckets=6
-pipeline_head=5e00bad98011588ed00dd0422d4f3ce2e4b53145
-custom_profile_invocation=positional-yaml
-local_osm_argument=osm-path
-schema_generation=corrected-before-build
-planetiler_image=ghcr.io/onthegomap/planetiler:0.10.2
-glyph_source=https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf
-release_assets=pmtiles-only
-status_file=diagnostics/world-build-status.json
+direct_pbf_limit_bytes=400000000
+target_split_pbf_bytes=250000000
+reuse_existing_release_assets=true
+exclude_overlapping_convenience_bundles=true
+pass_extract_bbox_to_all_matrices=true
+require_zero_missing_manifest=true
 merge_gate=fresno-render-success-plus-zero-missing-world-manifest
