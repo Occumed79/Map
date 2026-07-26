@@ -1,12 +1,12 @@
 {
-  "capturedAt": "2026-07-26T21:33:13.122Z",
-  "audit": {
-    "id": "30221238115",
-    "url": "https://github.com/Occumed79/Map/actions/runs/30221238115",
+  "capturedAt": "2026-07-26T21:36:25.553Z",
+  "auditV2": {
+    "id": "30221381694",
+    "url": "https://github.com/Occumed79/Map/actions/runs/30221381694",
     "status": "completed",
     "conclusion": "failure",
-    "createdAt": "2026-07-26T21:31:03Z",
-    "updatedAt": "2026-07-26T21:32:09Z"
+    "createdAt": "2026-07-26T21:35:07Z",
+    "updatedAt": "2026-07-26T21:36:18Z"
   },
   "missingRepair": {
     "id": "30221065995",
