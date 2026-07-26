@@ -6,14 +6,20 @@
     <meta name="theme-color" content="#05080c" />
     <meta
       name="description"
-      content="Reusable Occu-Med Terrain basemap rendered from the original uploaded Mapbox style."
+      content="Reusable Occu-Med terrain basemap rendered with MapLibre and open map data."
     />
-    <title>Occu-Med Terrain</title>
+    <title>Occu-Med Map</title>
   </head>
   <body>
     <main id="app">
-      <div id="map" aria-label="Occu-Med Terrain basemap"></div>
+      <div id="map" aria-label="Occu-Med reusable basemap"></div>
+
+      <header class="map-header" aria-live="polite">
+        <span class="eyebrow">OCCU-MED</span>
+        <span id="map-status" class="status">Preparing map…</span>
+      </header>
     </main>
+
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

@@ -1,46 +1,43 @@
 # Occu-Med Map
 
-A reusable Occu-Med basemap package that renders the uploaded **Occu-Med Terrain** Mapbox Studio export directly.
+A reusable Occu-Med basemap that uses the uploaded **Occu-Med Terrain** export as the cartographic blueprint while rendering through MapLibre and independent/open map services.
 
-## What is hosted here
+## Target
 
-GitHub and Render host:
+The supplied Mapbox Studio screenshots are the visual acceptance reference for:
 
-- the application;
-- the untouched root `style.json`;
-- the reusable map initialization helper;
-- the full-screen viewer.
+- globe scale, black space, and the white-blue atmospheric rim;
+- vivid oceans and visible bathymetry;
+- pale land, forest, grassland, wetland, agriculture, desert, snow, and urban separation;
+- terrain relief and contours;
+- road, boundary, place-label, water-label, and POI hierarchy;
+- globe, regional, city, and street zoom transitions.
 
-The build copies `style.json` byte-for-byte to `/style.json`. It does not translate layers, replace colors, change fonts, rewrite filters, alter the atmosphere, or substitute open map data.
+The goal is a close visual replica without a Mapbox token or Mapbox-hosted runtime dependency. It is not represented as a pixel-identical copy of Mapbox proprietary data.
 
-The original file still references Mapbox Streets, Terrain, Bathymetry, glyph, and sprite services. Mapbox GL JS therefore requires `VITE_MAPBOX_ACCESS_TOKEN` at runtime.
+## Runtime
+
+- MapLibre GL JS
+- OpenFreeMap/OpenMapTiles vector data
+- open terrain and relief services
+- locally compiled sprites
+- open glyphs
+- generated runtime style at `/style/occumed-open.json`
+
+No `VITE_MAPBOX_ACCESS_TOKEN`, `mapbox-gl`, `mapbox://` URL, or Mapbox API endpoint is required by the active build.
+
+## Source of truth
+
+The root `style.json` remains unchanged and supplies the layer order, paint/layout rules, filters, and zoom logic. Build scripts translate only the incompatible hosted resources and source schema, then apply the screenshot-calibrated visual pass.
 
 ## Data isolation
 
-This repository contains only the basemap. It contains no provider, clinic, employer, procurement, opportunity, applicant, or other application data.
-
-Each application creates its own independent map instance and adds only its own overlays:
-
-```text
-Hosted Occu-Med style
-        +
-Insight Hub overlays only
-```
-
-```text
-Hosted Occu-Med style
-        +
-Atlas overlays only
-```
-
-Sharing the same basemap does not share markers, filters, popups, application state, or databases.
+This repository contains only the basemap. Atlas, Insight Hub, Network Map, and other applications each create their own map instance and add only their own sources, markers, filters, popups, and state.
 
 ## Development
 
 ```bash
 npm install
-cp .env.example .env
-# Add VITE_MAPBOX_ACCESS_TOKEN
 npm run dev
 ```
 
@@ -52,42 +49,40 @@ npm run build
 npm start
 ```
 
-Render environment variable:
+Optional Render variable:
 
 ```text
-VITE_MAPBOX_ACCESS_TOKEN=<your public Mapbox token>
+PUBLIC_ORIGIN=https://map-yxjb.onrender.com
 ```
 
-The standalone viewer is served at `/` and the exact uploaded style is served with CORS at:
-
-```text
-/style.json
-```
-
-## Reuse in another application
+## Reuse
 
 ```js
-import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
+import * as maplibregl from 'maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
 
-mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
-
-const response = await fetch('https://YOUR-MAP-SERVICE.onrender.com/style.json');
+const response = await fetch('https://map-yxjb.onrender.com/style/occumed-open.json');
 const style = await response.json();
 
-const map = new mapboxgl.Map({
+const map = new maplibregl.Map({
   container: 'map',
   style,
-  center: [-98.5, 24],
-  zoom: 2.43,
-  antialias: true
+  center: [-98.5, 28],
+  zoom: 2.05,
+  renderWorldCopies: false
 });
 
 map.on('load', () => {
-  // Add only this application's sources and layers here.
+  // Add only this application's overlays here.
 });
 ```
 
-## Integrity protection
+## Validation
 
-`npm run validate:export` verifies that the uploaded `style.json`, `license.txt`, and SVG export remain intact. CI also runs `cmp style.json public/style.json`, so the build fails unless the deployed style is an exact byte-for-byte copy.
+The build verifies:
+
+- the original export remains intact;
+- the generated style passes the MapLibre style specification;
+- no active source, sprite, or glyph URL points to Mapbox;
+- globe, terrain, landcover, water, labels, and viewer-quality settings remain calibrated to the screenshot reference set;
+- no application-specific overlay data is included.
