@@ -1,0 +1,61 @@
+name: Capture Planetiler profile error
+
+on:
+  push:
+    branches:
+      - feat/custom-planetiler-pmtiles-basemap
+    paths:
+      - .github/workflows/capture-planetiler-error.yml
+
+permissions:
+  contents: write
+
+jobs:
+  reproduce:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/custom-planetiler-pmtiles-basemap
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Reproduce with Monaco extract
+        shell: bash
+        run: |
+          mkdir -p .planetiler-data diagnostics artifacts
+          curl --fail --location --retry 4 \
+            --output .planetiler-data/monaco.osm.pbf \
+            https://download.geofabrik.de/europe/monaco-latest.osm.pbf
+
+          set +e
+          OCCUMED_TILE_AREA=monaco \
+          OCCUMED_OSM_PBF="$PWD/.planetiler-data/monaco.osm.pbf" \
+          OCCUMED_PMTILES_OUTPUT="$PWD/artifacts/occumed-monaco.pmtiles" \
+          OCCUMED_PLANETILER_DATA_DIR="$PWD/.planetiler-data" \
+          OCCUMED_PLANETILER_MEMORY=3g \
+          bash planetiler/build-region.sh > diagnostics/planetiler-diagnostic.txt 2>&1
+          status=$?
+          set -e
+
+          {
+            echo
+            echo "exit_status=$status"
+            echo "commit=$GITHUB_SHA"
+          } >> diagnostics/planetiler-diagnostic.txt
+
+          tail -n 250 diagnostics/planetiler-diagnostic.txt > diagnostics/planetiler-diagnostic.tail
+          mv diagnostics/planetiler-diagnostic.tail diagnostics/planetiler-diagnostic.txt
+
+      - name: Commit diagnostic and remove workflow
+        run: |
+          git rm .github/workflows/capture-planetiler-error.yml
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add diagnostics/planetiler-diagnostic.txt
+          git commit -m "Capture exact Planetiler profile failure"
+          git push origin HEAD:feat/custom-planetiler-pmtiles-basemap
