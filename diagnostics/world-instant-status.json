@@ -1,0 +1,26 @@
+{
+  "capturedAt": "2026-07-26T22:08:03.6015850Z",
+  "repair": {
+    "id": "30222171809",
+    "url": "https://github.com/Occumed79/Map/actions/runs/30222171809",
+    "status": "queued",
+    "conclusion": null,
+    "headSha": "ff609ccf225ea66f93ca9b4cb94f240e022a8b65",
+    "createdAt": "2026-07-26T21:58:28Z",
+    "updatedAt": "2026-07-26T22:01:37Z"
+  },
+  "planStatus": "completed",
+  "planConclusion": "success",
+  "totalBuildJobsObserved": 414,
+  "successfulBuildJobs": 2,
+  "failedBuildJobs": 0,
+  "inProgressBuildJobs": 7,
+  "queuedBuildJobs": 405,
+  "cancelledBuildJobs": 0,
+  "manifestStatus": null,
+  "manifestConclusion": null,
+  "totalReleaseAssetCount": 329,
+  "totalReleasePmtilesCount": 317,
+  "remainingReleaseCapacity": 671,
+  "failures": []
+}
