@@ -1,4 +1,4 @@
-name: Snapshot missing-only worldwide PMTiles repair
+name: Snapshot worldwide PMTiles audit and repair state
 
 on:
   push:
@@ -21,97 +21,53 @@ jobs:
           ref: feat/custom-planetiler-pmtiles-basemap
           fetch-depth: 0
 
-      - name: Capture missing-only repair status
+      - name: Capture audit and missing-repair workflow states
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           mkdir -p diagnostics
 
-          gh api \
-            "/repos/${GITHUB_REPOSITORY}/actions/workflows/repair-missing-world-pmtiles.yml/runs?branch=feat%2Fcustom-planetiler-pmtiles-basemap&event=push&per_page=10" \
-            > /tmp/missing-repair-runs.json
+          gh api "/repos/${GITHUB_REPOSITORY}/actions/workflows/audit-world-release.yml/runs?branch=feat%2Fcustom-planetiler-pmtiles-basemap&event=push&per_page=10" > /tmp/audit-runs.json
+          gh api "/repos/${GITHUB_REPOSITORY}/actions/workflows/repair-missing-world-pmtiles.yml/runs?branch=feat%2Fcustom-planetiler-pmtiles-basemap&event=push&per_page=10" > /tmp/repair-runs.json
 
           node <<'NODE'
           const fs = require('node:fs');
-          const payload = JSON.parse(fs.readFileSync('/tmp/missing-repair-runs.json', 'utf8'));
-          const run = (payload.workflow_runs || [])[0];
-          if (!run) throw new Error('No missing-only worldwide repair run found.');
-          fs.writeFileSync('/tmp/missing-repair-run.json', JSON.stringify(run));
-          fs.writeFileSync('/tmp/missing-repair-run-id.txt', String(run.id));
-          NODE
-
-          RUN_ID="$(cat /tmp/missing-repair-run-id.txt)"
-          gh api --paginate --slurp \
-            "/repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/jobs?per_page=100" \
-            > /tmp/missing-repair-job-pages.json
-
-          PLAN_JOB_ID="$(node <<'NODE'
-          const fs = require('node:fs');
-          const pages = JSON.parse(fs.readFileSync('/tmp/missing-repair-job-pages.json', 'utf8'));
-          const jobs = pages.flatMap((page) => page.jobs || []);
-          const plan = jobs.find((job) => job.name === 'plan-missing');
-          process.stdout.write(plan ? String(plan.id) : '');
-          NODE
-          )"
-
-          if [ -n "$PLAN_JOB_ID" ]; then
-            gh api "/repos/${GITHUB_REPOSITORY}/actions/jobs/${PLAN_JOB_ID}/logs" > /tmp/missing-repair-plan.log 2>/dev/null || true
-          else
-            : > /tmp/missing-repair-plan.log
-          fi
-
-          node <<'NODE'
-          const fs = require('node:fs');
-          const run = JSON.parse(fs.readFileSync('/tmp/missing-repair-run.json', 'utf8'));
-          const pages = JSON.parse(fs.readFileSync('/tmp/missing-repair-job-pages.json', 'utf8'));
-          const jobs = pages.flatMap((page) => page.jobs || []);
-          const planLog = fs.readFileSync('/tmp/missing-repair-plan.log', 'utf8');
-          const missingMatch = planLog.match(/Missing and scheduled:\s*(\d+)\s*shards\./i);
-          const publishedMatch = planLog.match(/Already published:\s*(\d+)\s*shards\./i);
-          const canonicalMatch = planLog.match(/Canonical plan:\s*(\d+)\s*shards\./i);
-          const buildJobs = jobs.filter((job) => job.name.startsWith('build-bucket-'));
-          const count = (predicate) => buildJobs.filter(predicate).length;
-          const manifest = jobs.find((job) => job.name === 'publish-world-manifest');
-          const plan = jobs.find((job) => job.name === 'plan-missing');
-          const failures = buildJobs
-            .filter((job) => job.conclusion === 'failure')
-            .map((job) => ({ id: job.id, name: job.name }));
+          const first = (file) => {
+            const payload = JSON.parse(fs.readFileSync(file, 'utf8'));
+            return (payload.workflow_runs || [])[0] || null;
+          };
+          const audit = first('/tmp/audit-runs.json');
+          const repair = first('/tmp/repair-runs.json');
           const status = {
             capturedAt: new Date().toISOString(),
-            runId: String(run.id),
-            runUrl: run.html_url,
-            runStatus: run.status,
-            runConclusion: run.conclusion,
-            canonicalShardCount: canonicalMatch ? Number(canonicalMatch[1]) : null,
-            alreadyPublishedShardCount: publishedMatch ? Number(publishedMatch[1]) : null,
-            plannedMissingShardCount: missingMatch ? Number(missingMatch[1]) : null,
-            planStatus: plan?.status || null,
-            planConclusion: plan?.conclusion || null,
-            totalBuildJobsObserved: buildJobs.length,
-            successfulBuildJobs: count((job) => job.conclusion === 'success'),
-            failedBuildJobs: count((job) => job.conclusion === 'failure'),
-            cancelledBuildJobs: count((job) => job.conclusion === 'cancelled'),
-            skippedBuildJobs: count((job) => job.conclusion === 'skipped'),
-            inProgressBuildJobs: count((job) => job.status === 'in_progress'),
-            queuedBuildJobs: count((job) => job.status === 'queued'),
-            manifestStatus: manifest?.status || null,
-            manifestConclusion: manifest?.conclusion || null,
-            failures
+            audit: audit ? {
+              id: String(audit.id),
+              url: audit.html_url,
+              status: audit.status,
+              conclusion: audit.conclusion,
+              createdAt: audit.created_at,
+              updatedAt: audit.updated_at
+            } : null,
+            missingRepair: repair ? {
+              id: String(repair.id),
+              url: repair.html_url,
+              status: repair.status,
+              conclusion: repair.conclusion,
+              createdAt: repair.created_at,
+              updatedAt: repair.updated_at
+            } : null
           };
-          fs.writeFileSync(
-            'diagnostics/world-missing-repair-status.json',
-            `${JSON.stringify(status, null, 2)}\n`
-          );
+          fs.writeFileSync('diagnostics/world-audit-repair-state.json', `${JSON.stringify(status, null, 2)}\n`);
           console.log(JSON.stringify(status, null, 2));
           NODE
 
-      - name: Commit missing-only repair status
+      - name: Commit workflow state
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add diagnostics/world-missing-repair-status.json
+          git add diagnostics/world-audit-repair-state.json
           git diff --cached --quiet && exit 0
-          git commit -m "Snapshot missing-only worldwide PMTiles repair"
+          git commit -m "Snapshot worldwide PMTiles audit and repair state"
           git pull --rebase origin feat/custom-planetiler-pmtiles-basemap
           git push origin HEAD:feat/custom-planetiler-pmtiles-basemap
