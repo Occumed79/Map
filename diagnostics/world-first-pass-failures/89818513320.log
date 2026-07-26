@@ -1,3 +1,43 @@
+2026-07-26T17:03:30.4768813Z     cpus: [34m4[0m gc:  1% heap: 1.2G/5.3G direct: 216k postGC: [34m774M[0m relInfo: 1.2M mpGeoms: 87M  
+2026-07-26T17:03:30.4770051Z     read( 0%) ->   (11/15) -> process(98% 91% 95% 97%) -> (2.9k/55k) -> write(10%)
+2026-07-26T17:03:31.8942985Z [m[0m0:02:03 INF [osm_pass2:process] - Finished ways: 5,838,952 (56k/s) in 1m44s cpu:6m50s gc:1s avg:4
+2026-07-26T17:03:40.4986913Z [m[0m0:02:11 INF [osm_pass2] -  nodes: [  58M 100%    0/s ] 1.1G  ways: [32m[ 5.8M 100% 9.4k/s ][0m rels: [32m[  15k  17% 1.5k/s ][0m features: [  50M 133k/s ] 4.9G  blocks: [   8k 100%    1/s ]
+2026-07-26T17:03:40.4988610Z     cpus: [34m3.9[0m gc:  2% heap: 1.5G/5.3G direct: 216k postGC: [34m809M[0m relInfo: 1.2M mpGeoms: 88M  
+2026-07-26T17:03:40.4989838Z     read( -%) ->    (6/15) -> process(77% 75% 76% 74%) ->  (2k/55k) -> write( 3%)
+2026-07-26T17:03:50.5149027Z [m[0m0:02:21 INF [osm_pass2] -  nodes: [  58M 100%    0/s ] 1.1G  ways: [ 5.8M 100%    0/s ] rels: [32m[  35k  40% 1.9k/s ][0m features: [  51M 147k/s ] 4.9G  blocks: [   8k 100%   <1/s ]
+2026-07-26T17:03:50.5151071Z     cpus: [34m4[0m gc:  1% heap: 1G/5.3G direct: 216k postGC: [34m809M[0m relInfo: 1.2M mpGeoms: 88M  
+2026-07-26T17:03:50.5151991Z     read( -%) ->    (5/15) -> process(93% 94% 95% 96%) ->  (1k/55k) -> write( 3%)
+2026-07-26T17:04:00.4498226Z [m[33m0:02:31 WAR [osm_pass2:process] - Unrecognized geometry type: GeometryCollection
+2026-07-26T17:04:00.5257262Z [m[0m0:02:31 INF [osm_pass2] -  nodes: [  58M 100%    0/s ] 1.1G  ways: [ 5.8M 100%    0/s ] rels: [32m[  63k  72% 2.8k/s ][0m features: [  53M 148k/s ] 4.9G  blocks: [   8k 100%   <1/s ]
+2026-07-26T17:04:00.5259324Z     cpus: [34m3.8[0m gc:  1% heap: 1G/5.3G direct: 216k postGC: [34m784M[0m relInfo: 1.2M mpGeoms: 88M  
+2026-07-26T17:04:00.5260674Z     read( -%) ->    (0/15) -> process(87% 87% 88% 87%) -> (1.4k/55k) -> write( 3%)
+2026-07-26T17:04:10.5426753Z [m[0m0:02:41 INF [osm_pass2] -  nodes: [  58M 100%    0/s ] 1.1G  ways: [ 5.8M 100%    0/s ] rels: [32m[  83k  96%   2k/s ][0m features: [  54M 162k/s ] 4.9G  blocks: [ 8.1k 100%   <1/s ]
+2026-07-26T17:04:10.5428882Z     cpus: [34m3.9[0m gc:  1% heap: 1.6G/5.3G direct: 216k postGC: [34m782M[0m relInfo: 1.2M mpGeoms: 88M  
+2026-07-26T17:04:10.5430092Z     read( -%) ->    (0/15) -> process(93% 94% 96% 96%) -> (1.7k/55k) -> write( 4%)
+2026-07-26T17:04:11.7417028Z [m[0m0:02:43 INF [osm_pass2:process] - Finished relations: 87,807 (2.2k/s) in 40s cpu:2m36s avg:3.9
+2026-07-26T17:04:11.9758699Z [m[0m0:02:43 INF [osm_pass2] -  nodes: [  58M 100%    0/s ] 1.1G  ways: [ 5.8M 100%    0/s ] rels: [32m[  87k 100% 2.6k/s ][0m features: [  55M 328k/s ] 4.2G  blocks: [ 8.1k 100%    1/s ]
+2026-07-26T17:04:11.9766476Z     cpus: [34m3.9[0m gc:  0% heap: 1.6G/5.3G direct: 16k postGC: [34m782M[0m relInfo: 1.2M mpGeoms: 88M  
+2026-07-26T17:04:11.9767476Z     read( -%) ->    (0/15) -> process( -%  -%  -%  -%) ->   (0/55k) -> write( -%)
+2026-07-26T17:04:11.9768324Z [m[0m0:02:43 DEB [osm_pass2] - Processed 8,102 blocks:
+2026-07-26T17:04:11.9770158Z [m[0m0:02:43 DEB [osm_pass2] -   nodes: 58,884,937 (7.4M/s) in 8s cpu:31s avg:4
+2026-07-26T17:04:11.9771788Z [m[0m0:02:43 DEB [osm_pass2] -   ways: 5,838,952 (56k/s) in 1m44s cpu:6m50s gc:1s avg:4
+2026-07-26T17:04:11.9772917Z [m[0m0:02:43 DEB [osm_pass2] -   relations: 87,807 (2.2k/s) in 40s cpu:2m36s avg:3.9
+2026-07-26T17:04:11.9776827Z [m[0m0:02:43 INF [osm_pass2] - Finished in 2m32s cpu:9m59s gc:2s avg:3.9
+2026-07-26T17:04:11.9785698Z [m[0m0:02:43 INF [osm_pass2] -   read     1x(0% 0.2s wait:1m51s done:40s)
+2026-07-26T17:04:11.9790601Z [m[0m0:02:43 INF [osm_pass2] -   process  4x(90% 2m16s)
+2026-07-26T17:04:11.9791713Z [m[0m0:02:43 INF [osm_pass2] -   write    1x(10% 15s wait:2m17s)
+2026-07-26T17:04:12.0537472Z [m[0m0:02:43 INF [osm_pass2] - Deleting node.db to make room for output file
+2026-07-26T17:04:12.0544930Z [m[0m0:02:43 INF [sort] - 
+2026-07-26T17:04:12.0545930Z [m[0m0:02:43 INF [sort] - Starting...
+2026-07-26T17:04:12.0575557Z [m[0m0:02:43 INF [sort] - Grouped 6 chunks into 5
+2026-07-26T17:04:22.0721044Z [m[0m0:02:53 INF [sort] -  chunks: [   1 /   5  20% ] 5G   
+2026-07-26T17:04:22.0723389Z     cpus: [34m2.6[0m gc:  8% heap: 1.9G/5.3G direct: 16k postGC: [34m2G[0m
+2026-07-26T17:04:22.0724899Z     ->     (3/7) -> worker(43%)
+2026-07-26T17:04:32.0812291Z [m[0m0:03:03 INF [sort] -  chunks: [   3 /   5  60% ] 4.2G 
+2026-07-26T17:04:32.0816044Z     cpus: [34m2.6[0m gc:  8% heap: 1.8G/5.3G direct: 16k postGC: [34m1.8G[0m
+2026-07-26T17:04:32.0817414Z     ->     (1/7) -> worker(47%)
+2026-07-26T17:04:34.8790629Z [m[0m0:03:06 INF [sort] -  chunks: [   5 /   5 100% ] 4.2G 
+2026-07-26T17:04:34.8792413Z     cpus: [34m1.4[0m gc:  0% heap: 1.8G/5.3G direct: 16k postGC: [34m1.8G[0m
 2026-07-26T17:04:34.8793296Z     ->     (0/7) -> worker( -%)
 2026-07-26T17:04:34.8794284Z [m[0m0:03:06 INF [sort] - Finished in 23s cpu:56s gc:2s avg:2.5
 2026-07-26T17:04:34.8797572Z [m[0m0:03:06 INF [sort] -   worker  1x(47% 11s wait:10s)
