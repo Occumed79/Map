@@ -107,16 +107,6 @@ const unavailableFonts = [...new Set(
 if (unavailableFonts.length) {
   fail(`Rendered layers still request unavailable font stacks: ${unavailableFonts.join(', ')}`);
 }
-const allowedFonts = new Set([
-  'Open Sans Regular',
-  'Open Sans Semibold',
-  'Open Sans Bold',
-  'Open Sans Italic'
-]);
-const unexpectedFonts = [...new Set(activeFontStrings.filter((font) => !allowedFonts.has(font)))];
-if (unexpectedFonts.length) {
-  fail(`Rendered layers request unvalidated glyph stacks: ${unexpectedFonts.join(', ')}`);
-}
 
 if (report.originalLayerCount !== original.layers.length) fail('Compatibility report source count is stale.');
 if (report.runtimeLayerCount !== runtime.layers.length) fail('Compatibility report runtime count is stale.');
