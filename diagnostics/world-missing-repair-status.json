@@ -1,0 +1,22 @@
+{
+  "capturedAt": "2026-07-26T21:29:36.801Z",
+  "runId": "30221065995",
+  "runUrl": "https://github.com/Occumed79/Map/actions/runs/30221065995",
+  "runStatus": "completed",
+  "runConclusion": "failure",
+  "canonicalShardCount": 724,
+  "alreadyPublishedShardCount": 309,
+  "plannedMissingShardCount": 415,
+  "planStatus": "completed",
+  "planConclusion": "failure",
+  "totalBuildJobsObserved": 3,
+  "successfulBuildJobs": 0,
+  "failedBuildJobs": 0,
+  "cancelledBuildJobs": 0,
+  "skippedBuildJobs": 3,
+  "inProgressBuildJobs": 0,
+  "queuedBuildJobs": 0,
+  "manifestStatus": "completed",
+  "manifestConclusion": "skipped",
+  "failures": []
+}
