@@ -18,7 +18,8 @@ The goal is a close visual replica without a Mapbox token or Mapbox-hosted runti
 ## Runtime
 
 - MapLibre GL JS
-- OpenFreeMap/OpenMapTiles vector data
+- the worldwide Occu-Med Planetiler + PMTiles source when a regional archive is available
+- a safe global open-vector fallback for low zoom and missing archives
 - open terrain and relief services
 - locally compiled sprites
 - open glyphs
@@ -57,25 +58,34 @@ PUBLIC_ORIGIN=https://map-yxjb.onrender.com
 
 ## Reuse
 
+Install the repository in the consuming application:
+
+```bash
+npm install github:Occumed79/Map
+```
+
+Create the map through the shared helper rather than constructing a raw MapLibre instance from the style URL. The helper registers the PMTiles protocol, resolves the deployed origin, installs worldwide archive routing, and preserves application-owned overlays.
+
 ```js
-import * as maplibregl from 'maplibre-gl';
-import 'maplibre-gl/dist/maplibre-gl.css';
+import { createOccumedMap } from '@occumed/map/src/occumed-map.js';
 
-const response = await fetch('https://map-yxjb.onrender.com/style/occumed-open.json');
-const style = await response.json();
-
-const map = new maplibregl.Map({
+const map = await createOccumedMap({
   container: 'map',
-  style,
+  styleUrl: 'https://map-yxjb.onrender.com/style/occumed-open.json',
   center: [-98.5, 28],
-  zoom: 2.05,
-  renderWorldCopies: false
+  zoom: 2.05
 });
 
 map.on('load', () => {
   // Add only this application's overlays here.
 });
+
+map.on('occumedworldsourcechange', (event) => {
+  console.debug('Occu-Med regional basemap source', event.region || 'global fallback');
+});
 ```
+
+Directly fetching the style and passing it to a separate `new maplibregl.Map(...)` instance is not supported for worldwide mode because that bypasses PMTiles protocol registration and regional source routing.
 
 ## Validation
 
@@ -85,4 +95,5 @@ The build verifies:
 - the generated style passes the MapLibre style specification;
 - no active source, sprite, or glyph URL points to Mapbox;
 - globe, terrain, landcover, water, labels, and viewer-quality settings remain calibrated to the screenshot reference set;
+- worldwide PMTiles planning, release publication, byte-range proxying, and regional source switching remain wired;
 - no application-specific overlay data is included.
