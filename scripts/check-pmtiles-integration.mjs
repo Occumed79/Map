@@ -62,7 +62,10 @@ if (!sourcePass.includes("'occumed:vector-source-mode': 'world-sharded-planetile
 
 if (!buildScript.includes('ghcr.io/onthegomap/planetiler:0.10.2')) fail('Planetiler is not pinned to the published 0.10.2 Docker image.');
 if (!buildScript.includes('prepare-planetiler-profile.mjs')) fail('PMTiles builds do not generate the corrected Planetiler profile.');
-if (!buildScript.includes('verify /profile/occumed-basemap.yml')) fail('PMTiles builds do not verify the generated schema before processing data.');
+if (!buildScript.includes('/profile/occumed-basemap.yml')) fail('PMTiles builds do not invoke the generated YAML profile directly.');
+if (buildScript.includes('generate-custom') || buildScript.includes('--schema=')) fail('PMTiles builds use unsupported custom-profile wrapper arguments.');
+if (!buildScript.includes('--osm-path="$CONTAINER_OSM_PATH"')) fail('PMTiles builds do not use Planetiler\'s supported local OSM path argument.');
+if (buildScript.includes('--osm-source-path=')) fail('PMTiles builds still use the unsupported osm-source-path argument.');
 if (!buildScript.includes('sha256sum "$OUTPUT_NAME"')) fail('PMTiles checksums are not portable across build paths.');
 
 for (const marker of [
@@ -121,4 +124,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('PMTiles integration validated: corrected schema generation, pinned Planetiler, protocol registration, worldwide routing, release proxying, shard builds, strict visual evidence, and manifest publication are present.');
+console.log('PMTiles integration validated: supported Planetiler YAML invocation, corrected schema generation, protocol registration, worldwide routing, release proxying, shard builds, strict visual evidence, and manifest publication are present.');
