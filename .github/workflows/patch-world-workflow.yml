@@ -24,32 +24,20 @@ jobs:
         run: |
           python3 <<'PY'
           from pathlib import Path
-          import re
 
           path = Path('.github/workflows/build-world-pmtiles.yml')
-          text = path.read_text()
+          lines = path.read_text().splitlines(keepends=True)
+          output = []
+          in_plan_world = False
+          timeout_changes = 0
+          planner_changes = 0
+          matrix_changes = 0
+          index = 0
 
-          plan_header = re.compile(
-              r"(  plan-world:\n    if: github\.event_name != 'pull_request'\n"
-              r"    runs-on: ubuntu-latest\n    timeout-minutes: )15(\n)"
-          )
-          text, timeout_count = plan_header.subn(r"\g<1>30\g<2>", text, count=1)
-          if timeout_count != 1:
-              raise SystemExit(f'Expected one plan timeout replacement, got {timeout_count}.')
-
-          repeated_plan = re.compile(
-              r"          node scripts/plan-world-shards\.mjs --scope all > world-plan/world-plan\.json\n"
-              r"          for bucket in 0 1 2 3 4 5; do\n"
-              r"            node scripts/plan-world-shards\.mjs \\\n"
-              r"              --scope all \\\n"
-              r"              --buckets \"\$WORLD_BUCKETS\" \\\n"
-              r"              --bucket \"\$bucket\" \\\n"
-              r"              > \"world-plan/bucket-\$\{bucket\}\.json\"\n"
-              r"            compact=\"\$\(jq -c \. \"world-plan/bucket-\$\{bucket\}\.json\"\)\"\n"
-              r"            echo \"bucket\$\{bucket\}=\$\{compact\}\" >> \"\$GITHUB_OUTPUT\"\n"
-              r"          done\n"
-          )
-          single_plan = '''          node scripts/plan-world-shards.mjs --scope all > world-plan/world-plan.json
+          pbf_line = '          pbf-url: $' + '{{ matrix.pbf_url }}\n'
+          extract_line = '          extract-bbox: $' + '{{ matrix.extract_bbox }}\n'
+          planner_start = '          node scripts/plan-world-shards.mjs --scope all > world-plan/world-plan.json\n'
+          replacement = '''          node scripts/plan-world-shards.mjs --scope all > world-plan/world-plan.json
           for bucket in 0 1 2 3 4 5; do
             jq \\
               --argjson bucket "$bucket" \\
@@ -60,26 +48,57 @@ jobs:
             compact="$(jq -c . "world-plan/bucket-${bucket}.json")"
             echo "bucket${bucket}=${compact}" >> "$GITHUB_OUTPUT"
           done
-'''
-          text, planner_count = repeated_plan.subn(single_plan, text, count=1)
-          if planner_count != 1:
-              raise SystemExit(f'Expected one repeated planner replacement, got {planner_count}.')
+'''.splitlines(keepends=True)
 
-          pbf_line = '          pbf-url: $' + '{{ matrix.pbf_url }}\n'
-          extract_line = '          extract-bbox: $' + '{{ matrix.extract_bbox }}\n'
-          if extract_line in text:
-              raise SystemExit('extract-bbox is already wired; refusing to duplicate it.')
-          pbf_count = text.count(pbf_line)
-          if pbf_count != 6:
-              raise SystemExit(f'Expected six matrix pbf-url inputs, got {pbf_count}.')
-          text = text.replace(pbf_line, pbf_line + extract_line)
+          while index < len(lines):
+            line = lines[index]
 
+            if line == '  plan-world:\n':
+              in_plan_world = True
+              output.append(line)
+              index += 1
+              continue
+            if in_plan_world and line.startswith('  ') and not line.startswith('    ') and line != '  plan-world:\n':
+              in_plan_world = False
+
+            if in_plan_world and line == '    timeout-minutes: 15\n':
+              output.append('    timeout-minutes: 30\n')
+              timeout_changes += 1
+              index += 1
+              continue
+
+            if line == planner_start:
+              output.extend(replacement)
+              planner_changes += 1
+              index += 1
+              if index >= len(lines) or lines[index] != '          for bucket in 0 1 2 3 4 5; do\n':
+                raise SystemExit('Repeated bucket planner loop was not found after planner start.')
+              while index < len(lines):
+                current = lines[index]
+                index += 1
+                if current == '          done\n':
+                  break
+              else:
+                raise SystemExit('Repeated bucket planner loop did not terminate.')
+              continue
+
+            output.append(line)
+            if line == pbf_line:
+              output.append(extract_line)
+              matrix_changes += 1
+            index += 1
+
+          text = ''.join(output)
+          if timeout_changes != 1:
+            raise SystemExit(f'Expected one plan timeout change, got {timeout_changes}.')
+          if planner_changes != 1:
+            raise SystemExit(f'Expected one planner-loop change, got {planner_changes}.')
+          if matrix_changes != 6:
+            raise SystemExit(f'Expected six matrix changes, got {matrix_changes}.')
           if text.count(extract_line) != 6:
-              raise SystemExit('Not all six matrices received extract-bbox.')
-          if 'timeout-minutes: 30' not in text:
-              raise SystemExit('Plan timeout was not raised.')
-          if text.count('node scripts/plan-world-shards.mjs --scope all') != 1:
-              raise SystemExit('Worldwide planner must execute exactly once.')
+            raise SystemExit('Not all six matrices received extract-bbox.')
+          if text.count(planner_start) != 1:
+            raise SystemExit('Worldwide planner must execute exactly once.')
 
           path.write_text(text)
           PY
