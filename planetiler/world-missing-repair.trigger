@@ -1,3 +1,6 @@
-Repair only worldwide PMTiles archives missing from the paginated release asset inventory.
-Triggered: 2026-07-26T21:25:00Z
-Mode: preserve all existing healthy assets; idempotent uploads; final zero-missing manifest gate.
+Repair only canonical worldwide PMTiles archives missing after exact release cleanup.
+Triggered: 2026-07-26T21:59:00Z
+Canonical retained: 310
+Canonical missing: 414
+Release capacity available: 690 slots
+Mode: preserve retained PMTiles; upload no temporary plan assets; publish final manifest only after repair.
