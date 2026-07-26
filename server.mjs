@@ -2,11 +2,15 @@ import { createReadStream } from 'node:fs';
 import fs from 'node:fs/promises';
 import http from 'node:http';
 import path from 'node:path';
+import { Readable } from 'node:stream';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'dist');
 const port = Number(process.env.PORT || 4173);
 const host = process.env.HOST?.trim() || '0.0.0.0';
+const worldReleaseRepository = process.env.OCCUMED_WORLD_RELEASE_REPOSITORY?.trim() || 'Occumed79/Map';
+const worldReleaseTag = process.env.OCCUMED_WORLD_RELEASE_TAG?.trim() || 'occumed-world-v1';
+const worldManifestAsset = 'occumed-world-manifest.json';
 
 const contentTypes = {
   '.css': 'text/css; charset=utf-8',
@@ -76,6 +80,94 @@ async function serveStyle(request, response) {
     resolved,
     contentTypes['.json'],
     'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+    request.method
+  );
+}
+
+function releaseAssetUrl(assetName) {
+  return `https://github.com/${worldReleaseRepository}/releases/download/${encodeURIComponent(worldReleaseTag)}/${encodeURIComponent(assetName)}`;
+}
+
+function copyUpstreamHeaders(upstream, response, cacheControl) {
+  const headerNames = [
+    'accept-ranges',
+    'content-length',
+    'content-range',
+    'etag',
+    'last-modified'
+  ];
+  for (const name of headerNames) {
+    const value = upstream.headers.get(name);
+    if (value) response.setHeader(name, value);
+  }
+  response.setHeader('Cache-Control', cacheControl);
+  response.setHeader('CDN-Cache-Control', cacheControl);
+  response.setHeader('Surrogate-Control', cacheControl);
+  for (const [name, value] of Object.entries(corsHeaders)) response.setHeader(name, value);
+}
+
+async function proxyReleaseAsset(request, response, assetName, contentType, cacheControl) {
+  const headers = {
+    'User-Agent': 'Occu-Med-Map/world-pmtiles-proxy',
+    Accept: '*/*'
+  };
+  if (request.headers.range) headers.Range = request.headers.range;
+
+  const upstream = await fetch(releaseAssetUrl(assetName), {
+    method: request.method,
+    headers,
+    redirect: 'follow'
+  });
+
+  if (!upstream.ok && upstream.status !== 206) {
+    send(
+      response,
+      upstream.status === 404 ? 404 : 502,
+      upstream.status === 404 ? 'Worldwide map asset not built yet' : 'Worldwide map asset upstream failed',
+      'text/plain; charset=utf-8',
+      'no-store',
+      request.method
+    );
+    return;
+  }
+
+  response.statusCode = upstream.status;
+  copyUpstreamHeaders(upstream, response, cacheControl);
+  response.setHeader('Content-Type', upstream.headers.get('content-type') || contentType);
+  if (request.method === 'HEAD' || !upstream.body) {
+    response.end();
+    return;
+  }
+  Readable.fromWeb(upstream.body).on('error', (error) => response.destroy(error)).pipe(response);
+}
+
+async function serveWorldManifest(request, response) {
+  const upstream = await fetch(releaseAssetUrl(worldManifestAsset), {
+    headers: {
+      'User-Agent': 'Occu-Med-Map/world-manifest-proxy',
+      Accept: 'application/json'
+    },
+    redirect: 'follow'
+  });
+  if (!upstream.ok) {
+    send(
+      response,
+      upstream.status === 404 ? 404 : 502,
+      upstream.status === 404 ? 'Worldwide map manifest not built yet' : 'Worldwide map manifest upstream failed',
+      'text/plain; charset=utf-8',
+      'no-store',
+      request.method
+    );
+    return;
+  }
+  const manifest = (await upstream.text())
+    .replaceAll('__OCCUMED_PUBLIC_ORIGIN__', requestOrigin(request));
+  send(
+    response,
+    200,
+    manifest,
+    contentTypes['.json'],
+    'public, max-age=300, must-revalidate',
     request.method
   );
 }
@@ -231,6 +323,23 @@ async function handleRequest(request, response) {
 
   if (url.pathname === '/style/occumed-open.json') {
     await serveStyle(request, response);
+    return;
+  }
+
+  if (url.pathname === '/world-manifest.json') {
+    await serveWorldManifest(request, response);
+    return;
+  }
+
+  const worldAssetMatch = /^\/world-tiles\/(occumed-[a-z0-9-]+\.pmtiles)$/.exec(url.pathname);
+  if (worldAssetMatch) {
+    await proxyReleaseAsset(
+      request,
+      response,
+      worldAssetMatch[1],
+      contentTypes['.pmtiles'],
+      'public, max-age=86400, immutable'
+    );
     return;
   }
 
