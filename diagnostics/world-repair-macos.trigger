@@ -1,2 +1,2 @@
-requested_at=2026-07-26T20:44:10Z
-purpose=refresh_worldwide_repair_status
+requested_at=2026-07-26T21:12:20Z
+purpose=verify_remaining_worldwide_jobs_stalled_or_complete
