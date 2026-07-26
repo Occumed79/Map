@@ -21,14 +21,14 @@ jobs:
           ref: feat/custom-planetiler-pmtiles-basemap
           fetch-depth: 0
 
-      - name: Capture audit and missing-repair workflow states
+      - name: Capture corrected audit and missing-repair workflow states
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           mkdir -p diagnostics
 
-          gh api "/repos/${GITHUB_REPOSITORY}/actions/workflows/audit-world-release.yml/runs?branch=feat%2Fcustom-planetiler-pmtiles-basemap&event=push&per_page=10" > /tmp/audit-runs.json
+          gh api "/repos/${GITHUB_REPOSITORY}/actions/workflows/audit-world-release-v2.yml/runs?branch=feat%2Fcustom-planetiler-pmtiles-basemap&event=push&per_page=10" > /tmp/audit-runs.json
           gh api "/repos/${GITHUB_REPOSITORY}/actions/workflows/repair-missing-world-pmtiles.yml/runs?branch=feat%2Fcustom-planetiler-pmtiles-basemap&event=push&per_page=10" > /tmp/repair-runs.json
 
           node <<'NODE'
@@ -39,24 +39,18 @@ jobs:
           };
           const audit = first('/tmp/audit-runs.json');
           const repair = first('/tmp/repair-runs.json');
+          const normalize = (run) => run ? {
+            id: String(run.id),
+            url: run.html_url,
+            status: run.status,
+            conclusion: run.conclusion,
+            createdAt: run.created_at,
+            updatedAt: run.updated_at
+          } : null;
           const status = {
             capturedAt: new Date().toISOString(),
-            audit: audit ? {
-              id: String(audit.id),
-              url: audit.html_url,
-              status: audit.status,
-              conclusion: audit.conclusion,
-              createdAt: audit.created_at,
-              updatedAt: audit.updated_at
-            } : null,
-            missingRepair: repair ? {
-              id: String(repair.id),
-              url: repair.html_url,
-              status: repair.status,
-              conclusion: repair.conclusion,
-              createdAt: repair.created_at,
-              updatedAt: repair.updated_at
-            } : null
+            auditV2: normalize(audit),
+            missingRepair: normalize(repair)
           };
           fs.writeFileSync('diagnostics/world-audit-repair-state.json', `${JSON.stringify(status, null, 2)}\n`);
           console.log(JSON.stringify(status, null, 2));
