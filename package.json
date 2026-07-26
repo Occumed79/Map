@@ -9,7 +9,7 @@
     "prepare:assets": "npm run prepare:sprites && npm run prepare:style",
     "tiles:build": "bash planetiler/build-region.sh",
     "check:export": "node scripts/check-export.mjs",
-    "check:runtime": "node scripts/check-runtime.mjs && node scripts/validate-maplibre-style.mjs && node scripts/check-globe-parity.mjs && node scripts/check-cartography-parity.mjs && node scripts/check-viewer-quality.mjs && node scripts/check-photo-reference.mjs && node scripts/check-exact-exported-swatches.mjs && node scripts/check-render-clarity.mjs",
+    "check:runtime": "node scripts/check-runtime.mjs && node scripts/validate-maplibre-style.mjs && node scripts/check-globe-parity.mjs && node scripts/check-cartography-parity.mjs && node scripts/check-viewer-quality.mjs && node scripts/check-photo-reference.mjs && node scripts/check-exact-exported-swatches.mjs && node scripts/check-render-clarity.mjs && node scripts/check-pmtiles-integration.mjs",
     "check:server": "node scripts/check-server-health.mjs",
     "check": "npm run check:export && npm run check:runtime",
     "dev": "npm run prepare:assets && vite",
