@@ -1,11 +1,16 @@
 name: Revalidate Fresno PMTiles render
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - feat/custom-planetiler-pmtiles-basemap
     paths:
       - .github/workflows/revalidate-fresno-render.yml
+      - scripts/build-runtime-style.mjs
+      - scripts/check-runtime.mjs
+      - scripts/capture-pmtiles-preview.mjs
+      - server.mjs
   pull_request:
     paths:
       - .github/workflows/revalidate-fresno-render.yml
