@@ -73,8 +73,9 @@ for (const [id, expectedClass] of Object.entries(expectedPlaceClasses)) {
 }
 
 const water = layer('water');
-if (!Array.isArray(water?.paint?.['fill-opacity'])) {
-  fail('The water layer must reveal low-zoom bathymetry through a zoom expression.');
+const waterOpacity = water?.paint?.['fill-opacity'];
+if (waterOpacity !== 1 && !Array.isArray(waterOpacity)) {
+  fail('The water layer must use either full opacity or a controlled zoom opacity expression.');
 }
 
 const landcover = layer('landcover');
