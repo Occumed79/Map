@@ -6,13 +6,13 @@ on:
     branches:
       - feat/custom-planetiler-pmtiles-basemap
     paths:
-      - planetiler/world-repair.trigger
+      - planetiler/world-repair-max.trigger
 
 permissions:
   contents: write
 
 concurrency:
-  group: occumed-world-pmtiles-publication
+  group: occumed-world-pmtiles-repair
   cancel-in-progress: true
 
 env:
