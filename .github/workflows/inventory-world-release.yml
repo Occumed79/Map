@@ -12,8 +12,8 @@ permissions:
   contents: write
 
 concurrency:
-  group: occumed-world-pmtiles-missing-repair
-  cancel-in-progress: true
+  group: occumed-world-pmtiles-inventory
+  cancel-in-progress: false
 
 env:
   WORLD_RELEASE_TAG: occumed-world-v1
