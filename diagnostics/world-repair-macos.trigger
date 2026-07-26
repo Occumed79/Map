@@ -1,2 +1,2 @@
-requested_at=2026-07-26T21:22:00Z
-purpose=measure_paginated_release_coverage_before_failed_only_repair
+requested_at=2026-07-26T21:29:00Z
+purpose=snapshot_missing_only_worldwide_repair
