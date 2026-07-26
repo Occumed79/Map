@@ -19,9 +19,10 @@ node "$ROOT/scripts/prepare-planetiler-profile.mjs" \
 OUTPUT_DIR="$(cd "$(dirname "$OUTPUT")" && pwd)"
 OUTPUT_NAME="$(basename "$OUTPUT")"
 
+# Planetiler custom YAML profiles are passed as the first positional argument.
+# The build itself parses and validates the generated profile before processing OSM data.
 COMMON_ARGS=(
-  generate-custom
-  --schema=/profile/occumed-basemap.yml
+  /profile/occumed-basemap.yml
   --area="$AREA"
   --output="/output/$OUTPUT_NAME"
   --tmpdir=/data/tmp
@@ -42,7 +43,7 @@ if [[ -n "$OSM_PBF" ]]; then
       exit 1
       ;;
   esac
-  COMMON_ARGS+=(--osm-source-path="$CONTAINER_OSM_PATH")
+  COMMON_ARGS+=(--osm-path="$CONTAINER_OSM_PATH")
 else
   COMMON_ARGS+=(--download)
 fi
@@ -54,12 +55,6 @@ echo "  output: $OUTPUT"
 echo "  memory: $MEMORY"
 echo "  image:  $IMAGE"
 echo "  schema: $PROFILE_PATH"
-
-# Parse and validate the exact generated schema before processing the real extract.
-docker run --rm \
-  -v "$PROFILE_DIR:/profile:ro" \
-  "$IMAGE" \
-  verify /profile/occumed-basemap.yml
 
 docker run --rm \
   -e JAVA_TOOL_OPTIONS="-Xmx${MEMORY}" \
