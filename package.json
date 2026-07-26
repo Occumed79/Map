@@ -9,9 +9,10 @@
     "prepare:assets": "npm run prepare:sprites && npm run prepare:style",
     "check:export": "node scripts/check-export.mjs",
     "check:runtime": "node scripts/check-runtime.mjs && node scripts/validate-maplibre-style.mjs && node scripts/check-globe-parity.mjs && node scripts/check-cartography-parity.mjs && node scripts/check-viewer-quality.mjs && node scripts/check-photo-reference.mjs",
+    "check:server": "node scripts/check-server-health.mjs",
     "check": "npm run check:export && npm run check:runtime",
     "dev": "npm run prepare:assets && vite",
-    "build": "npm run prepare:assets && npm run check && vite build",
+    "build": "npm run prepare:assets && npm run check && vite build && npm run check:server",
     "preview": "vite preview",
     "start": "node server.mjs"
   },
