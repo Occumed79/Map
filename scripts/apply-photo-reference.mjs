@@ -93,7 +93,7 @@ for (const layer of runtime.layers || []) {
         4.5, 0.24,
         6.5, 0
       ],
-      'raster-saturation': 0.32,
+      'raster-saturation': 0.58,
       'raster-contrast': 0.1,
       'raster-brightness-min': 0.04,
       'raster-brightness-max': 0.93,
