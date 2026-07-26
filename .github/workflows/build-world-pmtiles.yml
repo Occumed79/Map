@@ -1,0 +1,311 @@
+name: Build Worldwide Occu-Med PMTiles
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: GitHub Release tag used to publish worldwide shards
+        required: false
+        default: occumed-world-v1
+  push:
+    branches:
+      - feat/custom-planetiler-pmtiles-basemap
+    paths:
+      - planetiler/world-build.trigger
+  pull_request:
+    paths:
+      - .github/actions/build-pmtiles-shard/**
+      - .github/workflows/build-world-pmtiles.yml
+      - planetiler/**
+      - scripts/build-world-manifest.mjs
+      - scripts/plan-world-shards.mjs
+      - scripts/check-pmtiles-integration.mjs
+      - scripts/use-custom-pmtiles-source.mjs
+      - server.mjs
+      - src/occumed-map.js
+      - src/world-pmtiles-router.js
+      - package.json
+
+permissions:
+  contents: write
+
+env:
+  WORLD_RELEASE_TAG: ${{ github.event.inputs.release_tag || 'occumed-world-v1' }}
+  WORLD_BUCKETS: 6
+
+jobs:
+  validate-pipeline:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm install
+      - run: npm run build
+
+  plan-world:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      bucket0: ${{ steps.plan.outputs.bucket0 }}
+      bucket1: ${{ steps.plan.outputs.bucket1 }}
+      bucket2: ${{ steps.plan.outputs.bucket2 }}
+      bucket3: ${{ steps.plan.outputs.bucket3 }}
+      bucket4: ${{ steps.plan.outputs.bucket4 }}
+      bucket5: ${{ steps.plan.outputs.bucket5 }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Generate worldwide leaf-region build plan
+        id: plan
+        run: |
+          mkdir -p world-plan
+          node scripts/plan-world-shards.mjs --scope all > world-plan/world-plan.json
+          for bucket in 0 1 2 3 4 5; do
+            node scripts/plan-world-shards.mjs \
+              --scope all \
+              --buckets "$WORLD_BUCKETS" \
+              --bucket "$bucket" \
+              > "world-plan/bucket-${bucket}.json"
+            compact="$(jq -c . "world-plan/bucket-${bucket}.json")"
+            echo "bucket${bucket}=${compact}" >> "$GITHUB_OUTPUT"
+          done
+          count="$(jq '.include | length' world-plan/world-plan.json)"
+          test "$count" -gt 0
+          echo "Worldwide plan contains $count custom PMTiles shards."
+
+      - name: Create or reuse worldwide release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "$WORLD_RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 || \
+            gh release create "$WORLD_RELEASE_TAG" \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "Occu-Med Worldwide PMTiles v1" \
+              --notes "Worldwide Occu-Med Planetiler archives built from Geofabrik OpenStreetMap extracts."
+          gh release upload "$WORLD_RELEASE_TAG" \
+            world-plan/world-plan.json \
+            --repo "$GITHUB_REPOSITORY" \
+            --clobber
+
+      - name: Preserve worldwide plan
+        uses: actions/upload-artifact@v4
+        with:
+          name: occumed-world-plan-${{ github.sha }}
+          path: world-plan/world-plan.json
+          if-no-files-found: error
+          retention-days: 30
+
+  build-bucket-0:
+    if: github.event_name != 'pull_request'
+    needs: plan-world
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix: ${{ fromJson(needs.plan-world.outputs.bucket0) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/build-pmtiles-shard
+        with:
+          id: ${{ matrix.id }}
+          slug: ${{ matrix.slug }}
+          name: ${{ matrix.name }}
+          continent: ${{ matrix.continent }}
+          pbf-url: ${{ matrix.pbf_url }}
+          west: ${{ matrix.west }}
+          south: ${{ matrix.south }}
+          east: ${{ matrix.east }}
+          north: ${{ matrix.north }}
+          asset-name: ${{ matrix.asset_name }}
+          metadata-name: ${{ matrix.metadata_name }}
+          release-tag: ${{ env.WORLD_RELEASE_TAG }}
+
+  build-bucket-1:
+    if: github.event_name != 'pull_request'
+    needs: plan-world
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix: ${{ fromJson(needs.plan-world.outputs.bucket1) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/build-pmtiles-shard
+        with:
+          id: ${{ matrix.id }}
+          slug: ${{ matrix.slug }}
+          name: ${{ matrix.name }}
+          continent: ${{ matrix.continent }}
+          pbf-url: ${{ matrix.pbf_url }}
+          west: ${{ matrix.west }}
+          south: ${{ matrix.south }}
+          east: ${{ matrix.east }}
+          north: ${{ matrix.north }}
+          asset-name: ${{ matrix.asset_name }}
+          metadata-name: ${{ matrix.metadata_name }}
+          release-tag: ${{ env.WORLD_RELEASE_TAG }}
+
+  build-bucket-2:
+    if: github.event_name != 'pull_request'
+    needs: plan-world
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix: ${{ fromJson(needs.plan-world.outputs.bucket2) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/build-pmtiles-shard
+        with:
+          id: ${{ matrix.id }}
+          slug: ${{ matrix.slug }}
+          name: ${{ matrix.name }}
+          continent: ${{ matrix.continent }}
+          pbf-url: ${{ matrix.pbf_url }}
+          west: ${{ matrix.west }}
+          south: ${{ matrix.south }}
+          east: ${{ matrix.east }}
+          north: ${{ matrix.north }}
+          asset-name: ${{ matrix.asset_name }}
+          metadata-name: ${{ matrix.metadata_name }}
+          release-tag: ${{ env.WORLD_RELEASE_TAG }}
+
+  build-bucket-3:
+    if: github.event_name != 'pull_request'
+    needs: plan-world
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix: ${{ fromJson(needs.plan-world.outputs.bucket3) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/build-pmtiles-shard
+        with:
+          id: ${{ matrix.id }}
+          slug: ${{ matrix.slug }}
+          name: ${{ matrix.name }}
+          continent: ${{ matrix.continent }}
+          pbf-url: ${{ matrix.pbf_url }}
+          west: ${{ matrix.west }}
+          south: ${{ matrix.south }}
+          east: ${{ matrix.east }}
+          north: ${{ matrix.north }}
+          asset-name: ${{ matrix.asset_name }}
+          metadata-name: ${{ matrix.metadata_name }}
+          release-tag: ${{ env.WORLD_RELEASE_TAG }}
+
+  build-bucket-4:
+    if: github.event_name != 'pull_request'
+    needs: plan-world
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix: ${{ fromJson(needs.plan-world.outputs.bucket4) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/build-pmtiles-shard
+        with:
+          id: ${{ matrix.id }}
+          slug: ${{ matrix.slug }}
+          name: ${{ matrix.name }}
+          continent: ${{ matrix.continent }}
+          pbf-url: ${{ matrix.pbf_url }}
+          west: ${{ matrix.west }}
+          south: ${{ matrix.south }}
+          east: ${{ matrix.east }}
+          north: ${{ matrix.north }}
+          asset-name: ${{ matrix.asset_name }}
+          metadata-name: ${{ matrix.metadata_name }}
+          release-tag: ${{ env.WORLD_RELEASE_TAG }}
+
+  build-bucket-5:
+    if: github.event_name != 'pull_request'
+    needs: plan-world
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix: ${{ fromJson(needs.plan-world.outputs.bucket5) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/build-pmtiles-shard
+        with:
+          id: ${{ matrix.id }}
+          slug: ${{ matrix.slug }}
+          name: ${{ matrix.name }}
+          continent: ${{ matrix.continent }}
+          pbf-url: ${{ matrix.pbf_url }}
+          west: ${{ matrix.west }}
+          south: ${{ matrix.south }}
+          east: ${{ matrix.east }}
+          north: ${{ matrix.north }}
+          asset-name: ${{ matrix.asset_name }}
+          metadata-name: ${{ matrix.metadata_name }}
+          release-tag: ${{ env.WORLD_RELEASE_TAG }}
+
+  publish-world-manifest:
+    if: always() && github.event_name != 'pull_request' && needs.plan-world.result == 'success'
+    needs:
+      - plan-world
+      - build-bucket-0
+      - build-bucket-1
+      - build-bucket-2
+      - build-bucket-3
+      - build-bucket-4
+      - build-bucket-5
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: actions/download-artifact@v4
+        with:
+          name: occumed-world-plan-${{ github.sha }}
+          path: world-plan
+
+      - name: Build manifest from successfully published archives
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p world-release
+          gh release view "$WORLD_RELEASE_TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --json assets \
+            > world-release/assets.json
+          node scripts/build-world-manifest.mjs \
+            --plan world-plan/world-plan.json \
+            --assets world-release/assets.json \
+            --repository "$GITHUB_REPOSITORY" \
+            --tag "$WORLD_RELEASE_TAG" \
+            --output world-release/occumed-world-manifest.json
+          gh release upload "$WORLD_RELEASE_TAG" \
+            world-release/occumed-world-manifest.json \
+            --repo "$GITHUB_REPOSITORY" \
+            --clobber
+          cat world-release/occumed-world-manifest.json
+
+      - name: Require complete worldwide coverage
+        run: |
+          missing="$(node -p "require('./world-release/occumed-world-manifest.json').missingRegionCount")"
+          if [ "$missing" -ne 0 ]; then
+            echo "$missing worldwide PMTiles shards are still missing from the release." >&2
+            exit 1
+          fi
