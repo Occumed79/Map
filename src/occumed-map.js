@@ -3,6 +3,15 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 
 export const DEFAULT_STYLE_URL = '/style/occumed-open.json';
 
+const MIN_RENDER_PIXEL_RATIO = 2;
+const MAX_RENDER_PIXEL_RATIO = 3;
+
+export function resolveOccumedPixelRatio() {
+  const deviceRatio = Number(globalThis.devicePixelRatio);
+  if (!Number.isFinite(deviceRatio) || deviceRatio <= 0) return MIN_RENDER_PIXEL_RATIO;
+  return Math.min(Math.max(deviceRatio, MIN_RENDER_PIXEL_RATIO), MAX_RENDER_PIXEL_RATIO);
+}
+
 function resolvePublicOrigin(style, styleUrl) {
   const resolved = structuredClone(style);
   const styleOrigin = new URL(styleUrl, window.location.href).origin;
@@ -67,6 +76,7 @@ export async function createOccumedMap({
     pitch: 0,
     bearing: 0,
     hash: false,
+    pixelRatio: resolveOccumedPixelRatio(),
     antialias: true,
     renderWorldCopies: false,
     attributionControl: false,
