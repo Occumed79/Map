@@ -1,0 +1,161 @@
+name: Inventory Published Worldwide Occu-Med PMTiles
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/custom-planetiler-pmtiles-basemap
+    paths:
+      - diagnostics/world-release-inventory.trigger
+
+permissions:
+  contents: write
+
+concurrency:
+  group: occumed-world-pmtiles-missing-repair
+  cancel-in-progress: true
+
+env:
+  WORLD_RELEASE_TAG: occumed-world-v1
+  OCCUMED_DIRECT_PBF_LIMIT_BYTES: 400000000
+  OCCUMED_TARGET_SPLIT_PBF_BYTES: 250000000
+  OCCUMED_MAX_SPLIT_CELLS: 24
+
+jobs:
+  inventory:
+    runs-on: macos-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/custom-planetiler-pmtiles-basemap
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Compare authoritative plan with all paginated release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          rm -rf world-release-inventory
+          mkdir -p world-release-inventory
+
+          node scripts/plan-world-shards.mjs --scope all > world-release-inventory/raw-world-plan.json
+          release_id="$(gh api "/repos/${GITHUB_REPOSITORY}/releases/tags/${WORLD_RELEASE_TAG}" --jq '.id')"
+          gh api --paginate --slurp \
+            "/repos/${GITHUB_REPOSITORY}/releases/${release_id}/assets?per_page=100" \
+            > world-release-inventory/release-asset-pages.json
+
+          node <<'NODE'
+          const fs = require('node:fs');
+          const input = JSON.parse(fs.readFileSync('world-release-inventory/raw-world-plan.json', 'utf8'));
+          const pages = JSON.parse(fs.readFileSync('world-release-inventory/release-asset-pages.json', 'utf8'));
+          const releaseAssets = pages.flatMap((page) => page || []);
+          const excluded = new Set([
+            'alps', 'britain-and-ireland', 'dach', 'great-britain', 'sea',
+            'south-africa-and-lesotho', 'us', 'us-midwest', 'us-northeast',
+            'us-pacific', 'us-south', 'us-west'
+          ]);
+          const include = input.include.filter((region) =>
+            !excluded.has(region.id) && !excluded.has(region.source_region_id)
+          );
+          const ids = include.map((region) => region.id);
+          const assetNames = include.map((region) => region.asset_name);
+          if (!include.length) throw new Error('Canonical worldwide plan is empty.');
+          if (new Set(ids).size !== ids.length) throw new Error('Canonical plan contains duplicate IDs.');
+          if (new Set(assetNames).size !== assetNames.length) throw new Error('Canonical plan contains duplicate asset names.');
+          if (include.some((region) => region.source_size_bytes > 400000000 && !region.extract_bbox)) {
+            throw new Error('An oversized source remains unsplit.');
+          }
+
+          const byName = new Map(releaseAssets.map((asset) => [asset.name, asset]));
+          const published = include.filter((region) => byName.has(region.asset_name));
+          const missing = include.filter((region) => !byName.has(region.asset_name));
+          const canonicalNames = new Set(assetNames);
+          const extraPmtiles = releaseAssets.filter((asset) =>
+            asset.name.endsWith('.pmtiles') && !canonicalNames.has(asset.name)
+          );
+          const publishedBytes = published.reduce((sum, region) => sum + Number(byName.get(region.asset_name)?.size || 0), 0);
+          const zeroSize = published.filter((region) => Number(byName.get(region.asset_name)?.size || 0) <= 0);
+          const summary = {
+            capturedAt: new Date().toISOString(),
+            releaseTag: process.env.WORLD_RELEASE_TAG,
+            canonicalShardCount: include.length,
+            totalReleaseAssetCount: releaseAssets.length,
+            totalReleasePmtilesCount: releaseAssets.filter((asset) => asset.name.endsWith('.pmtiles')).length,
+            publishedCanonicalCount: published.length,
+            missingCanonicalCount: missing.length,
+            publishedCanonicalPercentage: Number(((published.length / include.length) * 100).toFixed(2)),
+            publishedCanonicalBytes: publishedBytes,
+            zeroSizePublishedCount: zeroSize.length,
+            extraPmtilesAssetCount: extraPmtiles.length,
+            publishedRegions: published.map((region) => ({
+              id: region.id,
+              name: region.name,
+              asset: region.asset_name,
+              sizeBytes: Number(byName.get(region.asset_name)?.size || 0),
+              updatedAt: byName.get(region.asset_name)?.updated_at || null
+            })),
+            missingRegions: missing.map((region) => ({
+              id: region.id,
+              name: region.name,
+              asset: region.asset_name
+            })),
+            zeroSizePublished: zeroSize.map((region) => ({ id: region.id, asset: region.asset_name })),
+            extraPmtilesAssets: extraPmtiles.map((asset) => ({
+              id: asset.id,
+              name: asset.name,
+              sizeBytes: asset.size,
+              updatedAt: asset.updated_at
+            }))
+          };
+          fs.writeFileSync(
+            'world-release-inventory/published-state-summary.json',
+            `${JSON.stringify(summary, null, 2)}\n`
+          );
+          fs.writeFileSync(
+            'world-release-inventory/canonical-world-plan.json',
+            `${JSON.stringify({ ...input, canonical: true, excludedSourceRegions: [...excluded], include }, null, 2)}\n`
+          );
+          fs.writeFileSync(
+            'world-release-inventory/missing-only-plan.json',
+            `${JSON.stringify({ ...input, canonical: true, excludedSourceRegions: [...excluded], include: missing }, null, 2)}\n`
+          );
+          console.log(JSON.stringify({
+            canonical: summary.canonicalShardCount,
+            published: summary.publishedCanonicalCount,
+            missing: summary.missingCanonicalCount,
+            publishedPercentage: summary.publishedCanonicalPercentage,
+            totalReleaseAssets: summary.totalReleaseAssetCount,
+            totalReleasePmtiles: summary.totalReleasePmtilesCount,
+            zeroSizePublished: summary.zeroSizePublishedCount,
+            extraPmtiles: summary.extraPmtilesAssetCount
+          }, null, 2));
+          NODE
+
+      - name: Commit exact published-state inventory
+        run: |
+          set -euo pipefail
+          rm -rf diagnostics/world-release-inventory
+          mkdir -p diagnostics/world-release-inventory
+          cp world-release-inventory/published-state-summary.json diagnostics/world-release-inventory/published-state-summary.json
+          cp world-release-inventory/canonical-world-plan.json diagnostics/world-release-inventory/canonical-world-plan.json
+          cp world-release-inventory/missing-only-plan.json diagnostics/world-release-inventory/missing-only-plan.json
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add diagnostics/world-release-inventory
+          git diff --cached --quiet && exit 0
+          git commit -m "Inventory published worldwide PMTiles release state"
+          git pull --rebase origin feat/custom-planetiler-pmtiles-basemap
+          git push origin HEAD:feat/custom-planetiler-pmtiles-basemap
+
+      - name: Preserve complete inventory
+        uses: actions/upload-artifact@v4
+        with:
+          name: occumed-world-release-inventory-${{ github.sha }}
+          path: world-release-inventory
+          if-no-files-found: error
+          retention-days: 30
