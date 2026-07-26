@@ -15,6 +15,17 @@ const failures = [];
 const fail = (message) => failures.push(message);
 const layer = (id) => runtime.layers.find((candidate) => candidate.id === id);
 
+function collectHex(value, colors = new Set()) {
+  if (Array.isArray(value)) {
+    for (const child of value) collectHex(child, colors);
+  } else if (value && typeof value === 'object') {
+    for (const child of Object.values(value)) collectHex(child, colors);
+  } else if (typeof value === 'string' && /^#[0-9A-F]{6}(?:[0-9A-F]{2})?$/.test(value)) {
+    colors.add(value);
+  }
+  return colors;
+}
+
 if (html.includes('map-error') || html.includes('Map could not be displayed')) {
   fail('The standalone viewer still contains the obsolete fatal error overlay.');
 }
@@ -35,8 +46,8 @@ const relief = layer('occumed-shaded-relief');
 if (relief?.paint?.['raster-saturation'] !== -1) {
   fail('The colored hypsometric raster is not fully neutralized.');
 }
-if ((relief?.paint?.['raster-contrast'] ?? 1) > 0.08) {
-  fail('Neutral relief contrast is high enough to distort the screenshot palette.');
+if ((relief?.paint?.['raster-contrast'] ?? 1) > 0.05) {
+  fail('Neutral relief contrast is high enough to distort the exported palette.');
 }
 if ((relief?.maxzoom ?? 99) > 8) {
   fail('Raster relief persists too far into regional and city zooms.');
@@ -46,25 +57,19 @@ if (reliefOpacity.includes('0.72') || reliefOpacity.includes('0.64')) {
   fail('The previous fluorescent relief opacity has returned.');
 }
 
-const land = layer('land');
-if (land?.paint?.['background-color'] !== '#D8DCB9') {
-  fail('The screenshot land hex changed.');
+const allColors = collectHex(runtime.layers.map((candidate) => candidate.paint || {}));
+if (allColors.size < 25) {
+  fail(`The exported per-structure palette was flattened to only ${allColors.size} colors.`);
 }
 
-const water = layer('water');
-const waterOpacity = JSON.stringify(water?.paint?.['fill-opacity'] || []);
-if (!waterOpacity.includes('0.92')) {
-  fail('The restrained low-zoom water blend changed.');
-}
-if (water?.paint?.['fill-color'] !== '#70AFE0') {
-  fail('The screenshot ocean hex changed.');
-}
-
-if (layer('road-motorway-trunk')?.paint?.['line-color'] !== '#F48773') {
-  fail('The screenshot coral highway hex changed.');
-}
-if (layer('admin-0-boundary')?.paint?.['line-color'] !== '#BF858E') {
-  fail('The screenshot country-border hex changed.');
+const roadStructureLayers = runtime.layers.filter(
+  (candidate) =>
+    candidate.type === 'line' &&
+    ['road', 'structure'].includes(candidate.metadata?.['occumed:original-source-layer'])
+);
+const roadStructureColors = collectHex(roadStructureLayers.map((candidate) => candidate.paint || {}));
+if (roadStructureColors.size < 6) {
+  fail(`Road, tunnel, and bridge colors were flattened to ${roadStructureColors.size} values.`);
 }
 
 const motorwayFilter = JSON.stringify(layer('road-motorway-trunk')?.filter || []);
@@ -76,9 +81,6 @@ const placeFilter = JSON.stringify(layer('settlement-major-label')?.filter || []
 if (!placeFilter.includes('rank')) {
   fail('The major-place label density hierarchy is missing.');
 }
-if (layer('settlement-major-label')?.paint?.['text-color'] !== '#303840') {
-  fail('The screenshot dark-slate place-label hex changed.');
-}
 if (layer('state-label')?.paint?.['text-opacity'] !== 0.5) {
   fail('State labels are too visually dominant.');
 }
@@ -86,11 +88,14 @@ if (layer('state-label')?.paint?.['text-opacity'] !== 0.5) {
 if (!runtime.metadata?.['occumed:exported-cartography-restored']) {
   fail('The exported vector cartography was not restored after endpoint translation.');
 }
-if (runtime.metadata?.['occumed:reference-color-system'] !== 'mapbox-screenshot-hex-v5') {
-  fail('The final screenshot hex color pass did not run.');
+if (runtime.metadata?.['occumed:reference-color-system'] !== 'exported-per-layer-hex-v6') {
+  fail('The exported per-layer hex color pass did not run.');
 }
-if (runtime.metadata?.['occumed:palette-format'] !== 'fixed-hex') {
-  fail('The fixed-hex palette marker is missing.');
+if (runtime.metadata?.['occumed:palette-format'] !== 'fixed-hex-per-layer') {
+  fail('The per-layer fixed-hex palette marker is missing.');
+}
+if (runtime.metadata?.['occumed:layer-specific-palette'] !== true) {
+  fail('Layer-specific palette protection is missing.');
 }
 
 if (failures.length) {
@@ -99,4 +104,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('Viewer quality validated: clean chrome, screenshot hex palette, neutral relief, coral roads, muted borders, ranked labels, and terrain.');
+console.log(`Viewer quality validated: clean chrome, ${allColors.size} structure-specific colors, neutral relief, visible roads, ranked labels, and terrain.`);
