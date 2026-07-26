@@ -19,6 +19,7 @@ on:
       - planetiler/**
       - scripts/build-world-manifest.mjs
       - scripts/plan-world-shards.mjs
+      - scripts/write-world-build-status.mjs
       - scripts/check-pmtiles-integration.mjs
       - scripts/use-custom-pmtiles-source.mjs
       - server.mjs
@@ -102,6 +103,22 @@ jobs:
           path: world-plan/world-plan.json
           if-no-files-found: error
           retention-days: 30
+
+      - name: Record auditable worldwide plan status
+        run: |
+          node scripts/write-world-build-status.mjs \
+            --phase planned \
+            --plan world-plan/world-plan.json \
+            --output /tmp/world-build-status.json
+          git fetch origin "$GITHUB_REF_NAME"
+          git checkout -B "$GITHUB_REF_NAME" "origin/$GITHUB_REF_NAME"
+          mkdir -p diagnostics
+          cp /tmp/world-build-status.json diagnostics/world-build-status.json
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add diagnostics/world-build-status.json
+          git diff --cached --quiet || git commit -m "Record worldwide PMTiles build plan"
+          git push origin HEAD:"$GITHUB_REF_NAME"
 
   build-bucket-0:
     if: github.event_name != 'pull_request'
@@ -302,8 +319,42 @@ jobs:
             --clobber
           cat world-release/occumed-world-manifest.json
 
+      - name: Record final worldwide publication status
+        if: always()
+        env:
+          BUCKET_0_RESULT: ${{ needs.build-bucket-0.result }}
+          BUCKET_1_RESULT: ${{ needs.build-bucket-1.result }}
+          BUCKET_2_RESULT: ${{ needs.build-bucket-2.result }}
+          BUCKET_3_RESULT: ${{ needs.build-bucket-3.result }}
+          BUCKET_4_RESULT: ${{ needs.build-bucket-4.result }}
+          BUCKET_5_RESULT: ${{ needs.build-bucket-5.result }}
+        run: |
+          if [ -s world-release/occumed-world-manifest.json ]; then
+            missing="$(node -p "require('./world-release/occumed-world-manifest.json').missingRegionCount")"
+            if [ "$missing" -eq 0 ]; then phase=complete; else phase=partial; fi
+            node scripts/write-world-build-status.mjs \
+              --phase "$phase" \
+              --manifest world-release/occumed-world-manifest.json \
+              --output /tmp/world-build-status.json
+          else
+            node scripts/write-world-build-status.mjs \
+              --phase manifest-failed \
+              --plan world-plan/world-plan.json \
+              --output /tmp/world-build-status.json
+          fi
+          git fetch origin "$GITHUB_REF_NAME"
+          git checkout -B "$GITHUB_REF_NAME" "origin/$GITHUB_REF_NAME"
+          mkdir -p diagnostics
+          cp /tmp/world-build-status.json diagnostics/world-build-status.json
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add diagnostics/world-build-status.json
+          git diff --cached --quiet || git commit -m "Record worldwide PMTiles publication status"
+          git push origin HEAD:"$GITHUB_REF_NAME"
+
       - name: Require complete worldwide coverage
         run: |
+          test -s world-release/occumed-world-manifest.json
           missing="$(node -p "require('./world-release/occumed-world-manifest.json').missingRegionCount")"
           if [ "$missing" -ne 0 ]; then
             echo "$missing worldwide PMTiles shards are still missing from the release." >&2
