@@ -1,0 +1,41 @@
+name: Capture Argentina PMTiles failure
+
+on:
+  push:
+    branches:
+      - feat/custom-planetiler-pmtiles-basemap
+    paths:
+      - .github/workflows/capture-argentina-failure.yml
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/custom-planetiler-pmtiles-basemap
+          fetch-depth: 0
+
+      - name: Download exact failed job log
+        env:
+          GH_TOKEN: ${{ github.token }}
+          FAILED_JOB_ID: '89818513320'
+        run: |
+          mkdir -p diagnostics
+          gh api "/repos/${GITHUB_REPOSITORY}/actions/jobs/${FAILED_JOB_ID}/logs" > /tmp/argentina-full.log
+          tail -n 300 /tmp/argentina-full.log > diagnostics/argentina-pmtiles-failure.log
+          grep -Ein 'error|exception|killed|space|memory|exceed|failed|exit code|206|range' diagnostics/argentina-pmtiles-failure.log || true
+
+      - name: Commit diagnostic and remove one-time workflow
+        run: |
+          git rm .github/workflows/capture-argentina-failure.yml
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add diagnostics/argentina-pmtiles-failure.log
+          git commit -m "Capture exact Argentina PMTiles failure"
+          git push origin HEAD:feat/custom-planetiler-pmtiles-basemap
