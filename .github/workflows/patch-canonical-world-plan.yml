@@ -1,0 +1,108 @@
+name: Patch canonical worldwide plan
+
+on:
+  push:
+    branches:
+      - feat/custom-planetiler-pmtiles-basemap
+    paths:
+      - .github/workflows/patch-canonical-world-plan.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/custom-planetiler-pmtiles-basemap
+          fetch-depth: 0
+
+      - name: Exclude alternate overlapping Geofabrik bundles
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+
+          planner = Path('scripts/plan-world-shards.mjs')
+          text = planner.read_text()
+          anchor = '''const rootIds = new Set([
+  'africa',
+  'antarctica',
+  'asia',
+  'australia-oceania',
+  'central-america',
+  'europe',
+  'north-america',
+  'south-america'
+]);
+'''
+          replacement = anchor + '''
+// Geofabrik exposes alternate convenience bundles that overlap the canonical
+// country/state/region partition. They are useful for downloads but unsafe for
+// bbox-based runtime source switching because they can mask a smaller archive.
+const NON_CANONICAL_OVERLAY_IDS = new Set([
+  'alps',
+  'britain-and-ireland',
+  'dach',
+  'great-britain',
+  'sea',
+  'south-africa-and-lesotho',
+  'us',
+  'us-midwest',
+  'us-northeast',
+  'us-pacific',
+  'us-south',
+  'us-west'
+]);
+'''
+          if 'const NON_CANONICAL_OVERLAY_IDS' not in text:
+              if text.count(anchor) != 1:
+                  raise SystemExit('Unable to find root-id anchor in worldwide planner.')
+              text = text.replace(anchor, replacement, 1)
+
+          selection = '''  for (const entry of entries) {
+    if (!entry.pbfUrl || !entry.bounds) continue;
+'''
+          selection_replacement = '''  for (const entry of entries) {
+    if (!entry.pbfUrl || !entry.bounds) continue;
+    if (NON_CANONICAL_OVERLAY_IDS.has(entry.id)) continue;
+'''
+          if selection_replacement not in text:
+              if text.count(selection) != 1:
+                  raise SystemExit('Unable to find worldwide selection loop.')
+              text = text.replace(selection, selection_replacement, 1)
+
+          planner.write_text(text)
+
+          validation = Path('.github/workflows/validate-size-aware-world-plan.yml')
+          if validation.exists():
+              check = validation.read_text()
+              check = check.replace(
+                  "          const alpsPieces = regions.filter((region) => region.source_region_id === 'alps');\n",
+                  "          const excludedOverlays = ['alps', 'britain-and-ireland', 'dach', 'great-britain', 'sea', 'south-africa-and-lesotho', 'us', 'us-midwest', 'us-northeast', 'us-pacific', 'us-south', 'us-west'];\n"
+              )
+              check = check.replace(
+                  "          if (byId.has('argentina') || byId.has('alps')) {\n            throw new Error('An oversized parent archive was not replaced by bounded subdivisions.');\n          }\n",
+                  "          if (byId.has('argentina')) {\n            throw new Error('Oversized Argentina archive was not replaced by bounded subdivisions.');\n          }\n          const retainedOverlays = excludedOverlays.filter((id) => byId.has(id));\n          if (retainedOverlays.length) {\n            throw new Error(`Non-canonical overlapping bundles remain: ${retainedOverlays.join(', ')}`);\n          }\n"
+              )
+              check = check.replace(
+                  "          if (alpsPieces.length < 4 || alpsPieces.some((region) => !region.extract_bbox)) {\n            throw new Error(`Alps subdivision is incomplete: ${alpsPieces.length} pieces.`);\n          }\n",
+                  ""
+              )
+              check = check.replace(
+                  "            alpsPieceCount: alpsPieces.length,\n",
+                  "            excludedOverlays,\n"
+              )
+              validation.write_text(check)
+          PY
+
+      - name: Commit canonical planner and remove one-time workflow
+        run: |
+          git rm .github/workflows/patch-canonical-world-plan.yml
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add scripts/plan-world-shards.mjs .github/workflows/validate-size-aware-world-plan.yml
+          git commit -m "Exclude overlapping convenience bundles from world routing"
+          git push origin HEAD:feat/custom-planetiler-pmtiles-basemap
