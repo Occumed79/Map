@@ -11,7 +11,7 @@ const reportPath = path.join(outputDir, 'compatibility-report.json');
 const tilejsonUrl = process.env.OCCUMED_TILEJSON_URL || 'https://tiles.openfreemap.org/planet';
 const glyphsUrl =
   process.env.OCCUMED_GLYPHS_URL ||
-  'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf';
+  'https://fonts.openmaptiles.org/{fontstack}/{range}.pbf';
 const terrainUrl =
   process.env.OCCUMED_TERRAIN_URL ||
   'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png';
