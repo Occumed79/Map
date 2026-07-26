@@ -5,7 +5,7 @@ AREA="${OCCUMED_TILE_AREA:-california}"
 OSM_PBF="${OCCUMED_OSM_PBF:-}"
 OUTPUT="${OCCUMED_PMTILES_OUTPUT:-$PWD/public/tiles/occumed.pmtiles}"
 MEMORY="${OCCUMED_PLANETILER_MEMORY:-6g}"
-IMAGE="${OCCUMED_PLANETILER_IMAGE:-ghcr.io/onthegomap/planetiler:latest}"
+IMAGE="${OCCUMED_PLANETILER_IMAGE:-ghcr.io/onthegomap/planetiler:v0.10.2}"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DATA_DIR="${OCCUMED_PLANETILER_DATA_DIR:-$ROOT/.planetiler-data}"
 
@@ -47,6 +47,7 @@ echo "  area:   $AREA"
 echo "  source: ${OSM_PBF:-Geofabrik download}"
 echo "  output: $OUTPUT"
 echo "  memory: $MEMORY"
+echo "  image:  $IMAGE"
 
 # Parse and validate the schema before processing the real extract.
 docker run --rm \
@@ -63,7 +64,10 @@ docker run --rm \
   "${COMMON_ARGS[@]}"
 
 test -s "$OUTPUT"
-sha256sum "$OUTPUT" | tee "$OUTPUT.sha256"
+(
+  cd "$OUTPUT_DIR"
+  sha256sum "$OUTPUT_NAME" > "$OUTPUT_NAME.sha256"
+)
 ls -lh "$OUTPUT" "$OUTPUT.sha256"
 
 echo "Created $OUTPUT"
