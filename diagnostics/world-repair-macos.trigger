@@ -1,2 +1,2 @@
-requested_at=2026-07-26T21:44:00Z
-purpose=check_exact_release_inventory_state
+requested_at=2026-07-26T21:49:00Z
+purpose=confirm_canonical_release_cleanup_state
