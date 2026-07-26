@@ -1,0 +1,86 @@
+name: Snapshot worldwide PMTiles repair
+
+on:
+  push:
+    branches:
+      - feat/custom-planetiler-pmtiles-basemap
+    paths:
+      - diagnostics/world-repair-status.trigger
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/custom-planetiler-pmtiles-basemap
+          fetch-depth: 0
+
+      - name: Find the canonical repair run and capture all jobs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p diagnostics
+          gh api \
+            "/repos/${GITHUB_REPOSITORY}/actions/workflows/repair-world-pmtiles.yml/runs?branch=feat%2Fcustom-planetiler-pmtiles-basemap&event=push&per_page=10" \
+            > /tmp/repair-runs.json
+
+          node <<'NODE'
+          const fs = require('node:fs');
+          const payload = JSON.parse(fs.readFileSync('/tmp/repair-runs.json', 'utf8'));
+          const run = (payload.workflow_runs || [])[0];
+          if (!run) throw new Error('No Repair Worldwide Occu-Med PMTiles push run was found.');
+          fs.writeFileSync('/tmp/repair-run-id.txt', String(run.id));
+          fs.writeFileSync('/tmp/repair-run.json', JSON.stringify(run));
+          console.log(`repair_run_id=${run.id}`);
+          NODE
+
+          REPAIR_RUN_ID="$(cat /tmp/repair-run-id.txt)"
+          gh api --paginate --slurp \
+            "/repos/${GITHUB_REPOSITORY}/actions/runs/${REPAIR_RUN_ID}/jobs?per_page=100" \
+            > /tmp/repair-job-pages.json
+
+          node <<'NODE'
+          const fs = require('node:fs');
+          const run = JSON.parse(fs.readFileSync('/tmp/repair-run.json', 'utf8'));
+          const pages = JSON.parse(fs.readFileSync('/tmp/repair-job-pages.json', 'utf8'));
+          const jobs = pages.flatMap((page) => page.jobs || []);
+          const count = (predicate) => jobs.filter(predicate).length;
+          const failures = jobs
+            .filter((job) => job.conclusion === 'failure')
+            .map((job) => ({ id: job.id, name: job.name }));
+          const status = {
+            capturedAt: new Date().toISOString(),
+            runId: String(run.id),
+            runUrl: run.html_url,
+            headSha: run.head_sha,
+            status: run.status,
+            conclusion: run.conclusion,
+            totalJobsObserved: jobs.length,
+            successCount: count((job) => job.conclusion === 'success'),
+            failureCount: failures.length,
+            inProgressCount: count((job) => job.status === 'in_progress'),
+            queuedCount: count((job) => job.status === 'queued'),
+            cancelledCount: count((job) => job.conclusion === 'cancelled'),
+            skippedCount: count((job) => job.conclusion === 'skipped'),
+            failures
+          };
+          fs.writeFileSync(
+            'diagnostics/world-repair-status.json',
+            `${JSON.stringify(status, null, 2)}\n`
+          );
+          console.log(JSON.stringify(status, null, 2));
+          NODE
+
+      - name: Commit repair status
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add diagnostics/world-repair-status.json
+          git diff --cached --quiet || git commit -m "Snapshot worldwide PMTiles repair status"
+          git push origin HEAD:feat/custom-planetiler-pmtiles-basemap
