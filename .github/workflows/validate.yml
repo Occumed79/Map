@@ -35,8 +35,23 @@ jobs:
       - name: Convert style to independent runtime and apply screenshot calibration
         run: npm run prepare:style
 
-      - name: Validate no-Mapbox reusable basemap
-        run: npm run check:runtime
+      - name: Check independent runtime resources
+        run: node scripts/check-runtime.mjs
+
+      - name: Validate MapLibre style specification
+        run: node scripts/validate-maplibre-style.mjs
+
+      - name: Check globe parity
+        run: node scripts/check-globe-parity.mjs
+
+      - name: Check cartography parity
+        run: node scripts/check-cartography-parity.mjs
+
+      - name: Check viewer quality
+        run: node scripts/check-viewer-quality.mjs
+
+      - name: Check screenshot-reference calibration
+        run: node scripts/check-photo-reference.mjs
 
       - name: Build MapLibre viewer
         run: npx vite build
