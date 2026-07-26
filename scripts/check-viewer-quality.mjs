@@ -32,28 +32,39 @@ if (fonts.includes("'DIN Pro Medium', 'Open Sans Semibold'")) {
 }
 
 const relief = layer('occumed-shaded-relief');
-if ((relief?.paint?.['raster-saturation'] ?? 0) < 0.9) {
-  fail('The low-zoom terrain palette is still too desaturated.');
+if (relief?.paint?.['raster-saturation'] !== -1) {
+  fail('The colored hypsometric raster is not fully neutralized.');
 }
-if ((relief?.paint?.['raster-contrast'] ?? 0) < 0.18) {
-  fail('The low-zoom terrain palette lacks sufficient definition.');
+if ((relief?.paint?.['raster-contrast'] ?? 1) > 0.08) {
+  fail('Neutral relief contrast is high enough to distort the screenshot palette.');
 }
-if ((relief?.maxzoom ?? 0) < 9) {
-  fail('Relief disappears before the regional reference zooms.');
+if ((relief?.maxzoom ?? 99) > 8) {
+  fail('Raster relief persists too far into regional and city zooms.');
+}
+const reliefOpacity = JSON.stringify(relief?.paint?.['raster-opacity'] || []);
+if (reliefOpacity.includes('0.72') || reliefOpacity.includes('0.64')) {
+  fail('The previous fluorescent relief opacity has returned.');
 }
 
 const land = layer('land');
-if (land?.paint?.['background-color'] !== 'hsl(68, 28%, 83%)') {
-  fail('The viewer reverted to the washed-out beige land base.');
+if (land?.paint?.['background-color'] !== '#D8DCB9') {
+  fail('The screenshot land hex changed.');
 }
 
 const water = layer('water');
 const waterOpacity = JSON.stringify(water?.paint?.['fill-opacity'] || []);
-if (!waterOpacity.includes('0.9')) {
-  fail('Low-zoom water no longer reveals restrained bathymetry.');
+if (!waterOpacity.includes('0.92')) {
+  fail('The restrained low-zoom water blend changed.');
 }
-if (water?.paint?.['fill-color'] !== 'hsl(205, 76%, 66%)') {
-  fail('The viewer reverted to the pale cyan ocean.');
+if (water?.paint?.['fill-color'] !== '#70AFE0') {
+  fail('The screenshot ocean hex changed.');
+}
+
+if (layer('road-motorway-trunk')?.paint?.['line-color'] !== '#F48773') {
+  fail('The screenshot coral highway hex changed.');
+}
+if (layer('admin-0-boundary')?.paint?.['line-color'] !== '#BF858E') {
+  fail('The screenshot country-border hex changed.');
 }
 
 const motorwayFilter = JSON.stringify(layer('road-motorway-trunk')?.filter || []);
@@ -65,6 +76,9 @@ const placeFilter = JSON.stringify(layer('settlement-major-label')?.filter || []
 if (!placeFilter.includes('rank')) {
   fail('The major-place label density hierarchy is missing.');
 }
+if (layer('settlement-major-label')?.paint?.['text-color'] !== '#303840') {
+  fail('The screenshot dark-slate place-label hex changed.');
+}
 if (layer('state-label')?.paint?.['text-opacity'] !== 0.5) {
   fail('State labels are too visually dominant.');
 }
@@ -72,8 +86,11 @@ if (layer('state-label')?.paint?.['text-opacity'] !== 0.5) {
 if (!runtime.metadata?.['occumed:exported-cartography-restored']) {
   fail('The exported vector cartography was not restored after endpoint translation.');
 }
-if (runtime.metadata?.['occumed:reference-color-system'] !== 'mapbox-photo-reference-v4') {
-  fail('The final screenshot-calibrated color pass did not run.');
+if (runtime.metadata?.['occumed:reference-color-system'] !== 'mapbox-screenshot-hex-v5') {
+  fail('The final screenshot hex color pass did not run.');
+}
+if (runtime.metadata?.['occumed:palette-format'] !== 'fixed-hex') {
+  fail('The fixed-hex palette marker is missing.');
 }
 
 if (failures.length) {
@@ -82,4 +99,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('Viewer quality validated: clean chrome, full-globe framing, corrected reference colors, visible roads, ranked labels, and terrain.');
+console.log('Viewer quality validated: clean chrome, screenshot hex palette, neutral relief, coral roads, muted borders, ranked labels, and terrain.');
