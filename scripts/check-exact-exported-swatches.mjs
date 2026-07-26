@@ -62,8 +62,15 @@ expect(color('water', 'fill-opacity') === 1, 'Water is not fully opaque.');
 const relief = layer('occumed-shaded-relief');
 expect(relief?.paint?.['raster-saturation'] === -1, 'The independent relief raster is recoloring the exported palette.');
 expect(relief?.paint?.['raster-hue-rotate'] === 0, 'The independent relief raster is rotating exported hues.');
-expect((relief?.paint?.['raster-opacity'] || []).includes(0.12), 'The neutral relief texture curve changed.');
-expect(!(relief?.paint?.['raster-opacity'] || []).some((value) => typeof value === 'number' && value > 0.12), 'The relief raster is opaque enough to distort the exported swatches.');
+expect(relief?.maxzoom === 7, 'Pixel-based relief does not disappear before detailed zooms.');
+const reliefOpacity = relief?.paint?.['raster-opacity'] || [];
+const reliefOutputs = [];
+for (let index = 4; index < reliefOpacity.length; index += 2) {
+  if (typeof reliefOpacity[index] === 'number') reliefOutputs.push(reliefOpacity[index]);
+}
+expect(reliefOutputs.includes(0.12), 'The neutral relief texture curve changed.');
+expect(reliefOutputs.every((value) => value >= 0 && value <= 0.12), 'The relief raster is opaque enough to distort the exported swatches.');
+expect(reliefOutputs.at(-1) === 0, 'The relief raster does not fully disappear by its final zoom stop.');
 
 const hillshade = layer('occumed-hillshade');
 expect(hillshade?.paint?.['hillshade-shadow-color'] === '#0000004D', 'Hillshade shadow is tinting terrain instead of changing lightness only.');
@@ -73,6 +80,7 @@ expect(hillshade?.paint?.['hillshade-accent-color'] === '#00000026', 'Hillshade 
 expect(runtime.metadata?.['occumed:reference-color-system'] === 'exact-exported-swatches-v9', 'The exact exported swatch pass did not run.');
 expect(runtime.metadata?.['occumed:colored-relief-disabled'] === true, 'Colored relief protection is missing.');
 expect(runtime.metadata?.['occumed:layer-specific-palette'] === true, 'Layer-specific palette protection is missing.');
+expect(runtime.metadata?.['occumed:high-dpi-vector-clarity'] === true, 'High-DPI clarity protection is missing.');
 
 if (failures.length) {
   console.error('Exact exported swatch validation failed:');
@@ -80,4 +88,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('Exact exported swatches guarded for land, landcover, parks, wetlands, water, and water shadows; raster hue drift disabled.');
+console.log('Exact exported swatches guarded for land, landcover, parks, wetlands, water, and water shadows; raster hue drift and detailed-zoom blur disabled.');
