@@ -2,16 +2,13 @@ name: Build Worldwide Occu-Med PMTiles
 
 on:
   workflow_dispatch:
-    inputs:
-      release_tag:
-        description: GitHub Release tag used to publish worldwide shards
-        required: false
-        default: occumed-world-v1
   push:
     branches:
       - feat/custom-planetiler-pmtiles-basemap
     paths:
+      - .github/workflows/build-world-pmtiles.yml
       - planetiler/world-build.trigger
+      - planetiler/world-repair.trigger
   pull_request:
     paths:
       - .github/actions/build-pmtiles-shard/**
@@ -19,7 +16,6 @@ on:
       - planetiler/**
       - scripts/build-world-manifest.mjs
       - scripts/plan-world-shards.mjs
-      - scripts/write-world-build-status.mjs
       - scripts/check-pmtiles-integration.mjs
       - scripts/use-custom-pmtiles-source.mjs
       - server.mjs
@@ -30,15 +26,22 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: occumed-world-pmtiles-publication
+  cancel-in-progress: false
+
 env:
-  WORLD_RELEASE_TAG: ${{ github.event.inputs.release_tag || 'occumed-world-v1' }}
+  WORLD_RELEASE_TAG: occumed-world-v1
   WORLD_BUCKETS: 6
+  OCCUMED_DIRECT_PBF_LIMIT_BYTES: 400000000
+  OCCUMED_TARGET_SPLIT_PBF_BYTES: 250000000
+  OCCUMED_MAX_SPLIT_CELLS: 24
 
 jobs:
   validate-pipeline:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -50,7 +53,7 @@ jobs:
   plan-world:
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     outputs:
       bucket0: ${{ steps.plan.outputs.bucket0 }}
       bucket1: ${{ steps.plan.outputs.bucket1 }}
@@ -60,27 +63,71 @@ jobs:
       bucket5: ${{ steps.plan.outputs.bucket5 }}
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 24
 
-      - name: Generate worldwide leaf-region build plan
+      - name: Generate canonical size-aware world plan
         id: plan
         run: |
           mkdir -p world-plan
-          node scripts/plan-world-shards.mjs --scope all > world-plan/world-plan.json
+          node scripts/plan-world-shards.mjs --scope all > world-plan/raw-world-plan.json
+
+          node <<'NODE'
+          const fs = require('node:fs');
+
+          const input = JSON.parse(fs.readFileSync('world-plan/raw-world-plan.json', 'utf8'));
+          const excludedSourceRegions = new Set([
+            'alps',
+            'britain-and-ireland',
+            'dach',
+            'great-britain',
+            'sea',
+            'south-africa-and-lesotho',
+            'us',
+            'us-midwest',
+            'us-northeast',
+            'us-pacific',
+            'us-south',
+            'us-west'
+          ]);
+
+          const include = input.include.filter((region) =>
+            !excludedSourceRegions.has(region.id) &&
+            !excludedSourceRegions.has(region.source_region_id)
+          );
+
+          const ids = include.map((region) => region.id);
+          const assets = include.map((region) => region.asset_name);
+          if (!include.length) throw new Error('Canonical worldwide plan is empty.');
+          if (new Set(ids).size !== ids.length) throw new Error('Canonical plan contains duplicate IDs.');
+          if (new Set(assets).size !== assets.length) throw new Error('Canonical plan contains duplicate asset names.');
+          if (include.some((region) => region.source_size_bytes > 400000000 && !region.extract_bbox)) {
+            throw new Error('An oversized source remains unsplit.');
+          }
+
+          const plan = {
+            ...input,
+            generatedAt: new Date().toISOString(),
+            canonical: true,
+            excludedSourceRegions: [...excludedSourceRegions],
+            include
+          };
+          fs.writeFileSync('world-plan/world-plan.json', `${JSON.stringify(plan, null, 2)}\n`);
+          console.log(`Canonical worldwide plan contains ${include.length} PMTiles shards.`);
+          NODE
+
           for bucket in 0 1 2 3 4 5; do
-            node scripts/plan-world-shards.mjs \
-              --scope all \
-              --buckets "$WORLD_BUCKETS" \
-              --bucket "$bucket" \
+            jq \
+              --argjson bucket "$bucket" \
+              --argjson buckets "$WORLD_BUCKETS" \
+              '{include: [.include | to_entries[] | select((.key % $buckets) == $bucket) | .value]}' \
+              world-plan/world-plan.json \
               > "world-plan/bucket-${bucket}.json"
             compact="$(jq -c . "world-plan/bucket-${bucket}.json")"
             echo "bucket${bucket}=${compact}" >> "$GITHUB_OUTPUT"
           done
-          count="$(jq '.include | length' world-plan/world-plan.json)"
-          test "$count" -gt 0
-          echo "Worldwide plan contains $count custom PMTiles shards."
 
       - name: Create or reuse worldwide release
         env:
@@ -91,40 +138,24 @@ jobs:
               --repo "$GITHUB_REPOSITORY" \
               --title "Occu-Med Worldwide PMTiles v1" \
               --notes "Worldwide Occu-Med Planetiler archives built from Geofabrik OpenStreetMap extracts."
+
           gh release upload "$WORLD_RELEASE_TAG" \
             world-plan/world-plan.json \
             --repo "$GITHUB_REPOSITORY" \
             --clobber
 
-      - name: Preserve worldwide plan
+      - name: Preserve canonical world plan
         uses: actions/upload-artifact@v4
         with:
-          name: occumed-world-plan-${{ github.sha }}
+          name: occumed-canonical-world-plan-${{ github.sha }}
           path: world-plan/world-plan.json
           if-no-files-found: error
           retention-days: 30
 
-      - name: Record auditable worldwide plan status
-        run: |
-          node scripts/write-world-build-status.mjs \
-            --phase planned \
-            --plan world-plan/world-plan.json \
-            --output /tmp/world-build-status.json
-          git fetch origin "$GITHUB_REF_NAME"
-          git checkout -B "$GITHUB_REF_NAME" "origin/$GITHUB_REF_NAME"
-          mkdir -p diagnostics
-          cp /tmp/world-build-status.json diagnostics/world-build-status.json
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add diagnostics/world-build-status.json
-          git diff --cached --quiet || git commit -m "Record worldwide PMTiles build plan"
-          git push origin HEAD:"$GITHUB_REF_NAME"
-
   build-bucket-0:
-    if: github.event_name != 'pull_request'
     needs: plan-world
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    timeout-minutes: 240
     strategy:
       fail-fast: false
       max-parallel: 3
@@ -138,6 +169,7 @@ jobs:
           name: ${{ matrix.name }}
           continent: ${{ matrix.continent }}
           pbf-url: ${{ matrix.pbf_url }}
+          extract-bbox: ${{ matrix.extract_bbox }}
           west: ${{ matrix.west }}
           south: ${{ matrix.south }}
           east: ${{ matrix.east }}
@@ -147,10 +179,9 @@ jobs:
           release-tag: ${{ env.WORLD_RELEASE_TAG }}
 
   build-bucket-1:
-    if: github.event_name != 'pull_request'
     needs: plan-world
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    timeout-minutes: 240
     strategy:
       fail-fast: false
       max-parallel: 3
@@ -164,6 +195,7 @@ jobs:
           name: ${{ matrix.name }}
           continent: ${{ matrix.continent }}
           pbf-url: ${{ matrix.pbf_url }}
+          extract-bbox: ${{ matrix.extract_bbox }}
           west: ${{ matrix.west }}
           south: ${{ matrix.south }}
           east: ${{ matrix.east }}
@@ -173,10 +205,9 @@ jobs:
           release-tag: ${{ env.WORLD_RELEASE_TAG }}
 
   build-bucket-2:
-    if: github.event_name != 'pull_request'
     needs: plan-world
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    timeout-minutes: 240
     strategy:
       fail-fast: false
       max-parallel: 3
@@ -190,6 +221,7 @@ jobs:
           name: ${{ matrix.name }}
           continent: ${{ matrix.continent }}
           pbf-url: ${{ matrix.pbf_url }}
+          extract-bbox: ${{ matrix.extract_bbox }}
           west: ${{ matrix.west }}
           south: ${{ matrix.south }}
           east: ${{ matrix.east }}
@@ -199,10 +231,9 @@ jobs:
           release-tag: ${{ env.WORLD_RELEASE_TAG }}
 
   build-bucket-3:
-    if: github.event_name != 'pull_request'
     needs: plan-world
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    timeout-minutes: 240
     strategy:
       fail-fast: false
       max-parallel: 3
@@ -216,6 +247,7 @@ jobs:
           name: ${{ matrix.name }}
           continent: ${{ matrix.continent }}
           pbf-url: ${{ matrix.pbf_url }}
+          extract-bbox: ${{ matrix.extract_bbox }}
           west: ${{ matrix.west }}
           south: ${{ matrix.south }}
           east: ${{ matrix.east }}
@@ -225,10 +257,9 @@ jobs:
           release-tag: ${{ env.WORLD_RELEASE_TAG }}
 
   build-bucket-4:
-    if: github.event_name != 'pull_request'
     needs: plan-world
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    timeout-minutes: 240
     strategy:
       fail-fast: false
       max-parallel: 3
@@ -242,6 +273,7 @@ jobs:
           name: ${{ matrix.name }}
           continent: ${{ matrix.continent }}
           pbf-url: ${{ matrix.pbf_url }}
+          extract-bbox: ${{ matrix.extract_bbox }}
           west: ${{ matrix.west }}
           south: ${{ matrix.south }}
           east: ${{ matrix.east }}
@@ -251,10 +283,9 @@ jobs:
           release-tag: ${{ env.WORLD_RELEASE_TAG }}
 
   build-bucket-5:
-    if: github.event_name != 'pull_request'
     needs: plan-world
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    timeout-minutes: 240
     strategy:
       fail-fast: false
       max-parallel: 3
@@ -268,6 +299,7 @@ jobs:
           name: ${{ matrix.name }}
           continent: ${{ matrix.continent }}
           pbf-url: ${{ matrix.pbf_url }}
+          extract-bbox: ${{ matrix.extract_bbox }}
           west: ${{ matrix.west }}
           south: ${{ matrix.south }}
           east: ${{ matrix.east }}
@@ -277,7 +309,7 @@ jobs:
           release-tag: ${{ env.WORLD_RELEASE_TAG }}
 
   publish-world-manifest:
-    if: always() && github.event_name != 'pull_request' && needs.plan-world.result == 'success'
+    if: always() && needs.plan-world.result == 'success'
     needs:
       - plan-world
       - build-bucket-0
@@ -287,18 +319,20 @@ jobs:
       - build-bucket-4
       - build-bucket-5
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 24
+
       - uses: actions/download-artifact@v4
         with:
-          name: occumed-world-plan-${{ github.sha }}
+          name: occumed-canonical-world-plan-${{ github.sha }}
           path: world-plan
 
-      - name: Build manifest from successfully published archives
+      - name: Build manifest from published archives
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -307,50 +341,20 @@ jobs:
             --repo "$GITHUB_REPOSITORY" \
             --json assets \
             > world-release/assets.json
+
           node scripts/build-world-manifest.mjs \
             --plan world-plan/world-plan.json \
             --assets world-release/assets.json \
             --repository "$GITHUB_REPOSITORY" \
             --tag "$WORLD_RELEASE_TAG" \
             --output world-release/occumed-world-manifest.json
+
           gh release upload "$WORLD_RELEASE_TAG" \
             world-release/occumed-world-manifest.json \
             --repo "$GITHUB_REPOSITORY" \
             --clobber
-          cat world-release/occumed-world-manifest.json
 
-      - name: Record final worldwide publication status
-        if: always()
-        env:
-          BUCKET_0_RESULT: ${{ needs.build-bucket-0.result }}
-          BUCKET_1_RESULT: ${{ needs.build-bucket-1.result }}
-          BUCKET_2_RESULT: ${{ needs.build-bucket-2.result }}
-          BUCKET_3_RESULT: ${{ needs.build-bucket-3.result }}
-          BUCKET_4_RESULT: ${{ needs.build-bucket-4.result }}
-          BUCKET_5_RESULT: ${{ needs.build-bucket-5.result }}
-        run: |
-          if [ -s world-release/occumed-world-manifest.json ]; then
-            missing="$(node -p "require('./world-release/occumed-world-manifest.json').missingRegionCount")"
-            if [ "$missing" -eq 0 ]; then phase=complete; else phase=partial; fi
-            node scripts/write-world-build-status.mjs \
-              --phase "$phase" \
-              --manifest world-release/occumed-world-manifest.json \
-              --output /tmp/world-build-status.json
-          else
-            node scripts/write-world-build-status.mjs \
-              --phase manifest-failed \
-              --plan world-plan/world-plan.json \
-              --output /tmp/world-build-status.json
-          fi
-          git fetch origin "$GITHUB_REF_NAME"
-          git checkout -B "$GITHUB_REF_NAME" "origin/$GITHUB_REF_NAME"
-          mkdir -p diagnostics
-          cp /tmp/world-build-status.json diagnostics/world-build-status.json
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add diagnostics/world-build-status.json
-          git diff --cached --quiet || git commit -m "Record worldwide PMTiles publication status"
-          git push origin HEAD:"$GITHUB_REF_NAME"
+          cat world-release/occumed-world-manifest.json
 
       - name: Require complete worldwide coverage
         run: |
@@ -360,3 +364,12 @@ jobs:
             echo "$missing worldwide PMTiles shards are still missing from the release." >&2
             exit 1
           fi
+
+      - name: Preserve final worldwide manifest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: occumed-world-manifest-${{ github.sha }}
+          path: world-release/occumed-world-manifest.json
+          if-no-files-found: error
+          retention-days: 30
