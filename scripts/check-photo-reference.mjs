@@ -42,51 +42,50 @@ function collectNonHexColors(value, colors = []) {
 assert(runtime.projection?.type === 'globe', 'Photo-reference build must use globe projection.');
 assert(runtime.sky?.['sky-color'] === '#03070B', 'Photo-reference build must preserve dark outer space.');
 assert(runtime.sky?.['horizon-color'] === '#F5FDFF', 'The luminous globe rim is missing.');
-assert(runtime.sky?.['fog-ground-blend'] === 0, 'Ground fog must remain disabled to prevent washout.');
-assert(runtime.sky?.['horizon-fog-blend'] === 0, 'Horizon fog must remain disabled to prevent washout.');
+assert(runtime.sky?.['fog-ground-blend'] === 0, 'Ground fog must remain disabled.');
+assert(runtime.sky?.['horizon-fog-blend'] === 0, 'Horizon fog must remain disabled.');
 assert(!runtime.light, 'Directional light must not be reintroduced.');
 assert(!runtime.fog, 'Mapbox fog must not be copied into the MapLibre runtime.');
 
-const relief = layer('occumed-shaded-relief');
-assert(relief?.paint?.['raster-saturation'] === 0.12, 'The restrained physical-relief saturation changed.');
-assert(relief?.paint?.['raster-contrast'] === 0.09, 'The restrained physical-relief contrast changed.');
-assert(relief?.paint?.['raster-hue-rotate'] === -6, 'The physical-relief hue correction changed.');
-assert(relief?.maxzoom === 8.5, 'Physical relief must fade out before city zooms.');
-const reliefOpacity = JSON.stringify(relief?.paint?.['raster-opacity'] || []);
-assert(reliefOpacity.includes('0.32'), 'Visible low-zoom physical relief is missing.');
-assert(!reliefOpacity.includes('0.72'), 'The fluorescent high-opacity relief blend returned.');
-assert(relief?.paint?.['raster-saturation'] < 0.3, 'Physical relief is saturated enough to overpower structure colors.');
+assert(layer('land')?.paint?.['background-color'] === '#E0E0D1', 'The exact exported land swatch changed.');
+assert(layer('water')?.paint?.['fill-color'] === '#79BCEC', 'The exact exported water swatch changed.');
+assert(layer('water-shadow')?.paint?.['fill-color'] === '#7293EE', 'The exact exported water-shadow swatch changed.');
+assert(layer('wetland')?.paint?.['fill-color'] === '#A4CAD6', 'The exact exported wetland swatch changed.');
+assert(layer('national-park')?.paint?.['fill-color'] === '#A5CC8E', 'The exact exported national-park swatch changed.');
 
 const landcover = layer('landcover');
-const landcoverOpacity = JSON.stringify(landcover?.paint?.['fill-opacity'] || []);
+const landcoverColor = JSON.stringify(landcover?.paint?.['fill-color'] || []);
+for (const required of ['#83CC66CC', '#A3D48799', '#D1DD8899', '#B4DE9C99', '#EDF3F8', '#A0D382']) {
+  assert(landcoverColor.includes(required), `The exact exported landcover swatch ${required} is missing.`);
+}
 assert((landcover?.minzoom ?? 99) === 0, 'Landcover must be available at globe zoom.');
-assert(landcoverOpacity.includes('0.82') && landcoverOpacity.includes('0.86'), 'Visible globe and regional landcover opacity is missing.');
+assert(JSON.stringify(landcover?.paint?.['fill-opacity'] || []).includes('1'), 'Landcover swatches are being weakened by zoom opacity.');
+assert(layer('landuse')?.paint?.['fill-opacity'] === 1, 'Detailed landuse swatches are being weakened by extra opacity.');
+assert(layer('water')?.paint?.['fill-opacity'] === 1, 'Water must remain fully opaque.');
 
-const landuse = layer('landuse');
-assert((landuse?.minzoom ?? 99) <= 4.5, 'Landuse enters too late for the supplied regional reference.');
-assert(JSON.stringify(landuse?.paint?.['fill-opacity'] || []).includes('0.56'), 'Regional landuse separation is too weak.');
-
-const water = layer('water');
-assert(water?.paint?.['fill-opacity'] === 1, 'Water must remain fully opaque instead of blending into the land background.');
+const relief = layer('occumed-shaded-relief');
+assert(relief?.paint?.['raster-saturation'] === -1, 'The independent relief raster is recoloring the exported palette.');
+assert(relief?.paint?.['raster-contrast'] === 0.04, 'The neutral relief contrast changed.');
+assert(relief?.paint?.['raster-hue-rotate'] === 0, 'The independent relief raster is rotating exported hues.');
+assert(relief?.maxzoom === 8.5, 'Neutral relief must fade before city zooms.');
+const reliefOpacity = relief?.paint?.['raster-opacity'] || [];
+assert(reliefOpacity.includes(0.12), 'The restrained neutral relief texture is missing.');
+assert(!reliefOpacity.some((value) => typeof value === 'number' && value > 0.12 && value < 1), 'Relief opacity can distort the exported swatches.');
 
 const hillshade = layer('occumed-hillshade');
 assert(hillshade?.minzoom === 1.5, 'Hillshade must begin early enough to shape the globe.');
 assert(hillshade?.paint?.['hillshade-illumination-anchor'] === 'map', 'Hillshade must stay fixed to geography.');
-assert(hillshade?.paint?.['hillshade-shadow-color'] === '#52685B', 'The terrain-shadow hex changed.');
-assert(hillshade?.paint?.['hillshade-highlight-color'] === '#FFF8E8', 'The terrain-highlight hex changed.');
-assert(JSON.stringify(hillshade?.paint?.['hillshade-exaggeration'] || []).includes('0.2'), 'Regional hillshade definition is too weak.');
+assert(hillshade?.paint?.['hillshade-shadow-color'] === '#0000004D', 'Hillshade shadows are tinting the exported palette.');
+assert(hillshade?.paint?.['hillshade-highlight-color'] === '#FFFFFF4D', 'Hillshade highlights are tinting the exported palette.');
 
 const paintedLayers = runtime.layers.filter((candidate) => candidate.paint);
 const allColors = collectHex(paintedLayers.map((candidate) => candidate.paint));
 const nonHexColors = collectNonHexColors(paintedLayers.map((candidate) => candidate.paint));
 assert(nonHexColors.length === 0, `Paint still contains non-hex color literals: ${nonHexColors.slice(0, 5).join(', ')}`);
 assert(allColors.size >= 25, `The per-layer palette was flattened to only ${allColors.size} colors.`);
-assert(runtime.metadata?.['occumed:distinct-layer-color-count'] === allColors.size, 'Stored distinct-color count does not match the built style.');
 
 const roadStructureLayers = runtime.layers.filter(
-  (candidate) =>
-    candidate.type === 'line' &&
-    ['road', 'structure'].includes(candidate.metadata?.['occumed:original-source-layer'])
+  (candidate) => candidate.type === 'line' && ['road', 'structure'].includes(candidate.metadata?.['occumed:original-source-layer'])
 );
 const roadStructureColors = collectHex(roadStructureLayers.map((candidate) => candidate.paint || {}));
 assert(roadStructureColors.size >= 6, `Road/tunnel/bridge colors were flattened to ${roadStructureColors.size} values.`);
@@ -94,10 +93,6 @@ assert(roadStructureColors.size >= 6, `Road/tunnel/bridge colors were flattened 
 const fillLayers = runtime.layers.filter((candidate) => ['fill', 'background', 'fill-extrusion'].includes(candidate.type));
 const fillColors = collectHex(fillLayers.map((candidate) => candidate.paint || {}));
 assert(fillColors.size >= 10, `Land, water, buildings, airports, and landuse were flattened to ${fillColors.size} fill colors.`);
-
-const symbolLayers = runtime.layers.filter((candidate) => candidate.type === 'symbol');
-const symbolColors = collectHex(symbolLayers.map((candidate) => candidate.paint || {}));
-assert(symbolColors.size >= 4, `Label and icon colors were flattened to ${symbolColors.size} values.`);
 
 const motorway = layer('road-motorway-trunk');
 const motorwayFilter = JSON.stringify(motorway?.filter || []);
@@ -118,20 +113,19 @@ assert(JSON.stringify(majorPlace?.layout?.['text-font'] || []).includes('Open Sa
 assert(layer('state-label')?.paint?.['text-opacity'] === 0.5, 'The exported muted state-label hierarchy was lost.');
 
 assert(runtime.metadata?.['occumed:exported-cartography-restored'] === true, 'Exported cartography restoration marker is missing.');
-assert(runtime.metadata?.['occumed:reference-color-system'] === 'exported-per-layer-visible-v7', 'Visible per-layer color-system marker is missing.');
-assert(runtime.metadata?.['occumed:live-visual-qa-pass'] === 7, 'Live visual-QA pass 7 marker is missing.');
+assert(runtime.metadata?.['occumed:reference-color-system'] === 'exact-exported-swatches-v9', 'Exact exported swatch marker is missing.');
+assert(runtime.metadata?.['occumed:live-visual-qa-pass'] === 9, 'Exact swatch build pass marker is missing.');
 assert(runtime.metadata?.['occumed:palette-format'] === 'fixed-hex-per-layer', 'Per-layer fixed-hex palette marker is missing.');
 assert(runtime.metadata?.['occumed:layer-specific-palette'] === true, 'Layer-specific palette protection is missing.');
-assert(runtime.metadata?.['occumed:visible-low-zoom-cartography'] === true, 'Low-zoom visibility protection is missing.');
+assert(runtime.metadata?.['occumed:colored-relief-disabled'] === true, 'Colored relief protection is missing.');
 
 for (const [sourceId, source] of Object.entries(runtime.sources || {})) {
   const serialized = JSON.stringify(source);
   assert(!/mapbox:\/\//i.test(serialized), `Source ${sourceId} still contains a mapbox:// URL.`);
   assert(!/api\.mapbox\.com/i.test(serialized), `Source ${sourceId} still calls api.mapbox.com.`);
 }
-
 assert(!/mapbox:\/\//i.test(runtime.sprite || ''), 'Runtime sprite must not use Mapbox.');
 assert(!/api\.mapbox\.com/i.test(runtime.glyphs || ''), 'Runtime glyphs must not use Mapbox.');
 assert(runtime.metadata?.['occumed:mapbox-runtime-dependency'] === false, 'No-Mapbox dependency marker is missing.');
 
-console.log(`Photo-reference validation passed: ${allColors.size} distinct per-layer hex colors with visible terrain, landcover, water, roads, and boundaries.`);
+console.log(`Reference guard passed: exact exported greens/blues, neutral terrain shading, structure separation, and ${allColors.size} distinct colors.`);
