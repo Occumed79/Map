@@ -1,5 +1,5 @@
 {
-  "capturedAt": "2026-07-26T22:04:03.968Z",
+  "capturedAt": "2026-07-26T22:25:17.855Z",
   "runId": "30222171809",
   "runUrl": "https://github.com/Occumed79/Map/actions/runs/30222171809",
   "headSha": "ff609ccf225ea66f93ca9b4cb94f240e022a8b65",
@@ -8,13 +8,18 @@
   "planStatus": "completed",
   "planConclusion": "success",
   "totalBuildJobsObserved": 414,
-  "successfulBuildJobs": 0,
-  "failedBuildJobs": 0,
-  "inProgressBuildJobs": 4,
-  "queuedBuildJobs": 410,
+  "successfulBuildJobs": 40,
+  "failedBuildJobs": 1,
+  "inProgressBuildJobs": 17,
+  "queuedBuildJobs": 356,
   "cancelledBuildJobs": 0,
   "skippedBuildJobs": 0,
   "manifestStatus": null,
   "manifestConclusion": null,
-  "failures": []
+  "failures": [
+    {
+      "id": 89846643313,
+      "name": "build-bucket-0 (far-eastern-fed-district, far-eastern-fed-district, Far Eastern Federal District,..."
+    }
+  ]
 }
