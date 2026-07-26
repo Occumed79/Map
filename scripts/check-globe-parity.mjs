@@ -9,6 +9,7 @@ const runtime = JSON.parse(
 
 const failures = [];
 const fail = (message) => failures.push(message);
+const layer = (id) => runtime.layers.find((candidate) => candidate.id === id);
 
 function collectHex(value, colors = new Set()) {
   if (Array.isArray(value)) {
@@ -46,28 +47,57 @@ if (Array.isArray(atmosphereBlend)) {
   }
 }
 
-const relief = runtime.layers.find((layer) => layer.id === 'occumed-shaded-relief');
+const relief = layer('occumed-shaded-relief');
 if (!relief) fail('The low-zoom relief layer is missing.');
-if (relief?.paint?.['raster-saturation'] !== -1) {
-  fail('Hypsometric color remains active instead of neutral relief texture.');
+const reliefSaturation = relief?.paint?.['raster-saturation'];
+if (typeof reliefSaturation !== 'number' || reliefSaturation < 0 || reliefSaturation > 0.25) {
+  fail('Physical relief must retain restrained color without becoming fluorescent or monochrome.');
 }
-if ((relief?.paint?.['raster-contrast'] ?? 1) > 0.05) {
-  fail('Neutral relief contrast is too aggressive for the exported palette.');
+const reliefContrast = relief?.paint?.['raster-contrast'];
+if (typeof reliefContrast !== 'number' || reliefContrast < 0.07 || reliefContrast > 0.11) {
+  fail('Physical relief contrast is outside the approved visible-but-restrained range.');
 }
-if ((relief?.maxzoom ?? 99) > 8) {
-  fail('Raster relief persists too far into regional zooms.');
+if ((relief?.maxzoom ?? 99) > 8.5) {
+  fail('Raster relief persists too far into city zooms.');
+}
+const reliefOpacity = JSON.stringify(relief?.paint?.['raster-opacity'] || []);
+if (!reliefOpacity.includes('0.32')) {
+  fail('The globe has lost the visible physical-relief contribution.');
+}
+if (reliefOpacity.includes('0.72') || reliefOpacity.includes('0.64')) {
+  fail('The fluorescent high-opacity relief blend returned.');
 }
 
-const hillshade = runtime.layers.find((layer) => layer.id === 'occumed-hillshade');
+const landcover = layer('landcover');
+if ((landcover?.minzoom ?? 99) !== 0) fail('Landcover is unavailable at globe zoom.');
+const landcoverOpacity = JSON.stringify(landcover?.paint?.['fill-opacity'] || []);
+if (!landcoverOpacity.includes('0.82') || !landcoverOpacity.includes('0.86')) {
+  fail('The globe and regional landcover colors are being hidden by the background land layer.');
+}
+
+const water = layer('water');
+if (water?.paint?.['fill-opacity'] !== 1) {
+  fail('Water is blending into the land background instead of remaining a strong blue field.');
+}
+
+const hillshade = layer('occumed-hillshade');
 if (!hillshade) fail('The open hillshade layer is missing.');
+if (hillshade?.minzoom !== 1.5) fail('Hillshade begins too late to shape the globe.');
 if (hillshade?.paint?.['hillshade-illumination-anchor'] !== 'map') {
   fail('Hillshade must remain geographically anchored while the globe rotates.');
 }
 if (hillshade?.paint?.['hillshade-shadow-color'] !== '#52685B') {
-  fail('The neutral hillshade-shadow hex changed.');
+  fail('The terrain hillshade-shadow hex changed.');
 }
 
-const allColors = collectHex(runtime.layers.map((layer) => layer.paint || {}));
+if ((layer('road-motorway-trunk')?.minzoom ?? 99) > 2) {
+  fail('Major highways enter too late for the supplied regional hierarchy.');
+}
+if ((layer('admin-0-boundary')?.minzoom ?? 99) > 0) {
+  fail('Country boundaries are unavailable at globe zoom.');
+}
+
+const allColors = collectHex(runtime.layers.map((candidate) => candidate.paint || {}));
 if (allColors.size < 25) {
   fail(`The exported globe palette was flattened to only ${allColors.size} colors.`);
 }
@@ -75,14 +105,17 @@ if (allColors.size < 25) {
 if (!runtime.metadata?.['occumed:exported-cartography-restored']) {
   fail('The final exported-cartography restoration pass did not run.');
 }
-if (runtime.metadata?.['occumed:reference-color-system'] !== 'exported-per-layer-hex-v6') {
-  fail('The final exported per-layer hex pass did not run.');
+if (runtime.metadata?.['occumed:reference-color-system'] !== 'exported-per-layer-visible-v7') {
+  fail('The final visible per-layer hex pass did not run.');
 }
 if (runtime.metadata?.['occumed:palette-format'] !== 'fixed-hex-per-layer') {
   fail('The per-layer fixed-hex palette marker is missing.');
 }
 if (runtime.metadata?.['occumed:layer-specific-palette'] !== true) {
   fail('Layer-specific palette protection is missing.');
+}
+if (runtime.metadata?.['occumed:visible-low-zoom-cartography'] !== true) {
+  fail('Low-zoom cartographic visibility protection is missing.');
 }
 
 if (failures.length) {
@@ -91,4 +124,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log(`Globe parity validated: dark space, luminous rim, ${allColors.size} structure-specific colors, neutral relief, and anchored hillshade.`);
+console.log(`Globe parity validated: dark space, luminous rim, visible colored terrain, opaque water, early hierarchy, and ${allColors.size} structure-specific colors.`);
