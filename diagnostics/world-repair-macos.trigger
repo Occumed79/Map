@@ -1,2 +1,2 @@
-requested_at=2026-07-27T01:15:00Z
-purpose=user_requested_update_missing_only_repair_manifest_and_failures
+requested_at=2026-07-27T01:58:00Z
+purpose=confirm_final_missing_only_repair_includes_failed_and_unfinished_shards
