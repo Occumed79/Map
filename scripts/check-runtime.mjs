@@ -23,14 +23,11 @@ if (runtime.name !== 'Occu-Med Terrain — Open') fail('Runtime style name is in
 if (runtime.projection?.type !== 'globe') fail('MapLibre globe projection is missing.');
 if (runtimeText.includes('mapbox://')) fail('Runtime style still contains a mapbox:// endpoint.');
 if (runtimeText.includes('api.mapbox.com')) fail('Runtime style still contains a Mapbox API endpoint.');
-if (runtime.glyphs !== 'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf') {
-  fail('Runtime glyph endpoint is not the validated no-key MapLibre SDF glyph service.');
+if (Object.hasOwn(runtime, 'glyphs')) {
+  fail('Runtime style still depends on an external glyph endpoint instead of MapLibre local glyph rendering.');
 }
-if (runtime.glyphs?.includes('fonts.openmaptiles.org')) {
-  fail('Runtime still uses the glyph endpoint that returned invalid PBF data in Chromium.');
-}
-if (runtime.glyphs?.includes('tiles.openfreemap.org/fonts')) {
-  fail('Runtime still uses the glyph endpoint that rejects combined font stacks.');
+if (runtime.metadata?.['occumed:glyph-rendering'] !== 'local-maplibre') {
+  fail('Runtime style does not declare MapLibre local glyph rendering.');
 }
 if (!String(runtime.sprite).includes('/sprites/occumed')) fail('Local Occu-Med sprite endpoint is missing.');
 
@@ -110,7 +107,8 @@ if (unavailableFonts.length) {
 
 if (report.originalLayerCount !== original.layers.length) fail('Compatibility report source count is stale.');
 if (report.runtimeLayerCount !== runtime.layers.length) fail('Compatibility report runtime count is stale.');
-if (report.endpoints?.glyphs !== runtime.glyphs) fail('Compatibility report glyph endpoint is stale.');
+if (report.endpoints?.glyphs !== null) fail('Compatibility report still records an external glyph endpoint.');
+if (report.localGlyphRendering !== true) fail('Compatibility report does not record local glyph rendering.');
 
 if (failures.length) {
   console.error('Occu-Med open basemap validation failed:');
@@ -119,5 +117,5 @@ if (failures.length) {
 }
 
 console.log(
-  `Open basemap validated: ${runtime.layers.length}/${original.layers.length} visual layers, ${runtime.layers.filter((layer) => layer.type === 'symbol').length} symbol layers, ${activeFontStrings.length} active font references, and ${spriteCount} sprite images.`
+  `Open basemap validated: ${runtime.layers.length}/${original.layers.length} visual layers, ${runtime.layers.filter((layer) => layer.type === 'symbol').length} symbol layers, ${activeFontStrings.length} local font references, and ${spriteCount} sprite images.`
 );
