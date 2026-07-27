@@ -1,2 +1,2 @@
-requested_at=2026-07-27T15:35:00Z
-purpose=rerun_final_high_dpi_browser_validation_without_external_glyph_service
+requested_at=2026-07-27T15:48:00Z
+purpose=final_high_dpi_browser_validation_scoped_to_selected_worldwide_pmtiles_source
