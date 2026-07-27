@@ -1,0 +1,501 @@
+validate-fresno-world	UNKNOWN STEP	﻿2026-07-27T12:32:02.8485339Z Current runner version: '2.335.1'
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:02.8526073Z ##[group]Runner Image Provisioner
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:02.8527536Z Hosted Compute Agent
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:02.8528514Z Version: 20260707.563
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:02.8530010Z Commit: 02667638d2b423fbc733a8e32a88b44996a3ba6e
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:02.8531297Z Build Date: 2026-07-07T19:33:50Z
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:02.8532569Z Worker ID: {fa81283b-0532-4bc3-a166-606cf8b701fb}
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:02.8533887Z Azure Region: eastus
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:02.8534897Z ##[endgroup]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:02.8537465Z ##[group]Operating System
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:02.8538553Z Ubuntu
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:02.8539897Z 24.04.4
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:02.8540750Z LTS
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:02.8541562Z ##[endgroup]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:02.8542630Z ##[group]Runner Image
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:02.8543857Z Image: ubuntu-24.04
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:02.8545034Z Version: 20260720.247.2
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:02.8547309Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260720.247/images/ubuntu/Ubuntu2404-Readme.md
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:02.8550579Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260720.247
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:02.8552352Z ##[endgroup]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:02.8554333Z ##[group]GITHUB_TOKEN Permissions
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:02.8557408Z Contents: write
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:02.8558483Z Metadata: read
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:02.8559704Z ##[endgroup]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:02.8563275Z Secret source: Actions
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:02.8564965Z Prepare workflow directory
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:02.9059528Z Prepare all required actions
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:02.9117024Z Getting action download info
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.0819654Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.3360510Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.4786640Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.6965976Z Complete job name: validate-fresno-world
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.7759677Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.7768552Z ##[group]Run actions/checkout@v4
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.7769637Z with:
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.7770140Z   ref: feat/custom-planetiler-pmtiles-basemap
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.7770756Z   fetch-depth: 0
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.7771204Z   repository: Occumed79/Map
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.7775359Z   token: ***
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.7775792Z   ssh-strict: true
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.7776230Z   ssh-user: git
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.7776682Z   persist-credentials: true
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.7777176Z   clean: true
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.7777631Z   sparse-checkout-cone-mode: true
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.7778159Z   fetch-tags: false
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.7778611Z   show-progress: true
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.7779346Z   lfs: false
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.7779773Z   submodules: false
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.7780227Z   set-safe-directory: true
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.7780741Z   allow-unsafe-pr-checkout: false
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.7781544Z ##[endgroup]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.8893488Z Syncing repository: Occumed79/Map
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.8896400Z ##[group]Getting Git version info
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.8897623Z Working directory is '/home/runner/work/Map/Map'
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.8899676Z [command]/usr/bin/git version
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.9024545Z git version 2.54.0
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.9049777Z ##[endgroup]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.9066372Z Temporarily overriding HOME='/home/runner/work/_temp/336eed2b-b6bb-444f-bef6-794a9fded032' before making global git config changes
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.9069165Z Adding repository directory to the temporary git global config as a safe directory
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.9072901Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Map/Map
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.9149912Z Deleting the contents of '/home/runner/work/Map/Map'
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.9152421Z ##[group]Initializing the repository
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.9153761Z [command]/usr/bin/git init /home/runner/work/Map/Map
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.9256313Z hint: Using 'master' as the name for the initial branch. This default branch name
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.9258305Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.9262764Z hint: to use in all of your new repositories, which will suppress this warning,
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.9264191Z hint: call:
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.9264994Z hint:
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.9265999Z hint: 	git config --global init.defaultBranch <name>
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.9267153Z hint:
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.9268246Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.9270317Z hint: 'development'. The just-created branch can be renamed via this command:
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.9271639Z hint:
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.9272358Z hint: 	git branch -m <name>
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.9273298Z hint:
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.9274880Z hint: Disable this message with "git config set advice.defaultBranchName false"
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.9276966Z Initialized empty Git repository in /home/runner/work/Map/Map/.git/
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.9280614Z [command]/usr/bin/git remote add origin https://github.com/Occumed79/Map
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.9325077Z ##[endgroup]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.9326438Z ##[group]Disabling automatic garbage collection
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.9331547Z [command]/usr/bin/git config --local gc.auto 0
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.9365155Z ##[endgroup]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.9366864Z ##[group]Setting up auth
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.9374697Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.9424397Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.9784181Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:03.9823054Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.0047659Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.0083538Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.0338441Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.0378703Z ##[endgroup]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.0380518Z ##[group]Fetching the repository
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.0390532Z [command]/usr/bin/git -c protocol.version=2 fetch --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/*
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.5318550Z From https://github.com/Occumed79/Map
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.5320996Z  * [new branch]      build/complete-occumed-basemap -> origin/build/complete-occumed-basemap
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.5322471Z  * [new branch]      build/exact-mapbox-reference-v2 -> origin/build/exact-mapbox-reference-v2
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.5323886Z  * [new branch]      build/exact-occumed-template -> origin/build/exact-occumed-template
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.5325434Z  * [new branch]      build/literal-mapbox-style-self-hosted-app -> origin/build/literal-mapbox-style-self-hosted-app
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.5326990Z  * [new branch]      build/mapbox-visual-parity -> origin/build/mapbox-visual-parity
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.5328297Z  * [new branch]      build/open-basemap-foundation -> origin/build/open-basemap-foundation
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.5329877Z  * [new branch]      build/open-mapbox-clone-v1 -> origin/build/open-mapbox-clone-v1
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.5331181Z  * [new branch]      feat/custom-planetiler-pmtiles -> origin/feat/custom-planetiler-pmtiles
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.5333125Z  * [new branch]      feat/custom-planetiler-pmtiles-basemap -> origin/feat/custom-planetiler-pmtiles-basemap
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.5334611Z  * [new branch]      fix/final-visual-quality -> origin/fix/final-visual-quality
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.5335884Z  * [new branch]      fix/live-visual-qa-pass-2 -> origin/fix/live-visual-qa-pass-2
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.5337287Z  * [new branch]      fix/lock-exact-exported-swatches -> origin/fix/lock-exact-exported-swatches
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.5339106Z  * [new branch]      fix/maplibre-filter-expressions -> origin/fix/maplibre-filter-expressions
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.5340753Z  * [new branch]      fix/nonfatal-map-errors -> origin/fix/nonfatal-map-errors
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.5342345Z  * [new branch]      fix/preserve-layer-specific-palette -> origin/fix/preserve-layer-specific-palette
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.5343961Z  * [new branch]      fix/reference-color-system-pass-4 -> origin/fix/reference-color-system-pass-4
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.5345482Z  * [new branch]      fix/remove-radioactive-relief -> origin/fix/remove-radioactive-relief
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.5346874Z  * [new branch]      fix/render-health-timeout -> origin/fix/render-health-timeout
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.5348450Z  * [new branch]      fix/restore-exported-road-label-hierarchy -> origin/fix/restore-exported-road-label-hierarchy
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.5350498Z  * [new branch]      fix/restore-visible-mapbox-composition -> origin/fix/restore-visible-mapbox-composition
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.5352007Z  * [new branch]      fix/stable-globe-rendering -> origin/fix/stable-globe-rendering
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.5353492Z  * [new branch]      fix/strong-low-zoom-green -> origin/fix/strong-low-zoom-green
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.5355072Z  * [new branch]      fix/style-cache-busting -> origin/fix/style-cache-busting
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.5356482Z  * [new branch]      main                    -> origin/main
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.5357934Z  * [new branch]      rebuild/photo-reference-v1 -> origin/rebuild/photo-reference-v1
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.5360040Z  * [new branch]      rebuild/photo-reference-v2 -> origin/rebuild/photo-reference-v2
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.5361785Z  * [new branch]      revert/remove-mapbox-runtime -> origin/revert/remove-mapbox-runtime
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.5363407Z  * [new branch]      visual/globe-parity-v1  -> origin/visual/globe-parity-v1
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.5364920Z  * [new tag]         occumed-world-v1        -> occumed-world-v1
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.5410913Z ##[endgroup]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.5413587Z ##[group]Determining the checkout info
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.5420491Z [command]/usr/bin/git branch --list --remote origin/feat/custom-planetiler-pmtiles-basemap
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.5460162Z   origin/feat/custom-planetiler-pmtiles-basemap
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.5476640Z ##[endgroup]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.5478010Z [command]/usr/bin/git sparse-checkout disable
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.5516052Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.5548289Z ##[group]Checking out the ref
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.5553176Z [command]/usr/bin/git checkout --progress --force -B feat/custom-planetiler-pmtiles-basemap refs/remotes/origin/feat/custom-planetiler-pmtiles-basemap
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.6214221Z Switched to a new branch 'feat/custom-planetiler-pmtiles-basemap'
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.6216546Z branch 'feat/custom-planetiler-pmtiles-basemap' set up to track 'origin/feat/custom-planetiler-pmtiles-basemap'.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.6229493Z ##[endgroup]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.6280264Z [command]/usr/bin/git log -1 --format=%H
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.6311426Z 57c62208e29d320f94be1feb438a547d33ff9c39
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.6697069Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.6700803Z ##[group]Run actions/setup-node@v4
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.6701676Z with:
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.6702617Z   node-version: 24
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.6703405Z   always-auth: false
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.6704186Z   check-latest: false
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.6709126Z   token: ***
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.6709904Z ##[endgroup]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.8135820Z (node:2302) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.8137588Z (Use `node --trace-deprecation ...` to show where the warning was created)
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.8140461Z Found in cache @ /opt/hostedtoolcache/node/24.18.0/x64
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:04.8142284Z ##[group]Environment details
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:05.1967582Z node: v24.18.0
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:05.1968645Z npm: 11.16.0
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:05.1969532Z yarn: 1.22.22
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:05.1970770Z ##[endgroup]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:05.2130736Z ##[group]Run set -euo pipefail
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:05.2131568Z ^[[36;1mset -euo pipefail^[[0m
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:05.2132257Z ^[[36;1mnpm install^[[0m
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:05.2132923Z ^[[36;1mnpm install --no-save playwright^[[0m
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:05.2134006Z ^[[36;1mnpx playwright install --with-deps chromium^[[0m
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:05.2193264Z shell: /usr/bin/bash -e {0}
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:05.2193938Z ##[endgroup]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:10.8501138Z npm warn deprecated stable@0.1.8: Modern JS already guarantees Array#sort() is a stable sort, so this library is deprecated. See the compatibility table on MDN: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort#browser_compatibility
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:13.6765803Z 
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:13.6766677Z added 91 packages, and audited 92 packages in 8s
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:13.6767124Z 
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:13.6767720Z 22 packages are looking for funding
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:13.6768159Z   run `npm fund` for details
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:13.6779660Z 
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:13.6780196Z found 0 vulnerabilities
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:13.6791062Z npm warn allow-scripts 1 package has install scripts not yet covered by allowScripts:
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:13.6793036Z npm warn allow-scripts   @mapnik/mapnik@4.8.0 (preinstall: ./scripts/preinstall.sh; install: node-gyp-build; postinstall: ./scripts/postinstall.sh)
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:13.6794354Z npm warn allow-scripts
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:13.6795634Z npm warn allow-scripts Run `npm approve-scripts --allow-scripts-pending` to review, or `npm approve-scripts <pkg>` to allow.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:15.1483039Z 
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:15.1483835Z added 2 packages, and audited 94 packages in 1s
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:15.1484492Z 
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:15.1484812Z 22 packages are looking for funding
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:15.1485926Z   run `npm fund` for details
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:15.1496606Z 
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:15.1497969Z found 0 vulnerabilities
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:15.1515042Z npm warn allow-scripts 1 package has install scripts not yet covered by allowScripts:
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:15.1516028Z npm warn allow-scripts   @mapnik/mapnik@4.8.0 (install: node-gyp rebuild)
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:15.1516485Z npm warn allow-scripts
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:15.1517232Z npm warn allow-scripts Run `npm approve-scripts --allow-scripts-pending` to review, or `npm approve-scripts <pkg>` to allow.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:15.9247377Z Installing dependencies...
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:15.9330572Z Switching to root user to install dependencies...
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:16.0181252Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:16.0638125Z Hit:6 https://packages.microsoft.com/repos/azure-cli noble InRelease
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:16.0644922Z Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:16.0647522Z Get:7 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease [3600 B]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:16.0652222Z Get:8 https://dl.google.com/linux/chrome-stable/deb stable InRelease [2548 B]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:16.0674284Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:16.0728562Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:16.0759754Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:16.2297808Z Get:9 https://packages.microsoft.com/ubuntu/24.04/prod noble/main armhf Packages [11.7 kB]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:16.2397700Z Get:10 https://packages.microsoft.com/ubuntu/24.04/prod noble/main arm64 Packages [203 kB]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:16.2470214Z Get:11 https://packages.microsoft.com/ubuntu/24.04/prod noble/main amd64 Packages [237 kB]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:16.2924500Z Get:12 https://dl.google.com/linux/chrome-stable/deb stable/main amd64 Packages [1425 B]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:16.3231624Z Get:13 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1151 kB]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:16.3302468Z Get:14 http://azure.archive.ubuntu.com/ubuntu noble-updates/main Translation-en [277 kB]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:16.3329569Z Get:15 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Components [180 kB]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:16.3351728Z Get:16 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1678 kB]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:16.3439319Z Get:17 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe Translation-en [333 kB]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:16.3465647Z Get:18 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Components [388 kB]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:16.3520935Z Get:19 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [1367 kB]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:16.3681676Z Get:20 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted Translation-en [308 kB]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:16.3699877Z Get:21 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Packages [45.4 kB]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:16.3756055Z Get:22 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse Translation-en [12.3 kB]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:16.4203649Z Get:23 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Components [940 B]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:16.4224796Z Get:24 http://azure.archive.ubuntu.com/ubuntu noble-backports/main amd64 Components [5760 B]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:16.4241787Z Get:25 http://azure.archive.ubuntu.com/ubuntu noble-backports/universe amd64 Packages [32.5 kB]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:16.4260672Z Get:26 http://azure.archive.ubuntu.com/ubuntu noble-backports/universe amd64 Components [12.6 kB]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:16.4405214Z Get:27 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Packages [885 kB]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:16.4459456Z Get:28 http://azure.archive.ubuntu.com/ubuntu noble-security/main Translation-en [196 kB]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:16.4479388Z Get:29 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Components [46.3 kB]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:16.4495996Z Get:30 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1197 kB]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:16.4580244Z Get:31 http://azure.archive.ubuntu.com/ubuntu noble-security/universe Translation-en [238 kB]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:16.4592796Z Get:32 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Components [76.3 kB]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:16.4604071Z Get:33 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [1248 kB]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:16.4670226Z Get:34 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted Translation-en [284 kB]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:16.4693933Z Get:35 http://azure.archive.ubuntu.com/ubuntu noble-security/multiverse amd64 Packages [40.3 kB]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:16.4707154Z Get:36 http://azure.archive.ubuntu.com/ubuntu noble-security/multiverse Translation-en [10.4 kB]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:20.3203826Z Fetched 10.9 MB in 1s (8146 kB/s)
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:20.9966066Z Reading package lists...
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.0208255Z Reading package lists...
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.1816228Z Building dependency tree...
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.1823977Z Reading state information...
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3162211Z libasound2t64 is already the newest version (1.2.11-1ubuntu0.3).
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3163212Z libasound2t64 set to manually installed.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3163994Z libatk-bridge2.0-0t64 is already the newest version (2.52.0-1build1).
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3164949Z libatk-bridge2.0-0t64 set to manually installed.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3165902Z libatk1.0-0t64 is already the newest version (2.52.0-1build1).
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3167341Z libatk1.0-0t64 set to manually installed.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3168457Z libatspi2.0-0t64 is already the newest version (2.52.0-1build1).
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3171355Z libatspi2.0-0t64 set to manually installed.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3172465Z libcairo2 is already the newest version (1.18.0-3build1).
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3173318Z libcairo2 set to manually installed.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3174229Z libcups2t64 is already the newest version (2.4.7-1.2ubuntu7.14).
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3175311Z libcups2t64 set to manually installed.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3176287Z libdbus-1-3 is already the newest version (1.14.10-4ubuntu4.1).
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3177106Z libdbus-1-3 set to manually installed.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3178400Z libdrm2 is already the newest version (2.4.125-1ubuntu0.1~24.04.2).
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3179668Z libdrm2 set to manually installed.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3180530Z libgbm1 is already the newest version (25.2.8-0ubuntu0.24.04.2).
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3181233Z libgbm1 set to manually installed.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3181965Z libglib2.0-0t64 is already the newest version (2.80.0-6ubuntu3.8).
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3182848Z libglib2.0-0t64 set to manually installed.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3183580Z libnspr4 is already the newest version (2:4.35-1.1build1).
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3184226Z libnspr4 set to manually installed.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3184866Z libnss3 is already the newest version (2:3.98-1ubuntu0.2).
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3185499Z libnss3 set to manually installed.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3186237Z libpango-1.0-0 is already the newest version (1.52.1+ds-1build1).
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3187005Z libpango-1.0-0 set to manually installed.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3187757Z libx11-6 is already the newest version (2:1.8.7-1build1).
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3188467Z libx11-6 set to manually installed.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3189493Z libxcb1 is already the newest version (1.15-1ubuntu2).
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3190168Z libxcb1 set to manually installed.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3190924Z libxcomposite1 is already the newest version (1:0.4.5-1build3).
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3191680Z libxcomposite1 set to manually installed.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3192456Z libxdamage1 is already the newest version (1:1.1.6-1build1).
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3193191Z libxdamage1 set to manually installed.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3193931Z libxext6 is already the newest version (2:1.3.4-1build2).
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3194618Z libxext6 set to manually installed.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3195247Z libxfixes3 is already the newest version (1:6.0.0-2build1).
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3195631Z libxfixes3 set to manually installed.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3196034Z libxkbcommon0 is already the newest version (1.6.0-1build1).
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3196427Z libxkbcommon0 set to manually installed.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3196840Z libxrandr2 is already the newest version (2:1.5.2-2build1).
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3197218Z libxrandr2 set to manually installed.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3197610Z xvfb is already the newest version (2:21.1.12-1ubuntu1.6).
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3198151Z fonts-noto-color-emoji is already the newest version (2.047-0ubuntu0.24.04.1).
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3198705Z libfontconfig1 is already the newest version (2.15.0-1.1ubuntu2).
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3199461Z libfontconfig1 set to manually installed.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3199902Z libfreetype6 is already the newest version (2.13.2+dfsg-1ubuntu0.1).
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3200319Z libfreetype6 set to manually installed.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3200728Z fonts-liberation is already the newest version (1:2.1.5-3).
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3201128Z fonts-liberation set to manually installed.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3201516Z The following additional packages will be installed:
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3201867Z   xfonts-encodings xfonts-utils
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3202144Z Recommended packages:
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3202414Z   fonts-ipafont-mincho fonts-tlwg-loma
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3351039Z The following NEW packages will be installed:
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3351891Z   fonts-freefont-ttf fonts-ipafont-gothic fonts-tlwg-loma-otf fonts-unifont
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3356505Z   fonts-wqy-zenhei xfonts-cyrillic xfonts-encodings xfonts-scalable
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3357155Z   xfonts-utils
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3522593Z 0 upgraded, 9 newly installed, 0 to remove and 66 not upgraded.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3523336Z Need to get 21.1 MB of archives.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3524102Z After this operation, 79.5 MB of additional disk space will be used.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3524963Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.3768204Z Get:2 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-ipafont-gothic all 00303-21ubuntu1 [3513 kB]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.4140115Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 fonts-freefont-ttf all 20211204+svn4273-2 [5641 kB]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.4598234Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-tlwg-loma-otf all 1:0.7.3-1 [107 kB]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.4694198Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-unifont all 1:15.1.01-1build1 [2993 kB]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.4988197Z Get:6 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-wqy-zenhei all 0.9.45-8 [7472 kB]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.5514219Z Get:7 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-encodings all 1:1.0.5-0ubuntu2 [578 kB]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.5622714Z Get:8 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-utils amd64 1:7.7+6build3 [94.4 kB]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.5717031Z Get:9 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 xfonts-cyrillic all 1:1.0.5+nmu1 [384 kB]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.5814676Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-scalable all 1:1.0.3-1.3 [304 kB]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.8297684Z Fetched 21.1 MB in 0s (87.3 MB/s)
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.8534267Z Selecting previously unselected package fonts-ipafont-gothic.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.8802202Z (Reading database ... 
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.8802801Z (Reading database ... 5%
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.8803462Z (Reading database ... 10%
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.8803954Z (Reading database ... 15%
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.8804440Z (Reading database ... 20%
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.8805083Z (Reading database ... 25%
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.8805660Z (Reading database ... 30%
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.8806083Z (Reading database ... 35%
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.8806506Z (Reading database ... 40%
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.8806932Z (Reading database ... 45%
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.8807405Z (Reading database ... 50%
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.8846692Z (Reading database ... 55%
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:21.9766413Z (Reading database ... 60%
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:22.1792211Z (Reading database ... 65%
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:22.3776102Z (Reading database ... 70%
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:22.4762627Z (Reading database ... 75%
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:22.6772339Z (Reading database ... 80%
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:22.8957594Z (Reading database ... 85%
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:23.0289015Z (Reading database ... 90%
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:23.1948371Z (Reading database ... 95%
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:23.1949176Z (Reading database ... 100%
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:23.1949756Z (Reading database ... 202954 files and directories currently installed.)
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:23.1992229Z Preparing to unpack .../0-fonts-ipafont-gothic_00303-21ubuntu1_all.deb ...
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:23.2085441Z Unpacking fonts-ipafont-gothic (00303-21ubuntu1) ...
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:23.4355574Z Selecting previously unselected package fonts-freefont-ttf.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:23.4481730Z Preparing to unpack .../1-fonts-freefont-ttf_20211204+svn4273-2_all.deb ...
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:23.4491624Z Unpacking fonts-freefont-ttf (20211204+svn4273-2) ...
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:23.5284936Z Selecting previously unselected package fonts-tlwg-loma-otf.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:23.5413746Z Preparing to unpack .../2-fonts-tlwg-loma-otf_1%3a0.7.3-1_all.deb ...
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:23.5424920Z Unpacking fonts-tlwg-loma-otf (1:0.7.3-1) ...
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:23.5650079Z Selecting previously unselected package fonts-unifont.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:23.5778942Z Preparing to unpack .../3-fonts-unifont_1%3a15.1.01-1build1_all.deb ...
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:23.5789842Z Unpacking fonts-unifont (1:15.1.01-1build1) ...
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:23.6864914Z Selecting previously unselected package fonts-wqy-zenhei.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:23.7003929Z Preparing to unpack .../4-fonts-wqy-zenhei_0.9.45-8_all.deb ...
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:23.7109513Z Unpacking fonts-wqy-zenhei (0.9.45-8) ...
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:24.1705333Z Selecting previously unselected package xfonts-encodings.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:24.1833195Z Preparing to unpack .../5-xfonts-encodings_1%3a1.0.5-0ubuntu2_all.deb ...
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:24.1843849Z Unpacking xfonts-encodings (1:1.0.5-0ubuntu2) ...
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:24.2133327Z Selecting previously unselected package xfonts-utils.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:24.2259872Z Preparing to unpack .../6-xfonts-utils_1%3a7.7+6build3_amd64.deb ...
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:24.2271457Z Unpacking xfonts-utils (1:7.7+6build3) ...
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:24.2647096Z Selecting previously unselected package xfonts-cyrillic.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:24.2774424Z Preparing to unpack .../7-xfonts-cyrillic_1%3a1.0.5+nmu1_all.deb ...
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:24.2785255Z Unpacking xfonts-cyrillic (1:1.0.5+nmu1) ...
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:24.3136272Z Selecting previously unselected package xfonts-scalable.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:24.3263592Z Preparing to unpack .../8-xfonts-scalable_1%3a1.0.3-1.3_all.deb ...
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:24.3274686Z Unpacking xfonts-scalable (1:1.0.3-1.3) ...
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:24.3697072Z Setting up fonts-wqy-zenhei (0.9.45-8) ...
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:24.3850050Z Setting up fonts-freefont-ttf (20211204+svn4273-2) ...
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:24.3879889Z Setting up fonts-tlwg-loma-otf (1:0.7.3-1) ...
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:24.3907459Z Setting up xfonts-encodings (1:1.0.5-0ubuntu2) ...
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:24.3946912Z Setting up fonts-ipafont-gothic (00303-21ubuntu1) ...
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:24.4025761Z update-alternatives: using /usr/share/fonts/opentype/ipafont-gothic/ipag.ttf to provide /usr/share/fonts/truetype/fonts-japanese-gothic.ttf (fonts-japanese-gothic.ttf) in auto mode
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:24.4045014Z Setting up fonts-unifont (1:15.1.01-1build1) ...
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:24.4072520Z Setting up xfonts-utils (1:7.7+6build3) ...
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:24.4128700Z Setting up xfonts-cyrillic (1:1.0.5+nmu1) ...
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:24.4431268Z Setting up xfonts-scalable (1:1.0.3-1.3) ...
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:24.4713527Z Processing triggers for man-db (2.12.0-4build2) ...
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:24.4740977Z Not building database; man-db/auto-update is not 'true'.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:24.4757494Z Processing triggers for fontconfig (2.15.0-1.1ubuntu2) ...
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:25.1647051Z 
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:25.1647752Z Running kernel seems to be up-to-date.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:25.1648070Z 
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:25.1648270Z No services need to be restarted.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:25.1648505Z 
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:25.1648704Z No containers need to be restarted.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:25.1650006Z 
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:25.1650277Z No user sessions are running outdated binaries.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:25.1650568Z 
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:25.1650946Z No VM guests are running outdated hypervisor (qemu) binaries on this host.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:25.9503036Z Downloading Chrome for Testing 151.0.7922.34 (playwright chromium v1234) from https://cdn.playwright.dev/builds/cft/151.0.7922.34/linux64/chrome-linux64.zip
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:26.9300977Z |                                                                                |   0% of 184.3 MiB
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:27.0723445Z |■■■■■■■■                                                                        |  10% of 184.3 MiB
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:27.1630466Z |■■■■■■■■■■■■■■■■                                                                |  20% of 184.3 MiB
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:27.2392450Z |■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 184.3 MiB
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:27.3237379Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 184.3 MiB
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:27.3906865Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 184.3 MiB
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:27.4695898Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 184.3 MiB
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:27.5445069Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 184.3 MiB
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:27.6180705Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 184.3 MiB
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:27.6868557Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 184.3 MiB
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:27.7688055Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 184.3 MiB
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:31.2934562Z Chrome for Testing 151.0.7922.34 (playwright chromium v1234) downloaded to /home/runner/.cache/ms-playwright/chromium-1234
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:31.2939193Z Downloading FFmpeg (playwright ffmpeg v1011) from https://cdn.playwright.dev/dbazure/download/playwright/builds/ffmpeg/1011/ffmpeg-linux.zip
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:32.2939092Z |                                                                                |   0% of 2.3 MiB
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:32.3117951Z |■■■■■■■■                                                                        |  10% of 2.3 MiB
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:32.3198007Z |■■■■■■■■■■■■■■■■                                                                |  20% of 2.3 MiB
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:32.3253859Z |■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 2.3 MiB
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:32.3314949Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 2.3 MiB
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:32.3367090Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 2.3 MiB
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:32.3381635Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 2.3 MiB
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:32.3398079Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 2.3 MiB
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:32.3439660Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 2.3 MiB
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:32.3457935Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 2.3 MiB
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:32.3494355Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 2.3 MiB
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:32.4163476Z FFmpeg (playwright ffmpeg v1011) downloaded to /home/runner/.cache/ms-playwright/ffmpeg-1011
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:32.4187967Z Downloading Chrome Headless Shell 151.0.7922.34 (playwright chromium-headless-shell v1234) from https://cdn.playwright.dev/builds/cft/151.0.7922.34/linux64/chrome-headless-shell-linux64.zip
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:33.4028572Z |                                                                                |   0% of 114.7 MiB
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:33.5007661Z |■■■■■■■■                                                                        |  10% of 114.7 MiB
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:33.5767183Z |■■■■■■■■■■■■■■■■                                                                |  20% of 114.7 MiB
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:33.6430351Z |■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 114.7 MiB
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:33.7013877Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 114.7 MiB
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:33.7735114Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 114.7 MiB
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:33.8162927Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 114.7 MiB
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:33.8568302Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 114.7 MiB
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:33.9126531Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 114.7 MiB
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:33.9647299Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 114.7 MiB
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:34.0105902Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 114.7 MiB
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:36.3641225Z Chrome Headless Shell 151.0.7922.34 (playwright chromium-headless-shell v1234) downloaded to /home/runner/.cache/ms-playwright/chromium_headless_shell-1234
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:36.3982388Z ##[group]Run npm run build
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:36.3982686Z ^[[36;1mnpm run build^[[0m
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:36.4026848Z shell: /usr/bin/bash -e {0}
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:36.4027109Z ##[endgroup]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:36.5032709Z 
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:36.5033201Z > @occumed/map@0.4.0 build
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:36.5033895Z > npm run prepare:assets && npm run check && vite build && npm run check:server
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:36.5034292Z 
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:36.5994265Z 
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:36.5994685Z > @occumed/map@0.4.0 prepare:assets
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:36.5995159Z > npm run prepare:sprites && npm run prepare:style
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:36.5995414Z 
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:36.7043756Z 
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:36.7044400Z > @occumed/map@0.4.0 prepare:sprites
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:36.7045240Z > node scripts/build-sprites.mjs
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:36.7045642Z 
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:37.2993324Z Generated 1x and 2x Occu-Med sprites from 440 unique SVG files.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:37.4158612Z 
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:37.4159458Z > @occumed/map@0.4.0 prepare:style
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:37.4164937Z > node scripts/build-runtime-style.mjs && node scripts/normalize-runtime-fonts.mjs && node scripts/normalize-runtime-filters.mjs && node scripts/normalize-boundary-filters.mjs && node scripts/force-runtime-filter-expressions.mjs && node scripts/apply-schema-parity.mjs && node scripts/apply-globe-parity.mjs && node scripts/apply-photo-reference.mjs && node scripts/restore-exported-cartography.mjs && node scripts/calibrate-reference-colors.mjs && node scripts/lock-exact-exported-swatches.mjs && node scripts/lock-reference-atmosphere.mjs && node scripts/use-custom-pmtiles-source.mjs
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:37.4169281Z 
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:37.4707253Z Generated 146 runtime layers from 148 original layers; 4 incompatible layers documented.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:37.5142324Z Normalized active font stacks in 4 runtime layers and refined 1 label halos.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:37.5604240Z Normalized mixed legacy/expression filters in 0 runtime layers.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:37.6046055Z Translated Mapbox boundary filters in 5 runtime layers.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:37.6489600Z Forced expression-mode parsing for 129 runtime filters.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:37.6949113Z Applied open-schema parity to 6 land layers, 6 place-label layers, and 3 icon-label layers.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:37.7387946Z Applied refined Occu-Med globe rim, vivid low-zoom relief, and stable hillshade.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:37.7839271Z Applied live visual-QA pass 2 for globe framing, ocean depth, landcover, terrain, roads, boundaries, and labels.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:37.8457718Z Restored exported layout and paint for 144 layers and repaired 118 schema-sensitive filters.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:37.9055937Z Preserved 91 exported structure-specific colors and restored visible low-zoom landcover, water, terrain, roads, and boundaries.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:37.9540633Z Locked exact exported swatches, preserved vector detail, and faded pixel-based relief before regional zooms.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.0047862Z Locked the luminous white-blue reference atmosphere without adding surface fog.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.0555861Z Configured worldwide PMTiles manifest: __OCCUMED_PUBLIC_ORIGIN__/world-manifest.json
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.1655961Z 
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.1656530Z > @occumed/map@0.4.0 check
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.1657252Z > npm run check:export && npm run check:runtime
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.1657666Z 
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.2654178Z 
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.2654813Z > @occumed/map@0.4.0 check:export
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.2655400Z > node scripts/check-export.mjs
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.2655641Z 
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.3057780Z Original Occu-Med Terrain export is intact: 148 layers and 440 uploaded SVG files.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.4119237Z 
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.4119793Z > @occumed/map@0.4.0 check:runtime
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.4122635Z > node scripts/check-runtime.mjs && node scripts/validate-maplibre-style.mjs && node scripts/check-globe-parity.mjs && node scripts/check-cartography-parity.mjs && node scripts/check-viewer-quality.mjs && node scripts/check-photo-reference.mjs && node scripts/check-exact-exported-swatches.mjs && node scripts/check-render-clarity.mjs && node scripts/check-pmtiles-integration.mjs
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.4124453Z 
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.4560505Z Occu-Med open basemap validation failed:
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.4563423Z - Rendered layers still request unavailable font stacks: Noto Sans Regular, Noto Sans Semibold
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.4824361Z ##[error]Process completed with exit code 1.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.4966872Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.4968184Z ##[group]Run actions/upload-artifact@v4
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.4968453Z with:
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.4969137Z   name: occumed-final-fresno-world-render-57c62208e29d320f94be1feb438a547d33ff9c39
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.4969724Z   path: visual-validation/fresno-world-final
+validate-fresno-world	UNKNOWN STEP	/tmp/fresno-world-server.log
+validate-fresno-world	UNKNOWN STEP	
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.4970127Z   if-no-files-found: warn
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.4970352Z   retention-days: 30
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.4970562Z   compression-level: 6
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.4970769Z   overwrite: false
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.4970983Z   include-hidden-files: false
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.4971220Z ##[endgroup]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.6608586Z (node:3375) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.6610342Z (Use `node --trace-deprecation ...` to show where the warning was created)
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.6649496Z Multiple search paths detected. Calculating the least common ancestor of all paths
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.6669667Z The least common ancestor is /. This will be the root directory of the artifact
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.6690215Z ##[warning]No files were found with the provided path: visual-validation/fresno-world-final
+validate-fresno-world	UNKNOWN STEP	/tmp/fresno-world-server.log. No artifacts will be uploaded.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.6788380Z ##[group]Run if [ -f /tmp/fresno-world-server.pid ]; then
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.6789126Z ^[[36;1mif [ -f /tmp/fresno-world-server.pid ]; then^[[0m
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.6789555Z ^[[36;1m  kill "$(cat /tmp/fresno-world-server.pid)" 2>/dev/null || true^[[0m
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.6789915Z ^[[36;1mfi^[[0m
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.6833309Z shell: /usr/bin/bash -e {0}
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.6833565Z ##[endgroup]
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.7073650Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.7074904Z Post job cleanup.
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.7936322Z [command]/usr/bin/git version
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.7981597Z git version 2.54.0
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.8026058Z Temporarily overriding HOME='/home/runner/work/_temp/0ccd47df-605a-455a-95a0-c9ef35d3bc0e' before making global git config changes
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.8027802Z Adding repository directory to the temporary git global config as a safe directory
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.8032806Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Map/Map
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.8073061Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.8110455Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.8367301Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.8396730Z http.https://github.com/.extraheader
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.8409478Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.8445893Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.8739804Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.8779114Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.9198033Z Cleaning up orphan processes
+validate-fresno-world	UNKNOWN STEP	2026-07-27T12:32:38.9429180Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

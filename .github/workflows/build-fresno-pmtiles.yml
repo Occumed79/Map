@@ -1,0 +1,10 @@
+name: Build Fresno Occu-Med PMTiles
+
+on:
+  workflow_dispatch:
+
+jobs:
+  manual-only:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Automatic Fresno builds are paused while the worldwide PMTiles release is completed."

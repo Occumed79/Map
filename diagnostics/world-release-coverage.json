@@ -1,0 +1,5505 @@
+{
+  "version": 1,
+  "generatedAt": "2026-07-26T21:24:51.808Z",
+  "releaseTag": "occumed-world-v1",
+  "sourceSchema": "planetiler/occumed-basemap.yml",
+  "switchZoom": 6,
+  "attribution": "<a href=\"https://www.openstreetmap.org/copyright\">© OpenStreetMap contributors</a>",
+  "archiveTransport": "same-origin-release-proxy",
+  "archiveProxyTemplate": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/{asset}",
+  "releaseBase": "https://github.com/Occumed79/Map/releases/download/occumed-world-v1",
+  "regions": [
+    {
+      "id": "act",
+      "slug": "act",
+      "name": "Australian Capital Territory",
+      "continent": "australia-oceania",
+      "bounds": [
+        148.7583,
+        -35.92548,
+        149.4018,
+        -35.12093
+      ],
+      "asset": "occumed-act.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-act.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "afghanistan",
+      "slug": "afghanistan",
+      "name": "Afghanistan",
+      "continent": "asia",
+      "bounds": [
+        60.48761,
+        29.36856,
+        74.90017,
+        38.50674
+      ],
+      "asset": "occumed-afghanistan.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-afghanistan.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "albania",
+      "slug": "albania",
+      "name": "Albania",
+      "continent": "europe",
+      "bounds": [
+        18.89648,
+        39.62738,
+        21.06285,
+        42.66313
+      ],
+      "asset": "occumed-albania.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-albania.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "alberta",
+      "slug": "alberta",
+      "name": "Alberta",
+      "continent": "north-america",
+      "bounds": [
+        -120.0043,
+        48.99251,
+        -110.0018,
+        60.00254
+      ],
+      "asset": "occumed-alberta.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-alberta.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "algeria",
+      "slug": "algeria",
+      "name": "Algeria",
+      "continent": "africa",
+      "bounds": [
+        -8.704895,
+        18.92874,
+        12.03598,
+        37.77284
+      ],
+      "asset": "occumed-algeria.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-algeria.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "alsace",
+      "slug": "alsace",
+      "name": "Alsace",
+      "continent": "europe",
+      "bounds": [
+        6.838921,
+        47.41798,
+        8.235465,
+        49.07898
+      ],
+      "asset": "occumed-alsace.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-alsace.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "american-oceania",
+      "slug": "american-oceania",
+      "name": "American Oceania",
+      "continent": "australia-oceania",
+      "bounds": [
+        141.6357,
+        -17.644,
+        -160.2799,
+        22.02463
+      ],
+      "asset": "occumed-american-oceania.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-american-oceania.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "andalucia",
+      "slug": "andalucia",
+      "name": "Andalucía",
+      "continent": "europe",
+      "bounds": [
+        -7.52466,
+        35.70638,
+        -1.332095,
+        38.73347
+      ],
+      "asset": "occumed-andalucia.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-andalucia.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "andorra",
+      "slug": "andorra",
+      "name": "Andorra",
+      "continent": "europe",
+      "bounds": [
+        1.412368,
+        42.4276,
+        1.787481,
+        42.65717
+      ],
+      "asset": "occumed-andorra.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-andorra.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "angola",
+      "slug": "angola",
+      "name": "Angola",
+      "continent": "africa",
+      "bounds": [
+        10.53848,
+        -18.06508,
+        24.10297,
+        -4.327925
+      ],
+      "asset": "occumed-angola.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-angola.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "anhui",
+      "slug": "anhui",
+      "name": "Anhui",
+      "continent": "asia",
+      "bounds": [
+        114.8693,
+        29.38816,
+        119.6566,
+        34.65496
+      ],
+      "asset": "occumed-anhui.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-anhui.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "antarctica",
+      "slug": "antarctica",
+      "name": "Antarctica",
+      "continent": "antarctica",
+      "bounds": [
+        180,
+        -90,
+        180,
+        -60
+      ],
+      "asset": "occumed-antarctica.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-antarctica.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "aquitaine",
+      "slug": "aquitaine",
+      "name": "Aquitaine",
+      "continent": "europe",
+      "bounds": [
+        -1.842771,
+        42.77334,
+        1.450577,
+        45.71724
+      ],
+      "asset": "occumed-aquitaine.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-aquitaine.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "aragon",
+      "slug": "aragon",
+      "name": "Aragón",
+      "continent": "europe",
+      "bounds": [
+        -2.17907,
+        39.83833,
+        0.772562,
+        42.92677
+      ],
+      "asset": "occumed-aragon.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-aragon.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "armenia",
+      "slug": "armenia",
+      "name": "Armenia",
+      "continent": "asia",
+      "bounds": [
+        43.43821,
+        38.83743,
+        46.64262,
+        41.31029
+      ],
+      "asset": "occumed-armenia.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-armenia.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "arnsberg-regbez",
+      "slug": "arnsberg-regbez",
+      "name": "Regierungsbezirk Arnsberg",
+      "continent": "europe",
+      "bounds": [
+        7.099633,
+        50.67897,
+        8.972531,
+        51.74709
+      ],
+      "asset": "occumed-arnsberg-regbez.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-arnsberg-regbez.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "ashmore-cartier",
+      "slug": "ashmore-cartier",
+      "name": "Ashmore and Cartier Islands",
+      "continent": "australia-oceania",
+      "bounds": [
+        122.5681,
+        -12.8482,
+        124.0416,
+        -11.89266
+      ],
+      "asset": "occumed-ashmore-cartier.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-ashmore-cartier.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "asturias",
+      "slug": "asturias",
+      "name": "Asturias",
+      "continent": "europe",
+      "bounds": [
+        -7.188576,
+        42.87886,
+        -4.39956,
+        44.01101
+      ],
+      "asset": "occumed-asturias.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-asturias.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "austria",
+      "slug": "austria",
+      "name": "Austria",
+      "continent": "europe",
+      "bounds": [
+        9.52678,
+        46.36979,
+        17.16408,
+        49.02403
+      ],
+      "asset": "occumed-austria.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-austria.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "auvergne",
+      "slug": "auvergne",
+      "name": "Auvergne",
+      "continent": "europe",
+      "bounds": [
+        2.060519,
+        44.6146,
+        4.492907,
+        46.80668
+      ],
+      "asset": "occumed-auvergne.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-auvergne.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "azerbaijan",
+      "slug": "azerbaijan",
+      "name": "Azerbaijan",
+      "continent": "asia",
+      "bounds": [
+        44.75006,
+        38.24727,
+        51.7231,
+        42.67437
+      ],
+      "asset": "occumed-azerbaijan.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-azerbaijan.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "azores",
+      "slug": "azores",
+      "name": "Azores",
+      "continent": "europe",
+      "bounds": [
+        -31.57293,
+        35.67791,
+        -23.71814,
+        40.0757
+      ],
+      "asset": "occumed-azores.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-azores.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "bahamas",
+      "slug": "bahamas",
+      "name": "Bahamas",
+      "continent": "central-america",
+      "bounds": [
+        -81.51857,
+        20.27251,
+        -71.86673,
+        27.97497
+      ],
+      "asset": "occumed-bahamas.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-bahamas.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "bangladesh",
+      "slug": "bangladesh",
+      "name": "Bangladesh",
+      "continent": "asia",
+      "bounds": [
+        87.99765,
+        18.58403,
+        92.69714,
+        26.64677
+      ],
+      "asset": "occumed-bangladesh.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-bangladesh.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "basse-normandie",
+      "slug": "basse-normandie",
+      "name": "Basse-Normandie",
+      "continent": "europe",
+      "bounds": [
+        -2.087526,
+        48.17802,
+        0.979067,
+        49.88523
+      ],
+      "asset": "occumed-basse-normandie.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-basse-normandie.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "bedfordshire",
+      "slug": "bedfordshire",
+      "name": "Bedfordshire",
+      "continent": "europe",
+      "bounds": [
+        -0.704092,
+        51.8036,
+        -0.142022,
+        52.32483
+      ],
+      "asset": "occumed-bedfordshire.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-bedfordshire.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "beijing",
+      "slug": "beijing",
+      "name": "Beijing",
+      "continent": "asia",
+      "bounds": [
+        115.4155,
+        39.44083,
+        117.5095,
+        41.06382
+      ],
+      "asset": "occumed-beijing.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-beijing.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "belarus",
+      "slug": "belarus",
+      "name": "Belarus",
+      "continent": "europe",
+      "bounds": [
+        23.1748,
+        51.23441,
+        32.76947,
+        56.17385
+      ],
+      "asset": "occumed-belarus.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-belarus.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "belgium",
+      "slug": "belgium",
+      "name": "Belgium",
+      "continent": "europe",
+      "bounds": [
+        2.340725,
+        49.49489,
+        6.410265,
+        51.59839
+      ],
+      "asset": "occumed-belgium.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-belgium.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "belize",
+      "slug": "belize",
+      "name": "Belize",
+      "continent": "central-america",
+      "bounds": [
+        -89.22892,
+        15.88308,
+        -86.85983,
+        18.4984
+      ],
+      "asset": "occumed-belize.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-belize.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "benin",
+      "slug": "benin",
+      "name": "Benin",
+      "continent": "africa",
+      "bounds": [
+        0.761489,
+        5.984817,
+        3.861694,
+        12.43658
+      ],
+      "asset": "occumed-benin.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-benin.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "berkshire",
+      "slug": "berkshire",
+      "name": "Berkshire",
+      "continent": "europe",
+      "bounds": [
+        -1.589073,
+        51.32802,
+        -0.489118,
+        51.57873
+      ],
+      "asset": "occumed-berkshire.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-berkshire.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "berlin",
+      "slug": "berlin",
+      "name": "Berlin",
+      "continent": "europe",
+      "bounds": [
+        13.08283,
+        52.33446,
+        13.76225,
+        52.6783
+      ],
+      "asset": "occumed-berlin.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-berlin.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "bermuda",
+      "slug": "bermuda",
+      "name": "Bermuda",
+      "continent": "europe",
+      "bounds": [
+        -65.2005,
+        32.02158,
+        -64.39406,
+        32.62324
+      ],
+      "asset": "occumed-bermuda.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-bermuda.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "bhutan",
+      "slug": "bhutan",
+      "name": "Bhutan",
+      "continent": "asia",
+      "bounds": [
+        88.73917,
+        26.6948,
+        92.13159,
+        28.25372
+      ],
+      "asset": "occumed-bhutan.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-bhutan.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "bolivia",
+      "slug": "bolivia",
+      "name": "Bolivia",
+      "continent": "south-america",
+      "bounds": [
+        -69.65675,
+        -22.92551,
+        -57.43481,
+        -9.63866
+      ],
+      "asset": "occumed-bolivia.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-bolivia.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "bosnia-herzegovina",
+      "slug": "bosnia-herzegovina",
+      "name": "Bosnia-Herzegovina",
+      "continent": "europe",
+      "bounds": [
+        15.7156,
+        42.55239,
+        19.62639,
+        45.27803
+      ],
+      "asset": "occumed-bosnia-herzegovina.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-bosnia-herzegovina.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "botswana",
+      "slug": "botswana",
+      "name": "Botswana",
+      "continent": "africa",
+      "bounds": [
+        19.98745,
+        -26.91539,
+        29.38549,
+        -17.77403
+      ],
+      "asset": "occumed-botswana.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-botswana.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "bourgogne",
+      "slug": "bourgogne",
+      "name": "Bourgogne",
+      "continent": "europe",
+      "bounds": [
+        2.843279,
+        46.15484,
+        5.519965,
+        48.40136
+      ],
+      "asset": "occumed-bourgogne.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-bourgogne.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "brandenburg",
+      "slug": "brandenburg",
+      "name": "Brandenburg (mit Berlin)",
+      "continent": "europe",
+      "bounds": [
+        11.22404,
+        51.35252,
+        14.77481,
+        53.5784
+      ],
+      "asset": "occumed-brandenburg.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-brandenburg.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "bremen",
+      "slug": "bremen",
+      "name": "Bremen",
+      "continent": "europe",
+      "bounds": [
+        8.480959,
+        53.01034,
+        8.991268,
+        53.61063
+      ],
+      "asset": "occumed-bremen.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-bremen.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "bretagne",
+      "slug": "bretagne",
+      "name": "Bretagne",
+      "continent": "europe",
+      "bounds": [
+        -5.848854,
+        47.07722,
+        -1.014538,
+        49.40025
+      ],
+      "asset": "occumed-bretagne.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-bretagne.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "bristol",
+      "slug": "bristol",
+      "name": "Bristol",
+      "continent": "europe",
+      "bounds": [
+        -2.734665,
+        51.39611,
+        -2.509528,
+        51.54562
+      ],
+      "asset": "occumed-bristol.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-bristol.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "buckinghamshire",
+      "slug": "buckinghamshire",
+      "name": "Buckinghamshire",
+      "continent": "europe",
+      "bounds": [
+        -1.140791,
+        51.48571,
+        -0.482713,
+        52.19561
+      ],
+      "asset": "occumed-buckinghamshire.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-buckinghamshire.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "bulgaria",
+      "slug": "bulgaria",
+      "name": "Bulgaria",
+      "continent": "europe",
+      "bounds": [
+        22.34875,
+        41.22681,
+        29.18819,
+        44.21777
+      ],
+      "asset": "occumed-bulgaria.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-bulgaria.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "burkina-faso",
+      "slug": "burkina-faso",
+      "name": "Burkina Faso",
+      "continent": "africa",
+      "bounds": [
+        -5.527409,
+        9.384107,
+        2.412529,
+        15.09271
+      ],
+      "asset": "occumed-burkina-faso.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-burkina-faso.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "burundi",
+      "slug": "burundi",
+      "name": "Burundi",
+      "continent": "africa",
+      "bounds": [
+        29.00018,
+        -4.481328,
+        30.85115,
+        -2.307893
+      ],
+      "asset": "occumed-burundi.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-burundi.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "cambodia",
+      "slug": "cambodia",
+      "name": "Cambodia",
+      "continent": "asia",
+      "bounds": [
+        101.8522,
+        8.858092,
+        107.6397,
+        14.71875
+      ],
+      "asset": "occumed-cambodia.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-cambodia.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "cambridgeshire",
+      "slug": "cambridgeshire",
+      "name": "Cambridgeshire",
+      "continent": "europe",
+      "bounds": [
+        -0.502126,
+        52.00517,
+        0.516191,
+        52.74155
+      ],
+      "asset": "occumed-cambridgeshire.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-cambridgeshire.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "cameroon",
+      "slug": "cameroon",
+      "name": "Cameroon",
+      "continent": "africa",
+      "bounds": [
+        8.33,
+        1.645663,
+        16.20312,
+        13.09278
+      ],
+      "asset": "occumed-cameroon.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-cameroon.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "canary-islands",
+      "slug": "canary-islands",
+      "name": "Canary Islands",
+      "continent": "africa",
+      "bounds": [
+        -18.92352,
+        26.36117,
+        -12.47875,
+        30.25648
+      ],
+      "asset": "occumed-canary-islands.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-canary-islands.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "cantabria",
+      "slug": "cantabria",
+      "name": "Cantabria",
+      "continent": "europe",
+      "bounds": [
+        -4.861622,
+        42.75458,
+        -3.144983,
+        43.86548
+      ],
+      "asset": "occumed-cantabria.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-cantabria.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "cape-verde",
+      "slug": "cape-verde",
+      "name": "Cape Verde",
+      "continent": "africa",
+      "bounds": [
+        -26.32379,
+        14.00485,
+        -21.39096,
+        18.005
+      ],
+      "asset": "occumed-cape-verde.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-cape-verde.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "castilla-la-mancha",
+      "slug": "castilla-la-mancha",
+      "name": "Castilla-La Mancha",
+      "continent": "europe",
+      "bounds": [
+        -5.41111,
+        38.0201,
+        -0.912552,
+        41.33223
+      ],
+      "asset": "occumed-castilla-la-mancha.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-castilla-la-mancha.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "castilla-y-leon",
+      "slug": "castilla-y-leon",
+      "name": "Castilla y León",
+      "continent": "europe",
+      "bounds": [
+        -7.080517,
+        40.08044,
+        -1.766053,
+        43.24095
+      ],
+      "asset": "occumed-castilla-y-leon.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-castilla-y-leon.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "cataluna",
+      "slug": "cataluna",
+      "name": "Cataluña",
+      "continent": "europe",
+      "bounds": [
+        0.156383,
+        40.21245,
+        4.174794,
+        42.8632
+      ],
+      "asset": "occumed-cataluna.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-cataluna.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "central-african-republic",
+      "slug": "central-african-republic",
+      "name": "Central African Republic",
+      "continent": "africa",
+      "bounds": [
+        14.40908,
+        2.208735,
+        27.47578,
+        11.03264
+      ],
+      "asset": "occumed-central-african-republic.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-central-african-republic.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "central-fed-district--r1-c1",
+      "slug": "central-fed-district--r1-c1",
+      "name": "Central Federal District 1.1",
+      "continent": "central-fed-district",
+      "bounds": [
+        30.69976,
+        49.50446,
+        39.184995,
+        54.57888
+      ],
+      "asset": "occumed-central-fed-district--r1-c1.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-central-fed-district--r1-c1.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "central-zone",
+      "slug": "central-zone",
+      "name": "Central Zone",
+      "continent": "asia",
+      "bounds": [
+        74.01489,
+        17.77092,
+        84.64657,
+        31.49075
+      ],
+      "asset": "occumed-central-zone.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-central-zone.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "centre",
+      "slug": "centre",
+      "name": "Centre",
+      "continent": "europe",
+      "bounds": [
+        0.051538,
+        46.34591,
+        3.129925,
+        48.9423
+      ],
+      "asset": "occumed-centre.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-centre.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "centro",
+      "slug": "centro",
+      "name": "Centro",
+      "continent": "europe",
+      "bounds": [
+        9.306459,
+        40.21443,
+        14.66855,
+        44.4797
+      ],
+      "asset": "occumed-centro.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-centro.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "centro-oeste",
+      "slug": "centro-oeste",
+      "name": "Centro-Oeste",
+      "continent": "south-america",
+      "bounds": [
+        -61.66496,
+        -24.18381,
+        -45.87758,
+        -7.317334
+      ],
+      "asset": "occumed-centro-oeste.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-centro-oeste.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "ceuta",
+      "slug": "ceuta",
+      "name": "Ceuta",
+      "continent": "europe",
+      "bounds": [
+        -5.391024,
+        35.86702,
+        -5.256615,
+        35.95869
+      ],
+      "asset": "occumed-ceuta.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-ceuta.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "chad",
+      "slug": "chad",
+      "name": "Chad",
+      "continent": "africa",
+      "bounds": [
+        13.40129,
+        7.428518,
+        24.02527,
+        23.53793
+      ],
+      "asset": "occumed-chad.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-chad.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "champagne-ardenne",
+      "slug": "champagne-ardenne",
+      "name": "Champagne Ardenne",
+      "continent": "europe",
+      "bounds": [
+        3.382419,
+        47.57553,
+        5.892182,
+        50.17007
+      ],
+      "asset": "occumed-champagne-ardenne.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-champagne-ardenne.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "cheshire",
+      "slug": "cheshire",
+      "name": "Cheshire",
+      "continent": "europe",
+      "bounds": [
+        -3.129775,
+        52.94553,
+        -1.973135,
+        53.48263
+      ],
+      "asset": "occumed-cheshire.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-cheshire.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "chile",
+      "slug": "chile",
+      "name": "Chile",
+      "continent": "south-america",
+      "bounds": [
+        -113.2233,
+        -58.45195,
+        -65.5141,
+        -17.45743
+      ],
+      "asset": "occumed-chile.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-chile.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "chongqing",
+      "slug": "chongqing",
+      "name": "Chongqing",
+      "continent": "asia",
+      "bounds": [
+        105.283,
+        28.15132,
+        110.2004,
+        32.20641
+      ],
+      "asset": "occumed-chongqing.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-chongqing.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "christmas-island",
+      "slug": "christmas-island",
+      "name": "Christmas Island",
+      "continent": "australia-oceania",
+      "bounds": [
+        105.2993,
+        -10.82656,
+        105.9946,
+        -10.171
+      ],
+      "asset": "occumed-christmas-island.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-christmas-island.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "chubu",
+      "slug": "chubu",
+      "name": "Chūbu region",
+      "continent": "asia",
+      "bounds": [
+        135.4393,
+        34.26649,
+        139.909,
+        38.90717
+      ],
+      "asset": "occumed-chubu.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-chubu.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "chugoku",
+      "slug": "chugoku",
+      "name": "Chūgoku region",
+      "continent": "asia",
+      "bounds": [
+        129.8975,
+        33.54225,
+        134.5244,
+        36.9681
+      ],
+      "asset": "occumed-chugoku.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-chugoku.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "cocos-islands",
+      "slug": "cocos-islands",
+      "name": "Cocos (Keeling) Islands",
+      "continent": "australia-oceania",
+      "bounds": [
+        96.45345,
+        -12.5527,
+        97.24842,
+        -11.54681
+      ],
+      "asset": "occumed-cocos-islands.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-cocos-islands.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "colombia",
+      "slug": "colombia",
+      "name": "Colombia",
+      "continent": "south-america",
+      "bounds": [
+        -83.23104,
+        -4.25732,
+        -66.81472,
+        16.41924
+      ],
+      "asset": "occumed-colombia.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-colombia.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "comores",
+      "slug": "comores",
+      "name": "Comores",
+      "continent": "africa",
+      "bounds": [
+        42.74981,
+        -12.969,
+        45.59661,
+        -10.74181
+      ],
+      "asset": "occumed-comores.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-comores.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "congo-brazzaville",
+      "slug": "congo-brazzaville",
+      "name": "Congo (Republic/Brazzaville)",
+      "continent": "africa",
+      "bounds": [
+        10.94417,
+        -5.195885,
+        18.66783,
+        3.740932
+      ],
+      "asset": "occumed-congo-brazzaville.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-congo-brazzaville.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "congo-democratic-republic",
+      "slug": "congo-democratic-republic",
+      "name": "Congo (Democratic Republic/Kinshasa)",
+      "continent": "africa",
+      "bounds": [
+        11.88343,
+        -13.5006,
+        31.33569,
+        5.401396
+      ],
+      "asset": "occumed-congo-democratic-republic.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-congo-democratic-republic.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "cook-islands",
+      "slug": "cook-islands",
+      "name": "Cook Islands",
+      "continent": "australia-oceania",
+      "bounds": [
+        -168.4661,
+        -25.28867,
+        -154.8056,
+        -5.800506
+      ],
+      "asset": "occumed-cook-islands.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-cook-islands.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "coral-sea-islands",
+      "slug": "coral-sea-islands",
+      "name": "Coral Sea Islands",
+      "continent": "australia-oceania",
+      "bounds": [
+        146.8651,
+        -30.57831,
+        160.4218,
+        -14.98146
+      ],
+      "asset": "occumed-coral-sea-islands.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-coral-sea-islands.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "cornwall",
+      "slug": "cornwall",
+      "name": "Cornwall",
+      "continent": "europe",
+      "bounds": [
+        -6.820424,
+        49.57808,
+        -4.146631,
+        50.93213
+      ],
+      "asset": "occumed-cornwall.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-cornwall.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "corse",
+      "slug": "corse",
+      "name": "Corse",
+      "continent": "europe",
+      "bounds": [
+        8.317882,
+        41.31103,
+        9.751243,
+        43.16589
+      ],
+      "asset": "occumed-corse.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-corse.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "costa-rica",
+      "slug": "costa-rica",
+      "name": "Costa Rica",
+      "continent": "central-america",
+      "bounds": [
+        -87.82473,
+        4.937746,
+        -82.34952,
+        11.2237
+      ],
+      "asset": "occumed-costa-rica.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-costa-rica.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "crimean-fed-district",
+      "slug": "crimean-fed-district",
+      "name": "Crimean Federal District",
+      "continent": "crimean-fed-district",
+      "bounds": [
+        32.15053,
+        44.13411,
+        36.68355,
+        46.28118
+      ],
+      "asset": "occumed-crimean-fed-district.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-crimean-fed-district.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "croatia",
+      "slug": "croatia",
+      "name": "Croatia",
+      "continent": "europe",
+      "bounds": [
+        13.08916,
+        42.16483,
+        19.45997,
+        46.55756
+      ],
+      "asset": "occumed-croatia.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-croatia.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "cuba",
+      "slug": "cuba",
+      "name": "Cuba",
+      "continent": "central-america",
+      "bounds": [
+        -85.4242,
+        19.2533,
+        -73.70831,
+        23.60427
+      ],
+      "asset": "occumed-cuba.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-cuba.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "cumbria",
+      "slug": "cumbria",
+      "name": "Cumbria",
+      "continent": "europe",
+      "bounds": [
+        -3.907471,
+        53.90063,
+        -2.159588,
+        55.18863
+      ],
+      "asset": "occumed-cumbria.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-cumbria.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "cyprus",
+      "slug": "cyprus",
+      "name": "Cyprus",
+      "continent": "europe",
+      "bounds": [
+        31.95244,
+        34.23374,
+        34.96147,
+        36.00323
+      ],
+      "asset": "occumed-cyprus.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-cyprus.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "denmark",
+      "slug": "denmark",
+      "name": "Denmark",
+      "continent": "europe",
+      "bounds": [
+        7.7011,
+        54.44065,
+        15.65449,
+        58.06239
+      ],
+      "asset": "occumed-denmark.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-denmark.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "derbyshire",
+      "slug": "derbyshire",
+      "name": "Derbyshire",
+      "continent": "europe",
+      "bounds": [
+        -2.035756,
+        52.6955,
+        -1.164792,
+        53.54172
+      ],
+      "asset": "occumed-derbyshire.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-derbyshire.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "detmold-regbez",
+      "slug": "detmold-regbez",
+      "name": "Regierungsbezirk Detmold",
+      "continent": "europe",
+      "bounds": [
+        8.074053,
+        51.4369,
+        9.468311,
+        52.53345
+      ],
+      "asset": "occumed-detmold-regbez.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-detmold-regbez.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "devon",
+      "slug": "devon",
+      "name": "Devon",
+      "continent": "europe",
+      "bounds": [
+        -4.752335,
+        50.11104,
+        -2.881604,
+        51.30895
+      ],
+      "asset": "occumed-devon.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-devon.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "djibouti",
+      "slug": "djibouti",
+      "name": "Djibouti",
+      "continent": "africa",
+      "bounds": [
+        41.76177,
+        10.88824,
+        43.84569,
+        12.82615
+      ],
+      "asset": "occumed-djibouti.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-djibouti.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "dolnoslaskie",
+      "slug": "dolnoslaskie",
+      "name": "Województwo dolnośląskie<br />(Lower Silesian Voivodeship)",
+      "continent": "europe",
+      "bounds": [
+        14.80839,
+        50.08251,
+        17.80584,
+        51.81417
+      ],
+      "asset": "occumed-dolnoslaskie.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-dolnoslaskie.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "dorset",
+      "slug": "dorset",
+      "name": "Dorset",
+      "continent": "europe",
+      "bounds": [
+        -2.962969,
+        50.49829,
+        -1.680036,
+        51.0827
+      ],
+      "asset": "occumed-dorset.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-dorset.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "drenthe",
+      "slug": "drenthe",
+      "name": "Drenthe",
+      "continent": "europe",
+      "bounds": [
+        6.118592,
+        52.61093,
+        7.095411,
+        53.20513
+      ],
+      "asset": "occumed-drenthe.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-drenthe.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "duesseldorf-regbez",
+      "slug": "duesseldorf-regbez",
+      "name": "Regierungsbezirk Düsseldorf",
+      "continent": "europe",
+      "bounds": [
+        5.941466,
+        51.01422,
+        7.314306,
+        51.90781
+      ],
+      "asset": "occumed-duesseldorf-regbez.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-duesseldorf-regbez.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "durham",
+      "slug": "durham",
+      "name": "Durham",
+      "continent": "europe",
+      "bounds": [
+        -2.356677,
+        54.4502,
+        -1.101584,
+        54.91986
+      ],
+      "asset": "occumed-durham.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-durham.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "east-sussex",
+      "slug": "east-sussex",
+      "name": "East Sussex",
+      "continent": "europe",
+      "bounds": [
+        -0.136786,
+        50.69996,
+        0.869466,
+        51.14781
+      ],
+      "asset": "occumed-east-sussex.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-east-sussex.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "east-timor",
+      "slug": "east-timor",
+      "name": "East Timor",
+      "continent": "asia",
+      "bounds": [
+        123.7912,
+        -9.690103,
+        127.5911,
+        -8.057869
+      ],
+      "asset": "occumed-east-timor.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-east-timor.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "east-yorkshire-with-hull",
+      "slug": "east-yorkshire-with-hull",
+      "name": "East Yorkshire with Hull",
+      "continent": "europe",
+      "bounds": [
+        -1.105174,
+        53.55447,
+        0.48944,
+        54.21045
+      ],
+      "asset": "occumed-east-yorkshire-with-hull.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-east-yorkshire-with-hull.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "eastern-zone",
+      "slug": "eastern-zone",
+      "name": "Eastern Zone",
+      "continent": "asia",
+      "bounds": [
+        81.36749,
+        17.78056,
+        89.91829,
+        27.52837
+      ],
+      "asset": "occumed-eastern-zone.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-eastern-zone.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "ecuador",
+      "slug": "ecuador",
+      "name": "Ecuador",
+      "continent": "south-america",
+      "bounds": [
+        -93.56487,
+        -5.024173,
+        -75.16149,
+        2.843487
+      ],
+      "asset": "occumed-ecuador.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-ecuador.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "egypt",
+      "slug": "egypt",
+      "name": "Egypt",
+      "continent": "africa",
+      "bounds": [
+        24.62628,
+        21.9838,
+        37.16263,
+        32.52518
+      ],
+      "asset": "occumed-egypt.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-egypt.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "el-salvador",
+      "slug": "el-salvador",
+      "name": "El Salvador",
+      "continent": "central-america",
+      "bounds": [
+        -90.50091,
+        12.03598,
+        -87.58438,
+        14.45762
+      ],
+      "asset": "occumed-el-salvador.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-el-salvador.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "equatorial-guinea",
+      "slug": "equatorial-guinea",
+      "name": "Equatorial Guinea",
+      "continent": "africa",
+      "bounds": [
+        5.165631,
+        -1.792669,
+        11.42338,
+        4.147134
+      ],
+      "asset": "occumed-equatorial-guinea.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-equatorial-guinea.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "eritrea",
+      "slug": "eritrea",
+      "name": "Eritrea",
+      "continent": "africa",
+      "bounds": [
+        36.4207,
+        12.34385,
+        43.33233,
+        18.32962
+      ],
+      "asset": "occumed-eritrea.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-eritrea.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "essex",
+      "slug": "essex",
+      "name": "Essex",
+      "continent": "europe",
+      "bounds": [
+        -0.019651,
+        51.45008,
+        1.307251,
+        52.09464
+      ],
+      "asset": "occumed-essex.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-essex.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "estonia",
+      "slug": "estonia",
+      "name": "Estonia",
+      "continent": "europe",
+      "bounds": [
+        20.85166,
+        57.49764,
+        28.21426,
+        59.99705
+      ],
+      "asset": "occumed-estonia.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-estonia.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "ethiopia",
+      "slug": "ethiopia",
+      "name": "Ethiopia",
+      "continent": "africa",
+      "bounds": [
+        32.96722,
+        3.389192,
+        48.00545,
+        14.91626
+      ],
+      "asset": "occumed-ethiopia.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-ethiopia.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "extremadura",
+      "slug": "extremadura",
+      "name": "Extremadura",
+      "continent": "europe",
+      "bounds": [
+        -7.54369,
+        37.93851,
+        -4.64241,
+        40.48913
+      ],
+      "asset": "occumed-extremadura.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-extremadura.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "falklands",
+      "slug": "falklands",
+      "name": "Falkland Islands",
+      "continent": "europe",
+      "bounds": [
+        -62.20142,
+        -53.40604,
+        -56.44453,
+        -50.67405
+      ],
+      "asset": "occumed-falklands.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-falklands.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "faroe-islands",
+      "slug": "faroe-islands",
+      "name": "Faroe Islands",
+      "continent": "europe",
+      "bounds": [
+        -8.690197,
+        60.86632,
+        -5.515148,
+        62.90523
+      ],
+      "asset": "occumed-faroe-islands.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-faroe-islands.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "fiji",
+      "slug": "fiji",
+      "name": "Fiji",
+      "continent": "australia-oceania",
+      "bounds": [
+        172.7647,
+        -25.08127,
+        -176.2675,
+        -9.783321
+      ],
+      "asset": "occumed-fiji.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-fiji.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "flevoland",
+      "slug": "flevoland",
+      "name": "Flevoland",
+      "continent": "europe",
+      "bounds": [
+        5.059593,
+        52.24826,
+        6.018276,
+        52.84516
+      ],
+      "asset": "occumed-flevoland.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-flevoland.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "franche-comte",
+      "slug": "franche-comte",
+      "name": "Franche Comte",
+      "continent": "europe",
+      "bounds": [
+        5.25076,
+        46.25975,
+        7.14439,
+        48.02537
+      ],
+      "asset": "occumed-franche-comte.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-franche-comte.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "freiburg-regbez",
+      "slug": "freiburg-regbez",
+      "name": "Regierungsbezirk Freiburg",
+      "continent": "europe",
+      "bounds": [
+        7.506494,
+        47.53076,
+        9.246965,
+        48.72373
+      ],
+      "asset": "occumed-freiburg-regbez.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-freiburg-regbez.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "friesland",
+      "slug": "friesland",
+      "name": "Friesland",
+      "continent": "europe",
+      "bounds": [
+        4.597294,
+        52.76362,
+        6.428358,
+        53.68089
+      ],
+      "asset": "occumed-friesland.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-friesland.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "fujian",
+      "slug": "fujian",
+      "name": "Fujian",
+      "continent": "asia",
+      "bounds": [
+        115.8409,
+        23.18252,
+        121.6277,
+        28.32237
+      ],
+      "asset": "occumed-fujian.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-fujian.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "gabon",
+      "slug": "gabon",
+      "name": "Gabon",
+      "continent": "africa",
+      "bounds": [
+        7.389727,
+        -5.995799,
+        14.55139,
+        2.325716
+      ],
+      "asset": "occumed-gabon.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-gabon.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "galicia",
+      "slug": "galicia",
+      "name": "Galicia",
+      "continent": "europe",
+      "bounds": [
+        -9.779014,
+        41.80443,
+        -6.727066,
+        44.14855
+      ],
+      "asset": "occumed-galicia.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-galicia.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "gansu",
+      "slug": "gansu",
+      "name": "Gansu",
+      "continent": "asia",
+      "bounds": [
+        92.29907,
+        32.58438,
+        108.7193,
+        42.81354
+      ],
+      "asset": "occumed-gansu.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-gansu.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "gcc-states",
+      "slug": "gcc-states",
+      "name": "GCC States",
+      "continent": "asia",
+      "bounds": [
+        34.43489,
+        15.24752,
+        60.94748,
+        32.19653
+      ],
+      "asset": "occumed-gcc-states.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-gcc-states.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "gelderland",
+      "slug": "gelderland",
+      "name": "Gelderland",
+      "continent": "europe",
+      "bounds": [
+        4.992647,
+        51.73231,
+        6.835752,
+        52.52322
+      ],
+      "asset": "occumed-gelderland.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-gelderland.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "georgia",
+      "slug": "georgia",
+      "name": "Georgia",
+      "continent": "europe",
+      "bounds": [
+        39.88093,
+        41.05117,
+        46.73959,
+        43.5899
+      ],
+      "asset": "occumed-georgia.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-georgia.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "ghana",
+      "slug": "ghana",
+      "name": "Ghana",
+      "continent": "africa",
+      "bounds": [
+        -3.807399,
+        3.704056,
+        1.394038,
+        11.17772
+      ],
+      "asset": "occumed-ghana.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-ghana.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "gloucestershire",
+      "slug": "gloucestershire",
+      "name": "Gloucestershire",
+      "continent": "europe",
+      "bounds": [
+        -2.711909,
+        51.41465,
+        -1.612605,
+        52.11556
+      ],
+      "asset": "occumed-gloucestershire.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-gloucestershire.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "greater-manchester",
+      "slug": "greater-manchester",
+      "name": "Greater Manchester",
+      "continent": "europe",
+      "bounds": [
+        -2.732097,
+        53.32613,
+        -1.90804,
+        53.68742
+      ],
+      "asset": "occumed-greater-manchester.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-greater-manchester.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "greece",
+      "slug": "greece",
+      "name": "Greece",
+      "continent": "europe",
+      "bounds": [
+        18.97064,
+        34.59111,
+        29.65683,
+        41.74954
+      ],
+      "asset": "occumed-greece.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-greece.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "greenland",
+      "slug": "greenland",
+      "name": "Greenland",
+      "continent": "north-america",
+      "bounds": [
+        -75.3894,
+        58.67169,
+        -9.454384,
+        84.44358
+      ],
+      "asset": "occumed-greenland.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-greenland.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "groningen",
+      "slug": "groningen",
+      "name": "Groningen",
+      "continent": "europe",
+      "bounds": [
+        6.166463,
+        52.83734,
+        7.230455,
+        53.65732
+      ],
+      "asset": "occumed-groningen.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-groningen.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "guadeloupe",
+      "slug": "guadeloupe",
+      "name": "Guadeloupe",
+      "continent": "europe",
+      "bounds": [
+        -62.15241,
+        15.49074,
+        -60.60471,
+        16.82426
+      ],
+      "asset": "occumed-guadeloupe.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-guadeloupe.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "guangdong",
+      "slug": "guangdong",
+      "name": "Guangdong (with Hong Kong and Macau)",
+      "continent": "asia",
+      "bounds": [
+        109.3565,
+        20.05851,
+        117.665,
+        25.52432
+      ],
+      "asset": "occumed-guangdong.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-guangdong.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "guangxi",
+      "slug": "guangxi",
+      "name": "Guangxi",
+      "continent": "asia",
+      "bounds": [
+        104.4419,
+        20.74224,
+        112.0654,
+        26.39648
+      ],
+      "asset": "occumed-guangxi.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-guangxi.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "guatemala",
+      "slug": "guatemala",
+      "name": "Guatemala",
+      "continent": "central-america",
+      "bounds": [
+        -92.73303,
+        12.74168,
+        -87.95177,
+        17.83533
+      ],
+      "asset": "occumed-guatemala.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-guatemala.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "guernsey-jersey",
+      "slug": "guernsey-jersey",
+      "name": "Guernsey and Jersey",
+      "continent": "europe",
+      "bounds": [
+        -3.573306,
+        49.00381,
+        -1.791572,
+        50.06948
+      ],
+      "asset": "occumed-guernsey-jersey.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-guernsey-jersey.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "guinea",
+      "slug": "guinea",
+      "name": "Guinea",
+      "continent": "africa",
+      "bounds": [
+        -16.85708,
+        7.183332,
+        -7.627259,
+        12.68322
+      ],
+      "asset": "occumed-guinea.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-guinea.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "guinea-bissau",
+      "slug": "guinea-bissau",
+      "name": "Guinea-Bissau",
+      "continent": "africa",
+      "bounds": [
+        -16.96427,
+        10.14494,
+        -13.62923,
+        12.6936
+      ],
+      "asset": "occumed-guinea-bissau.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-guinea-bissau.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "guizhou",
+      "slug": "guizhou",
+      "name": "Guizhou",
+      "continent": "asia",
+      "bounds": [
+        103.5982,
+        24.61706,
+        109.5594,
+        29.23204
+      ],
+      "asset": "occumed-guizhou.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-guizhou.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "guyana",
+      "slug": "guyana",
+      "name": "Guyana",
+      "continent": "south-america",
+      "bounds": [
+        -61.42101,
+        1.149369,
+        -56.42321,
+        9.182536
+      ],
+      "asset": "occumed-guyana.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-guyana.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "guyane",
+      "slug": "guyane",
+      "name": "Guyane",
+      "continent": "europe",
+      "bounds": [
+        -54.62299,
+        2.093117,
+        -50.8667,
+        6.370288
+      ],
+      "asset": "occumed-guyane.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-guyane.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "hainan",
+      "slug": "hainan",
+      "name": "Hainan",
+      "continent": "asia",
+      "bounds": [
+        108.3153,
+        14.29739,
+        118.4373,
+        20.40385
+      ],
+      "asset": "occumed-hainan.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-hainan.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "haiti-and-domrep",
+      "slug": "haiti-and-domrep",
+      "name": "Haiti and Dominican Republic",
+      "continent": "central-america",
+      "bounds": [
+        -74.82529,
+        16.99901,
+        -68.05482,
+        21.45307
+      ],
+      "asset": "occumed-haiti-and-domrep.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-haiti-and-domrep.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "hamburg",
+      "slug": "hamburg",
+      "name": "Hamburg",
+      "continent": "europe",
+      "bounds": [
+        7.967833,
+        53.39183,
+        10.33196,
+        54.06261
+      ],
+      "asset": "occumed-hamburg.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-hamburg.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "hampshire",
+      "slug": "hampshire",
+      "name": "Hampshire",
+      "continent": "europe",
+      "bounds": [
+        -1.959101,
+        50.69041,
+        -0.726306,
+        51.38712
+      ],
+      "asset": "occumed-hampshire.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-hampshire.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "haute-normandie",
+      "slug": "haute-normandie",
+      "name": "Haute-Normandie",
+      "continent": "europe",
+      "bounds": [
+        0.009482,
+        48.66574,
+        1.803956,
+        50.08769
+      ],
+      "asset": "occumed-haute-normandie.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-haute-normandie.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "heard-mcdonald",
+      "slug": "heard-mcdonald",
+      "name": "Heard Island and McDonald Islands",
+      "continent": "australia-oceania",
+      "bounds": [
+        71.99912,
+        -53.54549,
+        74.45294,
+        -52.66308
+      ],
+      "asset": "occumed-heard-mcdonald.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-heard-mcdonald.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "hebei",
+      "slug": "hebei",
+      "name": "Hebei (with Beijing and Tianjin)",
+      "continent": "asia",
+      "bounds": [
+        113.451,
+        36.04299,
+        119.9982,
+        42.62487
+      ],
+      "asset": "occumed-hebei.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-hebei.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "heilongjiang",
+      "slug": "heilongjiang",
+      "name": "Heilongjiang",
+      "continent": "asia",
+      "bounds": [
+        121.15,
+        43.41078,
+        134.8036,
+        53.65559
+      ],
+      "asset": "occumed-heilongjiang.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-heilongjiang.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "henan",
+      "slug": "henan",
+      "name": "Henan",
+      "continent": "asia",
+      "bounds": [
+        110.3458,
+        31.37805,
+        116.647,
+        36.36801
+      ],
+      "asset": "occumed-henan.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-henan.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "herefordshire",
+      "slug": "herefordshire",
+      "name": "Herefordshire",
+      "continent": "europe",
+      "bounds": [
+        -3.142889,
+        51.82618,
+        -2.338434,
+        52.39531
+      ],
+      "asset": "occumed-herefordshire.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-herefordshire.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "hertfordshire",
+      "slug": "hertfordshire",
+      "name": "Hertfordshire",
+      "continent": "europe",
+      "bounds": [
+        -0.746833,
+        51.59798,
+        0.197098,
+        52.08224
+      ],
+      "asset": "occumed-hertfordshire.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-hertfordshire.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "hessen",
+      "slug": "hessen",
+      "name": "Hessen",
+      "continent": "europe",
+      "bounds": [
+        7.768021,
+        49.39321,
+        10.24595,
+        51.65916
+      ],
+      "asset": "occumed-hessen.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-hessen.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "hokkaido",
+      "slug": "hokkaido",
+      "name": "Hokkaidō",
+      "continent": "asia",
+      "bounds": [
+        137.9346,
+        41.15098,
+        146.2476,
+        45.8154
+      ],
+      "asset": "occumed-hokkaido.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-hokkaido.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "honduras",
+      "slug": "honduras",
+      "name": "Honduras",
+      "continent": "central-america",
+      "bounds": [
+        -89.36005,
+        12.96943,
+        -81.66138,
+        17.93171
+      ],
+      "asset": "occumed-honduras.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-honduras.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "hong-kong",
+      "slug": "hong-kong",
+      "name": "Hong Kong",
+      "continent": "asia",
+      "bounds": [
+        113.813,
+        22.13041,
+        114.506,
+        22.56904
+      ],
+      "asset": "occumed-hong-kong.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-hong-kong.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "hubei",
+      "slug": "hubei",
+      "name": "Hubei",
+      "continent": "asia",
+      "bounds": [
+        108.3597,
+        29.03006,
+        116.1361,
+        33.27343
+      ],
+      "asset": "occumed-hubei.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-hubei.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "hunan",
+      "slug": "hunan",
+      "name": "Hunan",
+      "continent": "asia",
+      "bounds": [
+        108.7792,
+        24.63266,
+        114.2585,
+        30.138
+      ],
+      "asset": "occumed-hunan.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-hunan.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "hungary",
+      "slug": "hungary",
+      "name": "Hungary",
+      "continent": "europe",
+      "bounds": [
+        16.10845,
+        45.73207,
+        22.90649,
+        48.58921
+      ],
+      "asset": "occumed-hungary.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-hungary.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "ile-de-clipperton",
+      "slug": "ile-de-clipperton",
+      "name": "Île de Clipperton",
+      "continent": "australia-oceania",
+      "bounds": [
+        -110.1215,
+        9.595339,
+        -108.3746,
+        11.15685
+      ],
+      "asset": "occumed-ile-de-clipperton.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-ile-de-clipperton.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "ile-de-france",
+      "slug": "ile-de-france",
+      "name": "Ile-de-France",
+      "continent": "europe",
+      "bounds": [
+        1.445097,
+        48.11918,
+        3.560409,
+        49.24271
+      ],
+      "asset": "occumed-ile-de-france.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-ile-de-france.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "inner-mongolia",
+      "slug": "inner-mongolia",
+      "name": "Inner Mongolia",
+      "continent": "asia",
+      "bounds": [
+        97.14328,
+        37.39962,
+        126.0767,
+        53.44515
+      ],
+      "asset": "occumed-inner-mongolia.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-inner-mongolia.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "interior-admreg",
+      "slug": "interior-admreg",
+      "name": "Interior Administrative Region",
+      "continent": "north-america",
+      "bounds": [
+        -128.8637,
+        49.60359,
+        -118.7691,
+        53.55744
+      ],
+      "asset": "occumed-interior-admreg.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-interior-admreg.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "iran",
+      "slug": "iran",
+      "name": "Iran",
+      "continent": "asia",
+      "bounds": [
+        44.02303,
+        24.03947,
+        63.35413,
+        39.79045
+      ],
+      "asset": "occumed-iran.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-iran.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "iraq",
+      "slug": "iraq",
+      "name": "Iraq",
+      "continent": "asia",
+      "bounds": [
+        38.784,
+        29.01775,
+        49.55108,
+        37.39063
+      ],
+      "asset": "occumed-iraq.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-iraq.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "ireland-and-northern-ireland",
+      "slug": "ireland-and-northern-ireland",
+      "name": "Ireland and Northern Ireland",
+      "continent": "europe",
+      "bounds": [
+        -14.40224,
+        49.60002,
+        -5.059265,
+        56.86553
+      ],
+      "asset": "occumed-ireland-and-northern-ireland.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-ireland-and-northern-ireland.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "island-admreg",
+      "slug": "island-admreg",
+      "name": "Island Administrative Region",
+      "continent": "north-america",
+      "bounds": [
+        -129.3393,
+        48.12648,
+        -122.9789,
+        52.05756
+      ],
+      "asset": "occumed-island-admreg.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-island-admreg.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "islas-baleares",
+      "slug": "islas-baleares",
+      "name": "Islas Baleares",
+      "continent": "europe",
+      "bounds": [
+        0.615229,
+        38.05675,
+        4.938349,
+        40.7098
+      ],
+      "asset": "occumed-islas-baleares.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-islas-baleares.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "isle-of-man",
+      "slug": "isle-of-man",
+      "name": "Isle of Man",
+      "continent": "europe",
+      "bounds": [
+        -5.434554,
+        53.73236,
+        -3.688718,
+        54.6706
+      ],
+      "asset": "occumed-isle-of-man.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-isle-of-man.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "isle-of-wight",
+      "slug": "isle-of-wight",
+      "name": "Isle of Wight",
+      "continent": "europe",
+      "bounds": [
+        -1.659074,
+        50.50555,
+        -1.03137,
+        50.80102
+      ],
+      "asset": "occumed-isle-of-wight.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-isle-of-wight.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "isole",
+      "slug": "isole",
+      "name": "Isole",
+      "continent": "europe",
+      "bounds": [
+        7.718453,
+        35.07638,
+        15.70887,
+        41.51893
+      ],
+      "asset": "occumed-isole.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-isole.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "israel-and-palestine",
+      "slug": "israel-and-palestine",
+      "name": "Israel and Palestine",
+      "continent": "asia",
+      "bounds": [
+        33.99994,
+        29.4396,
+        35.91531,
+        33.45436
+      ],
+      "asset": "occumed-israel-and-palestine.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-israel-and-palestine.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "ivory-coast",
+      "slug": "ivory-coast",
+      "name": "Ivory Coast",
+      "continent": "africa",
+      "bounds": [
+        -8.633881,
+        4.141916,
+        -2.476215,
+        10.75034
+      ],
+      "asset": "occumed-ivory-coast.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-ivory-coast.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "jamaica",
+      "slug": "jamaica",
+      "name": "Jamaica",
+      "continent": "central-america",
+      "bounds": [
+        -78.85,
+        16.35,
+        -75.51,
+        19.16
+      ],
+      "asset": "occumed-jamaica.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-jamaica.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "jiangsu",
+      "slug": "jiangsu",
+      "name": "Jiangsu",
+      "continent": "asia",
+      "bounds": [
+        116.3538,
+        30.75899,
+        122.9453,
+        35.55507
+      ],
+      "asset": "occumed-jiangsu.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-jiangsu.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "jiangxi",
+      "slug": "jiangxi",
+      "name": "Jiangxi",
+      "continent": "asia",
+      "bounds": [
+        113.5688,
+        24.47809,
+        118.4865,
+        30.08841
+      ],
+      "asset": "occumed-jiangxi.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-jiangxi.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "jihocesky",
+      "slug": "jihocesky",
+      "name": "Jihočeský kraj",
+      "continent": "europe",
+      "bounds": [
+        13.53386,
+        48.54292,
+        15.60644,
+        49.62122
+      ],
+      "asset": "occumed-jihocesky.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-jihocesky.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "jihomoravsky",
+      "slug": "jihomoravsky",
+      "name": "Jihomoravský kraj",
+      "continent": "europe",
+      "bounds": [
+        15.54023,
+        48.61008,
+        17.64952,
+        49.63471
+      ],
+      "asset": "occumed-jihomoravsky.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-jihomoravsky.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "jilin",
+      "slug": "jilin",
+      "name": "Jilin",
+      "continent": "asia",
+      "bounds": [
+        121.6276,
+        40.78952,
+        131.3514,
+        46.31469
+      ],
+      "asset": "occumed-jilin.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-jilin.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "jordan",
+      "slug": "jordan",
+      "name": "Jordan",
+      "continent": "asia",
+      "bounds": [
+        34.86886,
+        29.18213,
+        39.31022,
+        33.37922
+      ],
+      "asset": "occumed-jordan.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-jordan.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "kalimantan",
+      "slug": "kalimantan",
+      "name": "Kalimantan",
+      "continent": "asia",
+      "bounds": [
+        104.9606,
+        -5.59958,
+        119.9267,
+        4.404166
+      ],
+      "asset": "occumed-kalimantan.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-kalimantan.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "kaliningrad",
+      "slug": "kaliningrad",
+      "name": "Kaliningrad",
+      "continent": "kaliningrad",
+      "bounds": [
+        19.40837,
+        54.31723,
+        22.88747,
+        55.3899
+      ],
+      "asset": "occumed-kaliningrad.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-kaliningrad.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "kansai",
+      "slug": "kansai",
+      "name": "Kansai region (a.k.a. Kinki region)",
+      "continent": "asia",
+      "bounds": [
+        133.9644,
+        33.07898,
+        137.6573,
+        36.4582
+      ],
+      "asset": "occumed-kansai.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-kansai.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "kanto",
+      "slug": "kanto",
+      "name": "Kantō region",
+      "continent": "asia",
+      "bounds": [
+        134.5757,
+        20.08228,
+        154.4709,
+        37.15988
+      ],
+      "asset": "occumed-kanto.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-kanto.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "karlovarsky",
+      "slug": "karlovarsky",
+      "name": "Karlovarský kraj",
+      "continent": "europe",
+      "bounds": [
+        12.08477,
+        49.88988,
+        13.30247,
+        50.47322
+      ],
+      "asset": "occumed-karlovarsky.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-karlovarsky.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "karlsruhe-regbez",
+      "slug": "karlsruhe-regbez",
+      "name": "Regierungsbezirk Karlsruhe",
+      "continent": "europe",
+      "bounds": [
+        7.949946,
+        48.29792,
+        9.605534,
+        49.736
+      ],
+      "asset": "occumed-karlsruhe-regbez.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-karlsruhe-regbez.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "kazakhstan",
+      "slug": "kazakhstan",
+      "name": "Kazakhstan",
+      "continent": "asia",
+      "bounds": [
+        46.42304,
+        40.55346,
+        87.35359,
+        55.50799
+      ],
+      "asset": "occumed-kazakhstan.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-kazakhstan.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "kent",
+      "slug": "kent",
+      "name": "Kent",
+      "continent": "europe",
+      "bounds": [
+        0.030546,
+        50.81013,
+        1.521262,
+        51.49664
+      ],
+      "asset": "occumed-kent.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-kent.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "kenya",
+      "slug": "kenya",
+      "name": "Kenya",
+      "continent": "africa",
+      "bounds": [
+        33.8679,
+        -4.816276,
+        41.97685,
+        4.629931
+      ],
+      "asset": "occumed-kenya.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-kenya.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "kiribati",
+      "slug": "kiribati",
+      "name": "Kiribati",
+      "continent": "australia-oceania",
+      "bounds": [
+        167.8684,
+        -13.83833,
+        -147.0336,
+        6.472283
+      ],
+      "asset": "occumed-kiribati.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-kiribati.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "kitikmeot",
+      "slug": "kitikmeot",
+      "name": "Kitikmeot Region",
+      "continent": "north-america",
+      "bounds": [
+        -120.737,
+        64.51803,
+        -88.98445,
+        73.93962
+      ],
+      "asset": "occumed-kitikmeot.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-kitikmeot.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "kivalliq",
+      "slug": "kivalliq",
+      "name": "Kivalliq Region",
+      "continent": "north-america",
+      "bounds": [
+        -105.0092,
+        56.95134,
+        -80.01994,
+        67.00034
+      ],
+      "asset": "occumed-kivalliq.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-kivalliq.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "koeln-regbez",
+      "slug": "koeln-regbez",
+      "name": "Regierungsbezirk Köln",
+      "continent": "europe",
+      "bounds": [
+        5.864417,
+        50.32088,
+        7.794411,
+        51.253
+      ],
+      "asset": "occumed-koeln-regbez.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-koeln-regbez.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "kootenay-admreg",
+      "slug": "kootenay-admreg",
+      "name": "Kootenay Administrative Region",
+      "continent": "north-america",
+      "bounds": [
+        -119.3857,
+        48.99463,
+        -114.049,
+        51.85325
+      ],
+      "asset": "occumed-kootenay-admreg.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-kootenay-admreg.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "kosovo",
+      "slug": "kosovo",
+      "name": "Kosovo",
+      "continent": "europe",
+      "bounds": [
+        20.01357,
+        41.85408,
+        21.79327,
+        43.27753
+      ],
+      "asset": "occumed-kosovo.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-kosovo.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "kralovehradecky",
+      "slug": "kralovehradecky",
+      "name": "Královéhradecký kraj",
+      "continent": "europe",
+      "bounds": [
+        15.10268,
+        50.03735,
+        16.59925,
+        50.78739
+      ],
+      "asset": "occumed-kralovehradecky.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-kralovehradecky.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "kujawsko-pomorskie",
+      "slug": "kujawsko-pomorskie",
+      "name": "Województwo kujawsko-pomorskie<br />(Kuyavian-Pomeranian Voivodeship)",
+      "continent": "europe",
+      "bounds": [
+        17.23935,
+        52.32112,
+        19.77239,
+        53.7917
+      ],
+      "asset": "occumed-kujawsko-pomorskie.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-kujawsko-pomorskie.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "kyrgyzstan",
+      "slug": "kyrgyzstan",
+      "name": "Kyrgyzstan",
+      "continent": "asia",
+      "bounds": [
+        69.25507,
+        39.15136,
+        80.2771,
+        43.2812
+      ],
+      "asset": "occumed-kyrgyzstan.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-kyrgyzstan.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "kyushu",
+      "slug": "kyushu",
+      "name": "Kyūshū",
+      "continent": "asia",
+      "bounds": [
+        122.5814,
+        21.38691,
+        132.8044,
+        35.09724
+      ],
+      "asset": "occumed-kyushu.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-kyushu.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "la-rioja",
+      "slug": "la-rioja",
+      "name": "La Rioja",
+      "continent": "europe",
+      "bounds": [
+        -3.140202,
+        41.91403,
+        -1.673012,
+        42.64621
+      ],
+      "asset": "occumed-la-rioja.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-la-rioja.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "lancashire",
+      "slug": "lancashire",
+      "name": "Lancashire",
+      "continent": "europe",
+      "bounds": [
+        -3.092156,
+        53.47507,
+        -2.0395,
+        54.24645
+      ],
+      "asset": "occumed-lancashire.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-lancashire.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "languedoc-roussillon",
+      "slug": "languedoc-roussillon",
+      "name": "Languedoc-Roussillon",
+      "continent": "europe",
+      "bounds": [
+        1.686256,
+        42.32755,
+        4.847979,
+        44.97821
+      ],
+      "asset": "occumed-languedoc-roussillon.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-languedoc-roussillon.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "laos",
+      "slug": "laos",
+      "name": "Laos",
+      "continent": "asia",
+      "bounds": [
+        100.0828,
+        13.90159,
+        107.6503,
+        22.52825
+      ],
+      "asset": "occumed-laos.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-laos.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "latvia",
+      "slug": "latvia",
+      "name": "Latvia",
+      "continent": "europe",
+      "bounds": [
+        19.73348,
+        55.66109,
+        28.25501,
+        58.0947
+      ],
+      "asset": "occumed-latvia.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-latvia.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "lebanon",
+      "slug": "lebanon",
+      "name": "Lebanon",
+      "continent": "asia",
+      "bounds": [
+        34.76799,
+        33.05299,
+        36.63666,
+        34.80253
+      ],
+      "asset": "occumed-lebanon.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-lebanon.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "leicestershire",
+      "slug": "leicestershire",
+      "name": "Leicestershire",
+      "continent": "europe",
+      "bounds": [
+        -1.596388,
+        52.3936,
+        -0.663929,
+        52.9776
+      ],
+      "asset": "occumed-leicestershire.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-leicestershire.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "lesotho",
+      "slug": "lesotho",
+      "name": "Lesotho",
+      "continent": "africa",
+      "bounds": [
+        27.0092,
+        -30.68472,
+        29.46393,
+        -28.56734
+      ],
+      "asset": "occumed-lesotho.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-lesotho.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "liaoning",
+      "slug": "liaoning",
+      "name": "Liaoning",
+      "continent": "asia",
+      "bounds": [
+        118.8305,
+        38.26191,
+        125.7959,
+        43.49303
+      ],
+      "asset": "occumed-liaoning.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-liaoning.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "liberecky",
+      "slug": "liberecky",
+      "name": "Liberecký kraj",
+      "continent": "europe",
+      "bounds": [
+        14.34201,
+        50.47113,
+        15.63443,
+        51.03171
+      ],
+      "asset": "occumed-liberecky.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-liberecky.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "liberia",
+      "slug": "liberia",
+      "name": "Liberia",
+      "continent": "africa",
+      "bounds": [
+        -14.95454,
+        -0.681003,
+        -7.24572,
+        8.570158
+      ],
+      "asset": "occumed-liberia.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-liberia.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "libya",
+      "slug": "libya",
+      "name": "Libya",
+      "continent": "africa",
+      "bounds": [
+        9.374405,
+        19.45087,
+        25.40726,
+        33.57972
+      ],
+      "asset": "occumed-libya.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-libya.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "liechtenstein",
+      "slug": "liechtenstein",
+      "name": "Liechtenstein",
+      "continent": "europe",
+      "bounds": [
+        9.471078,
+        47.04774,
+        9.636217,
+        47.27128
+      ],
+      "asset": "occumed-liechtenstein.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-liechtenstein.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "limburg",
+      "slug": "limburg",
+      "name": "Limburg",
+      "continent": "europe",
+      "bounds": [
+        5.563304,
+        50.74753,
+        6.22939,
+        51.77992
+      ],
+      "asset": "occumed-limburg.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-limburg.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "limousin",
+      "slug": "limousin",
+      "name": "Limousin",
+      "continent": "europe",
+      "bounds": [
+        0.627097,
+        44.91842,
+        2.61384,
+        46.45781
+      ],
+      "asset": "occumed-limousin.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-limousin.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "lincolnshire",
+      "slug": "lincolnshire",
+      "name": "Lincolnshire",
+      "continent": "europe",
+      "bounds": [
+        -0.950922,
+        52.63954,
+        0.494382,
+        53.73003
+      ],
+      "asset": "occumed-lincolnshire.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-lincolnshire.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "lithuania",
+      "slug": "lithuania",
+      "name": "Lithuania",
+      "continent": "europe",
+      "bounds": [
+        20.61859,
+        53.89221,
+        26.83873,
+        56.45329
+      ],
+      "asset": "occumed-lithuania.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-lithuania.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "lodzkie",
+      "slug": "lodzkie",
+      "name": "Województwo łódzkie<br />(Łódź Voivodeship)",
+      "continent": "europe",
+      "bounds": [
+        18.06227,
+        50.83091,
+        20.6691,
+        52.40624
+      ],
+      "asset": "occumed-lodzkie.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-lodzkie.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "lorraine",
+      "slug": "lorraine",
+      "name": "Lorraine",
+      "continent": "europe",
+      "bounds": [
+        4.886022,
+        47.81188,
+        7.640105,
+        49.61946
+      ],
+      "asset": "occumed-lorraine.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-lorraine.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "lubelskie",
+      "slug": "lubelskie",
+      "name": "Województwo lubelskie<br />(Lublin Voivodeship)",
+      "continent": "europe",
+      "bounds": [
+        21.60285,
+        50.23654,
+        24.16102,
+        52.30035
+      ],
+      "asset": "occumed-lubelskie.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-lubelskie.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "lubuskie",
+      "slug": "lubuskie",
+      "name": "Województwo lubuskie<br />(Lubusz Voivodeship)",
+      "continent": "europe",
+      "bounds": [
+        14.49548,
+        51.34865,
+        16.42999,
+        53.12806
+      ],
+      "asset": "occumed-lubuskie.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-lubuskie.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "luxembourg",
+      "slug": "luxembourg",
+      "name": "Luxembourg",
+      "continent": "europe",
+      "bounds": [
+        5.733033,
+        49.44553,
+        6.532249,
+        50.18496
+      ],
+      "asset": "occumed-luxembourg.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-luxembourg.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "macau",
+      "slug": "macau",
+      "name": "Macau",
+      "continent": "asia",
+      "bounds": [
+        113.5272,
+        22.07546,
+        113.6325,
+        22.21708
+      ],
+      "asset": "occumed-macau.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-macau.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "macedonia",
+      "slug": "macedonia",
+      "name": "Macedonia",
+      "continent": "europe",
+      "bounds": [
+        20.44671,
+        40.84759,
+        23.04012,
+        42.37969
+      ],
+      "asset": "occumed-macedonia.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-macedonia.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "madagascar",
+      "slug": "madagascar",
+      "name": "Madagascar",
+      "continent": "africa",
+      "bounds": [
+        42.30124,
+        -26.5823,
+        51.14843,
+        -11.02746
+      ],
+      "asset": "occumed-madagascar.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-madagascar.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "madrid",
+      "slug": "madrid",
+      "name": "Madrid",
+      "continent": "europe",
+      "bounds": [
+        -4.589539,
+        39.88116,
+        -3.050423,
+        41.16864
+      ],
+      "asset": "occumed-madrid.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-madrid.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "malawi",
+      "slug": "malawi",
+      "name": "Malawi",
+      "continent": "africa",
+      "bounds": [
+        32.66441,
+        -17.13324,
+        35.92941,
+        -9.362691
+      ],
+      "asset": "occumed-malawi.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-malawi.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "malaysia-singapore-brunei",
+      "slug": "malaysia-singapore-brunei",
+      "name": "Malaysia, Singapore, and Brunei",
+      "continent": "asia",
+      "bounds": [
+        99.25611,
+        0.830813,
+        119.6683,
+        7.736849
+      ],
+      "asset": "occumed-malaysia-singapore-brunei.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-malaysia-singapore-brunei.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "maldives",
+      "slug": "maldives",
+      "name": "Maldives",
+      "continent": "asia",
+      "bounds": [
+        71.7,
+        -1.36,
+        74.5,
+        7.69
+      ],
+      "asset": "occumed-maldives.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-maldives.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "mali",
+      "slug": "mali",
+      "name": "Mali",
+      "continent": "africa",
+      "bounds": [
+        -12.24701,
+        10.1176,
+        4.330257,
+        25.09499
+      ],
+      "asset": "occumed-mali.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-mali.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "malopolskie",
+      "slug": "malopolskie",
+      "name": "Województwo małopolskie<br />(Lesser Poland Voivodeship)",
+      "continent": "europe",
+      "bounds": [
+        19.07492,
+        49.16487,
+        21.43328,
+        50.53221
+      ],
+      "asset": "occumed-malopolskie.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-malopolskie.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "malta",
+      "slug": "malta",
+      "name": "Malta",
+      "continent": "europe",
+      "bounds": [
+        14,
+        35.51985,
+        14.8561,
+        36.33296
+      ],
+      "asset": "occumed-malta.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-malta.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "maluku",
+      "slug": "maluku",
+      "name": "Maluku",
+      "continent": "asia",
+      "bounds": [
+        123.8928,
+        -9.524903,
+        135.412,
+        3.727232
+      ],
+      "asset": "occumed-maluku.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-maluku.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "manitoba",
+      "slug": "manitoba",
+      "name": "Manitoba",
+      "continent": "north-america",
+      "bounds": [
+        -102.014,
+        48.99056,
+        -88.12183,
+        60.00845
+      ],
+      "asset": "occumed-manitoba.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-manitoba.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "marshall-islands",
+      "slug": "marshall-islands",
+      "name": "Marshall Islands",
+      "continent": "australia-oceania",
+      "bounds": [
+        156.8453,
+        1.777314,
+        175.5118,
+        17.94606
+      ],
+      "asset": "occumed-marshall-islands.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-marshall-islands.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "martinique",
+      "slug": "martinique",
+      "name": "Martinique",
+      "continent": "europe",
+      "bounds": [
+        -61.63056,
+        14.13392,
+        -60.42755,
+        15.15167
+      ],
+      "asset": "occumed-martinique.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-martinique.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "mauritania",
+      "slug": "mauritania",
+      "name": "Mauritania",
+      "continent": "africa",
+      "bounds": [
+        -17.35016,
+        14.71578,
+        -4.816056,
+        27.33613
+      ],
+      "asset": "occumed-mauritania.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-mauritania.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "mauritius",
+      "slug": "mauritius",
+      "name": "Mauritius",
+      "continent": "africa",
+      "bounds": [
+        53.54727,
+        -22.2411,
+        64.66991,
+        -9.183617
+      ],
+      "asset": "occumed-mauritius.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-mauritius.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "mayotte",
+      "slug": "mayotte",
+      "name": "Mayotte",
+      "continent": "europe",
+      "bounds": [
+        44.62646,
+        -13.47243,
+        45.6784,
+        -12.14406
+      ],
+      "asset": "occumed-mayotte.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-mayotte.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "mazowieckie",
+      "slug": "mazowieckie",
+      "name": "Województwo mazowieckie<br />(Mazovian Voivodeship)",
+      "continent": "europe",
+      "bounds": [
+        19.23355,
+        50.98451,
+        23.15637,
+        53.5116
+      ],
+      "asset": "occumed-mazowieckie.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-mazowieckie.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "mecklenburg-vorpommern",
+      "slug": "mecklenburg-vorpommern",
+      "name": "Mecklenburg-Vorpommern",
+      "continent": "europe",
+      "bounds": [
+        10.58807,
+        53.10619,
+        14.42292,
+        54.9837
+      ],
+      "asset": "occumed-mecklenburg-vorpommern.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-mecklenburg-vorpommern.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "melilla",
+      "slug": "melilla",
+      "name": "Melilla",
+      "continent": "europe",
+      "bounds": [
+        -2.972424,
+        35.26393,
+        -2.908201,
+        35.32393
+      ],
+      "asset": "occumed-melilla.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-melilla.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "merseyside",
+      "slug": "merseyside",
+      "name": "Merseyside",
+      "continent": "europe",
+      "bounds": [
+        -3.342781,
+        53.2854,
+        -2.575686,
+        53.70528
+      ],
+      "asset": "occumed-merseyside.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-merseyside.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "micronesia",
+      "slug": "micronesia",
+      "name": "Micronesia",
+      "continent": "australia-oceania",
+      "bounds": [
+        135.3124,
+        -1.147444,
+        165.6345,
+        13.21917
+      ],
+      "asset": "occumed-micronesia.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-micronesia.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "midi-pyrenees",
+      "slug": "midi-pyrenees",
+      "name": "Midi-Pyrenees",
+      "continent": "europe",
+      "bounds": [
+        -0.327537,
+        42.56793,
+        3.453264,
+        45.04779
+      ],
+      "asset": "occumed-midi-pyrenees.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-midi-pyrenees.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "mittelfranken",
+      "slug": "mittelfranken",
+      "name": "Mittelfranken",
+      "continent": "europe",
+      "bounds": [
+        10.06565,
+        48.85325,
+        11.60553,
+        49.79103
+      ],
+      "asset": "occumed-mittelfranken.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-mittelfranken.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "moldova",
+      "slug": "moldova",
+      "name": "Moldova",
+      "continent": "europe",
+      "bounds": [
+        26.61232,
+        45.46164,
+        30.19249,
+        48.49397
+      ],
+      "asset": "occumed-moldova.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-moldova.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "monaco",
+      "slug": "monaco",
+      "name": "Monaco",
+      "continent": "europe",
+      "bounds": [
+        7.408583,
+        43.48382,
+        7.595671,
+        43.75293
+      ],
+      "asset": "occumed-monaco.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-monaco.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "mongolia",
+      "slug": "mongolia",
+      "name": "Mongolia",
+      "continent": "asia",
+      "bounds": [
+        87.70255,
+        41.50035,
+        120.0201,
+        52.19582
+      ],
+      "asset": "occumed-mongolia.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-mongolia.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "montenegro",
+      "slug": "montenegro",
+      "name": "Montenegro",
+      "continent": "europe",
+      "bounds": [
+        18.17282,
+        41.61621,
+        20.35883,
+        43.56217
+      ],
+      "asset": "occumed-montenegro.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-montenegro.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "moravskoslezky",
+      "slug": "moravskoslezky",
+      "name": "Moravskoslezský kraj",
+      "continent": "europe",
+      "bounds": [
+        17.14468,
+        49.37126,
+        18.86321,
+        50.3303
+      ],
+      "asset": "occumed-moravskoslezky.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-moravskoslezky.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "morocco",
+      "slug": "morocco",
+      "name": "Morocco",
+      "continent": "africa",
+      "bounds": [
+        -18.1835,
+        20.40373,
+        -0.993576,
+        36.06077
+      ],
+      "asset": "occumed-morocco.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-morocco.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "mozambique",
+      "slug": "mozambique",
+      "name": "Mozambique",
+      "continent": "africa",
+      "bounds": [
+        30.20742,
+        -26.93837,
+        42.53489,
+        -9.986206
+      ],
+      "asset": "occumed-mozambique.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-mozambique.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "muenster-regbez",
+      "slug": "muenster-regbez",
+      "name": "Regierungsbezirk Münster",
+      "continent": "europe",
+      "bounds": [
+        6.38588,
+        51.47971,
+        8.321177,
+        52.47682
+      ],
+      "asset": "occumed-muenster-regbez.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-muenster-regbez.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "murcia",
+      "slug": "murcia",
+      "name": "Murcia",
+      "continent": "europe",
+      "bounds": [
+        -2.351246,
+        37.11215,
+        -0.247194,
+        38.76024
+      ],
+      "asset": "occumed-murcia.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-murcia.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "namibia",
+      "slug": "namibia",
+      "name": "Namibia",
+      "continent": "africa",
+      "bounds": [
+        9.784615,
+        -30.20686,
+        25.26589,
+        -16.91682
+      ],
+      "asset": "occumed-namibia.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-namibia.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "nauru",
+      "slug": "nauru",
+      "name": "Nauru",
+      "continent": "australia-oceania",
+      "bounds": [
+        163.7052,
+        -3.771196,
+        168.5599,
+        2.693851
+      ],
+      "asset": "occumed-nauru.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-nauru.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "navarra",
+      "slug": "navarra",
+      "name": "Navarra",
+      "continent": "europe",
+      "bounds": [
+        -2.502308,
+        41.90611,
+        -0.716515,
+        43.31655
+      ],
+      "asset": "occumed-navarra.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-navarra.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "nepal",
+      "slug": "nepal",
+      "name": "Nepal",
+      "continent": "asia",
+      "bounds": [
+        80.04913,
+        26.3445,
+        88.22213,
+        30.47822
+      ],
+      "asset": "occumed-nepal.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-nepal.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "new-brunswick",
+      "slug": "new-brunswick",
+      "name": "New Brunswick",
+      "continent": "north-america",
+      "bounds": [
+        -69.05975,
+        44.19205,
+        -62.88575,
+        48.38075
+      ],
+      "asset": "occumed-new-brunswick.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-new-brunswick.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "new-caledonia",
+      "slug": "new-caledonia",
+      "name": "New Caledonia",
+      "continent": "australia-oceania",
+      "bounds": [
+        157.9,
+        -25,
+        174.1,
+        -16.9
+      ],
+      "asset": "occumed-new-caledonia.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-new-caledonia.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "new-south-wales",
+      "slug": "new-south-wales",
+      "name": "New South Wales (with ACT and JBT)",
+      "continent": "australia-oceania",
+      "bounds": [
+        140.9948,
+        -37.75984,
+        160.0747,
+        -28.13898
+      ],
+      "asset": "occumed-new-south-wales.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-new-south-wales.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "new-zealand",
+      "slug": "new-zealand",
+      "name": "New Zealand",
+      "continent": "australia-oceania",
+      "bounds": [
+        162.096,
+        -56.75268,
+        -173.5849,
+        -28.488
+      ],
+      "asset": "occumed-new-zealand.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-new-zealand.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "newfoundland-and-labrador",
+      "slug": "newfoundland-and-labrador",
+      "name": "Newfoundland and Labrador",
+      "continent": "north-america",
+      "bounds": [
+        -67.87079,
+        44.45787,
+        -44.17684,
+        60.50864
+      ],
+      "asset": "occumed-newfoundland-and-labrador.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-newfoundland-and-labrador.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "nicaragua",
+      "slug": "nicaragua",
+      "name": "Nicaragua",
+      "continent": "central-america",
+      "bounds": [
+        -87.9774,
+        10.70177,
+        -82.37865,
+        15.1119
+      ],
+      "asset": "occumed-nicaragua.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-nicaragua.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "niederbayern",
+      "slug": "niederbayern",
+      "name": "Niederbayern",
+      "continent": "europe",
+      "bounds": [
+        11.59302,
+        48.20179,
+        13.84947,
+        49.17605
+      ],
+      "asset": "occumed-niederbayern.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-niederbayern.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "niger",
+      "slug": "niger",
+      "name": "Niger",
+      "continent": "africa",
+      "bounds": [
+        0.119721,
+        11.68684,
+        16.05605,
+        23.56864
+      ],
+      "asset": "occumed-niger.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-niger.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "nigeria",
+      "slug": "nigeria",
+      "name": "Nigeria",
+      "continent": "africa",
+      "bounds": [
+        2.664528,
+        2.674022,
+        14.68057,
+        13.89874
+      ],
+      "asset": "occumed-nigeria.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-nigeria.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "ningxia",
+      "slug": "ningxia",
+      "name": "Ningxia",
+      "continent": "asia",
+      "bounds": [
+        104.275,
+        35.23272,
+        107.6571,
+        39.38606
+      ],
+      "asset": "occumed-ningxia.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-ningxia.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "niue",
+      "slug": "niue",
+      "name": "Niue",
+      "continent": "australia-oceania",
+      "bounds": [
+        -172.027,
+        -22.47347,
+        -166.2989,
+        -16.63667
+      ],
+      "asset": "occumed-niue.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-niue.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "noord-brabant",
+      "slug": "noord-brabant",
+      "name": "Noord-Brabant",
+      "continent": "europe",
+      "bounds": [
+        4.189152,
+        51.21808,
+        6.049354,
+        51.83181
+      ],
+      "asset": "occumed-noord-brabant.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-noord-brabant.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "noord-holland",
+      "slug": "noord-holland",
+      "name": "Noord-Holland",
+      "continent": "europe",
+      "bounds": [
+        3.896906,
+        52.16497,
+        5.378479,
+        53.28945
+      ],
+      "asset": "occumed-noord-holland.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-noord-holland.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "norcal",
+      "slug": "norcal",
+      "name": "Northern California",
+      "continent": "north-america",
+      "bounds": [
+        -125.8935,
+        35.78528,
+        -115.6468,
+        42.01618
+      ],
+      "asset": "occumed-norcal.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-norcal.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "nord-est",
+      "slug": "nord-est",
+      "name": "Nord-Est",
+      "continent": "europe",
+      "bounds": [
+        9.195461,
+        43.72977,
+        13.92878,
+        47.10005
+      ],
+      "asset": "occumed-nord-est.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-nord-est.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "nord-norge",
+      "slug": "nord-norge",
+      "name": "Nord-Norge<br />(Northern Norway)",
+      "continent": "europe",
+      "bounds": [
+        7.840204,
+        64.93917,
+        33.63965,
+        72.4056
+      ],
+      "asset": "occumed-nord-norge.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-nord-norge.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "nord-ovest",
+      "slug": "nord-ovest",
+      "name": "Nord-Ovest",
+      "continent": "europe",
+      "bounds": [
+        6.602696,
+        43.48099,
+        11.43336,
+        46.64119
+      ],
+      "asset": "occumed-nord-ovest.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-nord-ovest.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "nord-pas-de-calais",
+      "slug": "nord-pas-de-calais",
+      "name": "Nord-Pas-de-Calais",
+      "continent": "europe",
+      "bounds": [
+        1.278311,
+        49.96764,
+        4.236622,
+        51.28121
+      ],
+      "asset": "occumed-nord-pas-de-calais.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-nord-pas-de-calais.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "norfolk",
+      "slug": "norfolk",
+      "name": "Norfolk",
+      "continent": "europe",
+      "bounds": [
+        0.15447,
+        52.35478,
+        1.992789,
+        53.35573
+      ],
+      "asset": "occumed-norfolk.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-norfolk.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "norfolk-island",
+      "slug": "norfolk-island",
+      "name": "Norfolk Island",
+      "continent": "australia-oceania",
+      "bounds": [
+        167.6245,
+        -29.46068,
+        168.3456,
+        -28.75781
+      ],
+      "asset": "occumed-norfolk-island.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-norfolk-island.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "norte",
+      "slug": "norte",
+      "name": "Norte",
+      "continent": "south-america",
+      "bounds": [
+        -74.02313,
+        -13.73407,
+        -42.87915,
+        5.522895
+      ],
+      "asset": "occumed-norte.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-norte.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "north-admreg",
+      "slug": "north-admreg",
+      "name": "North Administrative Region",
+      "continent": "north-america",
+      "bounds": [
+        -141.7761,
+        51.0635,
+        -117.938,
+        60.00678
+      ],
+      "asset": "occumed-north-admreg.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-north-admreg.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "north-korea",
+      "slug": "north-korea",
+      "name": "North Korea",
+      "continent": "asia",
+      "bounds": [
+        123.697,
+        37.61103,
+        131.6447,
+        43.02043
+      ],
+      "asset": "occumed-north-korea.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-north-korea.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "north-yorkshire",
+      "slug": "north-yorkshire",
+      "name": "North Yorkshire",
+      "continent": "europe",
+      "bounds": [
+        -2.567177,
+        53.61999,
+        -0.040615,
+        54.70222
+      ],
+      "asset": "occumed-north-yorkshire.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-north-yorkshire.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "northamptonshire",
+      "slug": "northamptonshire",
+      "name": "Northamptonshire",
+      "continent": "europe",
+      "bounds": [
+        -1.334028,
+        51.9765,
+        -0.34068,
+        52.64459
+      ],
+      "asset": "occumed-northamptonshire.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-northamptonshire.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "northern-territory",
+      "slug": "northern-territory",
+      "name": "Northern Territory",
+      "continent": "australia-oceania",
+      "bounds": [
+        128.6705,
+        -26.00085,
+        140.4241,
+        -9.971934
+      ],
+      "asset": "occumed-northern-territory.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-northern-territory.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "northern-zone",
+      "slug": "northern-zone",
+      "name": "Northern Zone",
+      "continent": "asia",
+      "bounds": [
+        69.43908,
+        23.04688,
+        79.48883,
+        35.73091
+      ],
+      "asset": "occumed-northern-zone.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-northern-zone.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "nottinghamshire",
+      "slug": "nottinghamshire",
+      "name": "Nottinghamshire",
+      "continent": "europe",
+      "bounds": [
+        -1.344477,
+        52.78153,
+        -0.666651,
+        53.50315
+      ],
+      "asset": "occumed-nottinghamshire.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-nottinghamshire.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "nova-scotia",
+      "slug": "nova-scotia",
+      "name": "Nova Scotia",
+      "continent": "north-america",
+      "bounds": [
+        -67.24728,
+        42.10691,
+        -58.22593,
+        47.89793
+      ],
+      "asset": "occumed-nova-scotia.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-nova-scotia.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "nusa-tenggara",
+      "slug": "nusa-tenggara",
+      "name": "Nusa-Tenggara",
+      "continent": "asia",
+      "bounds": [
+        114.4089,
+        -11.60655,
+        128.408,
+        -6.675509
+      ],
+      "asset": "occumed-nusa-tenggara.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-nusa-tenggara.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "oberbayern",
+      "slug": "oberbayern",
+      "name": "Oberbayern",
+      "continent": "europe",
+      "bounds": [
+        10.71268,
+        47.3913,
+        13.10973,
+        49.09052
+      ],
+      "asset": "occumed-oberbayern.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-oberbayern.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "oberfranken",
+      "slug": "oberfranken",
+      "name": "Oberfranken",
+      "continent": "europe",
+      "bounds": [
+        10.43816,
+        49.5854,
+        12.27356,
+        50.52571
+      ],
+      "asset": "occumed-oberfranken.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-oberfranken.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "oberpfalz",
+      "slug": "oberpfalz",
+      "name": "Oberpfalz",
+      "continent": "europe",
+      "bounds": [
+        11.18231,
+        48.76243,
+        13.17628,
+        50.08323
+      ],
+      "asset": "occumed-oberpfalz.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-oberpfalz.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "okanagan-admreg",
+      "slug": "okanagan-admreg",
+      "name": "Okanagan Administrative Region",
+      "continent": "north-america",
+      "bounds": [
+        -121.1,
+        48.99456,
+        -116.8259,
+        52.57309
+      ],
+      "asset": "occumed-okanagan-admreg.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-okanagan-admreg.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "olomoucky",
+      "slug": "olomoucky",
+      "name": "Olomoucký kraj",
+      "continent": "europe",
+      "bounds": [
+        16.70909,
+        49.26735,
+        17.92035,
+        50.45234
+      ],
+      "asset": "occumed-olomoucky.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-olomoucky.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "ostlandet",
+      "slug": "ostlandet",
+      "name": "Østlandet<br />(Eastern Norway)",
+      "continent": "europe",
+      "bounds": [
+        7.095391,
+        58.5968,
+        12.88071,
+        62.69734
+      ],
+      "asset": "occumed-ostlandet.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-ostlandet.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "overijssel",
+      "slug": "overijssel",
+      "name": "Overijssel",
+      "continent": "europe",
+      "bounds": [
+        5.776793,
+        52.11349,
+        7.075066,
+        52.85539
+      ],
+      "asset": "occumed-overijssel.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-overijssel.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "oxfordshire",
+      "slug": "oxfordshire",
+      "name": "Oxfordshire",
+      "continent": "europe",
+      "bounds": [
+        -1.719533,
+        51.46057,
+        -0.86985,
+        52.16807
+      ],
+      "asset": "occumed-oxfordshire.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-oxfordshire.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "pais-vasco",
+      "slug": "pais-vasco",
+      "name": "País Vasco",
+      "continent": "europe",
+      "bounds": [
+        -3.454342,
+        42.46919,
+        -1.666284,
+        43.74729
+      ],
+      "asset": "occumed-pais-vasco.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-pais-vasco.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "pakistan",
+      "slug": "pakistan",
+      "name": "Pakistan",
+      "continent": "asia",
+      "bounds": [
+        60.82168,
+        23.3763,
+        77.22427,
+        37.10667
+      ],
+      "asset": "occumed-pakistan.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-pakistan.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "papua",
+      "slug": "papua",
+      "name": "Papua",
+      "continent": "asia",
+      "bounds": [
+        128.2819,
+        -9.495116,
+        141.0217,
+        2.075967
+      ],
+      "asset": "occumed-papua.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-papua.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "papua-new-guinea",
+      "slug": "papua-new-guinea",
+      "name": "Papua New Guinea",
+      "continent": "australia-oceania",
+      "bounds": [
+        139.2014,
+        -14.74845,
+        162.8034,
+        2.587814
+      ],
+      "asset": "occumed-papua-new-guinea.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-papua-new-guinea.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "paraguay",
+      "slug": "paraguay",
+      "name": "Paraguay",
+      "continent": "south-america",
+      "bounds": [
+        -62.69475,
+        -27.65675,
+        -54.20176,
+        -19.24012
+      ],
+      "asset": "occumed-paraguay.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-paraguay.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "pardubicky",
+      "slug": "pardubicky",
+      "name": "Pardubický kraj",
+      "continent": "europe",
+      "bounds": [
+        15.3626,
+        49.57176,
+        16.86804,
+        50.21306
+      ],
+      "asset": "occumed-pardubicky.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-pardubicky.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "peru",
+      "slug": "peru",
+      "name": "Peru",
+      "continent": "south-america",
+      "bounds": [
+        -86.02509,
+        -20.30552,
+        -68.55439,
+        0.060049
+      ],
+      "asset": "occumed-peru.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-peru.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "philippines",
+      "slug": "philippines",
+      "name": "Philippines",
+      "continent": "asia",
+      "bounds": [
+        112.1661,
+        4.382696,
+        127.0742,
+        21.53021
+      ],
+      "asset": "occumed-philippines.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-philippines.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "picardie",
+      "slug": "picardie",
+      "name": "Picardie",
+      "continent": "europe",
+      "bounds": [
+        1.360085,
+        48.83599,
+        4.256744,
+        50.37125
+      ],
+      "asset": "occumed-picardie.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-picardie.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "pitcairn-islands",
+      "slug": "pitcairn-islands",
+      "name": "Pitcairn Islands",
+      "continent": "australia-oceania",
+      "bounds": [
+        -133.0664,
+        -27.66403,
+        -118.3448,
+        -21.59613
+      ],
+      "asset": "occumed-pitcairn-islands.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-pitcairn-islands.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "plzensky",
+      "slug": "plzensky",
+      "name": "Plzeňský kraj",
+      "continent": "europe",
+      "bounds": [
+        12.38887,
+        48.93387,
+        13.84247,
+        50.10566
+      ],
+      "asset": "occumed-plzensky.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-plzensky.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "podlaskie",
+      "slug": "podlaskie",
+      "name": "Województwo podlaskie<br />(Podlaskie Voivodeship)",
+      "continent": "europe",
+      "bounds": [
+        21.58465,
+        52.27112,
+        23.96141,
+        54.4254
+      ],
+      "asset": "occumed-podlaskie.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-podlaskie.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "poitou-charentes",
+      "slug": "poitou-charentes",
+      "name": "Poitou-Charentes",
+      "continent": "europe",
+      "bounds": [
+        -1.898565,
+        45.0868,
+        1.214991,
+        47.17837
+      ],
+      "asset": "occumed-poitou-charentes.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-poitou-charentes.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "polynesie-francaise",
+      "slug": "polynesie-francaise",
+      "name": "Polynésie française (French Polynesia)",
+      "continent": "australia-oceania",
+      "bounds": [
+        -158.5547,
+        -31.54105,
+        -132.5391,
+        -4.915789
+      ],
+      "asset": "occumed-polynesie-francaise.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-polynesie-francaise.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "pomorskie",
+      "slug": "pomorskie",
+      "name": "Województwo pomorskie<br />(Pomeranian Voivodeship)",
+      "continent": "europe",
+      "bounds": [
+        16.68699,
+        53.4806,
+        19.66069,
+        55.07949
+      ],
+      "asset": "occumed-pomorskie.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-pomorskie.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "portugal",
+      "slug": "portugal",
+      "name": "Portugal",
+      "continent": "europe",
+      "bounds": [
+        -31.6,
+        32,
+        -6.179513,
+        42.1639
+      ],
+      "asset": "occumed-portugal.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-portugal.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "prince-edward-island",
+      "slug": "prince-edward-island",
+      "name": "Prince Edward Island",
+      "continent": "north-america",
+      "bounds": [
+        -64.60236,
+        45.82497,
+        -61.24878,
+        47.68573
+      ],
+      "asset": "occumed-prince-edward-island.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-prince-edward-island.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "provence-alpes-cote-d-azur",
+      "slug": "provence-alpes-cote-d-azur",
+      "name": "Provence Alpes-Cote-d'Azur",
+      "continent": "europe",
+      "bounds": [
+        4.144746,
+        42.31539,
+        7.748528,
+        45.12887
+      ],
+      "asset": "occumed-provence-alpes-cote-d-azur.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-provence-alpes-cote-d-azur.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "qinghai",
+      "slug": "qinghai",
+      "name": "Qinghai",
+      "continent": "asia",
+      "bounds": [
+        89.39,
+        31.58673,
+        103.0727,
+        39.22162
+      ],
+      "asset": "occumed-qinghai.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-qinghai.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "reunion",
+      "slug": "reunion",
+      "name": "Reunion",
+      "continent": "europe",
+      "bounds": [
+        54.94688,
+        -21.72922,
+        56.11999,
+        -20.58589
+      ],
+      "asset": "occumed-reunion.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-reunion.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "rheinland-pfalz",
+      "slug": "rheinland-pfalz",
+      "name": "Rheinland-Pfalz",
+      "continent": "europe",
+      "bounds": [
+        6.109129,
+        48.96377,
+        8.511228,
+        50.94404
+      ],
+      "asset": "occumed-rheinland-pfalz.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-rheinland-pfalz.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "rhone-alpes",
+      "slug": "rhone-alpes",
+      "name": "Rhone-Alpes",
+      "continent": "europe",
+      "bounds": [
+        3.686075,
+        44.11274,
+        7.19206,
+        46.52248
+      ],
+      "asset": "occumed-rhone-alpes.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-rhone-alpes.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "rutland",
+      "slug": "rutland",
+      "name": "Rutland",
+      "continent": "europe",
+      "bounds": [
+        -0.822934,
+        52.52355,
+        -0.427654,
+        52.76109
+      ],
+      "asset": "occumed-rutland.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-rutland.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "saarland",
+      "slug": "saarland",
+      "name": "Saarland",
+      "continent": "europe",
+      "bounds": [
+        6.354475,
+        49.10807,
+        7.406287,
+        49.64146
+      ],
+      "asset": "occumed-saarland.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-saarland.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "sachsen",
+      "slug": "sachsen",
+      "name": "Sachsen",
+      "continent": "europe",
+      "bounds": [
+        11.86685,
+        50.16658,
+        15.05078,
+        51.68735
+      ],
+      "asset": "occumed-sachsen.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-sachsen.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "sachsen-anhalt",
+      "slug": "sachsen-anhalt",
+      "name": "Sachsen-Anhalt",
+      "continent": "europe",
+      "bounds": [
+        10.54725,
+        50.92887,
+        13.21268,
+        53.0566
+      ],
+      "asset": "occumed-sachsen-anhalt.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-sachsen-anhalt.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "samoa",
+      "slug": "samoa",
+      "name": "Samoa",
+      "continent": "australia-oceania",
+      "bounds": [
+        -174.5114,
+        -15.87838,
+        -170.5427,
+        -10.96083
+      ],
+      "asset": "occumed-samoa.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-samoa.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "schleswig-holstein",
+      "slug": "schleswig-holstein",
+      "name": "Schleswig-Holstein",
+      "continent": "europe",
+      "bounds": [
+        7.46458,
+        53.3569,
+        11.79931,
+        55.14634
+      ],
+      "asset": "occumed-schleswig-holstein.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-schleswig-holstein.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "schwaben",
+      "slug": "schwaben",
+      "name": "Schwaben",
+      "continent": "europe",
+      "bounds": [
+        9.512461,
+        47.26543,
+        11.31348,
+        49.0366
+      ],
+      "asset": "occumed-schwaben.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-schwaben.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "seychelles",
+      "slug": "seychelles",
+      "name": "Seychelles",
+      "continent": "africa",
+      "bounds": [
+        45.68495,
+        -12.55844,
+        57.57433,
+        -3.17239
+      ],
+      "asset": "occumed-seychelles.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-seychelles.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "shaanxi",
+      "slug": "shaanxi",
+      "name": "Shaanxi",
+      "continent": "asia",
+      "bounds": [
+        105.4801,
+        31.695,
+        111.2479,
+        39.58902
+      ],
+      "asset": "occumed-shaanxi.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-shaanxi.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "shanghai",
+      "slug": "shanghai",
+      "name": "Shanghai",
+      "continent": "asia",
+      "bounds": [
+        120.847,
+        30.6391,
+        123.679,
+        31.88455
+      ],
+      "asset": "occumed-shanghai.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-shanghai.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "shropshire",
+      "slug": "shropshire",
+      "name": "Shropshire",
+      "continent": "europe",
+      "bounds": [
+        -3.235577,
+        52.30616,
+        -2.23354,
+        52.99693
+      ],
+      "asset": "occumed-shropshire.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-shropshire.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "slovenia",
+      "slug": "slovenia",
+      "name": "Slovenia",
+      "continent": "europe",
+      "bounds": [
+        13.30509,
+        45.42081,
+        16.60034,
+        46.87956
+      ],
+      "asset": "occumed-slovenia.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-slovenia.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "socal",
+      "slug": "socal",
+      "name": "Southern California",
+      "continent": "north-america",
+      "bounds": [
+        -121.4401,
+        32.48438,
+        -114.1291,
+        35.81055
+      ],
+      "asset": "occumed-socal.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-socal.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    },
+    {
+      "id": "south-africa",
+      "slug": "south-africa",
+      "name": "South Africa",
+      "continent": "africa",
+      "bounds": [
+        15.99606,
+        -47.58493,
+        39.24259,
+        -22.11736
+      ],
+      "asset": "occumed-south-africa.pmtiles",
+      "url": "__OCCUMED_PUBLIC_ORIGIN__/world-tiles/occumed-south-africa.pmtiles",
+      "minzoom": 6,
+      "maxzoom": 16
+    }
+  ],
+  "plannedRegionCount": 535,
+  "availableRegionCount": 330,
+  "missingRegionCount": 205,
+  "missingRegions": [
+    "argentina",
+    "central-fed-district--r1-c2",
+    "central-fed-district--r2-c1",
+    "central-fed-district--r2-c2",
+    "enfield",
+    "far-eastern-fed-district",
+    "finland",
+    "iceland",
+    "java--r1-c1",
+    "java--r1-c2",
+    "java--r1-c3",
+    "java--r2-c1",
+    "java--r2-c2",
+    "java--r2-c3",
+    "mexico",
+    "myanmar",
+    "niedersachsen",
+    "nordeste",
+    "north-caucasus-fed-district",
+    "north-eastern-zone",
+    "northumberland",
+    "northwest-territories",
+    "northwestern-fed-district",
+    "ontario--r1-c1",
+    "ontario--r1-c2",
+    "ontario--r2-c1",
+    "ontario--r2-c2",
+    "opolskie",
+    "palau",
+    "panama",
+    "pays-de-la-loire",
+    "podkarpackie",
+    "praha",
+    "qikiqtaaluk",
+    "quebec--r1-c1",
+    "quebec--r1-c2",
+    "quebec--r2-c1",
+    "quebec--r2-c2",
+    "queensland",
+    "romania",
+    "rwanda",
+    "saint-helena-ascension-and-tristan-da-cunha",
+    "sao-tome-and-principe",
+    "saskatchewan",
+    "scotland",
+    "senegal-and-gambia",
+    "serbia",
+    "shandong",
+    "shanxi",
+    "shikoku",
+    "siberian-fed-district",
+    "sichuan",
+    "sierra-leone",
+    "slaskie",
+    "slovakia",
+    "solomon-islands",
+    "somalia",
+    "somerset",
+    "sorlandet",
+    "south-australia",
+    "south-fed-district",
+    "south-korea",
+    "south-sudan",
+    "south-yorkshire",
+    "southcoast-admreg",
+    "southern-zone",
+    "sri-lanka",
+    "staffordshire",
+    "stredocesky",
+    "stuttgart-regbez",
+    "sud",
+    "sudan",
+    "sudeste--r1-c1",
+    "sudeste--r1-c2",
+    "sudeste--r1-c3",
+    "sudeste--r2-c1",
+    "sudeste--r2-c2",
+    "sudeste--r2-c3",
+    "suffolk",
+    "sul",
+    "sulawesi",
+    "sumatra",
+    "suriname",
+    "surrey",
+    "svalbard-janmayen",
+    "swaziland",
+    "sweden",
+    "swietokrzyskie",
+    "switzerland",
+    "syria",
+    "taiwan",
+    "tajikistan",
+    "tanzania",
+    "tasmania",
+    "thailand",
+    "thueringen",
+    "tianjin",
+    "tibet",
+    "togo",
+    "tohoku",
+    "tokelau",
+    "tonga",
+    "trondelag",
+    "tuebingen-regbez",
+    "tunisia",
+    "turkey",
+    "turkmenistan",
+    "tuvalu",
+    "tyne-and-wear",
+    "uganda",
+    "ukraine--r1-c1",
+    "ukraine--r1-c2",
+    "ukraine--r1-c3",
+    "ukraine--r2-c1",
+    "ukraine--r2-c2",
+    "ukraine--r2-c3",
+    "unterfranken",
+    "ural-fed-district",
+    "uruguay",
+    "us/alabama",
+    "us/alaska",
+    "us/arizona",
+    "us/arkansas",
+    "us/colorado",
+    "us/connecticut",
+    "us/delaware",
+    "us/district-of-columbia",
+    "us/florida",
+    "us/georgia",
+    "us/hawaii",
+    "us/idaho",
+    "us/illinois",
+    "us/indiana",
+    "us/iowa",
+    "us/kansas",
+    "us/kentucky",
+    "us/louisiana",
+    "us/maine",
+    "us/maryland",
+    "us/massachusetts",
+    "us/michigan",
+    "us/minnesota",
+    "us/mississippi",
+    "us/missouri",
+    "us/montana",
+    "us/nebraska",
+    "us/nevada",
+    "us/new-hampshire",
+    "us/new-jersey",
+    "us/new-mexico",
+    "us/new-york",
+    "us/north-carolina",
+    "us/north-dakota",
+    "us/ohio",
+    "us/oklahoma",
+    "us/oregon",
+    "us/pennsylvania",
+    "us/puerto-rico",
+    "us/rhode-island",
+    "us/south-carolina",
+    "us/south-dakota",
+    "us/tennessee",
+    "us/texas",
+    "us/us-virgin-islands",
+    "us/utah",
+    "us/vermont",
+    "us/virginia",
+    "us/washington",
+    "us/west-virginia",
+    "us/wisconsin",
+    "us/wyoming",
+    "ustecky",
+    "utrecht",
+    "uzbekistan",
+    "valencia",
+    "vanuatu",
+    "venezuela",
+    "vestlandet",
+    "victoria",
+    "vietnam",
+    "volga-fed-district",
+    "vysocina",
+    "wales",
+    "wallis-et-futuna",
+    "warminsko-mazurskie",
+    "warwickshire",
+    "west-midlands",
+    "west-sussex",
+    "west-yorkshire",
+    "western-australia",
+    "western-zone",
+    "wielkopolskie",
+    "wiltshire",
+    "worcestershire",
+    "xinjiang",
+    "yemen",
+    "yukon",
+    "yunnan",
+    "zachodniopomorskie",
+    "zambia",
+    "zeeland",
+    "zhejiang",
+    "zimbabwe",
+    "zlinsky",
+    "zuid-holland"
+  ],
+  "releaseAssetCount": 1000,
+  "capturedAt": "2026-07-26T21:24:51.885Z"
+}

@@ -1,0 +1,27 @@
+{
+  "capturedAt": "2026-07-26T17:53:13.237Z",
+  "runId": "30211467213",
+  "totalJobsObserved": 525,
+  "completedSuccessCount": 99,
+  "failedCount": 4,
+  "inProgressCount": 6,
+  "queuedCount": 415,
+  "failures": [
+    {
+      "id": 89818513156,
+      "name": "build-bucket-5 (alps, alps, Alps, europe, https://download.geofabrik.de/europe/alps-latest.osm.pb..."
+    },
+    {
+      "id": 89818513320,
+      "name": "build-bucket-3 (argentina, argentina, Argentina, south-america, https://download.geofabrik.de/sou..."
+    },
+    {
+      "id": 89818513351,
+      "name": "build-bucket-0 (central-fed-district, central-fed-district, Central Federal District, central-fed..."
+    },
+    {
+      "id": 89818513388,
+      "name": "build-bucket-3 (britain-and-ireland, britain-and-ireland, Britain and Ireland, europe, https://do..."
+    }
+  ]
+}

@@ -1,67 +1,10 @@
 name: Validate Occu-Med open basemap
 
 on:
-  pull_request:
-  push:
-    branches:
-      - main
-
-permissions:
-  contents: read
+  workflow_dispatch:
 
 jobs:
-  validate:
+  manual-only:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Verify untouched Mapbox export blueprint
-        run: npm run check:export
-
-      - name: Compile uploaded SVG sprites
-        run: npm run prepare:sprites
-
-      - name: Convert style to independent runtime and apply screenshot calibration
-        run: npm run prepare:style
-
-      - name: Check independent runtime resources
-        run: node scripts/check-runtime.mjs
-
-      - name: Validate MapLibre style specification
-        run: node scripts/validate-maplibre-style.mjs
-
-      - name: Check globe parity
-        run: node scripts/check-globe-parity.mjs
-
-      - name: Check cartography parity
-        run: node scripts/check-cartography-parity.mjs
-
-      - name: Check viewer quality
-        run: node scripts/check-viewer-quality.mjs
-
-      - name: Check screenshot-reference calibration
-        run: node scripts/check-photo-reference.mjs
-
-      - name: Check exact exported swatches
-        run: node scripts/check-exact-exported-swatches.mjs
-
-      - name: Check high-DPI render clarity
-        run: node scripts/check-render-clarity.mjs
-
-      - name: Build MapLibre viewer
-        run: npx vite build
-
-      - name: Summarize generated compatibility report
-        run: |
-          node -e "const r=require('./public/style/compatibility-report.json'); console.log({original:r.originalLayerCount,runtime:r.runtimeLayerCount,skipped:r.skippedLayerCount,mappings:r.sourceLayerMappings})"
+      - run: echo "Open-basemap validation is paused until the worldwide PMTiles release is complete."

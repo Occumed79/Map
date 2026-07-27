@@ -1,0 +1,114 @@
+{
+  "capturedAt": "2026-07-26T21:20:26.181Z",
+  "runId": "30214445296",
+  "failedShardCount": 414,
+  "categories": [
+    {
+      "category": "github_release_upload",
+      "count": 409,
+      "samples": [
+        {
+          "id": 89826326886,
+          "name": "build-bucket-2 (austria--r2-c2, austria--r2-c2, Austria 2.2, europe, https://download.geofabrik.d...",
+          "errorLines": [
+            "2026-07-26T18:29:19.7405998Z \u001b[m\u001b[0m0:01:46 INF [archive] - data errors:",
+            "2026-07-26T18:29:21.6379714Z HTTP 422: Validation Failed (https://uploads.github.com/repos/Occumed79/Map/releases/359982973/assets?label=&name=occumed-austria--r2-c2.pmtiles)",
+            "2026-07-26T18:29:21.6422069Z ##[error]Process completed with exit code 1."
+          ]
+        },
+        {
+          "id": 89826326900,
+          "name": "build-bucket-2 (argentina--r1-c1, argentina--r1-c1, Argentina 1.1, south-america, https://downloa...",
+          "errorLines": [
+            "2026-07-26T18:30:04.3914545Z \u001b[m\u001b[0m0:01:12 INF [archive] - data errors:",
+            "2026-07-26T18:30:08.9506267Z HTTP 422: Validation Failed (https://uploads.github.com/repos/Occumed79/Map/releases/359982973/assets?label=&name=occumed-argentina--r1-c1.pmtiles)",
+            "2026-07-26T18:30:08.9531116Z ##[error]Process completed with exit code 1."
+          ]
+        },
+        {
+          "id": 89826326961,
+          "name": "build-bucket-2 (belgium--r1-c2, belgium--r1-c2, Belgium 1.2, europe, https://download.geofabrik.d...",
+          "errorLines": [
+            "2026-07-26T18:36:52.0351257Z \u001b[m\u001b[0m0:01:08 INF [archive] - data errors:",
+            "2026-07-26T18:36:53.9393686Z HTTP 422: Validation Failed (https://uploads.github.com/repos/Occumed79/Map/releases/359982973/assets?label=&name=occumed-belgium--r1-c2.pmtiles)",
+            "2026-07-26T18:36:53.9424989Z ##[error]Process completed with exit code 1."
+          ]
+        },
+        {
+          "id": 89826326996,
+          "name": "build-bucket-2 (central-fed-district--r2-c2, central-fed-district--r2-c2, Central Federal Distric...",
+          "errorLines": [
+            "2026-07-26T18:47:00.3366702Z \u001b[m\u001b[0m0:02:20 INF [archive] - data errors:",
+            "2026-07-26T18:47:04.0861189Z HTTP 422: Validation Failed (https://uploads.github.com/repos/Occumed79/Map/releases/359982973/assets?label=&name=occumed-central-fed-district--r2-c2.pmtiles)",
+            "2026-07-26T18:47:04.0887053Z ##[error]Process completed with exit code 1."
+          ]
+        },
+        {
+          "id": 89826327007,
+          "name": "build-bucket-2 (denmark--r2-c3, denmark--r2-c3, Denmark 2.3, europe, https://download.geofabrik.d...",
+          "errorLines": [
+            "2026-07-26T18:36:33.4633930Z \u001b[m\u001b[0m0:00:02 INF [archive] - data errors:",
+            "2026-07-26T18:36:34.8945185Z HTTP 422: Validation Failed (https://uploads.github.com/repos/Occumed79/Map/releases/359982973/assets?label=&name=occumed-denmark--r2-c3.pmtiles)",
+            "2026-07-26T18:36:34.8978303Z ##[error]Process completed with exit code 1."
+          ]
+        },
+        {
+          "id": 89826327031,
+          "name": "build-bucket-2 (chubu--r1-c1, chubu--r1-c1, Chūbu region 1.1, asia, https://download.geofabrik.d...",
+          "errorLines": [
+            "2026-07-26T18:39:35.3853128Z \u001b[m\u001b[0m0:02:17 INF [archive] - data errors:",
+            "2026-07-26T18:41:37.6339554Z HTTP 422: Validation Failed (https://uploads.github.com/repos/Occumed79/Map/releases/359982973/assets?label=&name=occumed-chubu--r1-c1.pmtiles)",
+            "2026-07-26T18:41:37.6374580Z ##[error]Process completed with exit code 1."
+          ]
+        }
+      ]
+    },
+    {
+      "category": "published_range_verification",
+      "count": 5,
+      "samples": [
+        {
+          "id": 89826327220,
+          "name": "build-bucket-3 (far-eastern-fed-district, far-eastern-fed-district, Far Eastern Federal District,...",
+          "errorLines": [
+            "2026-07-26T19:08:31.8953766Z \u001b[m\u001b[0m0:09:08 INF [archive] - data errors:",
+            "2026-07-26T19:08:34.8614137Z ##[error]Process completed with exit code 1."
+          ]
+        },
+        {
+          "id": 89826327363,
+          "name": "build-bucket-1 (enfield, enfield, Enfield, europe, https://download.geofabrik.de/europe/united-ki...",
+          "errorLines": [
+            "2026-07-26T18:53:38.8235140Z \u001b[m\u001b[0m0:00:01 DEB - argument: log_jts_exceptions=false (Emit verbose details to debug JTS geometry errors)",
+            "2026-07-26T18:53:39.3719455Z Exception in thread \"main\" java.lang.IllegalArgumentException: Header longer than 64 KiB",
+            "2026-07-26T18:53:39.4754932Z ##[error]Process completed with exit code 1."
+          ]
+        },
+        {
+          "id": 89826328562,
+          "name": "build-bucket-0 (ural-fed-district, ural-fed-district, Ural Federal District, ural-fed-district, h...",
+          "errorLines": [
+            "2026-07-26T19:39:14.8120004Z \u001b[m\u001b[0m0:05:54 INF [archive] - data errors:",
+            "2026-07-26T19:39:18.3863999Z ##[error]Process completed with exit code 1."
+          ]
+        },
+        {
+          "id": 89826328623,
+          "name": "build-bucket-4 (northwestern-fed-district--r1-c1, northwestern-fed-district--r1-c1, Northwestern ...",
+          "errorLines": [
+            "2026-07-26T20:05:52.9305474Z \u001b[m\u001b[0m0:08:01 INF [archive] - data errors:",
+            "2026-07-26T20:05:56.6292722Z ##[error]Process completed with exit code 1."
+          ]
+        },
+        {
+          "id": 89826328773,
+          "name": "build-bucket-4 (siberian-fed-district--r1-c1, siberian-fed-district--r1-c1, Siberian Federal Dist...",
+          "errorLines": [
+            "2026-07-26T20:04:05.0999818Z \u001b[m\u001b[0m0:08:08 INF [archive] - data errors:",
+            "2026-07-26T20:04:09.2763791Z ##[error]Process completed with exit code 1."
+          ]
+        }
+      ]
+    }
+  ]
+}

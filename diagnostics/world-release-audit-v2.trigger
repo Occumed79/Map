@@ -1,0 +1,2 @@
+requested_at=2026-07-27T12:00:00Z
+purpose=verify_pinned_zero_missing_manifest_and_release_metadata

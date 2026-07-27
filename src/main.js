@@ -25,6 +25,10 @@ async function initialize() {
       styleUrl: import.meta.env.VITE_OCCUMED_STYLE_URL || '/style/occumed-open.json'
     });
 
+    // Exposed only as a stable integration and visual-QA hook. Applications still
+    // own their overlays and should use createOccumedMap directly.
+    globalThis.__OCCUMED_MAP__ = map;
+
     map.once('render', () => markReady('Occu-Med map ready'));
     map.once('load', () => markReady('Occu-Med map ready'));
     map.once('idle', () => markReady('Occu-Med map ready'));

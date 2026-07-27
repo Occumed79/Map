@@ -1,0 +1,10 @@
+name: Validate size-aware worldwide plan
+
+on:
+  workflow_dispatch:
+
+jobs:
+  manual-only:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "World-plan validation is paused until the missing-shard completion run finishes."

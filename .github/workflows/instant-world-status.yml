@@ -1,0 +1,102 @@
+name: Instant Worldwide PMTiles Status
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/custom-planetiler-pmtiles-basemap
+    paths:
+      - diagnostics/world-instant-status.trigger
+
+permissions:
+  actions: read
+  contents: write
+
+concurrency:
+  group: occumed-world-pmtiles-instant-status
+  cancel-in-progress: true
+
+jobs:
+  status:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/custom-planetiler-pmtiles-basemap
+          fetch-depth: 0
+
+      - name: Query repair and release state
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          WORLD_RELEASE_TAG: occumed-world-v1
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Force -Path diagnostics | Out-Null
+
+          gh api "/repos/$env:GITHUB_REPOSITORY/actions/workflows/repair-missing-world-pmtiles.yml/runs?branch=feat%2Fcustom-planetiler-pmtiles-basemap&event=push&per_page=10" | Out-File -Encoding utf8 $env:RUNNER_TEMP/repair-runs.json
+          $runPayload = Get-Content $env:RUNNER_TEMP/repair-runs.json -Raw | ConvertFrom-Json
+          $run = $runPayload.workflow_runs | Select-Object -First 1
+
+          $jobs = @()
+          if ($null -ne $run) {
+            gh api --paginate --slurp "/repos/$env:GITHUB_REPOSITORY/actions/runs/$($run.id)/jobs?per_page=100" | Out-File -Encoding utf8 $env:RUNNER_TEMP/job-pages.json
+            $jobPages = Get-Content $env:RUNNER_TEMP/job-pages.json -Raw | ConvertFrom-Json
+            $jobs = @($jobPages | ForEach-Object { $_.jobs } | Where-Object { $null -ne $_ })
+          }
+
+          $release = gh api "/repos/$env:GITHUB_REPOSITORY/releases/tags/$env:WORLD_RELEASE_TAG" | ConvertFrom-Json
+          gh api --paginate --slurp "/repos/$env:GITHUB_REPOSITORY/releases/$($release.id)/assets?per_page=100" | Out-File -Encoding utf8 $env:RUNNER_TEMP/asset-pages.json
+          $assetPages = Get-Content $env:RUNNER_TEMP/asset-pages.json -Raw | ConvertFrom-Json
+          $assets = @($assetPages | ForEach-Object { $_ } | Where-Object { $null -ne $_ })
+
+          $builds = @($jobs | Where-Object { $_.name -like 'build-bucket-*' })
+          $plan = $jobs | Where-Object { $_.name -eq 'plan-missing' } | Select-Object -First 1
+          $manifest = $jobs | Where-Object { $_.name -eq 'publish-world-manifest' } | Select-Object -First 1
+          $failures = @($builds | Where-Object { $_.conclusion -eq 'failure' } | ForEach-Object {
+            [ordered]@{ id = $_.id; name = $_.name }
+          })
+
+          $status = [ordered]@{
+            capturedAt = (Get-Date).ToUniversalTime().ToString('o')
+            repair = if ($null -ne $run) { [ordered]@{
+              id = [string]$run.id
+              url = $run.html_url
+              status = $run.status
+              conclusion = $run.conclusion
+              headSha = $run.head_sha
+              createdAt = $run.created_at
+              updatedAt = $run.updated_at
+            }} else { $null }
+            planStatus = $plan.status
+            planConclusion = $plan.conclusion
+            totalBuildJobsObserved = $builds.Count
+            successfulBuildJobs = @($builds | Where-Object { $_.conclusion -eq 'success' }).Count
+            failedBuildJobs = $failures.Count
+            inProgressBuildJobs = @($builds | Where-Object { $_.status -eq 'in_progress' }).Count
+            queuedBuildJobs = @($builds | Where-Object { $_.status -eq 'queued' }).Count
+            cancelledBuildJobs = @($builds | Where-Object { $_.conclusion -eq 'cancelled' }).Count
+            manifestStatus = $manifest.status
+            manifestConclusion = $manifest.conclusion
+            totalReleaseAssetCount = $assets.Count
+            totalReleasePmtilesCount = @($assets | Where-Object { $_.name -like '*.pmtiles' }).Count
+            remainingReleaseCapacity = 1000 - $assets.Count
+            failures = $failures
+          }
+
+          $status | ConvertTo-Json -Depth 8 | Out-File -Encoding utf8 diagnostics/world-instant-status.json
+          Get-Content diagnostics/world-instant-status.json
+
+      - name: Commit live status
+        shell: pwsh
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add diagnostics/world-instant-status.json
+          git diff --cached --quiet
+          if ($LASTEXITCODE -ne 0) {
+            git commit -m "Snapshot live worldwide PMTiles state"
+            git pull --rebase origin feat/custom-planetiler-pmtiles-basemap
+            git push origin HEAD:feat/custom-planetiler-pmtiles-basemap
+          }

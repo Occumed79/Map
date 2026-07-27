@@ -23,8 +23,11 @@ if (runtime.name !== 'Occu-Med Terrain — Open') fail('Runtime style name is in
 if (runtime.projection?.type !== 'globe') fail('MapLibre globe projection is missing.');
 if (runtimeText.includes('mapbox://')) fail('Runtime style still contains a mapbox:// endpoint.');
 if (runtimeText.includes('api.mapbox.com')) fail('Runtime style still contains a Mapbox API endpoint.');
-if (!runtime.glyphs?.startsWith('https://tiles.openfreemap.org/fonts/')) {
-  fail('Runtime glyph endpoint is not the no-key OpenFreeMap endpoint.');
+if (Object.hasOwn(runtime, 'glyphs')) {
+  fail('Runtime style still depends on an external glyph endpoint instead of MapLibre local glyph rendering.');
+}
+if (runtime.metadata?.['occumed:glyph-rendering'] !== 'local-maplibre') {
+  fail('Runtime style does not declare MapLibre local glyph rendering.');
 }
 if (!String(runtime.sprite).includes('/sprites/occumed')) fail('Local Occu-Med sprite endpoint is missing.');
 
@@ -95,7 +98,7 @@ const activeFontStrings = runtime.layers.flatMap((layer) =>
 );
 const unavailableFonts = [...new Set(
   activeFontStrings.filter(
-    (font) => font.includes('DIN Pro') || font.includes('Arial Unicode MS')
+    (font) => font.includes('DIN Pro') || font.includes('Arial Unicode MS') || font.includes('Noto Sans')
   )
 )];
 if (unavailableFonts.length) {
@@ -104,6 +107,8 @@ if (unavailableFonts.length) {
 
 if (report.originalLayerCount !== original.layers.length) fail('Compatibility report source count is stale.');
 if (report.runtimeLayerCount !== runtime.layers.length) fail('Compatibility report runtime count is stale.');
+if (report.endpoints?.glyphs !== null) fail('Compatibility report still records an external glyph endpoint.');
+if (report.localGlyphRendering !== true) fail('Compatibility report does not record local glyph rendering.');
 
 if (failures.length) {
   console.error('Occu-Med open basemap validation failed:');
@@ -112,5 +117,5 @@ if (failures.length) {
 }
 
 console.log(
-  `Open basemap validated: ${runtime.layers.length}/${original.layers.length} visual layers, ${runtime.layers.filter((layer) => layer.type === 'symbol').length} symbol layers, ${activeFontStrings.length} active font references, and ${spriteCount} sprite images.`
+  `Open basemap validated: ${runtime.layers.length}/${original.layers.length} visual layers, ${runtime.layers.filter((layer) => layer.type === 'symbol').length} symbol layers, ${activeFontStrings.length} local font references, and ${spriteCount} sprite images.`
 );

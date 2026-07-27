@@ -1,0 +1,254 @@
+name: Audit Published Worldwide Occu-Med PMTiles
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/custom-planetiler-pmtiles-basemap
+    paths:
+      - diagnostics/world-release-audit.trigger
+
+permissions:
+  contents: write
+
+concurrency:
+  group: occumed-world-pmtiles-missing-repair
+  cancel-in-progress: true
+
+env:
+  WORLD_RELEASE_TAG: occumed-world-v1
+  OCCUMED_DIRECT_PBF_LIMIT_BYTES: 400000000
+  OCCUMED_TARGET_SPLIT_PBF_BYTES: 250000000
+  OCCUMED_MAX_SPLIT_CELLS: 24
+
+jobs:
+  audit-release:
+    runs-on: macos-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/custom-planetiler-pmtiles-basemap
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Build authoritative canonical plan
+        run: |
+          set -euo pipefail
+          rm -rf world-release-audit
+          mkdir -p world-release-audit/verification
+          node scripts/plan-world-shards.mjs --scope all > world-release-audit/raw-world-plan.json
+
+          node <<'NODE'
+          const fs = require('node:fs');
+          const input = JSON.parse(fs.readFileSync('world-release-audit/raw-world-plan.json', 'utf8'));
+          const excluded = new Set([
+            'alps', 'britain-and-ireland', 'dach', 'great-britain', 'sea',
+            'south-africa-and-lesotho', 'us', 'us-midwest', 'us-northeast',
+            'us-pacific', 'us-south', 'us-west'
+          ]);
+          const include = input.include.filter((region) =>
+            !excluded.has(region.id) && !excluded.has(region.source_region_id)
+          );
+          const ids = include.map((region) => region.id);
+          const assets = include.map((region) => region.asset_name);
+          if (!include.length) throw new Error('Canonical worldwide plan is empty.');
+          if (new Set(ids).size !== ids.length) throw new Error('Canonical plan contains duplicate IDs.');
+          if (new Set(assets).size !== assets.length) throw new Error('Canonical plan contains duplicate asset names.');
+          if (include.some((region) => region.source_size_bytes > 400000000 && !region.extract_bbox)) {
+            throw new Error('An oversized source remains unsplit.');
+          }
+          fs.writeFileSync(
+            'world-release-audit/canonical-world-plan.json',
+            `${JSON.stringify({ ...input, canonical: true, excludedSourceRegions: [...excluded], include }, null, 2)}\n`
+          );
+          console.log(`Authoritative canonical plan contains ${include.length} shards.`);
+          NODE
+
+      - name: Inventory every paginated release asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          release_id="$(gh api "/repos/${GITHUB_REPOSITORY}/releases/tags/${WORLD_RELEASE_TAG}" --jq '.id')"
+          gh api --paginate --slurp \
+            "/repos/${GITHUB_REPOSITORY}/releases/${release_id}/assets?per_page=100" \
+            > world-release-audit/release-asset-pages.json
+
+          node <<'NODE'
+          const fs = require('node:fs');
+          const pages = JSON.parse(fs.readFileSync('world-release-audit/release-asset-pages.json', 'utf8'));
+          const assets = pages.flatMap((page) => page || []);
+          fs.writeFileSync(
+            'world-release-audit/release-assets.json',
+            `${JSON.stringify({ assets }, null, 2)}\n`
+          );
+          const plan = JSON.parse(fs.readFileSync('world-release-audit/canonical-world-plan.json', 'utf8'));
+          const byName = new Map(assets.map((asset) => [asset.name, asset]));
+          const present = plan.include.filter((region) => byName.has(region.asset_name));
+          const missing = plan.include.filter((region) => !byName.has(region.asset_name));
+          fs.writeFileSync(
+            'world-release-audit/present-assets.tsv',
+            present.map((region) => {
+              const asset = byName.get(region.asset_name);
+              return [region.id, region.asset_name, asset.id, asset.size, asset.updated_at].join('\t');
+            }).join('\n') + (present.length ? '\n' : '')
+          );
+          fs.writeFileSync(
+            'world-release-audit/missing-assets.json',
+            `${JSON.stringify(missing, null, 2)}\n`
+          );
+          console.log(`Release has ${assets.length} total assets.`);
+          console.log(`Canonical assets present by name: ${present.length}.`);
+          console.log(`Canonical assets missing by name: ${missing.length}.`);
+          NODE
+
+      - name: Verify every published canonical PMTiles archive
+        run: |
+          set -euo pipefail
+          export GITHUB_REPOSITORY WORLD_RELEASE_TAG
+
+          verify_asset() {
+            line="$1"
+            region_id="$(printf '%s' "$line" | cut -f1)"
+            asset_name="$(printf '%s' "$line" | cut -f2)"
+            api_size="$(printf '%s' "$line" | cut -f4)"
+            result="world-release-audit/verification/${region_id}.json"
+            headers="$(mktemp)"
+            body="$(mktemp)"
+            url="https://github.com/${GITHUB_REPOSITORY}/releases/download/${WORLD_RELEASE_TAG}/${asset_name}"
+            healthy=false
+            reason="unknown"
+            http_status=""
+            body_size=0
+            magic=""
+
+            if [ "$api_size" -le 0 ]; then
+              reason="zero_size_asset"
+            elif curl --silent --show-error --fail --location \
+              --retry 5 --retry-delay 3 --retry-all-errors \
+              --header 'Range: bytes=0-126' \
+              --dump-header "$headers" \
+              --output "$body" \
+              "$url"; then
+              http_status="$(awk '/^HTTP\// {code=$2} END {print code}' "$headers")"
+              body_size="$(wc -c < "$body" | tr -d ' ')"
+              magic="$(head -c 7 "$body" || true)"
+              if [ "$http_status" = "206" ] && [ "$body_size" -eq 127 ] && [ "$magic" = "PMTiles" ]; then
+                healthy=true
+                reason="ok"
+              elif [ "$http_status" != "206" ]; then
+                reason="range_not_supported"
+              elif [ "$body_size" -ne 127 ]; then
+                reason="wrong_range_length"
+              else
+                reason="invalid_pmtiles_magic"
+              fi
+            else
+              reason="download_failed"
+            fi
+
+            node - "$region_id" "$asset_name" "$api_size" "$healthy" "$reason" "$http_status" "$body_size" "$magic" "$result" <<'NODE'
+            const fs = require('node:fs');
+            const [regionId, assetName, apiSize, healthy, reason, httpStatus, bodySize, magic, result] = process.argv.slice(2);
+            fs.writeFileSync(result, `${JSON.stringify({
+              regionId,
+              assetName,
+              apiSizeBytes: Number(apiSize),
+              healthy: healthy === 'true',
+              reason,
+              httpStatus: httpStatus ? Number(httpStatus) : null,
+              returnedBytes: Number(bodySize),
+              magic
+            }, null, 2)}\n`);
+            NODE
+            rm -f "$headers" "$body"
+          }
+          export -f verify_asset
+
+          if [ -s world-release-audit/present-assets.tsv ]; then
+            cat world-release-audit/present-assets.tsv | xargs -P 12 -I {} bash -c 'verify_asset "$1"' _ "{}"
+          fi
+
+      - name: Produce published-state assessment and repair target list
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const plan = JSON.parse(fs.readFileSync('world-release-audit/canonical-world-plan.json', 'utf8'));
+          const release = JSON.parse(fs.readFileSync('world-release-audit/release-assets.json', 'utf8'));
+          const missing = JSON.parse(fs.readFileSync('world-release-audit/missing-assets.json', 'utf8'));
+          const verificationDir = 'world-release-audit/verification';
+          const verification = fs.existsSync(verificationDir)
+            ? fs.readdirSync(verificationDir)
+                .filter((name) => name.endsWith('.json'))
+                .map((name) => JSON.parse(fs.readFileSync(path.join(verificationDir, name), 'utf8')))
+            : [];
+          const healthyIds = new Set(verification.filter((item) => item.healthy).map((item) => item.regionId));
+          const invalid = verification.filter((item) => !item.healthy);
+          const missingIds = new Set(missing.map((region) => region.id));
+          const repairTargets = plan.include.filter((region) => missingIds.has(region.id) || !healthyIds.has(region.id));
+          const canonicalAssetNames = new Set(plan.include.map((region) => region.asset_name));
+          const extraPmtilesAssets = release.assets
+            .filter((asset) => asset.name.endsWith('.pmtiles') && !canonicalAssetNames.has(asset.name))
+            .map((asset) => ({ id: asset.id, name: asset.name, size: asset.size, updatedAt: asset.updated_at }));
+          const summary = {
+            capturedAt: new Date().toISOString(),
+            releaseTag: process.env.WORLD_RELEASE_TAG,
+            canonicalShardCount: plan.include.length,
+            totalReleaseAssetCount: release.assets.length,
+            publishedCanonicalAssetCount: verification.length,
+            healthyPublishedCanonicalCount: verification.length - invalid.length,
+            invalidPublishedCanonicalCount: invalid.length,
+            missingCanonicalCount: missing.length,
+            repairTargetCount: repairTargets.length,
+            extraPmtilesAssetCount: extraPmtilesAssets.length,
+            invalidPublishedAssets: invalid,
+            missingRegions: missing.map((region) => ({ id: region.id, asset: region.asset_name })),
+            extraPmtilesAssets
+          };
+          fs.writeFileSync(
+            'world-release-audit/published-state-summary.json',
+            `${JSON.stringify(summary, null, 2)}\n`
+          );
+          fs.writeFileSync(
+            'world-release-audit/repair-targets.json',
+            `${JSON.stringify({ ...plan, include: repairTargets }, null, 2)}\n`
+          );
+          console.log(JSON.stringify({
+            canonical: summary.canonicalShardCount,
+            publishedByName: summary.publishedCanonicalAssetCount,
+            healthy: summary.healthyPublishedCanonicalCount,
+            invalid: summary.invalidPublishedCanonicalCount,
+            missing: summary.missingCanonicalCount,
+            repairTargets: summary.repairTargetCount,
+            extraPmtilesAssets: summary.extraPmtilesAssetCount
+          }, null, 2));
+          NODE
+
+      - name: Commit the release audit
+        run: |
+          set -euo pipefail
+          mkdir -p diagnostics/world-release-audit
+          cp world-release-audit/published-state-summary.json diagnostics/world-release-audit/published-state-summary.json
+          cp world-release-audit/repair-targets.json diagnostics/world-release-audit/repair-targets.json
+          cp world-release-audit/canonical-world-plan.json diagnostics/world-release-audit/canonical-world-plan.json
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add diagnostics/world-release-audit
+          git diff --cached --quiet && exit 0
+          git commit -m "Audit published worldwide PMTiles release state"
+          git pull --rebase origin feat/custom-planetiler-pmtiles-basemap
+          git push origin HEAD:feat/custom-planetiler-pmtiles-basemap
+
+      - name: Preserve complete release audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: occumed-world-release-audit-${{ github.sha }}
+          path: world-release-audit
+          if-no-files-found: error
+          retention-days: 30

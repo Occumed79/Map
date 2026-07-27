@@ -1,0 +1,919 @@
+schema_name: Occu-Med Terrain
+schema_description: Custom Occu-Med vector schema for the reusable MapLibre basemap
+version: "0.3.0"
+is_overlay: false
+attribution: '<a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors</a>'
+
+args:
+  area:
+    description: Geofabrik area to download
+    default: california
+  osm_source_path:
+    description: Local OSM PBF path
+    default: '${ args.area.replace("/", "_") + ".osm.pbf" }'
+  maxzoom: 16
+  render_maxzoom: 19
+  force: true
+  min_feature_size: 0.5
+  min_feature_size_at_max_zoom: 0.0625
+
+sources:
+  osm:
+    type: osm
+    url: '${ "geofabrik:" + args.area }'
+    local_path: '${ args.osm_source_path }'
+
+tag_mappings:
+  population_number:
+    input: population
+    type: long
+  height_number:
+    input: height
+    type: double
+  min_height_number:
+    input: min_height
+    type: double
+  elevation_number:
+    input: ele
+    type: double
+  admin_level_number:
+    input: admin_level
+    type: integer
+
+layers:
+  - id: landcover
+    features:
+      - source: osm
+        geometry: polygon
+        min_zoom: 3
+        include_when:
+          natural: [wood, scrub, heath, grassland, fell, glacier, sand, beach, wetland]
+        attributes:
+          - key: class
+            value:
+              - if:
+                  natural: wood
+                value: wood
+              - if:
+                  natural: [scrub, heath]
+                value: scrub
+              - if:
+                  natural: glacier
+                value: ice
+              - if:
+                  natural: [sand, beach]
+                value: sand
+              - if:
+                  natural: wetland
+                value: wetland
+              - else: grass
+      - source: osm
+        geometry: polygon
+        min_zoom: 3
+        include_when:
+          landuse: [forest, meadow, farmland, orchard, vineyard, grass]
+        attributes:
+          - key: class
+            value:
+              - if:
+                  landuse: forest
+                value: wood
+              - if:
+                  landuse: [farmland, orchard, vineyard]
+                value: farmland
+              - else: grass
+    tile_post_process:
+      merge_polygons:
+        min_area: 1
+        min_area_at_max_zoom: 0.25
+        tolerance: 0.5
+        tolerance_at_max_zoom: 0.125
+
+  - id: landuse
+    features:
+      - source: osm
+        geometry: polygon
+        min_zoom: 6
+        include_when:
+          landuse: [residential, commercial, industrial, retail, cemetery, recreation_ground, quarry, farmland, farmyard]
+        attributes:
+          - key: class
+            tag_value: landuse
+          - key: name
+            tag_value: name
+      - source: osm
+        geometry: polygon
+        min_zoom: 7
+        include_when:
+          leisure: [garden, playground, golf_course, pitch]
+        attributes:
+          - key: class
+            tag_value: leisure
+          - key: name
+            tag_value: name
+
+  - id: park
+    features:
+      - source: osm
+        geometry: polygon
+        min_zoom: 5
+        include_when:
+          boundary: [national_park, protected_area]
+        attributes:
+          - key: class
+            tag_value: boundary
+          - key: name
+            tag_value: name
+      - source: osm
+        geometry: polygon
+        min_zoom: 7
+        include_when:
+          leisure: [park, nature_reserve]
+        attributes:
+          - key: class
+            tag_value: leisure
+          - key: name
+            tag_value: name
+
+  - id: water
+    features:
+      - source: osm
+        geometry: polygon
+        min_zoom: 4
+        include_when:
+          natural: water
+        attributes:
+          - key: class
+            value:
+              coalesce:
+                - tag_value: water
+                - lake
+          - key: name
+            tag_value: name
+      - source: osm
+        geometry: polygon
+        min_zoom: 5
+        include_when:
+          waterway: [riverbank, dock]
+        attributes:
+          - key: class
+            tag_value: waterway
+          - key: name
+            tag_value: name
+
+  - id: waterway
+    features:
+      - source: osm
+        geometry: line
+        min_zoom: 6
+        include_when:
+          waterway: river
+        attributes: &waterway_attributes
+          - key: class
+            tag_value: waterway
+          - key: name
+            tag_value: name
+      - source: osm
+        geometry: line
+        min_zoom: 8
+        include_when:
+          waterway: canal
+        attributes: *waterway_attributes
+      - source: osm
+        geometry: line
+        min_zoom: 10
+        include_when:
+          waterway: [stream, drain, ditch]
+        attributes: *waterway_attributes
+    tile_post_process:
+      merge_line_strings:
+        min_length: 1
+        min_length_at_max_zoom: 0.125
+        tolerance: 0.5
+        tolerance_at_max_zoom: 0.0625
+        buffer: 5
+
+  - id: transportation
+    features:
+      - source: osm
+        geometry: line
+        min_zoom: 4
+        include_when:
+          highway: [motorway, motorway_link]
+        attributes: &motorway_attributes
+          - key: class
+            value: motorway
+          - key: subclass
+            tag_value: highway
+          - key: brunnel
+            value: &brunnel_value
+              - if:
+                  bridge: ["yes", "true", "1", viaduct]
+                value: bridge
+              - if:
+                  tunnel: ["yes", "true", "1", culvert, building_passage]
+                value: tunnel
+              - else: none
+          - key: ramp
+            value: &ramp_value
+              - if:
+                  highway: "%_link"
+                value: 1
+              - else: 0
+            type: integer
+          - key: surface
+            tag_value: surface
+          - key: ref
+            tag_value: ref
+          - key: name
+            tag_value: name
+      - source: osm
+        geometry: line
+        min_zoom: 4
+        include_when:
+          highway: [trunk, trunk_link]
+        attributes:
+          - key: class
+            value: trunk
+          - key: subclass
+            tag_value: highway
+          - key: brunnel
+            value: *brunnel_value
+          - key: ramp
+            value: *ramp_value
+            type: integer
+          - key: surface
+            tag_value: surface
+          - key: ref
+            tag_value: ref
+          - key: name
+            tag_value: name
+      - source: osm
+        geometry: line
+        min_zoom: 6
+        include_when:
+          highway: [primary, primary_link]
+        attributes: &primary_attributes
+          - key: class
+            value: primary
+          - key: subclass
+            tag_value: highway
+          - key: brunnel
+            value: *brunnel_value
+          - key: ramp
+            value: *ramp_value
+            type: integer
+          - key: surface
+            tag_value: surface
+          - key: ref
+            tag_value: ref
+          - key: name
+            tag_value: name
+      - source: osm
+        geometry: line
+        min_zoom: 8
+        include_when:
+          highway: [secondary, secondary_link]
+        attributes: &secondary_attributes
+          - key: class
+            value: secondary
+          - key: subclass
+            tag_value: highway
+          - key: brunnel
+            value: *brunnel_value
+          - key: ramp
+            value: *ramp_value
+            type: integer
+          - key: surface
+            tag_value: surface
+          - key: ref
+            tag_value: ref
+          - key: name
+            tag_value: name
+      - source: osm
+        geometry: line
+        min_zoom: 9
+        include_when:
+          highway: [tertiary, tertiary_link]
+        attributes: &tertiary_attributes
+          - key: class
+            value: tertiary
+          - key: subclass
+            tag_value: highway
+          - key: brunnel
+            value: *brunnel_value
+          - key: ramp
+            value: *ramp_value
+            type: integer
+          - key: surface
+            tag_value: surface
+          - key: ref
+            tag_value: ref
+          - key: name
+            tag_value: name
+      - source: osm
+        geometry: line
+        min_zoom: 11
+        include_when:
+          highway: [unclassified, residential, living_street]
+        attributes: &minor_attributes
+          - key: class
+            value: minor
+          - key: subclass
+            tag_value: highway
+          - key: brunnel
+            value: *brunnel_value
+          - key: ramp
+            value: 0
+            type: integer
+          - key: surface
+            tag_value: surface
+          - key: ref
+            tag_value: ref
+          - key: name
+            tag_value: name
+      - source: osm
+        geometry: line
+        min_zoom: 12
+        include_when:
+          highway: service
+        attributes:
+          - key: class
+            value: service
+          - key: subclass
+            tag_value: highway
+          - key: brunnel
+            value: *brunnel_value
+          - key: ramp
+            value: 0
+            type: integer
+          - key: surface
+            tag_value: surface
+          - key: name
+            tag_value: name
+      - source: osm
+        geometry: line
+        min_zoom: 12
+        include_when:
+          highway: track
+        attributes:
+          - key: class
+            value: track
+          - key: subclass
+            tag_value: highway
+          - key: brunnel
+            value: *brunnel_value
+          - key: ramp
+            value: 0
+            type: integer
+          - key: surface
+            tag_value: surface
+          - key: name
+            tag_value: name
+      - source: osm
+        geometry: line
+        min_zoom: 12
+        include_when:
+          highway: pedestrian
+        attributes:
+          - key: class
+            value: pedestrian
+          - key: subclass
+            tag_value: highway
+          - key: brunnel
+            value: *brunnel_value
+          - key: ramp
+            value: 0
+            type: integer
+          - key: surface
+            tag_value: surface
+          - key: name
+            tag_value: name
+      - source: osm
+        geometry: line
+        min_zoom: 13
+        include_when:
+          highway: [path, footway, cycleway]
+        attributes:
+          - key: class
+            value: path
+          - key: subclass
+            tag_value: highway
+          - key: brunnel
+            value: *brunnel_value
+          - key: ramp
+            value: 0
+            type: integer
+          - key: surface
+            tag_value: surface
+          - key: name
+            tag_value: name
+      - source: osm
+        geometry: line
+        min_zoom: 13
+        include_when:
+          highway: steps
+        attributes:
+          - key: class
+            value: steps
+          - key: subclass
+            tag_value: highway
+          - key: brunnel
+            value: *brunnel_value
+          - key: ramp
+            value: 0
+            type: integer
+          - key: name
+            tag_value: name
+      - source: osm
+        geometry: line
+        min_zoom: 8
+        include_when:
+          railway: [rail, narrow_gauge]
+        attributes:
+          - key: class
+            value: rail
+          - key: subclass
+            tag_value: railway
+          - key: brunnel
+            value: *brunnel_value
+          - key: name
+            tag_value: name
+      - source: osm
+        geometry: line
+        min_zoom: 9
+        include_when:
+          railway: [light_rail, subway, tram, monorail]
+        attributes:
+          - key: class
+            value: transit
+          - key: subclass
+            tag_value: railway
+          - key: brunnel
+            value: *brunnel_value
+          - key: name
+            tag_value: name
+      - source: osm
+        geometry: line
+        min_zoom: 7
+        include_when:
+          route: ferry
+        attributes:
+          - key: class
+            value: ferry
+          - key: subclass
+            value: ferry
+          - key: brunnel
+            value: none
+          - key: name
+            tag_value: name
+      - source: osm
+        geometry: line
+        min_zoom: 10
+        include_when:
+          aerialway: [cable_car, gondola, chair_lift, drag_lift, platter, t-bar, rope_tow]
+        attributes:
+          - key: class
+            value: aerialway
+          - key: subclass
+            tag_value: aerialway
+          - key: brunnel
+            value: none
+          - key: name
+            tag_value: name
+
+  - id: transportation_name
+    features:
+      - source: osm
+        geometry: line
+        min_zoom: 7
+        include_when:
+          __all__:
+            - highway: [motorway, trunk]
+            - __any__:
+                name: __any__
+                ref: __any__
+        attributes: &transport_name_attributes
+          - key: class
+            value:
+              - if:
+                  highway: [unclassified, residential, living_street]
+                value: minor
+              - else:
+                  tag_value: highway
+          - key: name
+            tag_value: name
+          - key: ref
+            tag_value: ref
+          - key: brunnel
+            value: *brunnel_value
+      - source: osm
+        geometry: line
+        min_zoom: 8
+        include_when:
+          __all__:
+            - highway: primary
+            - __any__:
+                name: __any__
+                ref: __any__
+        attributes: *transport_name_attributes
+      - source: osm
+        geometry: line
+        min_zoom: 10
+        include_when:
+          __all__:
+            - highway: [secondary, tertiary]
+            - __any__:
+                name: __any__
+                ref: __any__
+        attributes: *transport_name_attributes
+      - source: osm
+        geometry: line
+        min_zoom: 12
+        include_when:
+          __all__:
+            - highway: [unclassified, residential]
+            - name: __any__
+        attributes: *transport_name_attributes
+    tile_post_process:
+      merge_line_strings:
+        min_length: 2
+        min_length_at_max_zoom: 0.125
+        tolerance: 0.5
+        tolerance_at_max_zoom: 0.0625
+        buffer: 5
+
+  - id: building
+    features:
+      - source: osm
+        geometry: polygon
+        min_zoom: 13
+        include_when:
+          building: __any__
+        attributes:
+          - key: class
+            tag_value: building
+          - key: render_height
+            tag_value: height_number
+            type: double
+          - key: render_min_height
+            tag_value: min_height_number
+            type: double
+          - key: underground
+            value:
+              - if:
+                  location: underground
+                value: "true"
+              - else: "false"
+
+  - id: aeroway
+    features:
+      - source: osm
+        geometry: line
+        min_zoom: 9
+        include_when:
+          aeroway: [runway, taxiway]
+        attributes:
+          - key: class
+            tag_value: aeroway
+          - key: type
+            tag_value: aeroway
+      - source: osm
+        geometry: polygon
+        min_zoom: 10
+        include_when:
+          aeroway: [aerodrome, runway, taxiway, helipad]
+        attributes:
+          - key: class
+            tag_value: aeroway
+          - key: type
+            tag_value: aeroway
+          - key: name
+            tag_value: name
+
+  - id: aerodrome_label
+    features:
+      - source: osm
+        geometry: centroid
+        min_zoom: 8
+        include_when:
+          aeroway: [aerodrome, heliport]
+        attributes:
+          - key: class
+            tag_value: aeroway
+          - key: name
+            tag_value: name
+          - key: iata
+            tag_value: iata
+          - key: icao
+            tag_value: icao
+
+  - id: boundary
+    features:
+      - source: osm
+        geometry: line
+        min_zoom: 0
+        include_when:
+          __all__:
+            boundary: administrative
+            admin_level: "2"
+        attributes: &boundary_attributes
+          - key: admin_level
+            tag_value: admin_level_number
+            type: integer
+          - key: disputed
+            value: &disputed_value
+              - if:
+                  disputed: "yes"
+                value: 1
+              - else: 0
+            type: integer
+          - key: maritime
+            value: &maritime_value
+              - if:
+                  maritime: "yes"
+                value: 1
+              - else: 0
+            type: integer
+          - key: name
+            tag_value: name
+      - source: osm
+        geometry: line
+        min_zoom: 3
+        include_when:
+          __all__:
+            boundary: administrative
+            admin_level: "4"
+        attributes: *boundary_attributes
+      - source: osm
+        geometry: line
+        min_zoom: 6
+        include_when:
+          __all__:
+            boundary: administrative
+            admin_level: ["5", "6"]
+        attributes: *boundary_attributes
+      - source: osm
+        geometry: line
+        min_zoom: 8
+        include_when:
+          __all__:
+            boundary: administrative
+            admin_level: ["7", "8"]
+        attributes: *boundary_attributes
+
+  - id: place
+    features:
+      - source: osm
+        geometry: point
+        min_zoom: 0
+        include_when:
+          place: continent
+        attributes: &continent_attributes
+          - key: class
+            tag_value: place
+          - key: name
+            tag_value: name
+          - key: name:latin
+            value:
+              coalesce:
+                - tag_value: name:en
+                - tag_value: name
+          - key: population
+            tag_value: population_number
+            type: long
+          - key: rank
+            value: 1
+            type: integer
+      - source: osm
+        geometry: point
+        min_zoom: 2
+        include_when:
+          place: country
+        attributes: *continent_attributes
+      - source: osm
+        geometry: point
+        min_zoom: 3
+        include_when:
+          place: state
+        attributes:
+          - key: class
+            tag_value: place
+          - key: name
+            tag_value: name
+          - key: name:latin
+            value:
+              coalesce:
+                - tag_value: name:en
+                - tag_value: name
+          - key: population
+            tag_value: population_number
+            type: long
+          - key: rank
+            value: 2
+            type: integer
+      - source: osm
+        geometry: point
+        min_zoom: 4
+        include_when:
+          place: region
+        attributes:
+          - key: class
+            tag_value: place
+          - key: name
+            tag_value: name
+          - key: name:latin
+            value:
+              coalesce:
+                - tag_value: name:en
+                - tag_value: name
+          - key: population
+            tag_value: population_number
+            type: long
+          - key: rank
+            value: 3
+            type: integer
+      - source: osm
+        geometry: point
+        min_zoom: 5
+        include_when:
+          place: city
+        # Population is retained as an attribute; unsupported per-feature sort/grid directives were removed.
+        attributes:
+          - key: class
+            tag_value: place
+          - key: name
+            tag_value: name
+          - key: name:latin
+            value:
+              coalesce:
+                - tag_value: name:en
+                - tag_value: name
+          - key: population
+            tag_value: population_number
+            type: long
+          - key: rank
+            value: 4
+            type: integer
+      - source: osm
+        geometry: point
+        min_zoom: 7
+        include_when:
+          place: town
+        attributes:
+          - key: class
+            tag_value: place
+          - key: name
+            tag_value: name
+          - key: name:latin
+            value:
+              coalesce:
+                - tag_value: name:en
+                - tag_value: name
+          - key: population
+            tag_value: population_number
+            type: long
+          - key: rank
+            value: 5
+            type: integer
+      - source: osm
+        geometry: point
+        min_zoom: 9
+        include_when:
+          place: village
+        attributes:
+          - key: class
+            tag_value: place
+          - key: name
+            tag_value: name
+          - key: name:latin
+            value:
+              coalesce:
+                - tag_value: name:en
+                - tag_value: name
+          - key: population
+            tag_value: population_number
+            type: long
+          - key: rank
+            value: 6
+            type: integer
+      - source: osm
+        geometry: point
+        min_zoom: 10
+        include_when:
+          place: [suburb, neighbourhood, hamlet]
+        attributes:
+          - key: class
+            tag_value: place
+          - key: name
+            tag_value: name
+          - key: name:latin
+            value:
+              coalesce:
+                - tag_value: name:en
+                - tag_value: name
+          - key: rank
+            value: 7
+            type: integer
+
+  - id: poi
+    features:
+      - source: osm
+        geometry: point
+        min_zoom: 11
+        include_when:
+          amenity: __any__
+        attributes: &amenity_attributes
+          - key: class
+            tag_value: amenity
+          - key: subclass
+            tag_value: amenity
+          - key: name
+            tag_value: name
+      - source: osm
+        geometry: polygon_centroid
+        min_zoom: 12
+        include_when:
+          amenity: __any__
+        attributes: *amenity_attributes
+      - source: osm
+        geometry: point
+        min_zoom: 11
+        include_when:
+          tourism: __any__
+        attributes: &tourism_attributes
+          - key: class
+            tag_value: tourism
+          - key: subclass
+            tag_value: tourism
+          - key: name
+            tag_value: name
+      - source: osm
+        geometry: polygon_centroid
+        min_zoom: 12
+        include_when:
+          tourism: __any__
+        attributes: *tourism_attributes
+
+  - id: water_name
+    features:
+      - source: osm
+        geometry: polygon_point_on_surface
+        min_zoom: 5
+        include_when:
+          __all__:
+            natural: water
+            name: __any__
+        attributes:
+          - key: class
+            value:
+              coalesce:
+                - tag_value: water
+                - lake
+          - key: name
+            tag_value: name
+      - source: osm
+        geometry: line
+        min_zoom: 6
+        include_when:
+          __all__:
+            waterway: [river, canal, stream]
+            name: __any__
+        attributes:
+          - key: class
+            tag_value: waterway
+          - key: name
+            tag_value: name
+
+  - id: mountain_peak
+    features:
+      - source: osm
+        geometry: point
+        min_zoom: 8
+        include_when:
+          natural: [peak, volcano]
+        attributes:
+          - key: class
+            tag_value: natural
+          - key: name
+            tag_value: name
+          - key: ele
+            tag_value: elevation_number
+            type: double
+
+  - id: housenumber
+    features:
+      - source: osm
+        geometry: point
+        min_zoom: 16
+        include_when:
+          addr:housenumber: __any__
+        attributes: &housenumber_attributes
+          - key: housenumber
+            tag_value: addr:housenumber
+      - source: osm
+        geometry: polygon_centroid
+        min_zoom: 16
+        include_when:
+          addr:housenumber: __any__
+        attributes: *housenumber_attributes

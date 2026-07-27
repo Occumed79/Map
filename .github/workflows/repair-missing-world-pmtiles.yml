@@ -1,0 +1,171 @@
+name: Complete Only Pinned Missing Worldwide PMTiles
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/custom-planetiler-pmtiles-basemap
+    paths:
+      - planetiler/world-missing-repair.trigger
+
+permissions:
+  contents: write
+
+concurrency:
+  group: occumed-world-pmtiles-final-completion
+  cancel-in-progress: true
+
+env:
+  WORLD_RELEASE_TAG: occumed-world-v1
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      matrix: ${{ steps.missing.outputs.matrix }}
+      missing_count: ${{ steps.missing.outputs.missing_count }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Generate pinned canonical plan, remove plan-drift assets, and schedule exact missing shards
+        id: missing
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p world-plan
+          node scripts/plan-world-shards-final.mjs > world-plan/world-plan.json
+
+          release_id="$(gh api "/repos/${GITHUB_REPOSITORY}/releases/tags/${WORLD_RELEASE_TAG}" --jq '.id')"
+          gh api --paginate --slurp \
+            "/repos/${GITHUB_REPOSITORY}/releases/${release_id}/assets?per_page=100" \
+            > world-plan/release-pages-before-cleanup.json
+
+          node <<'NODE'
+          const fs = require('node:fs');
+          const plan = JSON.parse(fs.readFileSync('world-plan/world-plan.json', 'utf8'));
+          const pages = JSON.parse(fs.readFileSync('world-plan/release-pages-before-cleanup.json', 'utf8'));
+          const assets = pages.flatMap((page) => page || []);
+          const keep = new Set(['world-manifest.json', ...(plan.include || []).map((region) => region.asset_name)]);
+          const deletions = assets.filter((asset) => !keep.has(asset.name) || (asset.name !== 'world-manifest.json' && Number(asset.size || 0) <= 0));
+          fs.writeFileSync('/tmp/delete-release-assets.tsv', deletions.map((asset) => `${asset.id}\t${asset.name}\t${asset.size || 0}`).join('\n') + (deletions.length ? '\n' : ''));
+          console.log(`Pinned canonical shard count: ${plan.include.length}`);
+          console.log(`Noncanonical or zero-byte assets to delete: ${deletions.length}`);
+          NODE
+
+          while IFS=$'\t' read -r asset_id asset_name asset_size; do
+            [ -n "$asset_id" ] || continue
+            echo "Deleting noncanonical release asset: $asset_name ($asset_size bytes)"
+            gh api --method DELETE "/repos/${GITHUB_REPOSITORY}/releases/assets/${asset_id}"
+          done < /tmp/delete-release-assets.tsv
+
+          gh api --paginate --slurp \
+            "/repos/${GITHUB_REPOSITORY}/releases/${release_id}/assets?per_page=100" \
+            > world-plan/release-pages.json
+
+          node <<'NODE'
+          const fs = require('node:fs');
+          const plan = JSON.parse(fs.readFileSync('world-plan/world-plan.json', 'utf8'));
+          const pages = JSON.parse(fs.readFileSync('world-plan/release-pages.json', 'utf8'));
+          const assets = pages.flatMap((page) => page || []);
+          const published = new Map(assets.map((asset) => [asset.name, Number(asset.size || 0)]));
+          const missing = (plan.include || []).filter((region) => (published.get(region.asset_name) || 0) <= 0);
+          const matrixInclude = missing.length ? missing : [{
+            skip: true,
+            id: 'nothing-missing',
+            slug: 'nothing-missing',
+            name: 'Nothing missing',
+            continent: 'none',
+            pbf_url: 'https://example.invalid/nothing.osm.pbf',
+            extract_bbox: '',
+            west: 0,
+            south: 0,
+            east: 0,
+            north: 0,
+            asset_name: 'nothing-missing.pmtiles'
+          }];
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `matrix=${JSON.stringify({ include: matrixInclude })}\n`);
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `missing_count=${missing.length}\n`);
+          console.log(`Already published and retained: ${plan.include.length - missing.length}`);
+          console.log(`Exact missing and scheduled: ${missing.length}`);
+          for (const [index, region] of missing.entries()) {
+            console.log(`${index + 1}. ${region.id} -> ${region.asset_name}`);
+          }
+          NODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: occumed-pinned-final-world-plan-${{ github.sha }}
+          path: world-plan/world-plan.json
+          if-no-files-found: error
+          retention-days: 7
+
+  build-missing:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      max-parallel: 24
+      matrix: ${{ fromJson(needs.plan.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/build-pmtiles-shard-final
+        if: matrix.skip != true
+        with:
+          id: ${{ matrix.id }}
+          slug: ${{ matrix.slug }}
+          name: ${{ matrix.name }}
+          continent: ${{ matrix.continent }}
+          pbf-url: ${{ matrix.pbf_url }}
+          extract-bbox: ${{ matrix.extract_bbox }}
+          west: ${{ matrix.west }}
+          south: ${{ matrix.south }}
+          east: ${{ matrix.east }}
+          north: ${{ matrix.north }}
+          asset-name: ${{ matrix.asset_name }}
+          release-tag: ${{ env.WORLD_RELEASE_TAG }}
+
+  publish-manifest:
+    needs:
+      - plan
+      - build-missing
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: actions/download-artifact@v4
+        with:
+          name: occumed-pinned-final-world-plan-${{ github.sha }}
+          path: world-plan
+      - name: Publish manifest only when pinned plan has zero missing shards
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p world-release
+          release_id="$(gh api "/repos/${GITHUB_REPOSITORY}/releases/tags/${WORLD_RELEASE_TAG}" --jq '.id')"
+          gh api --paginate --slurp \
+            "/repos/${GITHUB_REPOSITORY}/releases/${release_id}/assets?per_page=100" \
+            > world-release/pages.json
+          node <<'NODE'
+          const fs = require('node:fs');
+          const pages = JSON.parse(fs.readFileSync('world-release/pages.json', 'utf8'));
+          fs.writeFileSync('world-release/assets.json', JSON.stringify({ assets: pages.flatMap((page) => page || []) }));
+          NODE
+          node scripts/build-world-manifest.mjs \
+            --plan world-plan/world-plan.json \
+            --assets world-release/assets.json \
+            --repository "$GITHUB_REPOSITORY" \
+            --tag "$WORLD_RELEASE_TAG" \
+            --output world-release/world-manifest.json
+          missing="$(node -e "const m=require('./world-release/world-manifest.json'); process.stdout.write(String(m.missingRegionCount))")"
+          echo "missing_shards=$missing"
+          test "$missing" = "0"
+          gh release upload "$WORLD_RELEASE_TAG" world-release/world-manifest.json \
+            --repo "$GITHUB_REPOSITORY" --clobber

@@ -1,0 +1,7 @@
+commit=c9ce538093836aa5e071b3d7c7404bfc9e701b78
+source=https://download.geofabrik.de/north-america/us/california-latest.osm.pbf
+bounds=-120.55,35.50,-118.45,37.55
+profile=planetiler/occumed-basemap.yml
+built_at=2026-07-26T09:08:52Z
+size_bytes=196398761
+431597c5bf19dc2c88dd109ac7478e0ae466a7343a5ce4813c29314b41379aa7  /home/runner/work/Map/Map/artifacts/occumed-fresno.pmtiles

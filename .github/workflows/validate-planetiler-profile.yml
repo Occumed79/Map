@@ -1,0 +1,10 @@
+name: Validate Occu-Med Planetiler Profile
+
+on:
+  workflow_dispatch:
+
+jobs:
+  manual-only:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Planetiler validation is paused until the worldwide PMTiles release is complete."

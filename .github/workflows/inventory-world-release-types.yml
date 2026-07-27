@@ -1,0 +1,99 @@
+name: Inventory Worldwide Release Asset Types
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/custom-planetiler-pmtiles-basemap
+    paths:
+      - diagnostics/world-release-types.trigger
+
+permissions:
+  contents: write
+
+concurrency:
+  group: occumed-world-pmtiles-missing-repair
+  cancel-in-progress: true
+
+env:
+  WORLD_RELEASE_TAG: occumed-world-v1
+
+jobs:
+  inventory-types:
+    runs-on: macos-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/custom-planetiler-pmtiles-basemap
+          fetch-depth: 0
+
+      - name: Count and classify every release asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p diagnostics/world-release-inventory
+          release_id="$(gh api "/repos/${GITHUB_REPOSITORY}/releases/tags/${WORLD_RELEASE_TAG}" --jq '.id')"
+          gh api --paginate --slurp \
+            "/repos/${GITHUB_REPOSITORY}/releases/${release_id}/assets?per_page=100" \
+            > /tmp/release-asset-pages.json
+
+          node <<'NODE'
+          const fs = require('node:fs');
+          const pages = JSON.parse(fs.readFileSync('/tmp/release-asset-pages.json', 'utf8'));
+          const assets = pages.flatMap((page) => page || []);
+          const extension = (name) => {
+            const base = name.toLowerCase();
+            if (base.endsWith('.pmtiles')) return '.pmtiles';
+            if (base.endsWith('.json')) return '.json';
+            if (base.endsWith('.sha256')) return '.sha256';
+            if (base.endsWith('.txt')) return '.txt';
+            if (base.endsWith('.zip')) return '.zip';
+            return '(other)';
+          };
+          const counts = {};
+          const bytes = {};
+          for (const asset of assets) {
+            const key = extension(asset.name);
+            counts[key] = (counts[key] || 0) + 1;
+            bytes[key] = (bytes[key] || 0) + Number(asset.size || 0);
+          }
+          const nonPmtiles = assets.filter((asset) => !asset.name.toLowerCase().endsWith('.pmtiles'));
+          const pmtiles = assets.filter((asset) => asset.name.toLowerCase().endsWith('.pmtiles'));
+          const summary = {
+            capturedAt: new Date().toISOString(),
+            releaseTag: process.env.WORLD_RELEASE_TAG,
+            totalAssetCount: assets.length,
+            pmtilesAssetCount: pmtiles.length,
+            nonPmtilesAssetCount: nonPmtiles.length,
+            countsByType: counts,
+            bytesByType: bytes,
+            nonPmtilesAssets: nonPmtiles.map((asset) => ({
+              id: asset.id,
+              name: asset.name,
+              sizeBytes: Number(asset.size || 0),
+              updatedAt: asset.updated_at
+            }))
+          };
+          fs.writeFileSync(
+            'diagnostics/world-release-inventory/release-asset-types.json',
+            `${JSON.stringify(summary, null, 2)}\n`
+          );
+          console.log(JSON.stringify({
+            total: summary.totalAssetCount,
+            pmtiles: summary.pmtilesAssetCount,
+            nonPmtiles: summary.nonPmtilesAssetCount,
+            countsByType: summary.countsByType
+          }, null, 2));
+          NODE
+
+      - name: Commit release asset type inventory
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add diagnostics/world-release-inventory/release-asset-types.json
+          git diff --cached --quiet && exit 0
+          git commit -m "Inventory worldwide release asset types"
+          git pull --rebase origin feat/custom-planetiler-pmtiles-basemap
+          git push origin HEAD:feat/custom-planetiler-pmtiles-basemap

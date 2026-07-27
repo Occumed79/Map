@@ -1,0 +1,321 @@
+name: Build and publish Occu-Med PMTiles shard
+description: Builds one Geofabrik leaf or bounded subdivision with the Occu-Med Planetiler schema and publishes it to a GitHub Release.
+
+inputs:
+  id:
+    required: true
+    description: Worldwide manifest region id
+  slug:
+    required: true
+    description: Filesystem-safe region slug
+  name:
+    required: true
+    description: Human-readable region name
+  continent:
+    required: true
+    description: Root Geofabrik region
+  pbf-url:
+    required: true
+    description: Source OSM PBF URL
+  extract-bbox:
+    required: false
+    default: ''
+    description: Optional west,south,east,north bbox extracted from the source PBF before Planetiler runs
+  west:
+    required: true
+  south:
+    required: true
+  east:
+    required: true
+  north:
+    required: true
+  asset-name:
+    required: true
+  metadata-name:
+    required: true
+  release-tag:
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Reuse an already-published healthy archive
+      id: existing
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+        RELEASE_TAG: ${{ inputs.release-tag }}
+        ASSET_NAME: ${{ inputs.asset-name }}
+      run: |
+        set -euo pipefail
+        release_id="$(gh api "/repos/${GITHUB_REPOSITORY}/releases/tags/${RELEASE_TAG}" --jq '.id')"
+        existing_id="$(
+          gh api --paginate \
+            "/repos/${GITHUB_REPOSITORY}/releases/${release_id}/assets?per_page=100" \
+            --jq '.[] | [.id, .name] | @tsv' |
+          awk -F '\t' -v name="$ASSET_NAME" '$2 == name { print $1; exit }'
+        )"
+
+        if [ -z "$existing_id" ]; then
+          echo 'exists=false' >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        mkdir -p artifacts
+        public_url="https://github.com/${GITHUB_REPOSITORY}/releases/download/${RELEASE_TAG}/${ASSET_NAME}"
+        api_url="https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/assets/${existing_id}"
+        verified=false
+
+        for attempt in 1 2 3 4 5 6 7 8 9 10; do
+          rm -f artifacts/existing-range.headers.txt artifacts/existing-range.bin
+          cache_bust="$(date +%s)-${RANDOM}-${attempt}"
+
+          if curl --silent --show-error --fail --location \
+            --retry 3 --retry-delay 3 --retry-all-errors \
+            --header 'Range: bytes=0-126' \
+            --header 'Cache-Control: no-cache' \
+            --dump-header artifacts/existing-range.headers.txt \
+            --output artifacts/existing-range.bin \
+            "${public_url}?verify=${cache_bust}" \
+            && grep -Eiq '^HTTP/.* 206' artifacts/existing-range.headers.txt \
+            && test "$(wc -c < artifacts/existing-range.bin)" -eq 127 \
+            && test "$(head -c 7 artifacts/existing-range.bin)" = 'PMTiles'; then
+            verified=true
+            break
+          fi
+
+          rm -f artifacts/existing-range.headers.txt artifacts/existing-range.bin
+          if curl --silent --show-error --fail --location \
+            --retry 3 --retry-delay 3 --retry-all-errors \
+            --header "Authorization: Bearer ${GH_TOKEN}" \
+            --header 'Accept: application/octet-stream' \
+            --header 'Range: bytes=0-126' \
+            --header 'X-GitHub-Api-Version: 2022-11-28' \
+            --dump-header artifacts/existing-range.headers.txt \
+            --output artifacts/existing-range.bin \
+            "$api_url" \
+            && grep -Eiq '^HTTP/.* 206' artifacts/existing-range.headers.txt \
+            && test "$(wc -c < artifacts/existing-range.bin)" -eq 127 \
+            && test "$(head -c 7 artifacts/existing-range.bin)" = 'PMTiles'; then
+            verified=true
+            break
+          fi
+
+          sleep $((attempt * 6))
+        done
+
+        if [ "$verified" = true ]; then
+          echo 'exists=true' >> "$GITHUB_OUTPUT"
+          echo "Reusing published healthy archive: $ASSET_NAME"
+        else
+          echo "Deleting unhealthy published archive before rebuild: $ASSET_NAME"
+          gh api --method DELETE "/repos/${GITHUB_REPOSITORY}/releases/assets/${existing_id}"
+          echo 'exists=false' >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Reclaim runner disk
+      if: steps.existing.outputs.exists != 'true'
+      shell: bash
+      run: |
+        sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc || true
+        docker system prune --all --force || true
+        df -h
+
+    - name: Download and prepare OpenStreetMap shard
+      if: steps.existing.outputs.exists != 'true'
+      shell: bash
+      env:
+        EXTRACT_BBOX: ${{ inputs.extract-bbox }}
+      run: |
+        mkdir -p .planetiler-data/tmp artifacts
+        target=".planetiler-data/${{ inputs.slug }}.osm.pbf"
+        if [ -n "$EXTRACT_BBOX" ]; then
+          source=".planetiler-data/${{ inputs.slug }}-source.osm.pbf"
+          curl --fail --location --retry 5 --retry-delay 10 --retry-all-errors \
+            --output "$source" \
+            "${{ inputs.pbf-url }}"
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends osmium-tool
+          osmium extract \
+            --bbox="$EXTRACT_BBOX" \
+            --strategy=complete_ways \
+            --overwrite \
+            --output="$target" \
+            "$source"
+          rm -f "$source"
+        else
+          curl --fail --location --retry 5 --retry-delay 10 --retry-all-errors \
+            --output "$target" \
+            "${{ inputs.pbf-url }}"
+        fi
+        test -s "$target"
+        ls -lh "$target"
+
+    - name: Build Occu-Med PMTiles shard
+      if: steps.existing.outputs.exists != 'true'
+      shell: bash
+      env:
+        OCCUMED_TILE_AREA: ${{ inputs.slug }}
+        OCCUMED_OSM_PBF: ${{ github.workspace }}/.planetiler-data/${{ inputs.slug }}.osm.pbf
+        OCCUMED_PMTILES_OUTPUT: ${{ github.workspace }}/artifacts/${{ inputs.asset-name }}
+        OCCUMED_PLANETILER_DATA_DIR: ${{ github.workspace }}/.planetiler-data
+        OCCUMED_PLANETILER_MEMORY: 5g
+      run: |
+        bash planetiler/build-region.sh
+        rm -f ".planetiler-data/${{ inputs.slug }}.osm.pbf"
+        size="$(stat --printf='%s' "artifacts/${{ inputs.asset-name }}")"
+        echo "archive_size_bytes=$size"
+        if [ "$size" -gt 2000000000 ]; then
+          echo "Archive exceeds GitHub Release's safe per-file ceiling and must be subdivided: ${{ inputs.id }}" >&2
+          exit 1
+        fi
+
+    - name: Write local shard metadata
+      if: steps.existing.outputs.exists != 'true'
+      shell: bash
+      env:
+        REGION_ID: ${{ inputs.id }}
+        REGION_SLUG: ${{ inputs.slug }}
+        REGION_NAME: ${{ inputs.name }}
+        REGION_CONTINENT: ${{ inputs.continent }}
+        PBF_URL: ${{ inputs.pbf-url }}
+        EXTRACT_BBOX: ${{ inputs.extract-bbox }}
+        WEST: ${{ inputs.west }}
+        SOUTH: ${{ inputs.south }}
+        EAST: ${{ inputs.east }}
+        NORTH: ${{ inputs.north }}
+        ASSET_NAME: ${{ inputs.asset-name }}
+        METADATA_NAME: ${{ inputs.metadata-name }}
+      run: |
+        node <<'NODE'
+        const fs = require('node:fs');
+        const path = require('node:path');
+        const metadata = {
+          id: process.env.REGION_ID,
+          slug: process.env.REGION_SLUG,
+          name: process.env.REGION_NAME,
+          continent: process.env.REGION_CONTINENT,
+          source: process.env.PBF_URL,
+          extractBbox: process.env.EXTRACT_BBOX || null,
+          bounds: [
+            Number(process.env.WEST),
+            Number(process.env.SOUTH),
+            Number(process.env.EAST),
+            Number(process.env.NORTH)
+          ],
+          asset: process.env.ASSET_NAME,
+          profile: 'planetiler/occumed-basemap.yml',
+          commit: process.env.GITHUB_SHA,
+          builtAt: new Date().toISOString(),
+          sizeBytes: fs.statSync(path.join('artifacts', process.env.ASSET_NAME)).size
+        };
+        fs.writeFileSync(
+          path.join('artifacts', process.env.METADATA_NAME),
+          `${JSON.stringify(metadata, null, 2)}\n`
+        );
+        NODE
+
+    - name: Publish PMTiles archive to GitHub Release
+      if: steps.existing.outputs.exists != 'true'
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+        RELEASE_TAG: ${{ inputs.release-tag }}
+        ASSET_NAME: ${{ inputs.asset-name }}
+      run: |
+        set -euo pipefail
+        release_id="$(gh api "/repos/${GITHUB_REPOSITORY}/releases/tags/${RELEASE_TAG}" --jq '.id')"
+
+        for attempt in 1 2 3 4 5; do
+          if gh release upload "$RELEASE_TAG" \
+            "artifacts/$ASSET_NAME" \
+            --repo "$GITHUB_REPOSITORY"; then
+            echo "Published archive: $ASSET_NAME"
+            exit 0
+          fi
+
+          existing_id="$(
+            gh api --paginate \
+              "/repos/${GITHUB_REPOSITORY}/releases/${release_id}/assets?per_page=100" \
+              --jq '.[] | [.id, .name] | @tsv' |
+            awk -F '\t' -v name="$ASSET_NAME" '$2 == name { print $1; exit }'
+          )"
+          if [ -n "$existing_id" ]; then
+            echo "Archive appeared during upload; treating concurrent publication as success: $ASSET_NAME"
+            exit 0
+          fi
+
+          sleep $((attempt * 10))
+        done
+
+        echo "Unable to publish archive after retries: $ASSET_NAME" >&2
+        exit 1
+
+    - name: Verify published PMTiles byte ranges
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+        RELEASE_TAG: ${{ inputs.release-tag }}
+        ASSET_NAME: ${{ inputs.asset-name }}
+      run: |
+        set -euo pipefail
+        mkdir -p artifacts
+        release_id="$(gh api "/repos/${GITHUB_REPOSITORY}/releases/tags/${RELEASE_TAG}" --jq '.id')"
+        public_url="https://github.com/${GITHUB_REPOSITORY}/releases/download/${RELEASE_TAG}/${ASSET_NAME}"
+
+        for attempt in $(seq 1 20); do
+          asset_row="$(
+            gh api --paginate \
+              "/repos/${GITHUB_REPOSITORY}/releases/${release_id}/assets?per_page=100" \
+              --jq '.[] | [.id, .name, .size] | @tsv' |
+            awk -F '\t' -v name="$ASSET_NAME" '$2 == name { print; exit }'
+          )"
+          asset_id="$(printf '%s' "$asset_row" | cut -f1)"
+          asset_size="$(printf '%s' "$asset_row" | cut -f3)"
+
+          if [ -z "$asset_id" ] || [ -z "$asset_size" ] || [ "$asset_size" -le 0 ]; then
+            echo "Waiting for release asset metadata: $ASSET_NAME (attempt $attempt/20)"
+            sleep $((attempt * 6))
+            continue
+          fi
+
+          rm -f artifacts/release-range.headers.txt artifacts/release-range.bin
+          cache_bust="$(date +%s)-${RANDOM}-${attempt}"
+          if curl --silent --show-error --fail --location \
+            --retry 3 --retry-delay 3 --retry-all-errors \
+            --header 'Range: bytes=0-126' \
+            --header 'Cache-Control: no-cache' \
+            --dump-header artifacts/release-range.headers.txt \
+            --output artifacts/release-range.bin \
+            "${public_url}?verify=${cache_bust}" \
+            && grep -Eiq '^HTTP/.* 206' artifacts/release-range.headers.txt \
+            && test "$(wc -c < artifacts/release-range.bin)" -eq 127 \
+            && test "$(head -c 7 artifacts/release-range.bin)" = 'PMTiles'; then
+            echo "Verified public PMTiles byte range: $ASSET_NAME"
+            exit 0
+          fi
+
+          rm -f artifacts/release-range.headers.txt artifacts/release-range.bin
+          api_url="https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/assets/${asset_id}"
+          if curl --silent --show-error --fail --location \
+            --retry 3 --retry-delay 3 --retry-all-errors \
+            --header "Authorization: Bearer ${GH_TOKEN}" \
+            --header 'Accept: application/octet-stream' \
+            --header 'Range: bytes=0-126' \
+            --header 'X-GitHub-Api-Version: 2022-11-28' \
+            --dump-header artifacts/release-range.headers.txt \
+            --output artifacts/release-range.bin \
+            "$api_url" \
+            && grep -Eiq '^HTTP/.* 206' artifacts/release-range.headers.txt \
+            && test "$(wc -c < artifacts/release-range.bin)" -eq 127 \
+            && test "$(head -c 7 artifacts/release-range.bin)" = 'PMTiles'; then
+            echo "Verified authenticated PMTiles byte range: $ASSET_NAME"
+            exit 0
+          fi
+
+          echo "Byte-range verification still propagating: $ASSET_NAME (attempt $attempt/20)"
+          sleep $((attempt * 6))
+        done
+
+        echo "Published archive did not pass public or authenticated byte-range verification: $ASSET_NAME" >&2
+        exit 1

@@ -1,0 +1,118 @@
+name: Classify worldwide PMTiles failures
+
+on:
+  push:
+    branches:
+      - feat/custom-planetiler-pmtiles-basemap
+    paths:
+      - diagnostics/world-failure-snapshot.trigger
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  classify:
+    runs-on: macos-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/custom-planetiler-pmtiles-basemap
+          fetch-depth: 0
+
+      - name: Download and classify every failed shard log
+        env:
+          GH_TOKEN: ${{ github.token }}
+          WORLD_RUN_ID: '30214445296'
+        run: |
+          rm -rf diagnostics/world-repair-failure-analysis /tmp/world-repair-logs
+          mkdir -p diagnostics/world-repair-failure-analysis /tmp/world-repair-logs
+
+          gh api --paginate --slurp \
+            "/repos/${GITHUB_REPOSITORY}/actions/runs/${WORLD_RUN_ID}/jobs?per_page=100" \
+            > /tmp/world-job-pages.json
+
+          node <<'NODE'
+          const fs = require('node:fs');
+          const pages = JSON.parse(fs.readFileSync('/tmp/world-job-pages.json', 'utf8'));
+          const jobs = pages.flatMap((page) => page.jobs || []);
+          const failed = jobs.filter((job) => job.name.startsWith('build-bucket-') && job.conclusion === 'failure');
+          fs.writeFileSync('/tmp/failed-job-ids.txt', failed.map((job) => String(job.id)).join('\n'));
+          fs.writeFileSync('/tmp/failed-jobs.json', JSON.stringify(failed.map(({id, name}) => ({id, name}))));
+          console.log(`Downloading ${failed.length} failed shard logs.`);
+          NODE
+
+          cat /tmp/failed-job-ids.txt | xargs -P 8 -I {} sh -c '
+            job_id="$1"
+            if gh api "/repos/${GITHUB_REPOSITORY}/actions/jobs/${job_id}/logs" > "/tmp/world-repair-logs/${job_id}.log" 2> "/tmp/world-repair-logs/${job_id}.error"; then
+              :
+            else
+              cat "/tmp/world-repair-logs/${job_id}.error" > "/tmp/world-repair-logs/${job_id}.log"
+            fi
+          ' _ {}
+
+          node <<'NODE'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const jobs = JSON.parse(fs.readFileSync('/tmp/failed-jobs.json', 'utf8'));
+
+          function errorContext(text) {
+            const markers = ['##[error]', 'Process completed with exit code', 'curl:', 'gh:', 'Exception', 'Killed'];
+            let index = -1;
+            for (const marker of markers) index = Math.max(index, text.lastIndexOf(marker));
+            return text.slice(Math.max(0, (index < 0 ? text.length : index) - 10000));
+          }
+
+          function classify(context) {
+            if (/secondary rate limit|API rate limit|rate limit exceeded|too many requests|HTTP 429/i.test(context)) return 'rate_limit_or_throttle';
+            if (/download\.geofabrik\.de/i.test(context) && /curl: \(22\)|HTTP (403|429|5\d\d)|connection reset|operation timed out|empty reply/i.test(context)) return 'geofabrik_download';
+            if (/gh release upload|failed to upload|releases\/assets|already_exists|HTTP 422/i.test(context)) return 'github_release_upload';
+            if (/ghcr\.io|failed to resolve reference|error pulling image|toomanyrequests/i.test(context)) return 'container_registry_pull';
+            if (/OutOfMemoryError|exit code 137|Killed\b|cannot allocate memory/i.test(context)) return 'out_of_memory';
+            if (/No space left on device/i.test(context)) return 'disk_space';
+            if (/osmium/i.test(context) && /error|failed|cannot|invalid/i.test(context)) return 'osmium_extract';
+            if (/release-range|Range: bytes=0-126|expected.*206|PMTiles/i.test(context) && /error|failed|exit code/i.test(context)) return 'published_range_verification';
+            if (/java\.lang|Exception|planetiler/i.test(context)) return 'planetiler_build';
+            if (/Unable to download job log|HTTP 404/i.test(context)) return 'log_unavailable';
+            return 'unknown';
+          }
+
+          const groups = new Map();
+          for (const job of jobs) {
+            const file = `/tmp/world-repair-logs/${job.id}.log`;
+            const text = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : 'Unable to download job log';
+            const context = errorContext(text);
+            const category = classify(context);
+            if (!groups.has(category)) groups.set(category, []);
+            const errorLines = context.split(/\r?\n/)
+              .filter((line) => /##\[error\]|curl:|gh:|error|failed|exception|killed|exit code|rate limit|HTTP [45]/i.test(line))
+              .slice(-10);
+            groups.get(category).push({ id: job.id, name: job.name, errorLines });
+          }
+
+          const categories = [...groups.entries()]
+            .map(([category, items]) => ({ category, count: items.length, samples: items.slice(0, 6) }))
+            .sort((a, b) => b.count - a.count);
+          const summary = {
+            capturedAt: new Date().toISOString(),
+            runId: process.env.WORLD_RUN_ID,
+            failedShardCount: jobs.length,
+            categories
+          };
+          fs.writeFileSync(
+            'diagnostics/world-repair-failure-analysis/summary.json',
+            `${JSON.stringify(summary, null, 2)}\n`
+          );
+          console.log(JSON.stringify(summary, null, 2));
+          NODE
+
+      - name: Commit failure classification
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add diagnostics/world-repair-failure-analysis
+          git diff --cached --quiet && exit 0
+          git commit -m "Classify worldwide PMTiles repair failures"
+          git pull --rebase origin feat/custom-planetiler-pmtiles-basemap
+          git push origin HEAD:feat/custom-planetiler-pmtiles-basemap

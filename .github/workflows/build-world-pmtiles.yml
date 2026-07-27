@@ -1,0 +1,10 @@
+name: Build Worldwide Occu-Med PMTiles
+
+on:
+  workflow_dispatch:
+
+jobs:
+  manual-only:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Automatic worldwide builds are paused. Use the dedicated missing-only completion workflow."

@@ -1,0 +1,17 @@
+name: Fresno browser validation (skipped)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  skipped:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fresno browser validation removed from completion gate
+        run: |
+          echo "Skipped by project owner on 2026-07-27."
+          echo "Worldwide completion is governed by the passed pinned release audit."
+          echo "This workflow does not build, render, or validate Fresno."

@@ -1,0 +1,169 @@
+name: Verify Final Worldwide PMTiles Release
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/custom-planetiler-pmtiles-basemap
+    paths:
+      - diagnostics/world-release-audit-v2.trigger
+
+permissions:
+  contents: write
+
+concurrency:
+  group: occumed-world-pmtiles-final-audit
+  cancel-in-progress: true
+
+env:
+  WORLD_RELEASE_TAG: occumed-world-v1
+
+jobs:
+  verify-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/custom-planetiler-pmtiles-basemap
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Verify pinned inventory, manifest, and release metadata
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          rm -rf final-world-audit
+          mkdir -p final-world-audit/release
+
+          node scripts/plan-world-shards-final.mjs > final-world-audit/pinned-plan.json
+          release_id="$(gh api "/repos/${GITHUB_REPOSITORY}/releases/tags/${WORLD_RELEASE_TAG}" --jq '.id')"
+          gh api --paginate --slurp \
+            "/repos/${GITHUB_REPOSITORY}/releases/${release_id}/assets?per_page=100" \
+            > final-world-audit/release-pages.json
+          gh release download "$WORLD_RELEASE_TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --pattern world-manifest.json \
+            --dir final-world-audit/release
+
+          node <<'NODE'
+          const fs = require('node:fs');
+
+          const plan = JSON.parse(fs.readFileSync('final-world-audit/pinned-plan.json', 'utf8'));
+          const pages = JSON.parse(fs.readFileSync('final-world-audit/release-pages.json', 'utf8'));
+          const manifest = JSON.parse(fs.readFileSync('final-world-audit/release/world-manifest.json', 'utf8'));
+          const regions = plan.include || [];
+          const assets = pages.flatMap((page) => page || []);
+          const byName = new Map(assets.map((asset) => [asset.name, asset]));
+
+          const plannedNames = regions.map((region) => region.asset_name);
+          const plannedNameSet = new Set(plannedNames);
+          const plannedIds = regions.map((region) => region.id);
+          const plannedIdSet = new Set(plannedIds);
+
+          if (!regions.length) throw new Error('Pinned plan is empty.');
+          if (plannedNameSet.size !== plannedNames.length) throw new Error('Pinned plan has duplicate asset names.');
+          if (plannedIdSet.size !== plannedIds.length) throw new Error('Pinned plan has duplicate IDs.');
+
+          const missing = regions.filter((region) => !byName.has(region.asset_name));
+          const zeroSize = regions.filter((region) => Number(byName.get(region.asset_name)?.size || 0) <= 0);
+          const extras = assets.filter((asset) => asset.name.endsWith('.pmtiles') && !plannedNameSet.has(asset.name));
+
+          const manifestRegions = manifest.regions || [];
+          const manifestNames = manifestRegions.map((region) => region.asset);
+          const manifestNameSet = new Set(manifestNames);
+          const manifestIds = manifestRegions.map((region) => region.id);
+          const manifestIdSet = new Set(manifestIds);
+          const manifestById = new Map(manifestRegions.map((region) => [region.id, region]));
+
+          const absentFromManifest = plannedNames.filter((name) => !manifestNameSet.has(name));
+          const unexpectedInManifest = manifestNames.filter((name) => !plannedNameSet.has(name));
+          const missingManifestIds = plannedIds.filter((id) => !manifestIdSet.has(id));
+          const unexpectedManifestIds = manifestIds.filter((id) => !plannedIdSet.has(id));
+
+          const regionMismatches = [];
+          for (const planned of regions) {
+            const published = manifestById.get(planned.id);
+            if (!published) continue;
+            if (published.asset !== planned.asset_name) {
+              regionMismatches.push(`${planned.id}: asset=${published.asset}, expected=${planned.asset_name}`);
+            }
+            const expectedBounds = [planned.west, planned.south, planned.east, planned.north];
+            const actualBounds = published.bounds || [];
+            if (JSON.stringify(actualBounds) !== JSON.stringify(expectedBounds)) {
+              regionMismatches.push(`${planned.id}: bounds=${JSON.stringify(actualBounds)}, expected=${JSON.stringify(expectedBounds)}`);
+            }
+          }
+
+          const structuralErrors = [];
+          if (Number(manifest.missingRegionCount) !== 0) structuralErrors.push(`manifest missingRegionCount=${manifest.missingRegionCount}`);
+          if (Number(manifest.plannedRegionCount) !== regions.length) structuralErrors.push(`manifest plannedRegionCount=${manifest.plannedRegionCount}, expected=${regions.length}`);
+          if (Number(manifest.availableRegionCount) !== regions.length) structuralErrors.push(`manifest availableRegionCount=${manifest.availableRegionCount}, expected=${regions.length}`);
+          if (manifestRegions.length !== regions.length) structuralErrors.push(`manifest regions=${manifestRegions.length}, expected=${regions.length}`);
+          if (manifestNameSet.size !== manifestNames.length) structuralErrors.push('manifest contains duplicate assets');
+          if (manifestIdSet.size !== manifestIds.length) structuralErrors.push('manifest contains duplicate IDs');
+          if ((manifest.missingRegions || []).length !== 0) structuralErrors.push('manifest missingRegions is not empty');
+
+          const summary = {
+            capturedAt: new Date().toISOString(),
+            releaseTag: process.env.WORLD_RELEASE_TAG,
+            pinnedCanonicalShardCount: regions.length,
+            releaseAssetCount: assets.length,
+            publishedCanonicalCount: regions.length - missing.length,
+            missingCanonicalCount: missing.length,
+            zeroSizeCanonicalCount: zeroSize.length,
+            extraPmtilesAssetCount: extras.length,
+            manifestMissingRegionCount: Number(manifest.missingRegionCount),
+            manifestPlannedRegionCount: Number(manifest.plannedRegionCount),
+            manifestAvailableRegionCount: Number(manifest.availableRegionCount),
+            manifestRegionCount: manifestRegions.length,
+            absentFromManifest,
+            unexpectedInManifest,
+            missingManifestIds,
+            unexpectedManifestIds,
+            regionMismatches,
+            structuralErrors,
+            missing: missing.map((region) => ({ id: region.id, asset: region.asset_name })),
+            zeroSize: zeroSize.map((region) => ({ id: region.id, asset: region.asset_name })),
+            extraPmtilesAssets: extras.map((asset) => ({ name: asset.name, size: Number(asset.size || 0) })),
+            binaryRangeAndRenderValidation: 'deferred_to_fresno_runtime_browser_validation',
+            passed:
+              missing.length === 0 &&
+              zeroSize.length === 0 &&
+              extras.length === 0 &&
+              absentFromManifest.length === 0 &&
+              unexpectedInManifest.length === 0 &&
+              missingManifestIds.length === 0 &&
+              unexpectedManifestIds.length === 0 &&
+              regionMismatches.length === 0 &&
+              structuralErrors.length === 0
+          };
+
+          fs.writeFileSync('final-world-audit/final-verification.json', `${JSON.stringify(summary, null, 2)}\n`);
+          console.log(JSON.stringify(summary, null, 2));
+          if (!summary.passed) process.exit(1);
+          NODE
+
+      - name: Commit authoritative final audit
+        run: |
+          set -euo pipefail
+          mkdir -p diagnostics/world-release-audit
+          cp final-world-audit/final-verification.json diagnostics/world-release-audit/final-verification.json
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add diagnostics/world-release-audit/final-verification.json
+          git diff --cached --quiet && exit 0
+          git commit -m "Verify final worldwide PMTiles release"
+          git pull --rebase origin feat/custom-planetiler-pmtiles-basemap
+          git push origin HEAD:feat/custom-planetiler-pmtiles-basemap
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: occumed-final-world-release-audit-${{ github.sha }}
+          path: final-world-audit
+          if-no-files-found: error
+          retention-days: 30

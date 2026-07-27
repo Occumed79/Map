@@ -11,7 +11,7 @@ const reportPath = path.join(outputDir, 'compatibility-report.json');
 const tilejsonUrl = process.env.OCCUMED_TILEJSON_URL || 'https://tiles.openfreemap.org/planet';
 const glyphsUrl =
   process.env.OCCUMED_GLYPHS_URL ||
-  'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf';
+  'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf';
 const terrainUrl =
   process.env.OCCUMED_TERRAIN_URL ||
   'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png';
@@ -26,7 +26,7 @@ const fontMap = new Map([
   ['DIN Pro Medium', 'Open Sans Semibold'],
   ['DIN Pro Bold', 'Open Sans Bold'],
   ['DIN Pro Italic', 'Open Sans Italic'],
-  ['Arial Unicode MS Regular', 'Noto Sans Regular']
+  ['Arial Unicode MS Regular', 'Open Sans Regular']
 ]);
 
 const get = (key) => ['get', key];

@@ -1,0 +1,79 @@
+{
+  "capturedAt": "2026-07-27T02:08:22.597Z",
+  "workflow": "repair-missing-world-pmtiles.yml",
+  "runId": "30231080611",
+  "runUrl": "https://github.com/Occumed79/Map/actions/runs/30231080611",
+  "headSha": "c456df1169dc3546549be9246faa3b92e0f94593",
+  "status": "queued",
+  "conclusion": null,
+  "canonicalShardCount": 692,
+  "alreadyPublishedShardCount": 682,
+  "plannedMissingShardCount": 10,
+  "releaseAssetCountBeforeRepair": 938,
+  "releaseSlotsRequired": 11,
+  "releaseSlotsAvailable": 62,
+  "planStatus": "completed",
+  "planConclusion": "success",
+  "totalBuildJobsObserved": 10,
+  "successfulBuildJobs": 0,
+  "failedBuildJobs": 0,
+  "inProgressBuildJobs": 1,
+  "queuedBuildJobs": 9,
+  "cancelledBuildJobs": 0,
+  "skippedBuildJobs": 0,
+  "manifestStatus": null,
+  "manifestConclusion": null,
+  "active": [
+    {
+      "id": 89870975102,
+      "name": "build-bucket-2 (kitikmeot, kitikmeot, Kitikmeot Region, north-america, https://download.geofabrik...",
+      "status": "queued"
+    },
+    {
+      "id": 89870975104,
+      "name": "build-bucket-0 (siberian-fed-district--r1-c1, siberian-fed-district--r1-c1, Siberian Federal Dist...",
+      "status": "queued"
+    },
+    {
+      "id": 89870975105,
+      "name": "build-bucket-2 (qikiqtaaluk, qikiqtaaluk, Qikiqtaaluk Region, north-america, https://download.geo...",
+      "status": "queued"
+    },
+    {
+      "id": 89870975106,
+      "name": "build-bucket-0 (northwestern-fed-district--r1-c1, northwestern-fed-district--r1-c1, Northwestern ...",
+      "status": "queued"
+    },
+    {
+      "id": 89870975124,
+      "name": "build-bucket-2 (us/texas, us--texas, us/texas, north-america, https://download.geofabrik.de/north...",
+      "status": "queued"
+    },
+    {
+      "id": 89870975130,
+      "name": "build-bucket-0 (enfield, enfield, Enfield, europe, https://download.geofabrik.de/europe/united-ki...",
+      "status": "in_progress"
+    },
+    {
+      "id": 89870975163,
+      "name": "build-bucket-1 (far-eastern-fed-district, far-eastern-fed-district, Far Eastern Federal District,...",
+      "status": "queued"
+    },
+    {
+      "id": 89870975165,
+      "name": "build-bucket-1 (portugal, portugal, Portugal, europe, https://download.geofabrik.de/europe/portug...",
+      "status": "queued"
+    },
+    {
+      "id": 89870975171,
+      "name": "build-bucket-0 (us/virginia, us--virginia, us/virginia, north-america, https://download.geofabrik...",
+      "status": "queued"
+    },
+    {
+      "id": 89870975209,
+      "name": "build-bucket-1 (ural-fed-district, ural-fed-district, Ural Federal District, ural-fed-district, h...",
+      "status": "queued"
+    }
+  ],
+  "failures": []
+}

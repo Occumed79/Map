@@ -1,0 +1,149 @@
+name: Build and publish final Occu-Med PMTiles shard
+description: Reuses nonzero release assets and builds only genuinely missing canonical PMTiles archives.
+
+inputs:
+  id: { required: true }
+  slug: { required: true }
+  name: { required: true }
+  continent: { required: true }
+  pbf-url: { required: true }
+  extract-bbox: { required: false, default: '' }
+  west: { required: true }
+  south: { required: true }
+  east: { required: true }
+  north: { required: true }
+  asset-name: { required: true }
+  release-tag: { required: true }
+
+runs:
+  using: composite
+  steps:
+    - name: Reuse existing nonzero release asset
+      id: existing
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+        RELEASE_TAG: ${{ inputs.release-tag }}
+        ASSET_NAME: ${{ inputs.asset-name }}
+      run: |
+        set -euo pipefail
+        release_id="$(gh api "/repos/${GITHUB_REPOSITORY}/releases/tags/${RELEASE_TAG}" --jq '.id')"
+        assets_json="$(mktemp)"
+        gh api --paginate --slurp \
+          "/repos/${GITHUB_REPOSITORY}/releases/${release_id}/assets?per_page=100" \
+          > "$assets_json"
+        row="$(
+          jq -r --arg name "$ASSET_NAME" \
+            '[.[][] | select(.name == $name)][0] | if . == null then "" else [.id, .name, .size] | @tsv end' \
+            "$assets_json"
+        )"
+        rm -f "$assets_json"
+        asset_id="$(printf '%s' "$row" | cut -f1)"
+        asset_size="$(printf '%s' "$row" | cut -f3)"
+        if [ -n "$asset_id" ] && [ -n "$asset_size" ] && [ "$asset_size" -gt 0 ]; then
+          echo 'exists=true' >> "$GITHUB_OUTPUT"
+          echo "Reusing published asset: $ASSET_NAME ($asset_size bytes)"
+        else
+          echo 'exists=false' >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Reclaim runner disk
+      if: steps.existing.outputs.exists != 'true'
+      shell: bash
+      run: |
+        sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc || true
+        docker system prune --all --force || true
+        df -h
+
+    - name: Download and prepare OpenStreetMap shard
+      if: steps.existing.outputs.exists != 'true'
+      shell: bash
+      env:
+        EXTRACT_BBOX: ${{ inputs.extract-bbox }}
+      run: |
+        set -euo pipefail
+        mkdir -p .planetiler-data/tmp artifacts
+        target=".planetiler-data/${{ inputs.slug }}.osm.pbf"
+        if [ -n "$EXTRACT_BBOX" ]; then
+          source=".planetiler-data/${{ inputs.slug }}-source.osm.pbf"
+          curl --fail --location --retry 8 --retry-delay 10 --retry-all-errors \
+            --output "$source" "${{ inputs.pbf-url }}"
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends osmium-tool
+          osmium extract --bbox="$EXTRACT_BBOX" --strategy=complete_ways --overwrite \
+            --output="$target" "$source"
+          rm -f "$source"
+        else
+          curl --fail --location --retry 8 --retry-delay 10 --retry-all-errors \
+            --output "$target" "${{ inputs.pbf-url }}"
+        fi
+        test -s "$target"
+
+    - name: Build and validate local PMTiles
+      if: steps.existing.outputs.exists != 'true'
+      shell: bash
+      env:
+        OCCUMED_TILE_AREA: ${{ inputs.slug }}
+        OCCUMED_OSM_PBF: ${{ github.workspace }}/.planetiler-data/${{ inputs.slug }}.osm.pbf
+        OCCUMED_PMTILES_OUTPUT: ${{ github.workspace }}/artifacts/${{ inputs.asset-name }}
+        OCCUMED_PLANETILER_DATA_DIR: ${{ github.workspace }}/.planetiler-data
+        OCCUMED_PLANETILER_MEMORY: 5g
+      run: |
+        set -euo pipefail
+        bash planetiler/build-region.sh
+        output="artifacts/${{ inputs.asset-name }}"
+        test -s "$output"
+        test "$(head -c 7 "$output")" = 'PMTiles'
+        size="$(stat --printf='%s' "$output")"
+        echo "archive_size_bytes=$size"
+        if [ "$size" -gt 2000000000 ]; then
+          echo "Archive exceeds GitHub Release safe file size: ${{ inputs.id }}" >&2
+          exit 1
+        fi
+        rm -f ".planetiler-data/${{ inputs.slug }}.osm.pbf"
+
+    - name: Publish PMTiles archive
+      if: steps.existing.outputs.exists != 'true'
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+        RELEASE_TAG: ${{ inputs.release-tag }}
+        ASSET_NAME: ${{ inputs.asset-name }}
+      run: |
+        set -euo pipefail
+        release_id="$(gh api "/repos/${GITHUB_REPOSITORY}/releases/tags/${RELEASE_TAG}" --jq '.id')"
+
+        lookup_size() {
+          local assets_json
+          assets_json="$(mktemp)"
+          gh api --paginate --slurp \
+            "/repos/${GITHUB_REPOSITORY}/releases/${release_id}/assets?per_page=100" \
+            > "$assets_json"
+          jq -r --arg name "$ASSET_NAME" \
+            '[.[][] | select(.name == $name)][0] | if . == null then "" else (.size | tostring) end' \
+            "$assets_json"
+          rm -f "$assets_json"
+        }
+
+        uploaded=false
+        for attempt in 1 2 3 4 5; do
+          if gh release upload "$RELEASE_TAG" "artifacts/$ASSET_NAME" \
+            --repo "$GITHUB_REPOSITORY"; then
+            uploaded=true
+            break
+          fi
+          size="$(lookup_size)"
+          if [ -n "$size" ] && [ "$size" -gt 0 ]; then
+            echo "Asset appeared during upload: $ASSET_NAME ($size bytes)"
+            uploaded=true
+            break
+          fi
+          sleep $((attempt * 10))
+        done
+
+        size="$(lookup_size)"
+        if [ "$uploaded" != true ] || [ -z "$size" ] || [ "$size" -le 0 ]; then
+          echo "Release asset is still missing after upload: $ASSET_NAME" >&2
+          exit 1
+        fi
+        echo "Published release asset: $ASSET_NAME ($size bytes)"
