@@ -12,6 +12,7 @@ const [
   profilePreparer,
   buildScript,
   planner,
+  pinnedPlanner,
   manifestBuilder,
   server,
   workflow,
@@ -27,11 +28,12 @@ const [
   fs.readFile(path.join(root, 'scripts/prepare-planetiler-profile.mjs'), 'utf8'),
   fs.readFile(path.join(root, 'planetiler/build-region.sh'), 'utf8'),
   fs.readFile(path.join(root, 'scripts/plan-world-shards.mjs'), 'utf8'),
+  fs.readFile(path.join(root, 'scripts/plan-world-shards-final.mjs'), 'utf8'),
   fs.readFile(path.join(root, 'scripts/build-world-manifest.mjs'), 'utf8'),
   fs.readFile(path.join(root, 'server.mjs'), 'utf8'),
-  fs.readFile(path.join(root, '.github/workflows/build-world-pmtiles.yml'), 'utf8'),
-  fs.readFile(path.join(root, '.github/actions/build-pmtiles-shard/action.yml'), 'utf8'),
-  fs.readFile(path.join(root, 'scripts/capture-pmtiles-preview.mjs'), 'utf8'),
+  fs.readFile(path.join(root, '.github/workflows/repair-missing-world-pmtiles.yml'), 'utf8'),
+  fs.readFile(path.join(root, '.github/actions/build-pmtiles-shard-final/action.yml'), 'utf8'),
+  fs.readFile(path.join(root, 'scripts/capture-world-fresno-preview.mjs'), 'utf8'),
   fs.readFile(path.join(root, 'README.md'), 'utf8')
 ]);
 
@@ -86,6 +88,13 @@ if (!planner.includes('splitRegion(region, sourceSizeBytes)')) fail('The worldwi
 if (!planner.includes("extract_bbox: `${roundedWest},${roundedSouth},${roundedEast},${roundedNorth}`")) fail('Bounded subdivision metadata is missing from the worldwide plan.');
 if (!planner.includes('coveredWidth > 300')) fail('The worldwide planner does not preserve global versus antimeridian-aware bounds.');
 if (!planner.includes('asset_name: `occumed-${slug}.pmtiles`')) fail('The worldwide planner does not produce deterministic archive names.');
+
+if (!pinnedPlanner.includes('canonical-world-plan.json')) fail('The final completion planner is not pinned to the audited canonical inventory.');
+if (!pinnedPlanner.includes('forcedSplits')) fail('The final pinned planner does not preserve required oversized-parent replacements.');
+if (!pinnedPlanner.includes("antimeridian: true")) fail('The final pinned planner does not preserve the Far Eastern antimeridian split.');
+if (!pinnedPlanner.includes('extract_bbox: `${west},${south},${east},${north}`')) fail('The final pinned planner does not emit bounded child coordinates.');
+if (!pinnedPlanner.includes('plan.include.sort')) fail('The final pinned plan is not deterministically ordered.');
+
 if (!manifestBuilder.includes("archiveTransport: 'same-origin-release-proxy'")) fail('The worldwide manifest does not use the release proxy transport.');
 if (!manifestBuilder.includes("url: `__OCCUMED_PUBLIC_ORIGIN__/world-tiles/${region.asset_name}`")) fail('The worldwide manifest does not route archives through the deployed origin.');
 
@@ -94,17 +103,23 @@ if (!server.includes('/^\\/world-tiles\\/(occumed-[a-z0-9-]+\\.pmtiles)$/')) fai
 if (!server.includes('Readable.fromWeb(upstream.body)')) fail('The server does not stream release archives.');
 if (!server.includes('if (request.headers.range) headers.Range = request.headers.range')) fail('The release proxy does not forward PMTiles byte ranges.');
 
-if (!workflow.includes('Build Worldwide Occu-Med PMTiles')) fail('The worldwide build workflow is missing.');
-if (!workflow.includes('WORLD_BUCKETS: 6')) fail('The worldwide workflow is not partitioned into bounded matrices.');
-if (!workflow.includes('extract-bbox: ${{ matrix.extract_bbox }}')) fail('Worldwide matrices do not pass bounded subdivision coordinates to the shard action.');
-if ((workflow.match(/node scripts\/plan-world-shards\.mjs --scope all/g) || []).length !== 1) fail('The size-aware worldwide plan must be generated exactly once per run.');
-if (!workflow.includes('publish-world-manifest')) fail('The worldwide workflow does not publish a final manifest.');
-if (!workflow.includes('Require complete worldwide coverage')) fail('The worldwide workflow does not reject missing regions.');
-if (!action.includes('Reuse an already-published healthy archive')) fail('Repair runs do not reuse healthy published worldwide archives.');
-if (!action.includes('osmium extract')) fail('Oversized-region subdivisions are not extracted before Planetiler runs.');
+if (!workflow.includes('Complete Only Pinned Missing Worldwide PMTiles')) fail('The pinned worldwide completion workflow is missing.');
+if (!workflow.includes('node scripts/plan-world-shards-final.mjs')) fail('The completion workflow does not generate the pinned canonical plan.');
+if ((workflow.match(/node scripts\/plan-world-shards-final\.mjs/g) || []).length !== 1) fail('The pinned canonical plan must be generated exactly once per completion run.');
+if (!workflow.includes('max-parallel: 24')) fail('The missing-only completion matrix does not request bounded concurrency.');
+if (!workflow.includes('matrix: ${{ fromJson(needs.plan.outputs.matrix) }}')) fail('The completion workflow does not schedule only the exact missing matrix.');
+if (!workflow.includes('extract-bbox: ${{ matrix.extract_bbox }}')) fail('The missing-only matrix does not pass bounded subdivision coordinates to the shard action.');
+if (!workflow.includes('uses: ./.github/actions/build-pmtiles-shard-final')) fail('The completion workflow does not use the hardened final shard action.');
+if (!workflow.includes('Publish manifest only when pinned plan has zero missing shards')) fail('The completion workflow does not publish the final manifest.');
+if (!workflow.includes('test "$missing" = "0"')) fail('The completion workflow does not reject incomplete worldwide coverage.');
+if (!workflow.includes('gh release upload "$WORLD_RELEASE_TAG" world-release/world-manifest.json')) fail('The completed manifest is not published to the release.');
+
+if (!action.includes('Reuse existing nonzero release asset')) fail('Repair runs do not reuse nonzero published worldwide archives.');
+if (!action.includes('osmium extract --bbox="$EXTRACT_BBOX"')) fail('Oversized-region subdivisions are not extracted before Planetiler runs.');
+if (!action.includes("test \"$(head -c 7 \"$output\")\" = 'PMTiles'")) fail('Local shard validation does not assert the PMTiles magic header.');
+if (!action.includes('Archive exceeds GitHub Release safe file size')) fail('Shard publication does not reject unsafe oversized release assets.');
 if (!action.includes('gh release upload')) fail('Worldwide PMTiles shards are not published to GitHub Releases.');
-if (!action.includes("--header 'Range: bytes=0-126'")) fail('Published shard byte ranges are not validated.');
-if (!action.includes("head -c 7 artifacts/release-range.bin")) fail('Published archive verification does not assert the PMTiles magic header.');
+if (!action.includes('Release asset is still missing after upload')) fail('Shard publication does not verify a nonzero release asset after upload.');
 
 for (const requiredLayer of [
   'landcover', 'landuse', 'park', 'water', 'waterway', 'transportation',
@@ -122,10 +137,13 @@ for (const requiredAttribute of ['class', 'subclass', 'brunnel', 'ramp', 'ref', 
   }
 }
 
-if (!capture.includes("url.startsWith('pmtiles://')")) fail('Visual validation does not assert the PMTiles protocol.');
-if (!capture.includes('map.areTilesLoaded()')) fail('Visual validation does not require all map tiles to load.');
-if (!capture.includes('unexpectedNetworkFailures')) fail('Visual validation does not reject unexpected resource failures.');
-if (!capture.includes('expectedArchive')) fail('Visual validation does not assert the expected regional archive.');
+if (!capture.includes("fetch(`${origin}/world-manifest.json`")) fail('Final visual validation does not load the completed worldwide manifest through the runtime.');
+if (!capture.includes("headers: { Range: 'bytes=0-126' }")) fail('Final visual validation does not verify runtime PMTiles byte-range delivery.');
+if (!capture.includes("source.url.includes(`/world-tiles/${expectedAsset}`)")) fail('Final visual validation does not assert the selected worldwide shard.');
+if (!capture.includes('map.areTilesLoaded()')) fail('Final visual validation does not require all map tiles to load.');
+if (!capture.includes('effectivePixelRatio < 1.9')) fail('Final visual validation does not enforce 2x high-DPI rendering.');
+if (!capture.includes('unexpectedNetworkFailures')) fail('Final visual validation does not reject unexpected resource failures.');
+if (!capture.includes('missingRegionCount') || !capture.includes('!== 0')) fail('Final visual validation does not reject an incomplete manifest.');
 
 if (failures.length) {
   console.error('PMTiles integration validation failed:');
@@ -133,4 +151,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('PMTiles integration validated: supported Planetiler YAML invocation, recursive true-leaf planning, antimeridian-safe bounds, automatic oversized-region subdivision, published-shard reuse, protocol registration, worldwide routing, release proxying, strict visual evidence, and zero-missing manifest publication are present.');
+console.log('PMTiles integration validated: supported Planetiler YAML invocation, audited pinned planning, antimeridian-safe bounded child shards, missing-only 24-worker completion, hardened release publication, protocol registration, worldwide routing, same-origin range proxying, strict high-DPI Fresno evidence, and zero-missing manifest publication are present.');
