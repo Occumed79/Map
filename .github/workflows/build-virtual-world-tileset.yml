@@ -65,8 +65,11 @@ jobs:
           const plan = JSON.parse(fs.readFileSync('virtual-world/preflight/world-plan.json', 'utf8'));
           const pages = JSON.parse(fs.readFileSync('virtual-world/preflight/release-pages.json', 'utf8'));
           const assets = pages.flatMap((page) => page || []);
-          const sizes = new Map(assets.map((asset) => [asset.name, Number(asset.size || 0)]));
-          const missing = plan.include.filter((region) => (sizes.get(region.asset_name) || 0) <= 0);
+          const byName = new Map(assets.map((asset) => [asset.name, asset]));
+          const missing = plan.include.filter((region) => {
+            const asset = byName.get(region.asset_name);
+            return !asset || asset.state !== 'uploaded' || Number(asset.size || 0) <= 0;
+          });
           const include = missing.length ? missing : [{
             skip: true,
             id: 'nothing-missing',

@@ -303,9 +303,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           mkdir -p world-release
-          gh release view "$WORLD_RELEASE_TAG" \
-            --repo "$GITHUB_REPOSITORY" \
-            --json assets \
+          release_id="$(gh api "/repos/${GITHUB_REPOSITORY}/releases/tags/${WORLD_RELEASE_TAG}" --jq '.id')"
+          gh api --paginate --slurp \
+            "/repos/${GITHUB_REPOSITORY}/releases/${release_id}/assets?per_page=100" \
             > world-release/assets.json
 
           node scripts/build-world-manifest.mjs \

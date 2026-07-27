@@ -87,15 +87,25 @@ jobs:
             'occumed-world-overview.pmtiles',
             'occumed-world-surface.pmtiles'
           ]);
-          const retained = releaseAssets.filter((asset) => protectedNames.has(asset.name) && asset.size > 0);
+          const retained = releaseAssets.filter((asset) =>
+            protectedNames.has(asset.name) &&
+            asset.state === 'uploaded' &&
+            asset.size > 0
+          );
           const deleteTargets = releaseAssets
-            .filter((asset) => !protectedNames.has(asset.name) || asset.size <= 0)
+            .filter((asset) =>
+              !protectedNames.has(asset.name) ||
+              asset.state !== 'uploaded' ||
+              asset.size <= 0
+            )
             .map((asset) => ({
               id: asset.id,
               name: asset.name,
               sizeBytes: asset.size,
-              reason: protectedNames.has(asset.name)
-                ? 'zero_size_world_tileset_asset'
+              reason: protectedNames.has(asset.name) && asset.state !== 'uploaded'
+                ? 'incomplete_world_tileset_asset'
+                : protectedNames.has(asset.name)
+                  ? 'zero_size_world_tileset_asset'
                 : (asset.name.endsWith('.pmtiles') ? 'noncanonical_pmtiles' : 'noncanonical_release_asset')
             }));
           fs.writeFileSync(
@@ -173,7 +183,11 @@ jobs:
             'occumed-world-overview.pmtiles',
             'occumed-world-surface.pmtiles'
           ]);
-          const unexpected = assets.filter((asset) => !protectedNames.has(asset.name) || asset.size <= 0);
+          const unexpected = assets.filter((asset) =>
+            !protectedNames.has(asset.name) ||
+            asset.state !== 'uploaded' ||
+            asset.size <= 0
+          );
           if (unexpected.length) {
             throw new Error(`Cleanup left ${unexpected.length} unexpected or zero-byte release assets.`);
           }

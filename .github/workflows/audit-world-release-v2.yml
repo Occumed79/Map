@@ -75,6 +75,7 @@ jobs:
 
           const missing = regions.filter((region) => !byName.has(region.asset_name));
           const zeroSize = regions.filter((region) => Number(byName.get(region.asset_name)?.size || 0) <= 0);
+          const incomplete = regions.filter((region) => byName.get(region.asset_name)?.state !== 'uploaded');
           const extras = assets.filter((asset) =>
             asset.name.endsWith('.pmtiles') &&
             !plannedNameSet.has(asset.name) &&
@@ -128,6 +129,7 @@ jobs:
             publishedCanonicalCount: regions.length - missing.length,
             missingCanonicalCount: missing.length,
             zeroSizeCanonicalCount: zeroSize.length,
+            incompleteCanonicalCount: incomplete.length,
             extraPmtilesAssetCount: extras.length,
             manifestMissingRegionCount: Number(manifest.missingRegionCount),
             manifestPlannedRegionCount: Number(manifest.plannedRegionCount),
@@ -141,11 +143,13 @@ jobs:
             structuralErrors,
             missing: missing.map((region) => ({ id: region.id, asset: region.asset_name })),
             zeroSize: zeroSize.map((region) => ({ id: region.id, asset: region.asset_name })),
+            incomplete: incomplete.map((region) => ({ id: region.id, asset: region.asset_name })),
             extraPmtilesAssets: extras.map((asset) => ({ name: asset.name, size: Number(asset.size || 0) })),
             binaryRangeAndRenderValidation: 'deferred_to_fresno_runtime_browser_validation',
             passed:
               missing.length === 0 &&
               zeroSize.length === 0 &&
+              incomplete.length === 0 &&
               extras.length === 0 &&
               absentFromManifest.length === 0 &&
               unexpectedInManifest.length === 0 &&

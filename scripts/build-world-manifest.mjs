@@ -30,13 +30,19 @@ const [plan, assetsPayload] = await Promise.all([
 const assets = Array.isArray(assetsPayload)
   ? assetsPayload.flatMap((page) => page || [])
   : assetsPayload.assets || [];
-const assetNames = new Set(assets.map((asset) => asset.name));
+const healthyAssetNames = new Set(
+  assets
+    .filter((asset) => asset.state === 'uploaded' && Number(asset.size || 0) > 0)
+    .map((asset) => asset.name)
+);
 const planned = plan.include || [];
-const available = planned.filter((region) => assetNames.has(region.asset_name));
-const missing = planned.filter((region) => !assetNames.has(region.asset_name));
+const available = planned.filter((region) => healthyAssetNames.has(region.asset_name));
+const missing = planned.filter((region) => !healthyAssetNames.has(region.asset_name));
 const overviewAsset = options.overviewAsset || 'occumed-world-overview.pmtiles';
 const surfaceAsset = options.surfaceAsset || 'occumed-world-surface.pmtiles';
-const missingVirtualAssets = [overviewAsset, surfaceAsset].filter((asset) => !assetNames.has(asset));
+const missingVirtualAssets = [overviewAsset, surfaceAsset].filter(
+  (asset) => !healthyAssetNames.has(asset)
+);
 
 if (missingVirtualAssets.length) {
   throw new Error(
