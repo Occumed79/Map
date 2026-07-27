@@ -1,0 +1,54 @@
+name: Capture Fresno world validation failure
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/custom-planetiler-pmtiles-basemap
+    paths:
+      - diagnostics/fresno-world-render/log-capture.trigger
+
+permissions:
+  actions: read
+  contents: write
+
+concurrency:
+  group: occumed-fresno-world-validation-log-capture
+  cancel-in-progress: true
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/custom-planetiler-pmtiles-basemap
+          fetch-depth: 0
+
+      - name: Capture latest Fresno validation run and failed logs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p diagnostics/fresno-world-render
+
+          run_json="$(gh api "/repos/${GITHUB_REPOSITORY}/actions/workflows/revalidate-fresno-render.yml/runs?branch=feat%2Fcustom-planetiler-pmtiles-basemap&per_page=20")"
+          printf '%s\n' "$run_json" > /tmp/fresno-runs.json
+          run_id="$(node -e "const d=require('/tmp/fresno-runs.json'); const r=d.workflow_runs.find(x=>x.head_sha==='57c62208e29d320f94be1feb438a547d33ff9c39') || d.workflow_runs[0]; if(!r) process.exit(1); process.stdout.write(String(r.id));")"
+
+          gh api "/repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}" > diagnostics/fresno-world-render/latest-run.json
+          gh api "/repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}/jobs?per_page=100" > diagnostics/fresno-world-render/latest-jobs.json
+          gh run view "$run_id" --repo "$GITHUB_REPOSITORY" --log-failed > diagnostics/fresno-world-render/latest-failure.log 2>&1 || true
+
+          if [ ! -s diagnostics/fresno-world-render/latest-failure.log ]; then
+            gh run view "$run_id" --repo "$GITHUB_REPOSITORY" --log > diagnostics/fresno-world-render/latest-failure.log 2>&1 || true
+          fi
+
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add diagnostics/fresno-world-render/latest-run.json diagnostics/fresno-world-render/latest-jobs.json diagnostics/fresno-world-render/latest-failure.log
+          git diff --cached --quiet && exit 0
+          git commit -m "Capture final Fresno world validation failure"
+          git pull --rebase origin feat/custom-planetiler-pmtiles-basemap
+          git push origin HEAD:feat/custom-planetiler-pmtiles-basemap
