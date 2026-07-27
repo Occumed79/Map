@@ -116,6 +116,7 @@ try {
       ({ nextCenter, nextZoom }) => {
         const map = globalThis.__OCCUMED_MAP__;
         map.jumpTo({ center: nextCenter, zoom: nextZoom, pitch: 0, bearing: 0 });
+        map.triggerRepaint();
       },
       { nextCenter: center, nextZoom: zoom }
     );
@@ -124,36 +125,44 @@ try {
       ({ expectedAsset }) => {
         const map = globalThis.__OCCUMED_MAP__;
         const source = map?.getStyle()?.sources?.['occumed-open'];
-        return Boolean(
-          map?.isStyleLoaded() &&
-          map?.isSourceLoaded?.('occumed-open') &&
-          typeof source?.url === 'string' &&
-          source.url.startsWith('pmtiles://') &&
-          source.url.includes(`/world-tiles/${expectedAsset}`)
-        );
+        if (
+          !map?.isStyleLoaded() ||
+          typeof source?.url !== 'string' ||
+          !source.url.startsWith('pmtiles://') ||
+          !source.url.includes(`/world-tiles/${expectedAsset}`)
+        ) {
+          return false;
+        }
+
+        try {
+          return map.queryRenderedFeatures().some((feature) => feature.source === 'occumed-open');
+        } catch {
+          return false;
+        }
       },
       { expectedAsset: expectedRegion.asset },
-      { timeout: 180_000 }
+      { timeout: 90_000 }
     );
 
-    // Give the completed PMTiles source two extra paint frames without waiting
-    // for unrelated terrain, relief, or other auxiliary sources.
-    await page.evaluate(() => new Promise((resolve) => {
-      requestAnimationFrame(() => requestAnimationFrame(resolve));
-    }));
+    await page.waitForTimeout(750);
 
     const view = await page.evaluate(() => {
       const map = globalThis.__OCCUMED_MAP__;
       const canvas = map.getCanvas();
       const rect = canvas.getBoundingClientRect();
       const source = map.getStyle().sources?.['occumed-open'] || null;
+      const renderedWorldFeatureCount = map
+        .queryRenderedFeatures()
+        .filter((feature) => feature.source === 'occumed-open')
+        .length;
       return {
         center: map.getCenter().toArray(),
         zoom: map.getZoom(),
         source,
         styleLoaded: map.isStyleLoaded(),
-        worldSourceLoaded: map.isSourceLoaded('occumed-open'),
-        allSourcesLoaded: map.areTilesLoaded(),
+        worldSourceLoadedDiagnostic: map.isSourceLoaded('occumed-open'),
+        allSourcesLoadedDiagnostic: map.areTilesLoaded(),
+        renderedWorldFeatureCount,
         canvas: {
           cssWidth: rect.width,
           cssHeight: rect.height,
@@ -171,8 +180,8 @@ try {
     if (view.canvas.effectivePixelRatio < 1.9) {
       throw new Error(`${name} rendered below the required 2x effective pixel ratio.`);
     }
-    if (!view.styleLoaded || !view.worldSourceLoaded) {
-      throw new Error(`${name} did not finish loading the selected worldwide PMTiles source.`);
+    if (!view.styleLoaded || view.renderedWorldFeatureCount <= 0) {
+      throw new Error(`${name} did not render features from the selected worldwide PMTiles shard.`);
     }
     if (
       typeof view.source?.url !== 'string' ||
