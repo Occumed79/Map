@@ -91,7 +91,13 @@ export async function createOccumedMap({
     hash: false,
     pixelRatio: resolveOccumedPixelRatio(),
     antialias: true,
-    fadeDuration: 0,
+    // The virtual gateway can take longer than a CDN-hosted static tile source.
+    // Keep already-requested parent tiles alive while child tiles arrive so zoom
+    // gestures never expose blank map frames.
+    cancelPendingTileRequestsWhileZooming: false,
+    maxTileCacheZoomLevels: 8,
+    refreshExpiredTiles: false,
+    fadeDuration: 300,
     renderWorldCopies: false,
     attributionControl: false,
     cooperativeGestures: false,
