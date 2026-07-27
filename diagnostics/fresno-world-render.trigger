@@ -1,2 +1,2 @@
-requested_at=2026-07-27T15:48:00Z
-purpose=final_high_dpi_browser_validation_scoped_to_selected_worldwide_pmtiles_source
+requested_at=2026-07-27T15:56:00Z
+purpose=final_high_dpi_browser_validation_with_rendered_world_pmtiles_feature_evidence
