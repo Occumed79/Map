@@ -79,10 +79,30 @@ try {
       { nextCenter: center, nextZoom: zoom }
     );
 
+    // A synchronous jump can briefly report the previous viewport's tile state
+    // before MapLibre has rendered the new transform. Require two new animation
+    // frames before observing source readiness.
+    await page.evaluate(() => new Promise((resolve) => {
+      const map = globalThis.__OCCUMED_MAP__;
+      let frames = 0;
+      const nextFrame = () => {
+        map.triggerRepaint();
+        requestAnimationFrame(() => {
+          frames += 1;
+          if (frames >= 2) resolve();
+          else nextFrame();
+        });
+      };
+      nextFrame();
+    }));
+
     await page.waitForFunction(
       () => {
         const map = globalThis.__OCCUMED_MAP__;
-        return map?.isStyleLoaded() && map.areTilesLoaded();
+        if (!map?.isStyleLoaded() || !map.areTilesLoaded()) return false;
+        return map
+          .queryRenderedFeatures()
+          .some((feature) => feature.source === 'occumed-open');
       },
       null,
       { timeout: 90_000 }
