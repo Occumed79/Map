@@ -52,7 +52,7 @@ export async function installWorldPmtilesRouter(map, {
   try {
     manifest = await fetchManifest(manifestUrl);
   } catch (error) {
-    console.warn('Occu-Med worldwide PMTiles routing is unavailable; retaining the global fallback.', error);
+    console.warn('Occu-Med worldwide PMTiles routing is unavailable; retaining the local empty vector source.', error);
     return null;
   }
 
@@ -74,6 +74,7 @@ export async function installWorldPmtilesRouter(map, {
     if (!nextUrl || nextUrl === activeUrl) return;
 
     source.setUrl(nextUrl);
+    map.triggerRepaint();
     activeUrl = nextUrl;
     activeRegion = region?.id || null;
     map.fire('occumedworldsourcechange', {
