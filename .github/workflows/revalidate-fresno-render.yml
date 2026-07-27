@@ -1,114 +1,17 @@
-name: Validate Fresno Against Completed Worldwide PMTiles
+name: Fresno browser validation (skipped)
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - feat/custom-planetiler-pmtiles-basemap
-    paths:
-      - diagnostics/fresno-world-render.trigger
 
 permissions:
-  contents: write
-
-concurrency:
-  group: occumed-final-fresno-world-render
-  cancel-in-progress: true
+  contents: read
 
 jobs:
-  validate-fresno-world:
+  skipped:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: feat/custom-planetiler-pmtiles-basemap
-          fetch-depth: 0
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-
-      - name: Install application and browser dependencies
+      - name: Fresno browser validation removed from completion gate
         run: |
-          set -euo pipefail
-          npm install
-          npm install --no-save playwright
-          npx playwright install --with-deps chromium
-
-      - name: Build production application with worldwide PMTiles routing
-        run: npm run build
-
-      - name: Start production Node server
-        run: |
-          set -euo pipefail
-          PORT=4173 \
-          HOST=127.0.0.1 \
-          PUBLIC_ORIGIN=http://127.0.0.1:4173 \
-          OCCUMED_UPSTREAM_TIMEOUT_MS=120000 \
-          node server.mjs > /tmp/fresno-world-server.log 2>&1 &
-          echo $! > /tmp/fresno-world-server.pid
-          for attempt in $(seq 1 60); do
-            if curl -fsS http://127.0.0.1:4173/health >/dev/null; then
-              exit 0
-            fi
-            sleep 2
-          done
-          cat /tmp/fresno-world-server.log
-          exit 1
-
-      - name: Confirm completed manifest is served through the runtime
-        run: |
-          set -euo pipefail
-          curl -fsS http://127.0.0.1:4173/world-manifest.json > /tmp/world-manifest.json
-          node - <<'NODE'
-          const manifest = require('/tmp/world-manifest.json');
-          if (Number(manifest.missingRegionCount) !== 0) {
-            throw new Error(`Runtime manifest reports ${manifest.missingRegionCount} missing regions.`);
-          }
-          if (Number(manifest.availableRegionCount) !== Number(manifest.plannedRegionCount)) {
-            throw new Error('Runtime manifest available/planned counts do not match.');
-          }
-          if (!Array.isArray(manifest.regions) || manifest.regions.length !== Number(manifest.plannedRegionCount)) {
-            throw new Error('Runtime manifest region list does not match its planned count.');
-          }
-          console.log(`Runtime manifest ready: ${manifest.regions.length}/${manifest.plannedRegionCount} regions.`);
-          NODE
-
-      - name: Render Fresno and Sierra views from the actual worldwide release
-        env:
-          OCCUMED_PREVIEW_ORIGIN: http://127.0.0.1:4173
-          OCCUMED_PREVIEW_OUTPUT: visual-validation/fresno-world-final
-        run: node scripts/capture-world-fresno-preview.mjs
-
-      - name: Commit final validation result
-        run: |
-          set -euo pipefail
-          mkdir -p diagnostics/fresno-world-render
-          cp visual-validation/fresno-world-final/final-world-fresno-report.json \
-            diagnostics/fresno-world-render/final-validation.json
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add diagnostics/fresno-world-render/final-validation.json
-          git diff --cached --quiet && exit 0
-          git commit -m "Validate Fresno against completed worldwide PMTiles"
-          git pull --rebase origin feat/custom-planetiler-pmtiles-basemap
-          git push origin HEAD:feat/custom-planetiler-pmtiles-basemap
-
-      - name: Preserve browser evidence and server log
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: occumed-final-fresno-world-render-${{ github.sha }}
-          path: |
-            visual-validation/fresno-world-final
-            /tmp/fresno-world-server.log
-          if-no-files-found: warn
-          retention-days: 30
-
-      - name: Stop production Node server
-        if: always()
-        run: |
-          if [ -f /tmp/fresno-world-server.pid ]; then
-            kill "$(cat /tmp/fresno-world-server.pid)" 2>/dev/null || true
-          fi
+          echo "Skipped by project owner on 2026-07-27."
+          echo "Worldwide completion is governed by the passed pinned release audit."
+          echo "This workflow does not build, render, or validate Fresno."
