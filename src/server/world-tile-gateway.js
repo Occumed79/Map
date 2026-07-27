@@ -188,7 +188,7 @@ export class WorldTileGateway {
     if (zoom <= surfaceMaxZoom) {
       const payload = await this.readArchiveTile(surfaceAsset, zoom, x, y);
       return payload
-        ? mergeVectorTiles([payload], { includeLayers: ['land', 'landcover', 'depth'] })
+        ? mergeVectorTiles([payload], { includeLayers: ['land'] })
         : EMPTY_MVT;
     }
 
@@ -219,8 +219,6 @@ export class WorldTileGateway {
     } = manifest.virtualTiles;
     if (zoom <= overviewMaxZoom) {
       const payload = await this.readArchiveTile(overviewAsset, zoom, x, y);
-      // The physical surface is resolved independently and must remain visible
-      // even when an optional overview enrichment tile is absent.
       return payload || EMPTY_MVT;
     }
 
