@@ -1,4 +1,4 @@
-name: Complete Worldwide Occu-Med PMTiles One by One
+name: Build Enfield PMTiles Only
 
 on:
   workflow_dispatch:
@@ -12,157 +12,29 @@ permissions:
   contents: write
 
 concurrency:
-  group: occumed-world-pmtiles-completion
+  group: occumed-world-pmtiles-single-shard
   cancel-in-progress: true
 
 env:
   WORLD_RELEASE_TAG: occumed-world-v1
-  OCCUMED_DIRECT_PBF_LIMIT_BYTES: 400000000
-  OCCUMED_TARGET_SPLIT_PBF_BYTES: 250000000
-  OCCUMED_MAX_SPLIT_CELLS: 24
 
 jobs:
-  plan:
+  enfield:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-    outputs:
-      matrix: ${{ steps.plan.outputs.matrix }}
-      missing_count: ${{ steps.plan.outputs.missing_count }}
-      published_count: ${{ steps.plan.outputs.published_count }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-      - name: Generate exact missing-only matrix
-        id: plan
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          mkdir -p world-plan
-          node scripts/plan-world-shards.mjs --scope all > world-plan/raw-world-plan.json
-          release_id="$(gh api "/repos/${GITHUB_REPOSITORY}/releases/tags/${WORLD_RELEASE_TAG}" --jq '.id')"
-          gh api --paginate --slurp \
-            "/repos/${GITHUB_REPOSITORY}/releases/${release_id}/assets?per_page=100" \
-            > world-plan/release-asset-pages.json
-          node <<'NODE'
-          const fs = require('node:fs');
-          const input = JSON.parse(fs.readFileSync('world-plan/raw-world-plan.json', 'utf8'));
-          const pages = JSON.parse(fs.readFileSync('world-plan/release-asset-pages.json', 'utf8'));
-          const releaseAssets = pages.flatMap((page) => page || []);
-          const byName = new Map(releaseAssets.map((asset) => [asset.name, asset]));
-          const excluded = new Set([
-            'alps', 'britain-and-ireland', 'dach', 'great-britain', 'sea',
-            'south-africa-and-lesotho', 'us', 'us-midwest', 'us-northeast',
-            'us-pacific', 'us-south', 'us-west'
-          ]);
-          const include = input.include.filter((region) =>
-            !excluded.has(region.id) && !excluded.has(region.source_region_id)
-          );
-          const missing = include.filter((region) => {
-            const asset = byName.get(region.asset_name);
-            return !asset || Number(asset.size || 0) <= 0;
-          });
-          const fullPlan = {
-            ...input,
-            generatedAt: new Date().toISOString(),
-            canonical: true,
-            excludedSourceRegions: [...excluded],
-            include
-          };
-          fs.writeFileSync('world-plan/world-plan.json', `${JSON.stringify(fullPlan, null, 2)}\n`);
-          const matrixInclude = missing.length ? missing : [{
-            skip: true,
-            id: 'nothing-missing',
-            slug: 'nothing-missing',
-            name: 'Nothing missing',
-            continent: 'none',
-            pbf_url: 'https://example.invalid/nothing.osm.pbf',
-            extract_bbox: '',
-            west: 0,
-            south: 0,
-            east: 0,
-            north: 0,
-            asset_name: 'nothing-missing.pmtiles'
-          }];
-          fs.appendFileSync(process.env.GITHUB_OUTPUT, `matrix=${JSON.stringify({ include: matrixInclude })}\n`);
-          fs.appendFileSync(process.env.GITHUB_OUTPUT, `missing_count=${missing.length}\n`);
-          fs.appendFileSync(process.env.GITHUB_OUTPUT, `published_count=${include.length - missing.length}\n`);
-          console.log(`Canonical plan: ${include.length}`);
-          console.log(`Already published: ${include.length - missing.length}`);
-          console.log(`Missing and scheduled sequentially: ${missing.length}`);
-          console.log(missing.map((region, index) => `${index + 1}. ${region.id} -> ${region.asset_name}`).join('\n'));
-          NODE
-      - uses: actions/upload-artifact@v4
-        with:
-          name: occumed-sequential-world-plan-${{ github.sha }}
-          path: world-plan/world-plan.json
-          if-no-files-found: error
-          retention-days: 7
-
-  build-one-by-one:
-    needs: plan
-    runs-on: ubuntu-latest
-    timeout-minutes: 360
-    strategy:
-      fail-fast: false
-      max-parallel: 1
-      matrix: ${{ fromJson(needs.plan.outputs.matrix) }}
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/build-pmtiles-shard-final
-        if: matrix.skip != true
         with:
-          id: ${{ matrix.id }}
-          slug: ${{ matrix.slug }}
-          name: ${{ matrix.name }}
-          continent: ${{ matrix.continent }}
-          pbf-url: ${{ matrix.pbf_url }}
-          extract-bbox: ${{ matrix.extract_bbox }}
-          west: ${{ matrix.west }}
-          south: ${{ matrix.south }}
-          east: ${{ matrix.east }}
-          north: ${{ matrix.north }}
-          asset-name: ${{ matrix.asset_name }}
+          id: enfield
+          slug: enfield
+          name: Enfield
+          continent: europe
+          pbf-url: https://download.geofabrik.de/europe/united-kingdom/england/greater-london-latest.osm.pbf
+          extract-bbox: -0.185433,51.60542,-0.008839,51.69193
+          west: -0.185433
+          south: 51.60542
+          east: -0.008839
+          north: 51.69193
+          asset-name: occumed-enfield.pmtiles
           release-tag: ${{ env.WORLD_RELEASE_TAG }}
-
-  publish-manifest:
-    if: always() && needs.plan.result == 'success'
-    needs:
-      - plan
-      - build-one-by-one
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-      - uses: actions/download-artifact@v4
-        with:
-          name: occumed-sequential-world-plan-${{ github.sha }}
-          path: world-plan
-      - name: Build manifest from release inventory
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          mkdir -p world-release
-          release_id="$(gh api "/repos/${GITHUB_REPOSITORY}/releases/tags/${WORLD_RELEASE_TAG}" --jq '.id')"
-          gh api --paginate --slurp \
-            "/repos/${GITHUB_REPOSITORY}/releases/${release_id}/assets?per_page=100" \
-            > world-release/asset-pages.json
-          node scripts/build-world-manifest.mjs \
-            --plan world-plan/world-plan.json \
-            --asset-pages world-release/asset-pages.json \
-            --output world-release/world-manifest.json
-          missing="$(node -e "const m=require('./world-release/world-manifest.json'); process.stdout.write(String(m.missingRegions?.length ?? -1))")"
-          echo "missing_shards=$missing"
-          test "$missing" = "0"
-      - name: Publish final worldwide manifest
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh release upload "$WORLD_RELEASE_TAG" world-release/world-manifest.json \
-            --repo "$GITHUB_REPOSITORY" --clobber
