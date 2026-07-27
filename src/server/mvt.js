@@ -16,6 +16,21 @@ function stableProperties(properties) {
     .map((key) => [key, properties[key]]);
 }
 
+export function normalizeMvtProperties(properties) {
+  return Object.fromEntries(
+    Object.entries(properties || {}).map(([key, value]) => {
+      if (typeof value === 'bigint') return [key, value.toString()];
+      if (
+        typeof value === 'number' &&
+        (!Number.isFinite(value) || (Number.isInteger(value) && !Number.isSafeInteger(value)))
+      ) {
+        return [key, String(value)];
+      }
+      return [key, value];
+    })
+  );
+}
+
 function geometrySignature(feature) {
   const hash = createHash('sha1');
   hash.update(`${feature.type}|${JSON.stringify(stableProperties(feature.properties))}|`);
@@ -105,7 +120,7 @@ class CombinedFeature {
   constructor(feature) {
     this.id = feature.id;
     this.type = feature.type;
-    this.properties = feature.properties;
+    this.properties = normalizeMvtProperties(feature.properties);
     this.extent = feature.extent;
     this.geometry = feature.loadGeometry();
   }
@@ -192,7 +207,7 @@ class TransformedFeature {
   constructor(feature, scale, offsetX, offsetY, extent) {
     this.id = feature.id;
     this.type = feature.type;
-    this.properties = feature.properties;
+    this.properties = normalizeMvtProperties(feature.properties);
     this.extent = extent;
     this.source = feature;
     this.scale = scale;

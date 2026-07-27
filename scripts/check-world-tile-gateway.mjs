@@ -4,6 +4,7 @@ import vtpbf from 'vt-pbf';
 import {
   inspectVectorTile,
   mergeVectorTiles,
+  normalizeMvtProperties,
   overscaleVectorLayer
 } from '../src/server/mvt.js';
 import {
@@ -109,6 +110,17 @@ const physicalSurface = inspectVectorTile(
 expect(physicalSurface.land?.featureCount === 1, 'The physical surface lost its land layer.');
 expect(physicalSurface.landcover?.featureCount === 1, 'The physical surface lost generalized landcover.');
 expect(physicalSurface.depth?.featureCount === 1, 'The physical surface lost its bathymetry layer.');
+const normalizedProperties = normalizeMvtProperties({
+  safeRank: 4,
+  unsafePositive: 2 ** 65,
+  unsafeNegative: -(2 ** 65)
+});
+expect(normalizedProperties.safeRank === 4, 'A safe numeric style attribute changed type.');
+expect(
+  normalizedProperties.unsafePositive === String(2 ** 65) &&
+    normalizedProperties.unsafeNegative === String(-(2 ** 65)),
+  'Unsupported MVT property integers were not preserved as strings.'
+);
 
 const regions = [
   {
