@@ -1,2 +1,2 @@
-requested_at=2026-07-27T00:34:00Z
-purpose=hourly_watch_refresh_missing_only_repair_manifest_and_failures
+requested_at=2026-07-27T01:15:00Z
+purpose=user_requested_update_missing_only_repair_manifest_and_failures
