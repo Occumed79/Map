@@ -21,7 +21,7 @@ env:
 jobs:
   verify-release:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
         with:
@@ -32,7 +32,7 @@ jobs:
         with:
           node-version: 24
 
-      - name: Verify pinned inventory, manifest, sizes, and PMTiles headers
+      - name: Verify pinned inventory, manifest, and release metadata
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -63,9 +63,11 @@ jobs:
           const plannedNames = regions.map((region) => region.asset_name);
           const plannedNameSet = new Set(plannedNames);
           const plannedIds = regions.map((region) => region.id);
+          const plannedIdSet = new Set(plannedIds);
+
           if (!regions.length) throw new Error('Pinned plan is empty.');
           if (plannedNameSet.size !== plannedNames.length) throw new Error('Pinned plan has duplicate asset names.');
-          if (new Set(plannedIds).size !== plannedIds.length) throw new Error('Pinned plan has duplicate IDs.');
+          if (plannedIdSet.size !== plannedIds.length) throw new Error('Pinned plan has duplicate IDs.');
 
           const missing = regions.filter((region) => !byName.has(region.asset_name));
           const zeroSize = regions.filter((region) => Number(byName.get(region.asset_name)?.size || 0) <= 0);
@@ -74,8 +76,28 @@ jobs:
           const manifestRegions = manifest.regions || [];
           const manifestNames = manifestRegions.map((region) => region.asset);
           const manifestNameSet = new Set(manifestNames);
+          const manifestIds = manifestRegions.map((region) => region.id);
+          const manifestIdSet = new Set(manifestIds);
+          const manifestById = new Map(manifestRegions.map((region) => [region.id, region]));
+
           const absentFromManifest = plannedNames.filter((name) => !manifestNameSet.has(name));
           const unexpectedInManifest = manifestNames.filter((name) => !plannedNameSet.has(name));
+          const missingManifestIds = plannedIds.filter((id) => !manifestIdSet.has(id));
+          const unexpectedManifestIds = manifestIds.filter((id) => !plannedIdSet.has(id));
+
+          const regionMismatches = [];
+          for (const planned of regions) {
+            const published = manifestById.get(planned.id);
+            if (!published) continue;
+            if (published.asset !== planned.asset_name) {
+              regionMismatches.push(`${planned.id}: asset=${published.asset}, expected=${planned.asset_name}`);
+            }
+            const expectedBounds = [planned.west, planned.south, planned.east, planned.north];
+            const actualBounds = published.bounds || [];
+            if (JSON.stringify(actualBounds) !== JSON.stringify(expectedBounds)) {
+              regionMismatches.push(`${planned.id}: bounds=${JSON.stringify(actualBounds)}, expected=${JSON.stringify(expectedBounds)}`);
+            }
+          }
 
           const structuralErrors = [];
           if (Number(manifest.missingRegionCount) !== 0) structuralErrors.push(`manifest missingRegionCount=${manifest.missingRegionCount}`);
@@ -83,83 +105,47 @@ jobs:
           if (Number(manifest.availableRegionCount) !== regions.length) structuralErrors.push(`manifest availableRegionCount=${manifest.availableRegionCount}, expected=${regions.length}`);
           if (manifestRegions.length !== regions.length) structuralErrors.push(`manifest regions=${manifestRegions.length}, expected=${regions.length}`);
           if (manifestNameSet.size !== manifestNames.length) structuralErrors.push('manifest contains duplicate assets');
+          if (manifestIdSet.size !== manifestIds.length) structuralErrors.push('manifest contains duplicate IDs');
+          if ((manifest.missingRegions || []).length !== 0) structuralErrors.push('manifest missingRegions is not empty');
 
-          const releaseBase = `https://github.com/${process.env.GITHUB_REPOSITORY}/releases/download/${process.env.WORLD_RELEASE_TAG}`;
+          const summary = {
+            capturedAt: new Date().toISOString(),
+            releaseTag: process.env.WORLD_RELEASE_TAG,
+            pinnedCanonicalShardCount: regions.length,
+            releaseAssetCount: assets.length,
+            publishedCanonicalCount: regions.length - missing.length,
+            missingCanonicalCount: missing.length,
+            zeroSizeCanonicalCount: zeroSize.length,
+            extraPmtilesAssetCount: extras.length,
+            manifestMissingRegionCount: Number(manifest.missingRegionCount),
+            manifestPlannedRegionCount: Number(manifest.plannedRegionCount),
+            manifestAvailableRegionCount: Number(manifest.availableRegionCount),
+            manifestRegionCount: manifestRegions.length,
+            absentFromManifest,
+            unexpectedInManifest,
+            missingManifestIds,
+            unexpectedManifestIds,
+            regionMismatches,
+            structuralErrors,
+            missing: missing.map((region) => ({ id: region.id, asset: region.asset_name })),
+            zeroSize: zeroSize.map((region) => ({ id: region.id, asset: region.asset_name })),
+            extraPmtilesAssets: extras.map((asset) => ({ name: asset.name, size: Number(asset.size || 0) })),
+            binaryRangeAndRenderValidation: 'deferred_to_fresno_runtime_browser_validation',
+            passed:
+              missing.length === 0 &&
+              zeroSize.length === 0 &&
+              extras.length === 0 &&
+              absentFromManifest.length === 0 &&
+              unexpectedInManifest.length === 0 &&
+              missingManifestIds.length === 0 &&
+              unexpectedManifestIds.length === 0 &&
+              regionMismatches.length === 0 &&
+              structuralErrors.length === 0
+          };
 
-          async function verifyHeader(region) {
-            const asset = byName.get(region.asset_name);
-            if (!asset || Number(asset.size || 0) <= 0) {
-              return { id: region.id, asset: region.asset_name, healthy: false, reason: 'missing_or_zero_size' };
-            }
-            let lastError = '';
-            for (let attempt = 1; attempt <= 5; attempt += 1) {
-              try {
-                const response = await fetch(`${releaseBase}/${encodeURIComponent(region.asset_name)}`, {
-                  redirect: 'follow',
-                  headers: { Range: 'bytes=0-126' }
-                });
-                const bytes = new Uint8Array(await response.arrayBuffer());
-                const magic = new TextDecoder().decode(bytes.slice(0, 7));
-                if (response.status === 206 && bytes.length === 127 && magic === 'PMTiles') {
-                  return { id: region.id, asset: region.asset_name, healthy: true, size: Number(asset.size) };
-                }
-                lastError = `status=${response.status}, bytes=${bytes.length}, magic=${magic}`;
-              } catch (error) {
-                lastError = String(error?.message || error);
-              }
-              await new Promise((resolve) => setTimeout(resolve, attempt * 1500));
-            }
-            return { id: region.id, asset: region.asset_name, healthy: false, reason: lastError };
-          }
-
-          async function mapConcurrent(items, concurrency, fn) {
-            const results = new Array(items.length);
-            let cursor = 0;
-            async function worker() {
-              while (true) {
-                const index = cursor++;
-                if (index >= items.length) return;
-                results[index] = await fn(items[index]);
-              }
-            }
-            await Promise.all(Array.from({ length: Math.min(concurrency, items.length || 1) }, () => worker()));
-            return results;
-          }
-
-          (async () => {
-            const verification = await mapConcurrent(regions, 24, verifyHeader);
-            const invalidHeaders = verification.filter((item) => !item.healthy);
-            const summary = {
-              capturedAt: new Date().toISOString(),
-              releaseTag: process.env.WORLD_RELEASE_TAG,
-              pinnedCanonicalShardCount: regions.length,
-              releaseAssetCount: assets.length,
-              publishedCanonicalCount: regions.length - missing.length,
-              missingCanonicalCount: missing.length,
-              zeroSizeCanonicalCount: zeroSize.length,
-              healthyHeaderCount: verification.length - invalidHeaders.length,
-              invalidHeaderCount: invalidHeaders.length,
-              extraPmtilesAssetCount: extras.length,
-              manifestMissingRegionCount: Number(manifest.missingRegionCount),
-              manifestPlannedRegionCount: Number(manifest.plannedRegionCount),
-              manifestAvailableRegionCount: Number(manifest.availableRegionCount),
-              manifestRegionCount: manifestRegions.length,
-              absentFromManifest,
-              unexpectedInManifest,
-              structuralErrors,
-              missing: missing.map((region) => ({ id: region.id, asset: region.asset_name })),
-              zeroSize: zeroSize.map((region) => ({ id: region.id, asset: region.asset_name })),
-              invalidHeaders,
-              extraPmtilesAssets: extras.map((asset) => ({ name: asset.name, size: Number(asset.size || 0) })),
-              passed: missing.length === 0 && zeroSize.length === 0 && invalidHeaders.length === 0 && absentFromManifest.length === 0 && unexpectedInManifest.length === 0 && structuralErrors.length === 0
-            };
-            fs.writeFileSync('final-world-audit/final-verification.json', `${JSON.stringify(summary, null, 2)}\n`);
-            console.log(JSON.stringify(summary, null, 2));
-            if (!summary.passed) process.exit(1);
-          })().catch((error) => {
-            console.error(error);
-            process.exit(1);
-          });
+          fs.writeFileSync('final-world-audit/final-verification.json', `${JSON.stringify(summary, null, 2)}\n`);
+          console.log(JSON.stringify(summary, null, 2));
+          if (!summary.passed) process.exit(1);
           NODE
 
       - name: Commit authoritative final audit
