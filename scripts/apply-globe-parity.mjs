@@ -49,37 +49,6 @@ runtime.sky = {
 delete runtime.fog;
 delete runtime.light;
 
-const relief = runtime.layers.find((layer) => layer.id === 'occumed-shaded-relief');
-if (!relief) throw new Error('The generated low-zoom relief layer is missing.');
-
-relief.paint = {
-  'raster-opacity': [
-    'interpolate',
-    ['exponential', 1.2],
-    ['zoom'],
-    0,
-    0.68,
-    2.5,
-    0.62,
-    4.5,
-    0.38,
-    6.5,
-    0
-  ],
-  'raster-saturation': 0.62,
-  'raster-contrast': 0.12,
-  'raster-brightness-min': 0.02,
-  'raster-brightness-max': 0.94,
-  'raster-resampling': 'linear',
-  'raster-fade-duration': 0
-};
-relief.metadata = {
-  ...(relief.metadata || {}),
-  'occumed:purpose': 'low-zoom landcover and bathymetry texture',
-  'occumed:visual-reference': 'exported Occu-Med Terrain globe',
-  'occumed:orientation-neutral': true
-};
-
 const hillshade = runtime.layers.find((layer) => layer.id === 'occumed-hillshade');
 if (!hillshade) throw new Error('The generated open hillshade layer is missing.');
 
@@ -111,4 +80,4 @@ runtime.metadata = {
 };
 
 await fs.writeFile(runtimePath, `${JSON.stringify(runtime, null, 2)}\n`);
-console.log('Applied refined Occu-Med globe rim, vivid low-zoom relief, and stable hillshade.');
+console.log('Applied the refined Occu-Med globe rim and stable hillshade.');

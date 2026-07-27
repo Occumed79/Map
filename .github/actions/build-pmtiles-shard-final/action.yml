@@ -34,16 +34,21 @@ runs:
           > "$assets_json"
         row="$(
           jq -r --arg name "$ASSET_NAME" \
-            '[.[][] | select(.name == $name)][0] | if . == null then "" else [.id, .name, .size] | @tsv end' \
+            '[.[][] | select(.name == $name)][0] | if . == null then "" else [.id, .name, .size, .state] | @tsv end' \
             "$assets_json"
         )"
         rm -f "$assets_json"
         asset_id="$(printf '%s' "$row" | cut -f1)"
         asset_size="$(printf '%s' "$row" | cut -f3)"
-        if [ -n "$asset_id" ] && [ -n "$asset_size" ] && [ "$asset_size" -gt 0 ]; then
+        asset_state="$(printf '%s' "$row" | cut -f4)"
+        if [ -n "$asset_id" ] && [ -n "$asset_size" ] && [ "$asset_size" -gt 0 ] && [ "$asset_state" = uploaded ]; then
           echo 'exists=true' >> "$GITHUB_OUTPUT"
           echo "Reusing published asset: $ASSET_NAME ($asset_size bytes)"
         else
+          if [ -n "$asset_id" ]; then
+            echo "Deleting incomplete release asset before rebuild: $ASSET_NAME ($asset_state, $asset_size bytes)"
+            gh api --method DELETE "/repos/${GITHUB_REPOSITORY}/releases/assets/${asset_id}"
+          fi
           echo 'exists=false' >> "$GITHUB_OUTPUT"
         fi
 
@@ -113,14 +118,14 @@ runs:
         set -euo pipefail
         release_id="$(gh api "/repos/${GITHUB_REPOSITORY}/releases/tags/${RELEASE_TAG}" --jq '.id')"
 
-        lookup_size() {
+        lookup_asset() {
           local assets_json
           assets_json="$(mktemp)"
           gh api --paginate --slurp \
             "/repos/${GITHUB_REPOSITORY}/releases/${release_id}/assets?per_page=100" \
             > "$assets_json"
           jq -r --arg name "$ASSET_NAME" \
-            '[.[][] | select(.name == $name)][0] | if . == null then "" else (.size | tostring) end' \
+            '[.[][] | select(.name == $name)][0] | if . == null then "" else [(.size | tostring), .state] | @tsv end' \
             "$assets_json"
           rm -f "$assets_json"
         }
@@ -132,17 +137,21 @@ runs:
             uploaded=true
             break
           fi
-          size="$(lookup_size)"
-          if [ -n "$size" ] && [ "$size" -gt 0 ]; then
-            echo "Asset appeared during upload: $ASSET_NAME ($size bytes)"
+          row="$(lookup_asset)"
+          size="$(printf '%s' "$row" | cut -f1)"
+          state="$(printf '%s' "$row" | cut -f2)"
+          if [ -n "$size" ] && [ "$size" -gt 0 ] && [ "$state" = uploaded ]; then
+            echo "Asset appeared during upload: $ASSET_NAME ($size bytes, $state)"
             uploaded=true
             break
           fi
           sleep $((attempt * 10))
         done
 
-        size="$(lookup_size)"
-        if [ "$uploaded" != true ] || [ -z "$size" ] || [ "$size" -le 0 ]; then
+        row="$(lookup_asset)"
+        size="$(printf '%s' "$row" | cut -f1)"
+        state="$(printf '%s' "$row" | cut -f2)"
+        if [ "$uploaded" != true ] || [ -z "$size" ] || [ "$size" -le 0 ] || [ "$state" != uploaded ]; then
           echo "Release asset is still missing after upload: $ASSET_NAME" >&2
           exit 1
         fi

@@ -80,15 +80,32 @@ jobs:
           const pages = JSON.parse(fs.readFileSync('release-cleanup/release-asset-pages-before.json', 'utf8'));
           const releaseAssets = pages.flatMap((page) => page || []);
           const canonicalNames = new Set(plan.include.map((region) => region.asset_name));
-          const retained = releaseAssets.filter((asset) => canonicalNames.has(asset.name) && asset.size > 0);
+          const protectedNames = new Set([
+            ...canonicalNames,
+            'world-manifest.json',
+            'world-virtual-manifest.json',
+            'occumed-world-overview.pmtiles',
+            'occumed-world-surface.pmtiles'
+          ]);
+          const retained = releaseAssets.filter((asset) =>
+            protectedNames.has(asset.name) &&
+            asset.state === 'uploaded' &&
+            asset.size > 0
+          );
           const deleteTargets = releaseAssets
-            .filter((asset) => !canonicalNames.has(asset.name) || asset.size <= 0)
+            .filter((asset) =>
+              !protectedNames.has(asset.name) ||
+              asset.state !== 'uploaded' ||
+              asset.size <= 0
+            )
             .map((asset) => ({
               id: asset.id,
               name: asset.name,
               sizeBytes: asset.size,
-              reason: canonicalNames.has(asset.name)
-                ? 'zero_size_canonical_pmtiles'
+              reason: protectedNames.has(asset.name) && asset.state !== 'uploaded'
+                ? 'incomplete_world_tileset_asset'
+                : protectedNames.has(asset.name)
+                  ? 'zero_size_world_tileset_asset'
                 : (asset.name.endsWith('.pmtiles') ? 'noncanonical_pmtiles' : 'noncanonical_release_asset')
             }));
           fs.writeFileSync(
@@ -159,7 +176,18 @@ jobs:
           const pages = JSON.parse(fs.readFileSync('release-cleanup/release-asset-pages-after.json', 'utf8'));
           const assets = pages.flatMap((page) => page || []);
           const canonicalNames = new Set(plan.include.map((region) => region.asset_name));
-          const unexpected = assets.filter((asset) => !canonicalNames.has(asset.name) || asset.size <= 0);
+          const protectedNames = new Set([
+            ...canonicalNames,
+            'world-manifest.json',
+            'world-virtual-manifest.json',
+            'occumed-world-overview.pmtiles',
+            'occumed-world-surface.pmtiles'
+          ]);
+          const unexpected = assets.filter((asset) =>
+            !protectedNames.has(asset.name) ||
+            asset.state !== 'uploaded' ||
+            asset.size <= 0
+          );
           if (unexpected.length) {
             throw new Error(`Cleanup left ${unexpected.length} unexpected or zero-byte release assets.`);
           }

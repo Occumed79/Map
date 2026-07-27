@@ -47,7 +47,7 @@ jobs:
             > final-world-audit/release-pages.json
           gh release download "$WORLD_RELEASE_TAG" \
             --repo "$GITHUB_REPOSITORY" \
-            --pattern world-manifest.json \
+            --pattern world-virtual-manifest.json \
             --dir final-world-audit/release
 
           node <<'NODE'
@@ -55,13 +55,17 @@ jobs:
 
           const plan = JSON.parse(fs.readFileSync('final-world-audit/pinned-plan.json', 'utf8'));
           const pages = JSON.parse(fs.readFileSync('final-world-audit/release-pages.json', 'utf8'));
-          const manifest = JSON.parse(fs.readFileSync('final-world-audit/release/world-manifest.json', 'utf8'));
+          const manifest = JSON.parse(fs.readFileSync('final-world-audit/release/world-virtual-manifest.json', 'utf8'));
           const regions = plan.include || [];
           const assets = pages.flatMap((page) => page || []);
           const byName = new Map(assets.map((asset) => [asset.name, asset]));
 
           const plannedNames = regions.map((region) => region.asset_name);
           const plannedNameSet = new Set(plannedNames);
+          const virtualAssetNames = new Set([
+            'occumed-world-overview.pmtiles',
+            'occumed-world-surface.pmtiles'
+          ]);
           const plannedIds = regions.map((region) => region.id);
           const plannedIdSet = new Set(plannedIds);
 
@@ -71,7 +75,12 @@ jobs:
 
           const missing = regions.filter((region) => !byName.has(region.asset_name));
           const zeroSize = regions.filter((region) => Number(byName.get(region.asset_name)?.size || 0) <= 0);
-          const extras = assets.filter((asset) => asset.name.endsWith('.pmtiles') && !plannedNameSet.has(asset.name));
+          const incomplete = regions.filter((region) => byName.get(region.asset_name)?.state !== 'uploaded');
+          const extras = assets.filter((asset) =>
+            asset.name.endsWith('.pmtiles') &&
+            !plannedNameSet.has(asset.name) &&
+            !virtualAssetNames.has(asset.name)
+          );
 
           const manifestRegions = manifest.regions || [];
           const manifestNames = manifestRegions.map((region) => region.asset);
@@ -107,6 +116,10 @@ jobs:
           if (manifestNameSet.size !== manifestNames.length) structuralErrors.push('manifest contains duplicate assets');
           if (manifestIdSet.size !== manifestIds.length) structuralErrors.push('manifest contains duplicate IDs');
           if ((manifest.missingRegions || []).length !== 0) structuralErrors.push('manifest missingRegions is not empty');
+          if (Number(manifest.version) !== 2) structuralErrors.push(`manifest version=${manifest.version}, expected=2`);
+          if (manifest.virtualTiles?.endpoint !== '/tiles/{z}/{x}/{y}.pbf') structuralErrors.push('manifest virtual tile endpoint is missing or incorrect');
+          if (manifest.virtualTiles?.overviewAsset !== 'occumed-world-overview.pmtiles') structuralErrors.push('manifest overview asset is missing or incorrect');
+          if (manifest.virtualTiles?.surfaceAsset !== 'occumed-world-surface.pmtiles') structuralErrors.push('manifest surface asset is missing or incorrect');
 
           const summary = {
             capturedAt: new Date().toISOString(),
@@ -116,6 +129,7 @@ jobs:
             publishedCanonicalCount: regions.length - missing.length,
             missingCanonicalCount: missing.length,
             zeroSizeCanonicalCount: zeroSize.length,
+            incompleteCanonicalCount: incomplete.length,
             extraPmtilesAssetCount: extras.length,
             manifestMissingRegionCount: Number(manifest.missingRegionCount),
             manifestPlannedRegionCount: Number(manifest.plannedRegionCount),
@@ -129,11 +143,13 @@ jobs:
             structuralErrors,
             missing: missing.map((region) => ({ id: region.id, asset: region.asset_name })),
             zeroSize: zeroSize.map((region) => ({ id: region.id, asset: region.asset_name })),
+            incomplete: incomplete.map((region) => ({ id: region.id, asset: region.asset_name })),
             extraPmtilesAssets: extras.map((asset) => ({ name: asset.name, size: Number(asset.size || 0) })),
             binaryRangeAndRenderValidation: 'deferred_to_fresno_runtime_browser_validation',
             passed:
               missing.length === 0 &&
               zeroSize.length === 0 &&
+              incomplete.length === 0 &&
               extras.length === 0 &&
               absentFromManifest.length === 0 &&
               unexpectedInManifest.length === 0 &&

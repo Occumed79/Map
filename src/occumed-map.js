@@ -1,20 +1,10 @@
 import * as maplibregl from 'maplibre-gl';
-import { Protocol } from 'pmtiles';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { installWorldPmtilesRouter } from './world-pmtiles-router.js';
 
 export const DEFAULT_STYLE_URL = '/style/occumed-open.json';
 
 const MIN_RENDER_PIXEL_RATIO = 2;
 const MAX_RENDER_PIXEL_RATIO = 3;
-const pmtilesProtocol = new Protocol();
-let protocolRegistered = false;
-
-function ensurePmtilesProtocol() {
-  if (protocolRegistered) return;
-  maplibregl.addProtocol('pmtiles', pmtilesProtocol.tile);
-  protocolRegistered = true;
-}
 
 export function resolveOccumedPixelRatio() {
   const deviceRatio = Number(globalThis.devicePixelRatio);
@@ -34,11 +24,13 @@ function resolvePublicOrigin(style, styleUrl) {
     if (typeof source?.url === 'string') {
       source.url = source.url.replaceAll('__OCCUMED_PUBLIC_ORIGIN__', styleOrigin);
     }
-  }
-
-  if (typeof resolved.metadata?.['occumed:world-manifest-url'] === 'string') {
-    resolved.metadata['occumed:world-manifest-url'] = resolved.metadata['occumed:world-manifest-url']
-      .replaceAll('__OCCUMED_PUBLIC_ORIGIN__', styleOrigin);
+    if (Array.isArray(source?.tiles)) {
+      source.tiles = source.tiles.map((tileUrl) =>
+        typeof tileUrl === 'string'
+          ? tileUrl.replaceAll('__OCCUMED_PUBLIC_ORIGIN__', styleOrigin)
+          : tileUrl
+      );
+    }
   }
 
   return resolved;
@@ -75,9 +67,9 @@ export async function createOccumedMap({
   container,
   styleUrl = DEFAULT_STYLE_URL,
   center = [-98.5, 25],
-  zoom = 1.82,
+  zoom = 2.43,
   minZoom = 0,
-  maxZoom = 19,
+  maxZoom = 16,
   controls = true,
   scaleControl = false,
   mapOptions = {}
@@ -86,10 +78,7 @@ export async function createOccumedMap({
     throw new TypeError('createOccumedMap requires a map container.');
   }
 
-  ensurePmtilesProtocol();
   const style = await loadOccumedStyle(styleUrl);
-  const fallbackUrl = style.sources?.['occumed-open']?.url;
-  const manifestUrl = style.metadata?.['occumed:world-manifest-url'];
   const map = new maplibregl.Map({
     container,
     style,
@@ -102,15 +91,11 @@ export async function createOccumedMap({
     hash: false,
     pixelRatio: resolveOccumedPixelRatio(),
     antialias: true,
+    fadeDuration: 0,
     renderWorldCopies: false,
     attributionControl: false,
     cooperativeGestures: false,
     ...mapOptions
-  });
-
-  map.occumedWorldRouter = installWorldPmtilesRouter(map, {
-    manifestUrl,
-    fallbackUrl
   });
 
   if (controls) {

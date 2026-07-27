@@ -8,16 +8,15 @@ const outputDir = path.join(root, 'public/style');
 const outputPath = path.join(outputDir, 'occumed-open.json');
 const reportPath = path.join(outputDir, 'compatibility-report.json');
 
-const tilejsonUrl = process.env.OCCUMED_TILEJSON_URL || 'https://tiles.openfreemap.org/planet';
+const vectorTilesUrl =
+  process.env.OCCUMED_VECTOR_TILES_URL ||
+  '__OCCUMED_PUBLIC_ORIGIN__/tiles/{z}/{x}/{y}.pbf';
 const glyphsUrl =
   process.env.OCCUMED_GLYPHS_URL ||
   'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf';
 const terrainUrl =
   process.env.OCCUMED_TERRAIN_URL ||
   'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png';
-const reliefUrl =
-  process.env.OCCUMED_RELIEF_URL ||
-  'https://tiles.openfreemap.org/natural_earth/ne2sr/{z}/{x}/{y}.png';
 
 const original = JSON.parse(await fs.readFile(sourcePath, 'utf8'));
 
@@ -237,6 +236,8 @@ function resolveTargetSourceLayer(layer) {
       return symbol ? 'water_name' : 'waterway';
     case 'water':
       return symbol ? 'water_name' : 'water';
+    case 'depth':
+      return 'depth';
     case 'structure':
       return symbol ? 'transportation_name' : 'transportation';
     case 'aeroway':
@@ -295,28 +296,27 @@ function rewriteLayer(layer, targetSourceLayer) {
 const convertedLayers = [];
 const skippedLayers = [];
 const sourceLayerMappings = {};
-let reliefInserted = false;
 let hillshadeInserted = false;
 
 for (const layer of original.layers || []) {
   if (!layer.source) {
     convertedLayers.push(clone(layer));
 
-    if (!reliefInserted && layer.type === 'background') {
+    if (layer.type === 'background' && !convertedLayers.some((candidate) => candidate.id === 'occumed-land-surface')) {
       convertedLayers.push({
-        id: 'occumed-shaded-relief',
-        type: 'raster',
-        source: 'occumed-relief',
-        maxzoom: 7,
+        id: 'occumed-land-surface',
+        type: 'fill',
+        source: 'occumed-open',
+        'source-layer': 'land',
         paint: {
-          'raster-opacity': ['interpolate', ['linear'], ['zoom'], 0, 0.38, 3, 0.28, 7, 0],
-          'raster-saturation': 0.08,
-          'raster-contrast': 0.06,
-          'raster-resampling': 'linear'
+          'fill-color': '#E0E0D1',
+          'fill-opacity': 1,
+          'fill-antialias': true
         },
-        metadata: { 'occumed:purpose': 'low-zoom terrain definition' }
+        metadata: {
+          'occumed:purpose': 'continuous worldwide land surface from the virtual tileset'
+        }
       });
-      reliefInserted = true;
     }
     continue;
   }
@@ -347,7 +347,7 @@ for (const layer of original.layers || []) {
     continue;
   }
 
-  if (sourceLayer === 'contour' || sourceLayer === 'depth') {
+  if (sourceLayer === 'contour') {
     skippedLayers.push({ id: layer.id, reason: `no equivalent ${sourceLayer} layer in the public vector schema` });
     continue;
   }
@@ -376,9 +376,11 @@ const runtimeStyle = {
   sources: {
     'occumed-open': {
       type: 'vector',
-      url: tilejsonUrl,
+      tiles: [vectorTilesUrl],
+      minzoom: 0,
+      maxzoom: 16,
       attribution:
-        'OpenFreeMap © OpenMapTiles · Data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+        '<a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors</a>'
     },
     'occumed-terrain': {
       type: 'raster-dem',
@@ -388,14 +390,6 @@ const runtimeStyle = {
       minzoom: 0,
       maxzoom: 15,
       attribution: 'Elevation data via the AWS Terrain Tiles public dataset'
-    },
-    'occumed-relief': {
-      type: 'raster',
-      tiles: [reliefUrl],
-      tileSize: 256,
-      minzoom: 0,
-      maxzoom: 6,
-      attribution: 'Natural Earth shaded relief via OpenFreeMap'
     }
   },
   sprite: '__OCCUMED_PUBLIC_ORIGIN__/sprites/occumed',
@@ -415,10 +409,10 @@ const report = {
     Object.entries(sourceLayerMappings).map(([key, values]) => [key, [...values].sort()])
   ),
   endpoints: {
-    vectorTiles: tilejsonUrl,
+    vectorTiles: vectorTilesUrl,
     glyphs: glyphsUrl,
     terrain: terrainUrl,
-    relief: reliefUrl,
+    relief: null,
     sprite: '__OCCUMED_PUBLIC_ORIGIN__/sprites/occumed'
   }
 };

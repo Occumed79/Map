@@ -31,12 +31,13 @@ if (runtime.metadata?.['occumed:glyph-rendering'] !== 'local-maplibre') {
 }
 if (!String(runtime.sprite).includes('/sprites/occumed')) fail('Local Occu-Med sprite endpoint is missing.');
 
-const allowedSources = new Set(['occumed-open', 'occumed-terrain', 'occumed-relief']);
+const allowedSources = new Set(['occumed-open', 'occumed-terrain']);
 for (const sourceName of Object.keys(runtime.sources || {})) {
   if (!allowedSources.has(sourceName)) fail(`Unexpected shared source: ${sourceName}`);
 }
 
 const requiredSourceLayers = new Set([
+  'land',
   'landcover',
   'landuse',
   'waterway',
@@ -61,7 +62,8 @@ if (runtime.layers.length < minimumLayerCount) {
   fail(`Runtime style is too incomplete: ${runtime.layers.length} layers; expected at least ${minimumLayerCount}.`);
 }
 if (!runtime.layers.some((layer) => layer.id === 'occumed-hillshade')) fail('Open hillshade layer is missing.');
-if (!runtime.layers.some((layer) => layer.id === 'occumed-shaded-relief')) fail('Low-zoom relief layer is missing.');
+if (!runtime.layers.some((layer) => layer.id === 'occumed-land-surface')) fail('Worldwide land surface layer is missing.');
+if (runtime.layers.some((layer) => layer.type === 'raster')) fail('The runtime contains a second raster basemap.');
 if (runtime.layers.filter((layer) => layer.type === 'symbol').length < 20) {
   fail('Too few label and symbol layers survived the conversion.');
 }

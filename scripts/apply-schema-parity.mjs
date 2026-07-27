@@ -99,7 +99,21 @@ for (const layer of runtime.layers || []) {
 
 const placeFilters = {
   'continent-label': ['==', get('class'), 'continent'],
-  'country-label': ['==', get('class'), 'country'],
+  'country-label': [
+    'all',
+    ['==', get('class'), 'country'],
+    [
+      'step',
+      ['zoom'],
+      ['<=', ['coalesce', get('rank'), 99], 3],
+      2.5,
+      ['<=', ['coalesce', get('rank'), 99], 4],
+      3.5,
+      ['<=', ['coalesce', get('rank'), 99], 5],
+      5,
+      true
+    ]
+  ],
   'state-label': ['match', get('class'), ['state', 'province'], true, false],
   'settlement-major-label': ['match', get('class'), ['city', 'town'], true, false],
   'settlement-minor-label': ['match', get('class'), ['village', 'hamlet'], true, false],

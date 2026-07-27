@@ -40,38 +40,39 @@ function collectNonHexColors(value, colors = []) {
 }
 
 assert(runtime.projection?.type === 'globe', 'Photo-reference build must use globe projection.');
-assert(runtime.sky?.['sky-color'] === '#03070B', 'Photo-reference build must preserve dark outer space.');
+assert(runtime.sky?.['sky-color'] === '#181A1D', 'Photo-reference build must preserve the dark charcoal reference space.');
 assert(runtime.sky?.['horizon-color'] === '#F5FDFF', 'The luminous globe rim is missing.');
 assert(runtime.sky?.['fog-ground-blend'] === 0, 'Ground fog must remain disabled.');
 assert(runtime.sky?.['horizon-fog-blend'] === 0, 'Horizon fog must remain disabled.');
 assert(!runtime.light, 'Directional light must not be reintroduced.');
 assert(!runtime.fog, 'Mapbox fog must not be copied into the MapLibre runtime.');
 
-assert(layer('land')?.paint?.['background-color'] === '#E0E0D1', 'The exact exported land swatch changed.');
+assert(layer('land')?.paint?.['background-color'] === '#79BCEC', 'The supplied Studio ocean blue changed.');
+assert(layer('occumed-land-surface')?.paint?.['fill-color'] === '#E0E0D1', 'The supplied Studio land base changed.');
 assert(layer('water')?.paint?.['fill-color'] === '#79BCEC', 'The exact exported water swatch changed.');
 assert(layer('water-shadow')?.paint?.['fill-color'] === '#7293EE', 'The exact exported water-shadow swatch changed.');
-assert(layer('wetland')?.paint?.['fill-color'] === '#A4CAD6', 'The exact exported wetland swatch changed.');
+assert(layer('wetland')?.paint?.['fill-color'] === '#A5CAD6', 'The supplied Studio wetland swatch changed.');
 assert(layer('national-park')?.paint?.['fill-color'] === '#A5CC8E', 'The exact exported national-park swatch changed.');
 
 const landcover = layer('landcover');
 const landcoverColor = JSON.stringify(landcover?.paint?.['fill-color'] || []);
-for (const required of ['#83CC66CC', '#A3D48799', '#D1DD8899', '#B4DE9C99', '#EDF3F8', '#A0D382']) {
+for (const required of ['#83CC66CC', '#A3D48799', '#D1DD8899', '#B4DE9C99', '#EDF3F8', '#E0E0D1', '#A0D382']) {
   assert(landcoverColor.includes(required), `The exact exported landcover swatch ${required} is missing.`);
 }
 assert((landcover?.minzoom ?? 99) === 0, 'Landcover must be available at globe zoom.');
+assert(layer('continent-label')?.layout?.visibility === 'none', 'Noisy continent aliases returned to the globe limb.');
 assert(JSON.stringify(landcover?.paint?.['fill-opacity'] || []).includes('1'), 'Landcover swatches are being weakened by zoom opacity.');
 assert(layer('landuse')?.paint?.['fill-opacity'] === 1, 'Detailed landuse swatches are being weakened by extra opacity.');
 assert(layer('water')?.paint?.['fill-opacity'] === 1, 'Water must remain fully opaque.');
+assert(layer('water-depth')?.['source-layer'] === 'depth', 'The reference bathymetry layer is missing.');
+for (const required of ['#79BCEC59', '#5AACE759', '#3B9DE359']) {
+  assert(
+    JSON.stringify(layer('water-depth')?.paint?.['fill-color'] || []).includes(required),
+    `The exported bathymetry swatch ${required} is missing.`
+  );
+}
 
-const relief = layer('occumed-shaded-relief');
-assert(relief?.paint?.['raster-saturation'] === -1, 'The independent relief raster is recoloring the exported palette.');
-assert(relief?.paint?.['raster-contrast'] === 0.04, 'The neutral relief contrast changed.');
-assert(relief?.paint?.['raster-hue-rotate'] === 0, 'The independent relief raster is rotating exported hues.');
-assert(relief?.maxzoom === 7, 'Pixel-based relief must disappear before regional and city detail.');
-const reliefOpacity = relief?.paint?.['raster-opacity'] || [];
-assert(reliefOpacity.includes(0.12), 'The restrained neutral relief texture is missing.');
-assert(reliefOpacity.includes(7) && reliefOpacity.at(-1) === 0, 'Neutral relief does not fully disappear by zoom 7.');
-assert(!reliefOpacity.some((value) => typeof value === 'number' && value > 0.12 && value < 1), 'Relief opacity can distort the exported swatches.');
+assert(!runtime.layers.some((candidate) => candidate.type === 'raster'), 'A raster fallback basemap was reintroduced.');
 
 const hillshade = layer('occumed-hillshade');
 assert(hillshade?.minzoom === 1.5, 'Hillshade must begin early enough to shape the globe.');
@@ -114,11 +115,11 @@ assert(JSON.stringify(majorPlace?.layout?.['text-font'] || []).includes('Open Sa
 assert(layer('state-label')?.paint?.['text-opacity'] === 0.5, 'The exported muted state-label hierarchy was lost.');
 
 assert(runtime.metadata?.['occumed:exported-cartography-restored'] === true, 'Exported cartography restoration marker is missing.');
-assert(runtime.metadata?.['occumed:reference-color-system'] === 'exact-exported-swatches-v9', 'Exact exported swatch marker is missing.');
-assert(runtime.metadata?.['occumed:live-visual-qa-pass'] === 9, 'Exact swatch build pass marker is missing.');
+assert(runtime.metadata?.['occumed:reference-color-system'] === 'continuous-world-v10', 'Continuous-world color marker is missing.');
+assert(runtime.metadata?.['occumed:live-visual-qa-pass'] === 10, 'Continuous-world visual pass marker is missing.');
 assert(runtime.metadata?.['occumed:palette-format'] === 'fixed-hex-per-layer', 'Per-layer fixed-hex palette marker is missing.');
 assert(runtime.metadata?.['occumed:layer-specific-palette'] === true, 'Layer-specific palette protection is missing.');
-assert(runtime.metadata?.['occumed:colored-relief-disabled'] === true, 'Colored relief protection is missing.');
+assert(runtime.metadata?.['occumed:raster-relief-disabled'] === true, 'Raster relief protection is missing.');
 assert(runtime.metadata?.['occumed:high-dpi-vector-clarity'] === true, 'High-DPI clarity protection is missing.');
 
 for (const [sourceId, source] of Object.entries(runtime.sources || {})) {
@@ -130,4 +131,4 @@ assert(!/mapbox:\/\//i.test(runtime.sprite || ''), 'Runtime sprite must not use 
 assert(!/api\.mapbox\.com/i.test(runtime.glyphs || ''), 'Runtime glyphs must not use Mapbox.');
 assert(runtime.metadata?.['occumed:mapbox-runtime-dependency'] === false, 'No-Mapbox dependency marker is missing.');
 
-console.log(`Reference guard passed: exact exported greens/blues, high-DPI vector clarity, neutral terrain shading, and ${allColors.size} distinct colors.`);
+console.log(`Reference guard passed: supplied Studio land and water, high-DPI vector clarity, and ${allColors.size} distinct colors.`);

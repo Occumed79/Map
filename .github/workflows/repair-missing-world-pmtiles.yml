@@ -49,8 +49,20 @@ jobs:
           const plan = JSON.parse(fs.readFileSync('world-plan/world-plan.json', 'utf8'));
           const pages = JSON.parse(fs.readFileSync('world-plan/release-pages-before-cleanup.json', 'utf8'));
           const assets = pages.flatMap((page) => page || []);
-          const keep = new Set(['world-manifest.json', ...(plan.include || []).map((region) => region.asset_name)]);
-          const deletions = assets.filter((asset) => !keep.has(asset.name) || (asset.name !== 'world-manifest.json' && Number(asset.size || 0) <= 0));
+          const keep = new Set([
+            'world-manifest.json',
+            'world-virtual-manifest.json',
+            'occumed-world-overview.pmtiles',
+            'occumed-world-surface.pmtiles',
+            ...(plan.include || []).map((region) => region.asset_name)
+          ]);
+          const deletions = assets.filter((asset) =>
+            !keep.has(asset.name) ||
+            (
+              asset.name !== 'world-manifest.json' &&
+              (asset.state !== 'uploaded' || Number(asset.size || 0) <= 0)
+            )
+          );
           fs.writeFileSync('/tmp/delete-release-assets.tsv', deletions.map((asset) => `${asset.id}\t${asset.name}\t${asset.size || 0}`).join('\n') + (deletions.length ? '\n' : ''));
           console.log(`Pinned canonical shard count: ${plan.include.length}`);
           console.log(`Noncanonical or zero-byte assets to delete: ${deletions.length}`);
@@ -71,8 +83,11 @@ jobs:
           const plan = JSON.parse(fs.readFileSync('world-plan/world-plan.json', 'utf8'));
           const pages = JSON.parse(fs.readFileSync('world-plan/release-pages.json', 'utf8'));
           const assets = pages.flatMap((page) => page || []);
-          const published = new Map(assets.map((asset) => [asset.name, Number(asset.size || 0)]));
-          const missing = (plan.include || []).filter((region) => (published.get(region.asset_name) || 0) <= 0);
+          const published = new Map(assets.map((asset) => [asset.name, asset]));
+          const missing = (plan.include || []).filter((region) => {
+            const asset = published.get(region.asset_name);
+            return !asset || asset.state !== 'uploaded' || Number(asset.size || 0) <= 0;
+          });
           const matrixInclude = missing.length ? missing : [{
             skip: true,
             id: 'nothing-missing',
@@ -163,9 +178,9 @@ jobs:
             --assets world-release/assets.json \
             --repository "$GITHUB_REPOSITORY" \
             --tag "$WORLD_RELEASE_TAG" \
-            --output world-release/world-manifest.json
-          missing="$(node -e "const m=require('./world-release/world-manifest.json'); process.stdout.write(String(m.missingRegionCount))")"
+            --output world-release/world-virtual-manifest.json
+          missing="$(node -e "const m=require('./world-release/world-virtual-manifest.json'); process.stdout.write(String(m.missingRegionCount))")"
           echo "missing_shards=$missing"
           test "$missing" = "0"
-          gh release upload "$WORLD_RELEASE_TAG" world-release/world-manifest.json \
+          gh release upload "$WORLD_RELEASE_TAG" world-release/world-virtual-manifest.json \
             --repo "$GITHUB_REPOSITORY" --clobber

@@ -1,0 +1,356 @@
+name: Build Virtual Worldwide Tileset
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/build-virtual-world-tileset.yml
+      - package-lock.json
+      - package.json
+      - planetiler/**
+      - style.json
+      - scripts/build-runtime-style.mjs
+      - scripts/build-world-manifest.mjs
+      - scripts/build-world-overview.mjs
+      - scripts/build-world-surface.sh
+      - scripts/capture-world-fresno-preview.mjs
+      - scripts/prepare-world-bathymetry.mjs
+      - scripts/prepare-world-landcover.mjs
+      - scripts/check-live-world-tiles.mjs
+      - scripts/lock-exact-exported-swatches.mjs
+      - scripts/lock-reference-atmosphere.mjs
+      - scripts/pack-mbtiles.py
+      - scripts/plan-world-shards-final.mjs
+      - scripts/reference-studio-swatches.mjs
+      - src/occumed-map.js
+      - src/server/**
+      - src/styles.css
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/build-virtual-world-tileset.yml
+      - package-lock.json
+      - package.json
+      - planetiler/**
+      - style.json
+      - scripts/build-runtime-style.mjs
+      - scripts/build-world-manifest.mjs
+      - scripts/build-world-overview.mjs
+      - scripts/build-world-surface.sh
+      - scripts/capture-world-fresno-preview.mjs
+      - scripts/prepare-world-bathymetry.mjs
+      - scripts/prepare-world-landcover.mjs
+      - scripts/check-live-world-tiles.mjs
+      - scripts/lock-exact-exported-swatches.mjs
+      - scripts/lock-reference-atmosphere.mjs
+      - scripts/pack-mbtiles.py
+      - scripts/plan-world-shards-final.mjs
+      - scripts/reference-studio-swatches.mjs
+      - src/occumed-map.js
+      - src/server/**
+      - src/styles.css
+
+permissions:
+  contents: write
+
+concurrency:
+  group: occumed-virtual-worldwide-tileset-${{ github.event_name }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  WORLD_RELEASE_TAG: occumed-world-v1
+  OVERVIEW_ASSET: occumed-world-overview.pmtiles
+  SURFACE_ASSET: occumed-world-surface.pmtiles
+  TIPPECANOE_VERSION: "2.79.0"
+  PMTILES_VERSION: "v1.31.2"
+
+jobs:
+  plan-storage:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      matrix: ${{ steps.missing.outputs.matrix }}
+      missing_count: ${{ steps.missing.outputs.missing_count }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Resolve missing canonical storage shards
+        id: missing
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p virtual-world/preflight
+          node scripts/plan-world-shards-final.mjs \
+            > virtual-world/preflight/world-plan.json
+          release_id="$(gh api "/repos/${GITHUB_REPOSITORY}/releases/tags/${WORLD_RELEASE_TAG}" --jq '.id')"
+          gh api --paginate --slurp \
+            "/repos/${GITHUB_REPOSITORY}/releases/${release_id}/assets?per_page=100" \
+            > virtual-world/preflight/release-pages.json
+
+          node <<'NODE'
+          const fs = require('node:fs');
+          const plan = JSON.parse(fs.readFileSync('virtual-world/preflight/world-plan.json', 'utf8'));
+          const pages = JSON.parse(fs.readFileSync('virtual-world/preflight/release-pages.json', 'utf8'));
+          const assets = pages.flatMap((page) => page || []);
+          const byName = new Map(assets.map((asset) => [asset.name, asset]));
+          const missing = plan.include.filter((region) => {
+            const asset = byName.get(region.asset_name);
+            return !asset || asset.state !== 'uploaded' || Number(asset.size || 0) <= 0;
+          });
+          const include = missing.length ? missing : [{
+            skip: true,
+            id: 'nothing-missing',
+            slug: 'nothing-missing',
+            name: 'Nothing missing',
+            continent: 'none',
+            pbf_url: 'https://example.invalid/nothing.osm.pbf',
+            extract_bbox: '',
+            west: 0,
+            south: 0,
+            east: 0,
+            north: 0,
+            asset_name: 'nothing-missing.pmtiles'
+          }];
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `matrix=${JSON.stringify({ include })}\n`);
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `missing_count=${missing.length}\n`);
+          console.log(`Canonical storage: ${plan.include.length - missing.length}/${plan.include.length}; repairing ${missing.length}.`);
+          for (const region of missing) console.log(`Missing: ${region.id} -> ${region.asset_name}`);
+          NODE
+
+  repair-missing:
+    if: github.event_name != 'pull_request'
+    needs: plan-storage
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix: ${{ fromJson(needs.plan-storage.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/build-pmtiles-shard-final
+        if: matrix.skip != true
+        with:
+          id: ${{ matrix.id }}
+          slug: ${{ matrix.slug }}
+          name: ${{ matrix.name }}
+          continent: ${{ matrix.continent }}
+          pbf-url: ${{ matrix.pbf_url }}
+          extract-bbox: ${{ matrix.extract_bbox }}
+          west: ${{ matrix.west }}
+          south: ${{ matrix.south }}
+          east: ${{ matrix.east }}
+          north: ${{ matrix.north }}
+          asset-name: ${{ matrix.asset_name }}
+          release-tag: ${{ env.WORLD_RELEASE_TAG }}
+
+  build:
+    if: github.event_name != 'pull_request'
+    needs:
+      - plan-storage
+      - repair-missing
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.24.x"
+
+      - name: Install pinned PMTiles converter
+        run: |
+          set -euo pipefail
+          go install "github.com/protomaps/go-pmtiles@${PMTILES_VERSION}"
+          "$(go env GOPATH)/bin/go-pmtiles" version
+
+      - name: Build consolidated zoom 0-5 overview
+        run: |
+          set -euo pipefail
+          mkdir -p virtual-world
+          node scripts/build-world-overview.mjs \
+            --manifest "https://github.com/${GITHUB_REPOSITORY}/releases/download/${WORLD_RELEASE_TAG}/world-manifest.json" \
+            --release-base "https://github.com/${GITHUB_REPOSITORY}/releases/download/${WORLD_RELEASE_TAG}" \
+            --output virtual-world/overview-tiles \
+            --maxzoom 5 \
+            --concurrency 24
+          python3 scripts/pack-mbtiles.py \
+            --tiles virtual-world/overview-tiles \
+            --metadata virtual-world/overview-tiles/metadata.json \
+            --output virtual-world/overview.mbtiles
+          "$(go env GOPATH)/bin/go-pmtiles" convert \
+            virtual-world/overview.mbtiles \
+            "virtual-world/${OVERVIEW_ASSET}"
+
+      - name: Build worldwide physical surface
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential libsqlite3-dev zlib1g-dev
+          bash scripts/build-world-surface.sh "virtual-world/${SURFACE_ASSET}"
+
+      - name: Validate virtual archives
+        run: |
+          set -euo pipefail
+          for asset in "$OVERVIEW_ASSET" "$SURFACE_ASSET"; do
+            test -s "virtual-world/$asset"
+            test "$(head -c 7 "virtual-world/$asset")" = "PMTiles"
+            "$(go env GOPATH)/bin/go-pmtiles" show "virtual-world/$asset" --header-json
+          done
+
+      - name: Publish virtual storage archives
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh release upload "$WORLD_RELEASE_TAG" \
+            "virtual-world/${OVERVIEW_ASSET}" \
+            "virtual-world/${SURFACE_ASSET}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --clobber
+
+      - name: Publish server-only routing manifest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p virtual-world/manifest
+          node scripts/plan-world-shards-final.mjs > virtual-world/manifest/world-plan.json
+          release_id="$(gh api "/repos/${GITHUB_REPOSITORY}/releases/tags/${WORLD_RELEASE_TAG}" --jq '.id')"
+          gh api --paginate --slurp \
+            "/repos/${GITHUB_REPOSITORY}/releases/${release_id}/assets?per_page=100" \
+            > virtual-world/manifest/release-pages.json
+          node scripts/build-world-manifest.mjs \
+            --plan virtual-world/manifest/world-plan.json \
+            --asset-pages virtual-world/manifest/release-pages.json \
+            --repository "$GITHUB_REPOSITORY" \
+            --tag "$WORLD_RELEASE_TAG" \
+            --overview-asset "$OVERVIEW_ASSET" \
+            --surface-asset "$SURFACE_ASSET" \
+            --output virtual-world/manifest/world-virtual-manifest.json
+          gh release upload "$WORLD_RELEASE_TAG" \
+            virtual-world/manifest/world-virtual-manifest.json \
+            --repo "$GITHUB_REPOSITORY" \
+            --clobber
+
+      - name: Smoke-test worldwide gateway coverage
+        run: |
+          set -euo pipefail
+          node scripts/check-live-world-tiles.mjs \
+            --manifest "https://github.com/${GITHUB_REPOSITORY}/releases/download/${WORLD_RELEASE_TAG}/world-virtual-manifest.json" \
+            --release-base "https://github.com/${GITHUB_REPOSITORY}/releases/download/${WORLD_RELEASE_TAG}"
+
+      - name: Install Chromium for visual validation
+        run: npx playwright install --with-deps chromium
+
+      - name: Render globe, regional, and street references
+        run: |
+          set -euo pipefail
+          npm run build
+          node server.mjs > virtual-world/browser-server.log 2>&1 &
+          server_pid="$!"
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          for attempt in {1..60}; do
+            if curl --fail --silent http://127.0.0.1:4173/healthz > /dev/null; then
+              break
+            fi
+            sleep 1
+          done
+          curl --fail http://127.0.0.1:4173/healthz
+          OCCUMED_PREVIEW_OUTPUT=virtual-world/visual-validation \
+            node scripts/capture-world-fresno-preview.mjs
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: occumed-virtual-world-${{ github.sha }}
+          path: |
+            virtual-world/occumed-world-overview.pmtiles
+            virtual-world/occumed-world-surface.pmtiles
+            virtual-world/manifest/world-virtual-manifest.json
+            virtual-world/visual-validation
+            virtual-world/browser-server.log
+          if-no-files-found: error
+          retention-days: 14
+
+  validate-pr:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build and validate the production map
+        run: npm run build
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Build candidate worldwide physical surface
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential libsqlite3-dev zlib1g-dev
+          bash scripts/build-world-surface.sh \
+            "dist/virtual-assets/${SURFACE_ASSET}"
+
+      - name: Render globe, regional, and street references
+        run: |
+          set -euo pipefail
+          mkdir -p virtual-world
+          OCCUMED_WORLD_SURFACE_URL="http://127.0.0.1:4173/virtual-assets/${SURFACE_ASSET}" \
+            node server.mjs > virtual-world/browser-server.log 2>&1 &
+          server_pid="$!"
+          cleanup() {
+            status="$?"
+            if [ "$status" -ne 0 ]; then
+              tail -200 virtual-world/browser-server.log || true
+            fi
+            kill "$server_pid" 2>/dev/null || true
+            exit "$status"
+          }
+          trap cleanup EXIT
+          for attempt in {1..60}; do
+            if curl --fail --silent http://127.0.0.1:4173/healthz > /dev/null; then
+              break
+            fi
+            sleep 1
+          done
+          curl --fail http://127.0.0.1:4173/healthz
+          OCCUMED_PREVIEW_OUTPUT=virtual-world/visual-validation \
+            node scripts/capture-world-fresno-preview.mjs
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: occumed-visual-validation-${{ github.sha }}
+          path: |
+            virtual-world/visual-validation
+            virtual-world/browser-server.log
+          if-no-files-found: error
+          retention-days: 14

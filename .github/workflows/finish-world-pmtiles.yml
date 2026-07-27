@@ -153,8 +153,10 @@ jobs:
           node scripts/build-world-manifest.mjs \
             --plan world-plan/world-plan.json \
             --asset-pages world-release/asset-pages.json \
-            --output world-release/world-manifest.json
-          missing="$(node -e "const m=require('./world-release/world-manifest.json'); process.stdout.write(String(m.missingRegions?.length ?? -1))")"
+            --repository "$GITHUB_REPOSITORY" \
+            --tag "$WORLD_RELEASE_TAG" \
+            --output world-release/world-virtual-manifest.json
+          missing="$(node -e "const m=require('./world-release/world-virtual-manifest.json'); process.stdout.write(String(m.missingRegions?.length ?? -1))")"
           echo "missing_shards=$missing"
           if [ "$missing" != "0" ]; then
             exit 1
@@ -163,5 +165,5 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release upload "$WORLD_RELEASE_TAG" world-release/world-manifest.json \
+          gh release upload "$WORLD_RELEASE_TAG" world-release/world-virtual-manifest.json \
             --repo "$GITHUB_REPOSITORY" --clobber
