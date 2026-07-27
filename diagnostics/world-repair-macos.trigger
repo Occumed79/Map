@@ -1,2 +1,2 @@
-requested_at=2026-07-26T22:22:30Z
-purpose=refresh_live_missing_only_repair_status_after_user_screenshot
+requested_at=2026-07-27T00:34:00Z
+purpose=hourly_watch_refresh_missing_only_repair_manifest_and_failures
