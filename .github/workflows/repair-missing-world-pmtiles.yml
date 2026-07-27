@@ -151,7 +151,7 @@ jobs:
   build-bucket-0:
     needs: plan-missing
     runs-on: ubuntu-latest
-    timeout-minutes: 240
+    timeout-minutes: 360
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.plan-missing.outputs.bucket0) }}
@@ -177,7 +177,7 @@ jobs:
   build-bucket-1:
     needs: plan-missing
     runs-on: ubuntu-latest
-    timeout-minutes: 240
+    timeout-minutes: 360
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.plan-missing.outputs.bucket1) }}
@@ -203,7 +203,7 @@ jobs:
   build-bucket-2:
     needs: plan-missing
     runs-on: ubuntu-latest
-    timeout-minutes: 240
+    timeout-minutes: 360
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.plan-missing.outputs.bucket2) }}
@@ -257,44 +257,25 @@ jobs:
           gh api --paginate --slurp \
             "/repos/${GITHUB_REPOSITORY}/releases/${release_id}/assets?per_page=100" \
             > world-release/asset-pages.json
-
-          node <<'NODE'
-          const fs = require('node:fs');
-          const pages = JSON.parse(fs.readFileSync('world-release/asset-pages.json', 'utf8'));
-          fs.writeFileSync(
-            'world-release/assets.json',
-            `${JSON.stringify({ assets: pages.flatMap((page) => page || []) }, null, 2)}\n`
-          );
-          NODE
-
           node scripts/build-world-manifest.mjs \
             --plan world-plan/world-plan.json \
-            --assets world-release/assets.json \
-            --repository "$GITHUB_REPOSITORY" \
-            --tag "$WORLD_RELEASE_TAG" \
-            --output world-release/occumed-world-manifest.json
-
-          gh release upload "$WORLD_RELEASE_TAG" \
-            world-release/occumed-world-manifest.json \
-            --repo "$GITHUB_REPOSITORY" \
-            --clobber
-
-          cat world-release/occumed-world-manifest.json
+            --asset-pages world-release/asset-pages.json \
+            --output world-release/world-manifest.json
 
       - name: Require zero missing worldwide shards
         run: |
-          test -s world-release/occumed-world-manifest.json
-          missing="$(node -p "require('./world-release/occumed-world-manifest.json').missingRegionCount")"
-          if [ "$missing" -ne 0 ]; then
-            echo "$missing worldwide PMTiles shards are still missing from the release." >&2
+          set -euo pipefail
+          missing="$(node -e "const m=require('./world-release/world-manifest.json'); process.stdout.write(String(m.missingRegions?.length ?? -1))")"
+          if [ "$missing" != "0" ]; then
+            echo "Worldwide PMTiles manifest still reports ${missing} missing shards." >&2
             exit 1
           fi
 
-      - name: Preserve final worldwide manifest
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: occumed-world-manifest-missing-repair-${{ github.sha }}
-          path: world-release/occumed-world-manifest.json
-          if-no-files-found: error
-          retention-days: 30
+      - name: Publish final worldwide manifest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload "$WORLD_RELEASE_TAG" \
+            world-release/world-manifest.json \
+            --repo "$GITHUB_REPOSITORY" \
+            --clobber
