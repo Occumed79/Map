@@ -13,6 +13,7 @@ const [
   gateway,
   server,
   workflow,
+  surfaceBuilder,
   readme
 ] = await Promise.all([
   fs.readFile(path.join(root, 'package.json'), 'utf8').then(JSON.parse),
@@ -24,6 +25,7 @@ const [
   fs.readFile(path.join(root, 'src/server/world-tile-gateway.js'), 'utf8'),
   fs.readFile(path.join(root, 'server.mjs'), 'utf8'),
   fs.readFile(path.join(root, '.github/workflows/build-virtual-world-tileset.yml'), 'utf8'),
+  fs.readFile(path.join(root, 'scripts/build-world-surface.sh'), 'utf8'),
   fs.readFile(path.join(root, 'README.md'), 'utf8')
 ]);
 
@@ -64,6 +66,9 @@ if (!gateway.includes('Promise.all')) fail('The gateway cannot resolve intersect
 if (!gateway.includes('mergeVectorTiles')) fail('The gateway cannot merge MVT layers at shard boundaries.');
 if (!gateway.includes('MemoryTileCache')) fail('Resolved worldwide tiles are not cached.');
 if (!gateway.includes('overscaleVectorLayer')) fail('The land surface cannot remain continuous above its generalized zoom.');
+if (!server.includes('OCCUMED_WORLD_SURFACE_URL')) {
+  fail('Read-only visual validation cannot serve its candidate physical surface.');
+}
 
 if (!overviewBuilder.includes('mergeVectorTiles(payloads)')) {
   fail('The low-zoom overview is not consolidated from the regional archives.');
@@ -80,6 +85,7 @@ if (manifestBuilder.includes('archiveProxyTemplate')) fail('The manifest still a
 for (const marker of [
   'Build consolidated zoom 0-5 overview',
   'Build worldwide physical surface',
+  'Build candidate worldwide physical surface',
   'prepare-world-bathymetry.mjs',
   'ne_10m_bathymetry_${band}.geojson',
   'Publish virtual storage archives',
@@ -87,7 +93,9 @@ for (const marker of [
   'occumed-world-overview.pmtiles',
   'occumed-world-surface.pmtiles'
 ]) {
-  if (!workflow.includes(marker)) fail(`Virtual tileset workflow is missing: ${marker}`);
+  if (!`${workflow}\n${surfaceBuilder}`.includes(marker)) {
+    fail(`Virtual tileset workflow is missing: ${marker}`);
+  }
 }
 
 for (const requiredLayer of [

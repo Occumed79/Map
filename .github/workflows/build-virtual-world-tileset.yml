@@ -14,6 +14,7 @@ on:
       - scripts/build-runtime-style.mjs
       - scripts/build-world-manifest.mjs
       - scripts/build-world-overview.mjs
+      - scripts/build-world-surface.sh
       - scripts/capture-world-fresno-preview.mjs
       - scripts/prepare-world-bathymetry.mjs
       - scripts/prepare-world-landcover.mjs
@@ -38,6 +39,7 @@ on:
       - scripts/build-runtime-style.mjs
       - scripts/build-world-manifest.mjs
       - scripts/build-world-overview.mjs
+      - scripts/build-world-surface.sh
       - scripts/capture-world-fresno-preview.mjs
       - scripts/prepare-world-bathymetry.mjs
       - scripts/prepare-world-landcover.mjs
@@ -203,46 +205,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
             build-essential libsqlite3-dev zlib1g-dev
-          git clone --depth 1 --branch "${TIPPECANOE_VERSION}" \
-            https://github.com/felt/tippecanoe.git virtual-world/tippecanoe
-          make -C virtual-world/tippecanoe -j2
-          curl --fail --location --retry 5 \
-            --output virtual-world/ne_10m_land.geojson \
-            https://raw.githubusercontent.com/nvkelso/natural-earth-vector/v5.1.2/geojson/ne_10m_land.geojson
-          curl --fail --location --retry 5 \
-            --output virtual-world/ne_10m_geography_regions_polys.geojson \
-            https://raw.githubusercontent.com/nvkelso/natural-earth-vector/v5.1.2/geojson/ne_10m_geography_regions_polys.geojson
-          curl --fail --location --retry 5 \
-            --output virtual-world/ne_10m_glaciated_areas.geojson \
-            https://raw.githubusercontent.com/nvkelso/natural-earth-vector/v5.1.2/geojson/ne_10m_glaciated_areas.geojson
-          mkdir -p virtual-world/bathymetry
-          for band in \
-            A_10000 B_9000 C_8000 D_7000 E_6000 F_5000 \
-            G_4000 H_3000 I_2000 J_1000 K_200 L_0; do
-            curl --fail --location --retry 5 \
-              --output "virtual-world/bathymetry/ne_10m_bathymetry_${band}.geojson" \
-              "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/v5.1.2/geojson/ne_10m_bathymetry_${band}.geojson"
-          done
-          node scripts/prepare-world-bathymetry.mjs \
-            --input-dir virtual-world/bathymetry \
-            --output virtual-world/ne_10m_bathymetry.geojson
-          node scripts/prepare-world-landcover.mjs \
-            --land virtual-world/ne_10m_land.geojson \
-            --geography virtual-world/ne_10m_geography_regions_polys.geojson \
-            --glaciers virtual-world/ne_10m_glaciated_areas.geojson \
-            --output virtual-world/ne_10m_landcover.geojson
-          virtual-world/tippecanoe/tippecanoe \
-            --force \
-            --minimum-zoom=0 \
-            --maximum-zoom=10 \
-            --preserve-input-order \
-            --no-feature-limit \
-            --no-tile-size-limit \
-            --no-simplification-of-shared-nodes \
-            -L land:virtual-world/ne_10m_land.geojson \
-            -L landcover:virtual-world/ne_10m_landcover.geojson \
-            -L depth:virtual-world/ne_10m_bathymetry.geojson \
-            --output="virtual-world/${SURFACE_ASSET}"
+          bash scripts/build-world-surface.sh "virtual-world/${SURFACE_ASSET}"
 
       - name: Validate virtual archives
         run: |
@@ -347,11 +310,21 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
+      - name: Build candidate worldwide physical surface
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential libsqlite3-dev zlib1g-dev
+          bash scripts/build-world-surface.sh \
+            "dist/virtual-assets/${SURFACE_ASSET}"
+
       - name: Render globe, regional, and street references
         run: |
           set -euo pipefail
           mkdir -p virtual-world
-          node server.mjs > virtual-world/browser-server.log 2>&1 &
+          OCCUMED_WORLD_SURFACE_URL="http://127.0.0.1:4173/virtual-assets/${SURFACE_ASSET}" \
+            node server.mjs > virtual-world/browser-server.log 2>&1 &
           server_pid="$!"
           cleanup() {
             status="$?"

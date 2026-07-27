@@ -13,6 +13,8 @@ const host = process.env.HOST?.trim() || '0.0.0.0';
 const worldReleaseRepository = process.env.OCCUMED_WORLD_RELEASE_REPOSITORY?.trim() || 'Occumed79/Map';
 const worldReleaseTag = process.env.OCCUMED_WORLD_RELEASE_TAG?.trim() || 'occumed-world-v1';
 const worldManifestAsset = 'world-virtual-manifest.json';
+const worldSurfaceAsset = 'occumed-world-surface.pmtiles';
+const worldSurfaceUrl = process.env.OCCUMED_WORLD_SURFACE_URL?.trim();
 
 const contentTypes = {
   '.css': 'text/css; charset=utf-8',
@@ -87,6 +89,7 @@ async function serveStyle(request, response) {
 }
 
 function releaseAssetUrl(assetName) {
+  if (assetName === worldSurfaceAsset && worldSurfaceUrl) return worldSurfaceUrl;
   return `https://github.com/${worldReleaseRepository}/releases/download/${encodeURIComponent(worldReleaseTag)}/${encodeURIComponent(assetName)}`;
 }
 
