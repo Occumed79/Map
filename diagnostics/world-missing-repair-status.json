@@ -1,17 +1,17 @@
 {
-  "capturedAt": "2026-07-26T22:25:17.855Z",
+  "capturedAt": "2026-07-27T00:36:51.677Z",
   "runId": "30222171809",
   "runUrl": "https://github.com/Occumed79/Map/actions/runs/30222171809",
   "headSha": "ff609ccf225ea66f93ca9b4cb94f240e022a8b65",
-  "status": "queued",
+  "status": "in_progress",
   "conclusion": null,
   "planStatus": "completed",
   "planConclusion": "success",
   "totalBuildJobsObserved": 414,
-  "successfulBuildJobs": 40,
-  "failedBuildJobs": 1,
-  "inProgressBuildJobs": 17,
-  "queuedBuildJobs": 356,
+  "successfulBuildJobs": 401,
+  "failedBuildJobs": 11,
+  "inProgressBuildJobs": 2,
+  "queuedBuildJobs": 0,
   "cancelledBuildJobs": 0,
   "skippedBuildJobs": 0,
   "manifestStatus": null,
@@ -20,6 +20,46 @@
     {
       "id": 89846643313,
       "name": "build-bucket-0 (far-eastern-fed-district, far-eastern-fed-district, Far Eastern Federal District,..."
+    },
+    {
+      "id": 89846643470,
+      "name": "build-bucket-2 (enfield, enfield, Enfield, europe, https://download.geofabrik.de/europe/united-ki..."
+    },
+    {
+      "id": 89846643490,
+      "name": "build-bucket-2 (finland--r1-c2, finland--r1-c2, Finland 1.2, europe, https://download.geofabrik.d..."
+    },
+    {
+      "id": 89846643558,
+      "name": "build-bucket-2 (north-eastern-zone, north-eastern-zone, North-Eastern Zone, asia, https://downloa..."
+    },
+    {
+      "id": 89846643571,
+      "name": "build-bucket-2 (northwestern-fed-district--r1-c1, northwestern-fed-district--r1-c1, Northwestern ..."
+    },
+    {
+      "id": 89846643655,
+      "name": "build-bucket-1 (finland--r1-c1, finland--r1-c1, Finland 1.1, europe, https://download.geofabrik.d..."
+    },
+    {
+      "id": 89846643680,
+      "name": "build-bucket-1 (congo-democratic-republic--r2-c3, congo-democratic-republic--r2-c3, Congo (Democr..."
+    },
+    {
+      "id": 89846643686,
+      "name": "build-bucket-1 (north-caucasus-fed-district, north-caucasus-fed-district, North Caucasus Federal ..."
+    },
+    {
+      "id": 89846643718,
+      "name": "build-bucket-1 (panama, panama, Panama, central-america, https://download.geofabrik.de/central-am..."
+    },
+    {
+      "id": 89846645283,
+      "name": "build-bucket-1 (siberian-fed-district--r1-c1, siberian-fed-district--r1-c1, Siberian Federal Dist..."
+    },
+    {
+      "id": 89846645539,
+      "name": "build-bucket-2 (ural-fed-district, ural-fed-district, Ural Federal District, ural-fed-district, h..."
     }
   ]
 }
