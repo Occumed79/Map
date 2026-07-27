@@ -243,9 +243,20 @@ export class WorldTileGateway {
           this.readSurfaceTile(manifest, zoom, x, y),
           this.readBasemapTile(manifest, zoom, x, y)
         ]);
+
+        // The physical surface is the single authoritative land mask. The
+        // overview and regional archives may also contain a layer named `land`;
+        // merging both copies can create duplicate rings and reused-ID joins.
+        // Retain basemap land only as an emergency fallback when the surface tile
+        // is genuinely empty.
+        const hasSurfaceLand = !Buffer.from(surface).equals(EMPTY_MVT);
+        const cartography = hasSurfaceLand
+          ? mergeVectorTiles([basemap], { excludeLayers: ['land'] })
+          : basemap;
+
         return this.tileCache.set(
           key,
-          mergeVectorTiles([surface, basemap], { coordinateScale: 128 })
+          mergeVectorTiles([surface, cartography], { coordinateScale: 128 })
         );
       })
       .finally(() => this.inflight.delete(key));
