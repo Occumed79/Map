@@ -28,6 +28,7 @@
   "devDependencies": {
     "@chrispahm/spritezero": "8.1.0",
     "@maplibre/maplibre-gl-style-spec": "24.8.1",
+    "playwright": "1.55.0",
     "vite": "8.1.5"
   }
 }

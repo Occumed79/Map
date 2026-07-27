@@ -73,6 +73,16 @@ const surface = tile({
         tags: {}
       }
     ]
+  },
+  depth: {
+    features: [
+      {
+        id: 2,
+        type: 3,
+        geometry: [[[0, 0], [4096, 0], [4096, 4096], [0, 4096], [0, 0]]],
+        tags: { min_depth: 7000 }
+      }
+    ]
   }
 });
 const overscaled = inspectVectorTile(overscaleVectorLayer(surface, {
@@ -83,6 +93,11 @@ const overscaled = inspectVectorTile(overscaleVectorLayer(surface, {
   targetY: 32768
 }));
 expect(overscaled.land?.featureCount === 1, 'The worldwide land surface cannot overscale through max zoom.');
+const physicalSurface = inspectVectorTile(
+  mergeVectorTiles([surface], { includeLayers: ['land', 'depth'] })
+);
+expect(physicalSurface.land?.featureCount === 1, 'The physical surface lost its land layer.');
+expect(physicalSurface.depth?.featureCount === 1, 'The physical surface lost its bathymetry layer.');
 
 const regions = [
   {
@@ -147,7 +162,15 @@ expect(server.includes("'world-virtual-manifest.json'"), 'The gateway does not u
 expect(!server.includes('/world-tiles/'), 'The server still exposes regional storage URLs to the browser.');
 expect(gateway.includes('mergeVectorTiles'), 'The server gateway cannot merge boundary tiles.');
 expect(gateway.includes('MemoryTileCache'), 'The server gateway does not cache resolved virtual tiles.');
+expect(
+  gateway.includes("includeLayers: ['land', 'depth']"),
+  'The gateway does not expose land and bathymetry as one continuous physical surface.'
+);
 expect(manifestBuilder.includes('version: 2'), 'The server-only routing manifest is not version 2.');
+expect(
+  manifestBuilder.includes("surfaceLayers: ['land', 'depth']"),
+  'The routing manifest does not declare the complete physical surface schema.'
+);
 expect(!manifestBuilder.includes('switchZoom'), 'The obsolete browser switch zoom remains in the manifest.');
 
 try {
@@ -163,4 +186,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('Virtual worldwide tileset validated: one permanent source, boundary merging, antimeridian routing, surface overscaling, caching, and no browser-visible shards.');
+console.log('Virtual worldwide tileset validated: one permanent source, boundary merging, antimeridian routing, land and bathymetry continuity, surface overscaling, caching, and no browser-visible shards.');

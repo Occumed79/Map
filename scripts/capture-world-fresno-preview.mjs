@@ -144,6 +144,9 @@ try {
     usMexico: await capture('us-mexico-border-z7', [-106.5, 31.8], 7),
     europe: await capture('europe-boundaries-z6', [12, 50], 6),
     antimeridian: await capture('russia-antimeridian-z5', [178, 60], 5),
+    southeastAsia: await capture('southeast-asia-z4', [115, 7], 4),
+    sydneyRegional: await capture('sydney-regional-z8', [150.6, -33.7], 8.39),
+    sydneyStreet: await capture('sydney-street-z10', [151.056, -33.787], 10.22),
     fresnoCity: await capture('fresno-city-z11', [-119.7871, 36.7378], 11),
     fresnoStreet: await capture('fresno-street-z14', [-119.7871, 36.7378], 14)
   };

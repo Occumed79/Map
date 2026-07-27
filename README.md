@@ -20,7 +20,7 @@ The goal is a close visual replica without a Mapbox token or Mapbox-hosted runti
 - MapLibre GL JS
 - one permanent MapLibre vector source at `/tiles/{z}/{x}/{y}.pbf`
 - a server-side virtual worldwide tileset backed by the 754 PMTiles storage archives
-- one consolidated zoom 0–5 overview and one generalized worldwide land surface
+- one consolidated zoom 0–5 overview and one generalized worldwide physical surface
 - open elevation data used only for hillshade, not as a second basemap
 - locally compiled sprites
 - browser-local glyph rendering
@@ -38,6 +38,8 @@ The Node tile gateway resolves each Z/X/Y request on the server:
 - zoom 6–16 is resolved against every storage shard intersecting the requested tile;
 - boundary tiles are decoded, deduplicated by stable feature ID, and re-encoded as one MVT;
 - the worldwide `land` layer is merged into the same response at every zoom;
+- nested Natural Earth bathymetry bands are served as the `depth` layer at globe
+  and regional zooms, then fade before detailed navigation zooms;
 - completed virtual tiles are held in a bounded in-memory cache and exposed with CDN cache headers.
 
 The PMTiles archives and routing manifest are storage implementation details. Their URLs never appear in the MapLibre style.
@@ -108,5 +110,5 @@ The build verifies:
 - browser-side PMTiles routing, `source.setUrl()`, fallback URLs, and OpenFreeMap are absent;
 - the routing index includes every intersecting shard, including antimeridian segments;
 - duplicate features are removed while boundary geometry is preserved;
-- the overview, land surface, regional merge, in-memory cache, and virtual release workflow remain wired;
+- the overview, physical surface, regional merge, in-memory cache, and virtual release workflow remain wired;
 - no application-specific overlay data is included.

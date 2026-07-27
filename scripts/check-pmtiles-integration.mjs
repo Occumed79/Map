@@ -71,12 +71,17 @@ if (!overviewBuilder.includes('mergeVectorTiles(payloads)')) {
 if (!manifestBuilder.includes('version: 2')) fail('The server-only routing manifest is not version 2.');
 if (!manifestBuilder.includes('overviewAsset')) fail('The manifest does not declare the consolidated overview archive.');
 if (!manifestBuilder.includes('surfaceAsset')) fail('The manifest does not declare the worldwide land surface.');
+if (!manifestBuilder.includes("surfaceLayers: ['land', 'depth']")) {
+  fail('The manifest does not declare continuous vector land and bathymetry.');
+}
 if (manifestBuilder.includes('switchZoom')) fail('The obsolete browser switch zoom remains in the manifest.');
 if (manifestBuilder.includes('archiveProxyTemplate')) fail('The manifest still advertises regional archives to browsers.');
 
 for (const marker of [
   'Build consolidated zoom 0-5 overview',
-  'Build worldwide land surface',
+  'Build worldwide physical surface',
+  'prepare-world-bathymetry.mjs',
+  'ne_10m_bathymetry_${band}.geojson',
   'Publish virtual storage archives',
   'Publish server-only routing manifest',
   'occumed-world-overview.pmtiles',

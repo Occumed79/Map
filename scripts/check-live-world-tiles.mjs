@@ -44,6 +44,9 @@ for (const check of checks) {
   if (!layers.land?.featureCount) {
     throw new Error(`${check.name}: continuous worldwide land layer is missing.`);
   }
+  if (check.name === 'globe' && !layers.depth?.featureCount) {
+    throw new Error(`${check.name}: continuous worldwide bathymetry layer is missing.`);
+  }
   if (
     check.requireDetail &&
     !Object.keys(layers).some((name) => name !== 'land')

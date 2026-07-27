@@ -1,6 +1,10 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import {
+  REFERENCE_STUDIO_EXPRESSION_SWATCHES,
+  REFERENCE_STUDIO_SWATCH_GROUPS
+} from './reference-studio-swatches.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const runtime = JSON.parse(
@@ -15,8 +19,8 @@ const expect = (condition, message) => {
 const color = (id, property) => layer(id)?.paint?.[property];
 
 const EXACT = {
-  ocean: '#4F9CD6',
-  land: '#8FB86B',
+  ocean: '#79BCEC',
+  land: '#E0E0D1',
   wood: '#83CC66CC',
   scrub: '#A3D48799',
   crop: '#D1DD8899',
@@ -25,14 +29,22 @@ const EXACT = {
   fallback: '#A0D382',
   park: '#A5CC8E',
   pitch: '#A9DB70',
-  wetland: '#A4CAD6',
+  wetland: '#A5CAD6',
   water: '#79BCEC',
-  waterShadow: '#7293EE'
+  waterShadow: '#7293EE',
+  depthShallow: '#79BCEC59',
+  depthMid: '#5AACE759',
+  depthDeep: '#3B9DE359'
 };
 
 expect(color('land', 'background-color') === EXACT.ocean, 'The permanent ocean background changed.');
 expect(color('occumed-land-surface', 'fill-color') === EXACT.land, 'The saturated land surface changed.');
 expect(color('water', 'fill-color') === EXACT.water, 'The inland-water blue changed.');
+const waterDepthColors = JSON.stringify(color('water-depth', 'fill-color') || []);
+for (const value of [EXACT.depthShallow, EXACT.depthMid, EXACT.depthDeep]) {
+  expect(waterDepthColors.includes(value), `The bathymetry swatch ${value} changed.`);
+}
+expect(layer('water-depth')?.['source-layer'] === 'depth', 'The continuous bathymetry source layer changed.');
 expect(color('waterway', 'line-color') === EXACT.water, 'The waterway blue changed.');
 expect(color('water-shadow', 'fill-color') === EXACT.waterShadow, 'The water-shadow blue changed.');
 expect(color('waterway-shadow', 'line-color') === EXACT.waterShadow, 'The waterway-shadow blue changed.');
@@ -41,6 +53,24 @@ expect(color('wetland-pattern', 'fill-color') === EXACT.wetland, 'The wetland-pa
 expect(color('national-park', 'fill-color') === EXACT.park, 'The national-park green changed.');
 expect(color('national-park_tint-band', 'line-color') === EXACT.park, 'The park tint-band green changed.');
 expect(color('pitch-outline', 'line-color') === EXACT.pitch, 'The pitch green changed.');
+
+for (const group of REFERENCE_STUDIO_SWATCH_GROUPS) {
+  for (const id of group.layers) {
+    expect(
+      color(id, group.property) === group.color,
+      `The supplied Studio swatch for ${id} changed from ${group.color}.`
+    );
+  }
+}
+
+for (const group of REFERENCE_STUDIO_EXPRESSION_SWATCHES) {
+  for (const id of group.layers) {
+    expect(
+      JSON.stringify(color(id, group.property) || []).includes(group.color),
+      `The ${id} expression lost the supplied Studio swatch ${group.color}.`
+    );
+  }
+}
 
 const landcoverColors = JSON.stringify(color('landcover', 'fill-color') || []);
 for (const [name, value] of Object.entries({
@@ -69,6 +99,11 @@ expect(runtime.metadata?.['occumed:reference-color-system'] === 'continuous-worl
 expect(runtime.metadata?.['occumed:raster-relief-disabled'] === true, 'Raster relief protection is missing.');
 expect(runtime.metadata?.['occumed:layer-specific-palette'] === true, 'Layer-specific palette protection is missing.');
 expect(runtime.metadata?.['occumed:high-dpi-vector-clarity'] === true, 'High-DPI clarity protection is missing.');
+expect(
+  runtime.metadata?.['occumed:palette-source'] ===
+    'supplied-mapbox-studio-screenshots-display-p3-to-srgb',
+  'The supplied screenshot palette provenance is missing.'
+);
 
 if (failures.length) {
   console.error('Continuous-world palette validation failed:');
@@ -76,4 +111,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('Continuous-world palette guarded: saturated green land, clear blue water, and no raster fallback.');
+console.log('Supplied Studio palette guarded by layer: exact sRGB colors, clear blue water, and no raster fallback.');

@@ -34,7 +34,7 @@ function expressionOutputs(expression) {
 if (runtime.projection?.type !== 'globe') fail('The reusable style must use globe projection.');
 if (runtime.fog) fail('Mapbox fog must be translated instead of shipped to MapLibre unchanged.');
 if (!runtime.sky) fail('The MapLibre sky/atmosphere configuration is missing.');
-if (runtime.sky?.['sky-color'] !== '#03070B') fail('The fixed dark-space hex changed.');
+if (runtime.sky?.['sky-color'] !== '#181A1D') fail('The fixed reference-space hex changed.');
 if (runtime.sky?.['horizon-color'] !== '#F5FDFF') fail('The atmospheric horizon hex changed.');
 if (runtime.sky?.['fog-color'] !== '#B8E6FF') fail('The cool outer-atmosphere hex changed.');
 if (!runtime.sky?.['atmosphere-blend']) fail('The globe atmosphere blend is missing.');
@@ -61,8 +61,8 @@ if (horizonOutputs.at(-1) !== 0) {
 if (runtime.layers.some((candidate) => candidate.type === 'raster')) {
   fail('A raster fallback basemap was reintroduced.');
 }
-if (layer('land')?.paint?.['background-color'] !== '#4F9CD6') fail('The permanent ocean blue changed.');
-if (layer('occumed-land-surface')?.paint?.['fill-color'] !== '#8FB86B') fail('The saturated land green changed.');
+if (layer('land')?.paint?.['background-color'] !== '#79BCEC') fail('The supplied Studio ocean blue changed.');
+if (layer('occumed-land-surface')?.paint?.['fill-color'] !== '#E0E0D1') fail('The supplied Studio land base changed.');
 
 const landcover = layer('landcover');
 if ((landcover?.minzoom ?? 99) !== 0) fail('Landcover is unavailable at globe zoom.');
@@ -73,6 +73,14 @@ if (!JSON.stringify(landcover?.paint?.['fill-opacity'] || []).includes('1')) {
 const water = layer('water');
 if (water?.paint?.['fill-color'] !== '#79BCEC') fail('The exact exported water blue changed.');
 if (water?.paint?.['fill-opacity'] !== 1) fail('Water is blending into the land background.');
+
+const waterDepth = layer('water-depth');
+if (waterDepth?.['source-layer'] !== 'depth') fail('The continuous vector bathymetry layer is missing.');
+if (waterDepth?.maxzoom !== 8) fail('Bathymetry does not fade before detailed navigation zooms.');
+const waterDepthColors = JSON.stringify(waterDepth?.paint?.['fill-color'] || []);
+for (const value of ['#79BCEC59', '#5AACE759', '#3B9DE359']) {
+  if (!waterDepthColors.includes(value)) fail(`The exported bathymetry swatch ${value} is missing.`);
+}
 
 const hillshade = layer('occumed-hillshade');
 if (!hillshade) fail('The open hillshade layer is missing.');
@@ -101,4 +109,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log(`Globe parity validated: dark space, strong white-blue atmosphere, saturated green land, clear blue water, and ${allColors.size} structure-specific colors.`);
+console.log(`Globe parity validated: dark space, strong white-blue atmosphere, layered land, clear blue water, and ${allColors.size} structure-specific colors.`);

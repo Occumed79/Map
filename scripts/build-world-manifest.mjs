@@ -63,6 +63,7 @@ const manifest = {
     overviewMaxZoom: 5,
     surfaceAsset,
     surfaceLayer: 'land',
+    surfaceLayers: ['land', 'depth'],
     surfaceMaxZoom: 10,
     routingZoom: 6,
     minZoom: 0,

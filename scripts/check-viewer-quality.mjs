@@ -32,11 +32,11 @@ if (!helper.includes('zoom = 1.82')) fail('The standalone globe must start with 
 if (!helper.includes('antialias: true')) fail('The standalone globe must render with antialiasing enabled.');
 if (fonts.includes("'DIN Pro Medium', 'Open Sans Semibold'")) fail('DIN Pro Medium must not be replaced with an overly heavy open font.');
 
-if (layer('land')?.paint?.['background-color'] !== '#4F9CD6') fail('The permanent ocean blue changed.');
-if (layer('occumed-land-surface')?.paint?.['fill-color'] !== '#8FB86B') fail('The saturated land green changed.');
+if (layer('land')?.paint?.['background-color'] !== '#79BCEC') fail('The supplied Studio ocean blue changed.');
+if (layer('occumed-land-surface')?.paint?.['fill-color'] !== '#E0E0D1') fail('The supplied Studio land base changed.');
 if (layer('water')?.paint?.['fill-color'] !== '#79BCEC') fail('The exact exported water blue changed.');
 if (layer('water-shadow')?.paint?.['fill-color'] !== '#7293EE') fail('The exact exported water-shadow blue changed.');
-if (layer('wetland')?.paint?.['fill-color'] !== '#A4CAD6') fail('The exact exported wetland blue changed.');
+if (layer('wetland')?.paint?.['fill-color'] !== '#A5CAD6') fail('The supplied Studio wetland blue changed.');
 if (layer('national-park')?.paint?.['fill-color'] !== '#A5CC8E') fail('The exact exported park green changed.');
 
 const landcover = layer('landcover');
@@ -92,4 +92,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log(`Viewer guard passed: clean chrome, saturated green land, clear blue water, early hierarchy, and ${allColors.size} structure-specific colors.`);
+console.log(`Viewer guard passed: clean chrome, supplied Studio land and water, early hierarchy, and ${allColors.size} structure-specific colors.`);

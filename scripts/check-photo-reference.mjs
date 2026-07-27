@@ -40,18 +40,18 @@ function collectNonHexColors(value, colors = []) {
 }
 
 assert(runtime.projection?.type === 'globe', 'Photo-reference build must use globe projection.');
-assert(runtime.sky?.['sky-color'] === '#03070B', 'Photo-reference build must preserve dark outer space.');
+assert(runtime.sky?.['sky-color'] === '#181A1D', 'Photo-reference build must preserve the dark charcoal reference space.');
 assert(runtime.sky?.['horizon-color'] === '#F5FDFF', 'The luminous globe rim is missing.');
 assert(runtime.sky?.['fog-ground-blend'] === 0, 'Ground fog must remain disabled.');
 assert(runtime.sky?.['horizon-fog-blend'] === 0, 'Horizon fog must remain disabled.');
 assert(!runtime.light, 'Directional light must not be reintroduced.');
 assert(!runtime.fog, 'Mapbox fog must not be copied into the MapLibre runtime.');
 
-assert(layer('land')?.paint?.['background-color'] === '#4F9CD6', 'The permanent ocean blue changed.');
-assert(layer('occumed-land-surface')?.paint?.['fill-color'] === '#8FB86B', 'The saturated land green changed.');
+assert(layer('land')?.paint?.['background-color'] === '#79BCEC', 'The supplied Studio ocean blue changed.');
+assert(layer('occumed-land-surface')?.paint?.['fill-color'] === '#E0E0D1', 'The supplied Studio land base changed.');
 assert(layer('water')?.paint?.['fill-color'] === '#79BCEC', 'The exact exported water swatch changed.');
 assert(layer('water-shadow')?.paint?.['fill-color'] === '#7293EE', 'The exact exported water-shadow swatch changed.');
-assert(layer('wetland')?.paint?.['fill-color'] === '#A4CAD6', 'The exact exported wetland swatch changed.');
+assert(layer('wetland')?.paint?.['fill-color'] === '#A5CAD6', 'The supplied Studio wetland swatch changed.');
 assert(layer('national-park')?.paint?.['fill-color'] === '#A5CC8E', 'The exact exported national-park swatch changed.');
 
 const landcover = layer('landcover');
@@ -63,6 +63,13 @@ assert((landcover?.minzoom ?? 99) === 0, 'Landcover must be available at globe z
 assert(JSON.stringify(landcover?.paint?.['fill-opacity'] || []).includes('1'), 'Landcover swatches are being weakened by zoom opacity.');
 assert(layer('landuse')?.paint?.['fill-opacity'] === 1, 'Detailed landuse swatches are being weakened by extra opacity.');
 assert(layer('water')?.paint?.['fill-opacity'] === 1, 'Water must remain fully opaque.');
+assert(layer('water-depth')?.['source-layer'] === 'depth', 'The reference bathymetry layer is missing.');
+for (const required of ['#79BCEC59', '#5AACE759', '#3B9DE359']) {
+  assert(
+    JSON.stringify(layer('water-depth')?.paint?.['fill-color'] || []).includes(required),
+    `The exported bathymetry swatch ${required} is missing.`
+  );
+}
 
 assert(!runtime.layers.some((candidate) => candidate.type === 'raster'), 'A raster fallback basemap was reintroduced.');
 
@@ -123,4 +130,4 @@ assert(!/mapbox:\/\//i.test(runtime.sprite || ''), 'Runtime sprite must not use 
 assert(!/api\.mapbox\.com/i.test(runtime.glyphs || ''), 'Runtime glyphs must not use Mapbox.');
 assert(runtime.metadata?.['occumed:mapbox-runtime-dependency'] === false, 'No-Mapbox dependency marker is missing.');
 
-console.log(`Reference guard passed: saturated green land, clear blue water, high-DPI vector clarity, and ${allColors.size} distinct colors.`);
+console.log(`Reference guard passed: supplied Studio land and water, high-DPI vector clarity, and ${allColors.size} distinct colors.`);

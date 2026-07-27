@@ -11,12 +11,21 @@ on:
       - package-lock.json
       - package.json
       - planetiler/**
+      - style.json
+      - scripts/build-runtime-style.mjs
       - scripts/build-world-manifest.mjs
       - scripts/build-world-overview.mjs
+      - scripts/capture-world-fresno-preview.mjs
+      - scripts/prepare-world-bathymetry.mjs
       - scripts/check-live-world-tiles.mjs
+      - scripts/lock-exact-exported-swatches.mjs
+      - scripts/lock-reference-atmosphere.mjs
       - scripts/pack-mbtiles.py
       - scripts/plan-world-shards-final.mjs
+      - scripts/reference-studio-swatches.mjs
+      - src/occumed-map.js
       - src/server/**
+      - src/styles.css
 
 permissions:
   contents: write
@@ -161,7 +170,7 @@ jobs:
             virtual-world/overview.mbtiles \
             "virtual-world/${OVERVIEW_ASSET}"
 
-      - name: Build worldwide land surface
+      - name: Build worldwide physical surface
         run: |
           set -euo pipefail
           sudo apt-get update
@@ -173,16 +182,28 @@ jobs:
           curl --fail --location --retry 5 \
             --output virtual-world/ne_10m_land.geojson \
             https://raw.githubusercontent.com/nvkelso/natural-earth-vector/v5.1.2/geojson/ne_10m_land.geojson
+          mkdir -p virtual-world/bathymetry
+          for band in \
+            A_10000 B_9000 C_8000 D_7000 E_6000 F_5000 \
+            G_4000 H_3000 I_2000 J_1000 K_200 L_0; do
+            curl --fail --location --retry 5 \
+              --output "virtual-world/bathymetry/ne_10m_bathymetry_${band}.geojson" \
+              "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/v5.1.2/geojson/ne_10m_bathymetry_${band}.geojson"
+          done
+          node scripts/prepare-world-bathymetry.mjs \
+            --input-dir virtual-world/bathymetry \
+            --output virtual-world/ne_10m_bathymetry.geojson
           virtual-world/tippecanoe/tippecanoe \
             --force \
             --minimum-zoom=0 \
             --maximum-zoom=10 \
-            --layer=land \
+            --preserve-input-order \
             --no-feature-limit \
             --no-tile-size-limit \
-            --detect-shared-borders \
-            --output="virtual-world/${SURFACE_ASSET}" \
-            virtual-world/ne_10m_land.geojson
+            --no-simplification-of-shared-nodes \
+            -L land:virtual-world/ne_10m_land.geojson \
+            -L depth:virtual-world/ne_10m_bathymetry.geojson \
+            --output="virtual-world/${SURFACE_ASSET}"
 
       - name: Validate virtual archives
         run: |
@@ -235,6 +256,26 @@ jobs:
             --manifest "https://github.com/${GITHUB_REPOSITORY}/releases/download/${WORLD_RELEASE_TAG}/world-virtual-manifest.json" \
             --release-base "https://github.com/${GITHUB_REPOSITORY}/releases/download/${WORLD_RELEASE_TAG}"
 
+      - name: Install Chromium for visual validation
+        run: npx playwright install --with-deps chromium
+
+      - name: Render globe, regional, and street references
+        run: |
+          set -euo pipefail
+          npm run build
+          node server.mjs > virtual-world/browser-server.log 2>&1 &
+          server_pid="$!"
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          for attempt in {1..60}; do
+            if curl --fail --silent http://127.0.0.1:4173/healthz > /dev/null; then
+              break
+            fi
+            sleep 1
+          done
+          curl --fail http://127.0.0.1:4173/healthz
+          OCCUMED_PREVIEW_OUTPUT=virtual-world/visual-validation \
+            node scripts/capture-world-fresno-preview.mjs
+
       - uses: actions/upload-artifact@v4
         with:
           name: occumed-virtual-world-${{ github.sha }}
@@ -242,5 +283,7 @@ jobs:
             virtual-world/occumed-world-overview.pmtiles
             virtual-world/occumed-world-surface.pmtiles
             virtual-world/manifest/world-virtual-manifest.json
+            virtual-world/visual-validation
+            virtual-world/browser-server.log
           if-no-files-found: error
           retention-days: 14

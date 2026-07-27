@@ -236,6 +236,8 @@ function resolveTargetSourceLayer(layer) {
       return symbol ? 'water_name' : 'waterway';
     case 'water':
       return symbol ? 'water_name' : 'water';
+    case 'depth':
+      return 'depth';
     case 'structure':
       return symbol ? 'transportation_name' : 'transportation';
     case 'aeroway':
@@ -307,7 +309,7 @@ for (const layer of original.layers || []) {
         source: 'occumed-open',
         'source-layer': 'land',
         paint: {
-          'fill-color': '#8FB86B',
+          'fill-color': '#E0E0D1',
           'fill-opacity': 1,
           'fill-antialias': true
         },
@@ -345,7 +347,7 @@ for (const layer of original.layers || []) {
     continue;
   }
 
-  if (sourceLayer === 'contour' || sourceLayer === 'depth') {
+  if (sourceLayer === 'contour') {
     skippedLayers.push({ id: layer.id, reason: `no equivalent ${sourceLayer} layer in the public vector schema` });
     continue;
   }
