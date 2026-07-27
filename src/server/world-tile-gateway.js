@@ -219,10 +219,9 @@ export class WorldTileGateway {
     } = manifest.virtualTiles;
     if (zoom <= overviewMaxZoom) {
       const payload = await this.readArchiveTile(overviewAsset, zoom, x, y);
-      if (!payload) {
-        throw new Error(`Worldwide overview is missing tile ${zoom}/${x}/${y}.`);
-      }
-      return payload;
+      // The physical surface is resolved independently and must remain visible
+      // even when an optional overview enrichment tile is absent.
+      return payload || EMPTY_MVT;
     }
 
     const regions = manifest.routingIndex.regionsForTile(zoom, x, y);

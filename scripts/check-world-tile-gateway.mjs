@@ -174,6 +174,14 @@ expect(!server.includes('/world-tiles/'), 'The server still exposes regional sto
 expect(gateway.includes('mergeVectorTiles'), 'The server gateway cannot merge boundary tiles.');
 expect(gateway.includes('MemoryTileCache'), 'The server gateway does not cache resolved virtual tiles.');
 expect(
+  gateway.includes('return payload || EMPTY_MVT'),
+  'A missing overview enrichment can still blank the independently resolved physical surface.'
+);
+expect(
+  !gateway.includes('Worldwide overview is missing tile'),
+  'A missing overview enrichment can still reject the complete worldwide tile.'
+);
+expect(
   gateway.includes("includeLayers: ['land', 'landcover', 'depth']"),
   'The gateway does not expose land, landcover, and bathymetry as one continuous physical surface.'
 );
