@@ -8,31 +8,32 @@ const runtime = JSON.parse(await fs.readFile(runtimePath, 'utf8'));
 
 runtime.projection = { type: 'globe' };
 
-// Match the supplied Studio globe: dark space, a narrow white horizon edge,
-// and a broader cool-blue atmospheric bloom. Ground and horizon fog remain
-// disabled so the glow stays outside the globe instead of washing out the map.
+// MapLibre's atmosphere is a screen-space globe effect, not a directional sun.
+// Keep the map surface neutral and confine the white-blue light to a thin,
+// even rim at the globe limb. High blend values push the atmosphere far across
+// the visible hemisphere and create the incorrect "sunlit half-planet" wash.
 runtime.sky = {
   'sky-color': '#181A1D',
-  'horizon-color': '#F5FDFF',
-  'fog-color': '#B8E6FF',
+  'horizon-color': 'rgba(245, 253, 255, 0.98)',
+  'fog-color': 'rgba(184, 230, 255, 0.14)',
   'sky-horizon-blend': [
     'interpolate',
     ['linear'],
     ['zoom'],
-    0, 0.24,
-    2.5, 0.2,
-    4.5, 0.1,
+    0, 0.052,
+    2.5, 0.042,
+    4.5, 0.018,
     6.25, 0
   ],
-  'horizon-fog-blend': 0,
+  'horizon-fog-blend': 0.08,
   'fog-ground-blend': 0,
   'atmosphere-blend': [
     'interpolate',
     ['linear'],
     ['zoom'],
-    0, 0.84,
-    2.5, 0.76,
-    4.5, 0.38,
+    0, 0.18,
+    2.5, 0.145,
+    4.5, 0.06,
     6.25, 0
   ]
 };
@@ -43,10 +44,11 @@ delete runtime.light;
 runtime.metadata = {
   ...(runtime.metadata || {}),
   'occumed:reference-atmosphere': true,
-  'occumed:reference-atmosphere-pass': 2,
+  'occumed:reference-atmosphere-pass': 3,
   'occumed:atmosphere-surface-wash-disabled': true,
+  'occumed:atmosphere-edge-only': true,
   'occumed:atmosphere-fades-before-detail': true
 };
 
 await fs.writeFile(runtimePath, `${JSON.stringify(runtime, null, 2)}\n`);
-console.log('Locked the luminous white-blue reference atmosphere without adding surface fog.');
+console.log('Locked a narrow, even white-blue globe rim without surface wash.');
