@@ -1,0 +1,2 @@
+requested_at=2026-07-27T14:23:30Z
+purpose=capture_latest_fresno_world_validation_failure
