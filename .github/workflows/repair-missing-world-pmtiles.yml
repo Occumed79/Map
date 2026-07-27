@@ -1,4 +1,4 @@
-name: Capture Enfield PMTiles Failure
+name: Clean Release and Build Enfield PMTiles
 
 on:
   workflow_dispatch:
@@ -10,45 +10,89 @@ on:
 
 permissions:
   contents: write
-  actions: read
 
 concurrency:
-  group: occumed-world-pmtiles-log-capture
+  group: occumed-world-pmtiles-single-shard
   cancel-in-progress: true
 
+env:
+  WORLD_RELEASE_TAG: occumed-world-v1
+  OCCUMED_DIRECT_PBF_LIMIT_BYTES: 400000000
+  OCCUMED_TARGET_SPLIT_PBF_BYTES: 250000000
+  OCCUMED_MAX_SPLIT_CELLS: 24
+
 jobs:
-  capture:
+  enfield:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 180
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          ref: feat/custom-planetiler-pmtiles-basemap
-      - name: Download latest failed Enfield job log
+          node-version: 24
+      - name: Free release capacity without deleting canonical PMTiles
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          mkdir -p diagnostics
-          runs_json="$(gh api "/repos/${GITHUB_REPOSITORY}/actions/workflows/repair-missing-world-pmtiles.yml/runs?branch=feat%2Fcustom-planetiler-pmtiles-basemap&status=completed&per_page=100")"
-          failed_run_id="$(printf '%s' "$runs_json" | jq -r --arg current "$GITHUB_RUN_ID" '.workflow_runs[] | select(.conclusion == "failure" and (.id|tostring) != $current) | .id' | head -n1)"
-          if [ -z "$failed_run_id" ] || [ "$failed_run_id" = "null" ]; then
-            echo "No prior failed run found" >&2
+          node scripts/plan-world-shards.mjs --scope all > /tmp/world-plan.json
+          node <<'NODE'
+          const fs = require('node:fs');
+          const plan = JSON.parse(fs.readFileSync('/tmp/world-plan.json', 'utf8'));
+          const excluded = new Set([
+            'alps', 'britain-and-ireland', 'dach', 'great-britain', 'sea',
+            'south-africa-and-lesotho', 'us', 'us-midwest', 'us-northeast',
+            'us-pacific', 'us-south', 'us-west'
+          ]);
+          const keep = new Set(['world-manifest.json']);
+          for (const region of plan.include) {
+            if (excluded.has(region.id) || excluded.has(region.source_region_id)) continue;
+            keep.add(region.asset_name);
+          }
+          fs.writeFileSync('/tmp/keep-release-assets.txt', `${[...keep].sort().join('\n')}\n`);
+          console.log(`Protected canonical assets: ${keep.size}`);
+          NODE
+
+          release_id="$(gh api "/repos/${GITHUB_REPOSITORY}/releases/tags/${WORLD_RELEASE_TAG}" --jq '.id')"
+          gh api --paginate \
+            "/repos/${GITHUB_REPOSITORY}/releases/${release_id}/assets?per_page=100" \
+            --jq '.[] | [.id, .name, .size] | @tsv' > /tmp/release-assets.tsv
+
+          before="$(wc -l < /tmp/release-assets.tsv)"
+          deleted=0
+          while IFS=$'\t' read -r asset_id asset_name asset_size; do
+            keep=false
+            if grep -Fxq "$asset_name" /tmp/keep-release-assets.txt; then
+              if [ "$asset_name" = "world-manifest.json" ] || [ "${asset_size:-0}" -gt 0 ]; then
+                keep=true
+              fi
+            fi
+            if [ "$keep" = true ]; then
+              continue
+            fi
+            gh api --method DELETE "/repos/${GITHUB_REPOSITORY}/releases/assets/${asset_id}"
+            deleted=$((deleted + 1))
+          done < /tmp/release-assets.tsv
+
+          after=$((before - deleted))
+          echo "Release assets before cleanup: $before"
+          echo "Obsolete/noncanonical assets deleted: $deleted"
+          echo "Release assets after cleanup: $after"
+          if [ "$after" -ge 990 ]; then
+            echo "Release still lacks safe capacity after cleanup" >&2
             exit 1
           fi
-          jobs_json="$(gh api "/repos/${GITHUB_REPOSITORY}/actions/runs/${failed_run_id}/jobs?per_page=100")"
-          job_id="$(printf '%s' "$jobs_json" | jq -r '.jobs[] | select(.name == "enfield") | .id' | head -n1)"
-          if [ -z "$job_id" ] || [ "$job_id" = "null" ]; then
-            echo "No Enfield job found in failed run ${failed_run_id}" >&2
-            exit 1
-          fi
-          gh api "/repos/${GITHUB_REPOSITORY}/actions/jobs/${job_id}/logs" > diagnostics/enfield-failure-latest.log
-          printf 'run_id=%s\njob_id=%s\n' "$failed_run_id" "$job_id" > diagnostics/enfield-failure-latest.meta
-          tail -n 120 diagnostics/enfield-failure-latest.log
-      - name: Commit captured failure log
-        run: |
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add diagnostics/enfield-failure-latest.log diagnostics/enfield-failure-latest.meta
-          git commit -m "Capture exact Enfield PMTiles failure" || exit 0
-          git push origin HEAD:feat/custom-planetiler-pmtiles-basemap
+      - uses: ./.github/actions/build-pmtiles-shard-final
+        with:
+          id: enfield
+          slug: enfield
+          name: Enfield
+          continent: europe
+          pbf-url: https://download.geofabrik.de/europe/united-kingdom/england/greater-london-latest.osm.pbf
+          extract-bbox: -0.185433,51.60542,-0.008839,51.69193
+          west: -0.185433
+          south: 51.60542
+          east: -0.008839
+          north: 51.69193
+          asset-name: occumed-enfield.pmtiles
+          release-tag: ${{ env.WORLD_RELEASE_TAG }}
