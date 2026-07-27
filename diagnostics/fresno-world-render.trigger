@@ -1,0 +1,2 @@
+requested_at=2026-07-27T12:24:22Z
+purpose=final_high_dpi_browser_validation_against_completed_worldwide_pmtiles
