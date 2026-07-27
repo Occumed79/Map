@@ -1,2 +1,2 @@
-requested_at=2026-07-27T04:58:00Z
-mode=clean-capacity-then-enfield-only
+requested_at=2026-07-27T05:05:00Z
+mode=enfield-verify-existing-or-upload-without-sigpipe
