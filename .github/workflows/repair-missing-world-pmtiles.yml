@@ -1,4 +1,4 @@
-name: Build Northwestern Federal District 1.1 PMTiles Only
+name: Build Northwestern Federal District 1.1 Split 1.1 Only
 
 on:
   workflow_dispatch:
@@ -19,22 +19,22 @@ env:
   WORLD_RELEASE_TAG: occumed-world-v1
 
 jobs:
-  northwestern-fed-district-r1-c1:
+  northwestern-fed-district-r1-c1-s2-r1-c1:
     runs-on: ubuntu-latest
     timeout-minutes: 360
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/build-pmtiles-shard-final
         with:
-          id: northwestern-fed-district--r1-c1
-          slug: northwestern-fed-district--r1-c1
-          name: Northwestern Federal District 1.1
+          id: northwestern-fed-district--r1-c1--s2-r1-c1
+          slug: northwestern-fed-district--r1-c1--s2-r1-c1
+          name: Northwestern Federal District 1.1 split 1.1
           continent: northwestern-fed-district
           pbf-url: https://download.geofabrik.de/russia/northwestern-fed-district-latest.osm.pbf
-          extract-bbox: 19.40837,54.31282,46.01659,68.429215
+          extract-bbox: 19.40837,54.31282,26.060425,61.371018
           west: 19.40837
           south: 54.31282
-          east: 46.01659
-          north: 68.429215
-          asset-name: occumed-northwestern-fed-district--r1-c1.pmtiles
+          east: 26.060425
+          north: 61.371018
+          asset-name: occumed-northwestern-fed-district--r1-c1--s2-r1-c1.pmtiles
           release-tag: ${{ env.WORLD_RELEASE_TAG }}
