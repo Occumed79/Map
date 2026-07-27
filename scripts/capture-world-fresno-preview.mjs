@@ -115,24 +115,56 @@ try {
       };
     });
 
+    const screenshot = await page.screenshot({
+      path: path.join(outputDir, `${name}.png`),
+      fullPage: false
+    });
+    const diagnostics = {
+      ...view,
+      screenshotBytes: screenshot.length,
+      pageErrors: [...pageErrors],
+      networkFailures: networkFailures.slice(-30),
+      consoleMessages: consoleMessages.slice(-50)
+    };
+
     if (view.canvas.effectivePixelRatio < 1.9) {
+      await fs.writeFile(
+        path.join(outputDir, `${name}-failure.json`),
+        `${JSON.stringify(diagnostics, null, 2)}\n`
+      );
       throw new Error(`${name} rendered below the required 2x effective pixel ratio.`);
     }
     if (!view.styleLoaded || !view.allTilesLoaded || view.renderedWorldFeatureCount <= 0) {
-      throw new Error(`${name} did not render a completed worldwide vector view.`);
+      await fs.writeFile(
+        path.join(outputDir, `${name}-failure.json`),
+        `${JSON.stringify(diagnostics, null, 2)}\n`
+      );
+      throw new Error(
+        `${name} did not render a completed worldwide vector view: ${JSON.stringify({
+          styleLoaded: view.styleLoaded,
+          allTilesLoaded: view.allTilesLoaded,
+          renderedWorldFeatureCount: view.renderedWorldFeatureCount,
+          renderedSourceLayers: view.renderedSourceLayers,
+          networkFailures: networkFailures.slice(-5)
+        })}`
+      );
     }
     if (
       view.source?.url ||
       JSON.stringify(view.source?.tiles || []) !== JSON.stringify([expectedTemplate])
     ) {
+      await fs.writeFile(
+        path.join(outputDir, `${name}-failure.json`),
+        `${JSON.stringify(diagnostics, null, 2)}\n`
+      );
       throw new Error(`${name} changed the permanent vector source.`);
     }
 
-    const screenshot = await page.screenshot({
-      path: path.join(outputDir, `${name}.png`),
-      fullPage: false
-    });
     if (screenshot.length < 25_000) {
+      await fs.writeFile(
+        path.join(outputDir, `${name}-failure.json`),
+        `${JSON.stringify(diagnostics, null, 2)}\n`
+      );
       throw new Error(`${name} produced an unexpectedly empty browser render.`);
     }
     return { ...view, screenshotBytes: screenshot.length };

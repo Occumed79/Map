@@ -339,7 +339,15 @@ jobs:
           mkdir -p virtual-world
           node server.mjs > virtual-world/browser-server.log 2>&1 &
           server_pid="$!"
-          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          cleanup() {
+            status="$?"
+            if [ "$status" -ne 0 ]; then
+              tail -200 virtual-world/browser-server.log || true
+            fi
+            kill "$server_pid" 2>/dev/null || true
+            exit "$status"
+          }
+          trap cleanup EXIT
           for attempt in {1..60}; do
             if curl --fail --silent http://127.0.0.1:4173/healthz > /dev/null; then
               break
@@ -351,6 +359,7 @@ jobs:
             node scripts/capture-world-fresno-preview.mjs
 
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: occumed-visual-validation-${{ github.sha }}
           path: |
