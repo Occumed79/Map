@@ -1,0 +1,92 @@
+name: Validate Continuous Worldwide Zoom
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/validate-continuous-zoom.yml
+      - package-lock.json
+      - package.json
+      - style.json
+      - scripts/**
+      - src/**
+      - server.mjs
+
+permissions:
+  contents: read
+
+concurrency:
+  group: occumed-continuous-zoom-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  SURFACE_ASSET: occumed-world-surface.pmtiles
+
+jobs:
+  continuous-motion:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build and validate the production map
+        run: npm run build
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Build candidate worldwide physical surface
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential libsqlite3-dev zlib1g-dev
+          bash scripts/build-world-surface.sh \
+            "dist/virtual-assets/${SURFACE_ASSET}"
+
+      - name: Run continuous zoom and pan gate
+        run: |
+          set -euo pipefail
+          mkdir -p continuous-motion
+          OCCUMED_WORLD_SURFACE_URL="http://127.0.0.1:4173/virtual-assets/${SURFACE_ASSET}" \
+            node server.mjs > continuous-motion/server.log 2>&1 &
+          server_pid="$!"
+          cleanup() {
+            status="$?"
+            if [ "$status" -ne 0 ]; then
+              tail -300 continuous-motion/server.log || true
+            fi
+            kill "$server_pid" 2>/dev/null || true
+            exit "$status"
+          }
+          trap cleanup EXIT
+
+          for attempt in {1..90}; do
+            if curl --fail --silent http://127.0.0.1:4173/healthz > /dev/null; then
+              break
+            fi
+            sleep 1
+          done
+          curl --fail http://127.0.0.1:4173/healthz
+
+          OCCUMED_PREVIEW_OUTPUT=continuous-motion/results \
+            node scripts/validate-continuous-zoom.mjs
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: continuous-zoom-${{ github.sha }}
+          path: |
+            continuous-motion/results
+            continuous-motion/server.log
+          if-no-files-found: error
+          retention-days: 14

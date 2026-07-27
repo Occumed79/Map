@@ -104,12 +104,12 @@ const overscaled = inspectVectorTile(overscaleVectorLayer(surface, {
   targetY: 32768
 }));
 expect(overscaled.land?.featureCount === 1, 'The worldwide land surface cannot overscale through max zoom.');
-const physicalSurface = inspectVectorTile(
-  mergeVectorTiles([surface], { includeLayers: ['land', 'landcover', 'depth'] })
+const physicalLandMask = inspectVectorTile(
+  mergeVectorTiles([surface], { includeLayers: ['land'] })
 );
-expect(physicalSurface.land?.featureCount === 1, 'The physical surface lost its land layer.');
-expect(physicalSurface.landcover?.featureCount === 1, 'The physical surface lost generalized landcover.');
-expect(physicalSurface.depth?.featureCount === 1, 'The physical surface lost its bathymetry layer.');
+expect(physicalLandMask.land?.featureCount === 1, 'The physical surface lost its land layer.');
+expect(!physicalLandMask.landcover, 'The physical surface still overlays generalized landcover on regional detail.');
+expect(!physicalLandMask.depth, 'The physical surface still overlays generalized bathymetry on regional detail.');
 const normalizedProperties = normalizeMvtProperties({
   safeRank: 4,
   unsafePositive: 2 ** 65,
@@ -179,7 +179,18 @@ expect(!JSON.stringify(runtime).includes('pmtiles://'), 'A storage archive is st
 expect(!helper.includes('setUrl('), 'The browser helper can still replace the vector source URL.');
 expect(!helper.includes("addProtocol('pmtiles'"), 'The browser still reads PMTiles storage shards directly.');
 expect(!helper.includes('WorldPmtilesRouter'), 'The browser still installs the removed regional router.');
-expect(helper.includes('fadeDuration: 0'), 'Tile fading can still expose stale cartography during zoom.');
+expect(
+  helper.includes('cancelPendingTileRequestsWhileZooming: false'),
+  'MapLibre can still cancel parent tiles while child zoom tiles are loading.'
+);
+expect(
+  helper.includes('maxTileCacheZoomLevels: 8'),
+  'The browser does not retain enough parent zoom levels for continuous motion.'
+);
+expect(
+  helper.includes('fadeDuration: 300'),
+  'Normal symbol collision fading is not enabled during continuous zoom.'
+);
 expect(server.includes('/tiles\\/(\\d+)\\/(\\d+)\\/(\\d+)\\.pbf'), 'The server does not expose the permanent worldwide tile route.');
 expect(server.includes("'world-virtual-manifest.json'"), 'The gateway does not use the isolated server-only manifest.');
 expect(!server.includes('/world-tiles/'), 'The server still exposes regional storage URLs to the browser.');
@@ -194,13 +205,17 @@ expect(
   'A missing overview enrichment can still reject the complete worldwide tile.'
 );
 expect(
-  gateway.includes("includeLayers: ['land', 'landcover', 'depth']"),
-  'The gateway does not expose land, landcover, and bathymetry as one continuous physical surface.'
+  gateway.includes("includeLayers: ['land']"),
+  'The gateway does not isolate the continuous physical surface to the land mask.'
+);
+expect(
+  !gateway.includes("includeLayers: ['land', 'landcover', 'depth']"),
+  'The gateway still overlays generalized landcover and bathymetry on regional detail.'
 );
 expect(manifestBuilder.includes('version: 2'), 'The server-only routing manifest is not version 2.');
 expect(
   manifestBuilder.includes("surfaceLayers: ['land', 'landcover', 'depth']"),
-  'The routing manifest does not declare the complete physical surface schema.'
+  'The routing manifest does not document the surface archive schema.'
 );
 expect(!manifestBuilder.includes('switchZoom'), 'The obsolete browser switch zoom remains in the manifest.');
 
@@ -217,4 +232,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('Virtual worldwide tileset validated: one permanent source, boundary merging, antimeridian routing, land, landcover, and bathymetry continuity, surface overscaling, caching, and no browser-visible shards.');
+console.log('Virtual worldwide tileset validated: one permanent source, boundary merging, antimeridian routing, land-mask continuity, parent-tile retention, caching, and no browser-visible shards.');

@@ -35,24 +35,36 @@ if (runtime.projection?.type !== 'globe') fail('The reusable style must use glob
 if (runtime.fog) fail('Mapbox fog must be translated instead of shipped to MapLibre unchanged.');
 if (!runtime.sky) fail('The MapLibre sky/atmosphere configuration is missing.');
 if (runtime.sky?.['sky-color'] !== '#181A1D') fail('The fixed reference-space hex changed.');
-if (runtime.sky?.['horizon-color'] !== '#F5FDFF') fail('The atmospheric horizon hex changed.');
-if (runtime.sky?.['fog-color'] !== '#B8E6FF') fail('The cool outer-atmosphere hex changed.');
+if (runtime.sky?.['horizon-color'] !== 'rgba(245, 253, 255, 0.98)') {
+  fail('The narrow white horizon color changed.');
+}
+if (runtime.sky?.['fog-color'] !== 'rgba(184, 230, 255, 0.14)') {
+  fail('The translucent cool-blue outer glow changed.');
+}
 if (!runtime.sky?.['atmosphere-blend']) fail('The globe atmosphere blend is missing.');
 if (runtime.light) fail('Directional global light must remain disabled to prevent rotation-dependent washout.');
-if (runtime.sky?.['horizon-fog-blend'] !== 0) fail('Horizon fog must remain disabled to prevent surface washout.');
+if ((runtime.sky?.['horizon-fog-blend'] ?? 1) > 0.1) {
+  fail('Horizon fog is broad enough to wash over the visible hemisphere.');
+}
 if (runtime.sky?.['fog-ground-blend'] !== 0) fail('Ground fog must remain disabled to preserve surface contrast.');
 
 const atmosphereOutputs = expressionOutputs(runtime.sky?.['atmosphere-blend']);
-if (!atmosphereOutputs.some((value) => value >= 0.65)) {
-  fail('The white-blue atmosphere is too weak to match the supplied glowing globe reference.');
+if (!atmosphereOutputs.some((value) => value >= 0.12)) {
+  fail('The white-blue atmospheric edge is too weak to remain visible.');
+}
+if (atmosphereOutputs.some((value) => value > 0.2)) {
+  fail('The atmosphere extends too far across the globe surface and reads as directional sunlight.');
 }
 if (atmosphereOutputs.at(-1) !== 0) {
   fail('The globe atmosphere does not disappear before detailed regional and city zooms.');
 }
 
 const horizonOutputs = expressionOutputs(runtime.sky?.['sky-horizon-blend']);
-if (!horizonOutputs.some((value) => value >= 0.2)) {
+if (!horizonOutputs.some((value) => value >= 0.03)) {
   fail('The narrow luminous horizon rim is too weak.');
+}
+if (horizonOutputs.some((value) => value > 0.06)) {
+  fail('The horizon blend is too broad to remain an edge-only bloom.');
 }
 if (horizonOutputs.at(-1) !== 0) {
   fail('The horizon rim does not fade out before detailed zooms.');
@@ -105,6 +117,7 @@ if (runtime.metadata?.['occumed:layer-specific-palette'] !== true) fail('Layer-s
 if (runtime.metadata?.['occumed:raster-relief-disabled'] !== true) fail('Raster relief protection is missing.');
 if (runtime.metadata?.['occumed:reference-atmosphere'] !== true) fail('The reference atmosphere pass did not run.');
 if (runtime.metadata?.['occumed:atmosphere-surface-wash-disabled'] !== true) fail('Atmosphere surface-wash protection is missing.');
+if (runtime.metadata?.['occumed:atmosphere-edge-only'] !== true) fail('The edge-only atmosphere protection is missing.');
 
 if (failures.length) {
   console.error('Occu-Med globe parity validation failed:');
@@ -112,4 +125,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log(`Globe parity validated: dark space, strong white-blue atmosphere, layered land, clear blue water, and ${allColors.size} structure-specific colors.`);
+console.log(`Globe parity validated: dark space, narrow white-blue edge bloom, neutral surface lighting, layered land, clear blue water, and ${allColors.size} structure-specific colors.`);
