@@ -1,4 +1,4 @@
-name: Build Enfield PMTiles Only
+name: Capture Enfield PMTiles Failure
 
 on:
   workflow_dispatch:
@@ -10,31 +10,45 @@ on:
 
 permissions:
   contents: write
+  actions: read
 
 concurrency:
-  group: occumed-world-pmtiles-single-shard
+  group: occumed-world-pmtiles-log-capture
   cancel-in-progress: true
 
-env:
-  WORLD_RELEASE_TAG: occumed-world-v1
-
 jobs:
-  enfield:
+  capture:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/build-pmtiles-shard-final
         with:
-          id: enfield
-          slug: enfield
-          name: Enfield
-          continent: europe
-          pbf-url: https://download.geofabrik.de/europe/united-kingdom/england/greater-london-latest.osm.pbf
-          extract-bbox: -0.185433,51.60542,-0.008839,51.69193
-          west: -0.185433
-          south: 51.60542
-          east: -0.008839
-          north: 51.69193
-          asset-name: occumed-enfield.pmtiles
-          release-tag: ${{ env.WORLD_RELEASE_TAG }}
+          ref: feat/custom-planetiler-pmtiles-basemap
+      - name: Download latest failed Enfield job log
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p diagnostics
+          runs_json="$(gh api "/repos/${GITHUB_REPOSITORY}/actions/workflows/repair-missing-world-pmtiles.yml/runs?branch=feat%2Fcustom-planetiler-pmtiles-basemap&status=completed&per_page=100")"
+          failed_run_id="$(printf '%s' "$runs_json" | jq -r --arg current "$GITHUB_RUN_ID" '.workflow_runs[] | select(.conclusion == "failure" and (.id|tostring) != $current) | .id' | head -n1)"
+          if [ -z "$failed_run_id" ] || [ "$failed_run_id" = "null" ]; then
+            echo "No prior failed run found" >&2
+            exit 1
+          fi
+          jobs_json="$(gh api "/repos/${GITHUB_REPOSITORY}/actions/runs/${failed_run_id}/jobs?per_page=100")"
+          job_id="$(printf '%s' "$jobs_json" | jq -r '.jobs[] | select(.name == "enfield") | .id' | head -n1)"
+          if [ -z "$job_id" ] || [ "$job_id" = "null" ]; then
+            echo "No Enfield job found in failed run ${failed_run_id}" >&2
+            exit 1
+          fi
+          gh api "/repos/${GITHUB_REPOSITORY}/actions/jobs/${job_id}/logs" > diagnostics/enfield-failure-latest.log
+          printf 'run_id=%s\njob_id=%s\n' "$failed_run_id" "$job_id" > diagnostics/enfield-failure-latest.meta
+          tail -n 120 diagnostics/enfield-failure-latest.log
+      - name: Commit captured failure log
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add diagnostics/enfield-failure-latest.log diagnostics/enfield-failure-latest.meta
+          git commit -m "Capture exact Enfield PMTiles failure" || exit 0
+          git push origin HEAD:feat/custom-planetiler-pmtiles-basemap
