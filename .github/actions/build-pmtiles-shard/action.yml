@@ -62,16 +62,49 @@ runs:
         fi
 
         mkdir -p artifacts
-        url="https://github.com/${GITHUB_REPOSITORY}/releases/download/${RELEASE_TAG}/${ASSET_NAME}"
-        if curl --silent --show-error --fail --location \
-          --retry 5 --retry-delay 3 --retry-all-errors \
-          --header 'Range: bytes=0-126' \
-          --dump-header artifacts/existing-range.headers.txt \
-          --output artifacts/existing-range.bin \
-          "$url" \
-          && grep -Eiq '^HTTP/.* 206' artifacts/existing-range.headers.txt \
-          && test "$(wc -c < artifacts/existing-range.bin)" -eq 127 \
-          && test "$(head -c 7 artifacts/existing-range.bin)" = 'PMTiles'; then
+        public_url="https://github.com/${GITHUB_REPOSITORY}/releases/download/${RELEASE_TAG}/${ASSET_NAME}"
+        api_url="https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/assets/${existing_id}"
+        verified=false
+
+        for attempt in 1 2 3 4 5 6 7 8 9 10; do
+          rm -f artifacts/existing-range.headers.txt artifacts/existing-range.bin
+          cache_bust="$(date +%s)-${RANDOM}-${attempt}"
+
+          if curl --silent --show-error --fail --location \
+            --retry 3 --retry-delay 3 --retry-all-errors \
+            --header 'Range: bytes=0-126' \
+            --header 'Cache-Control: no-cache' \
+            --dump-header artifacts/existing-range.headers.txt \
+            --output artifacts/existing-range.bin \
+            "${public_url}?verify=${cache_bust}" \
+            && grep -Eiq '^HTTP/.* 206' artifacts/existing-range.headers.txt \
+            && test "$(wc -c < artifacts/existing-range.bin)" -eq 127 \
+            && test "$(head -c 7 artifacts/existing-range.bin)" = 'PMTiles'; then
+            verified=true
+            break
+          fi
+
+          rm -f artifacts/existing-range.headers.txt artifacts/existing-range.bin
+          if curl --silent --show-error --fail --location \
+            --retry 3 --retry-delay 3 --retry-all-errors \
+            --header "Authorization: Bearer ${GH_TOKEN}" \
+            --header 'Accept: application/octet-stream' \
+            --header 'Range: bytes=0-126' \
+            --header 'X-GitHub-Api-Version: 2022-11-28' \
+            --dump-header artifacts/existing-range.headers.txt \
+            --output artifacts/existing-range.bin \
+            "$api_url" \
+            && grep -Eiq '^HTTP/.* 206' artifacts/existing-range.headers.txt \
+            && test "$(wc -c < artifacts/existing-range.bin)" -eq 127 \
+            && test "$(head -c 7 artifacts/existing-range.bin)" = 'PMTiles'; then
+            verified=true
+            break
+          fi
+
+          sleep $((attempt * 6))
+        done
+
+        if [ "$verified" = true ]; then
           echo 'exists=true' >> "$GITHUB_OUTPUT"
           echo "Reusing published healthy archive: $ASSET_NAME"
         else
@@ -221,27 +254,68 @@ runs:
     - name: Verify published PMTiles byte ranges
       shell: bash
       env:
+        GH_TOKEN: ${{ github.token }}
         RELEASE_TAG: ${{ inputs.release-tag }}
         ASSET_NAME: ${{ inputs.asset-name }}
       run: |
+        set -euo pipefail
         mkdir -p artifacts
-        url="https://github.com/${GITHUB_REPOSITORY}/releases/download/${RELEASE_TAG}/${ASSET_NAME}"
+        release_id="$(gh api "/repos/${GITHUB_REPOSITORY}/releases/tags/${RELEASE_TAG}" --jq '.id')"
+        public_url="https://github.com/${GITHUB_REPOSITORY}/releases/download/${RELEASE_TAG}/${ASSET_NAME}"
 
-        for attempt in 1 2 3 4 5 6 7 8; do
+        for attempt in $(seq 1 20); do
+          asset_row="$(
+            gh api --paginate \
+              "/repos/${GITHUB_REPOSITORY}/releases/${release_id}/assets?per_page=100" \
+              --jq '.[] | [.id, .name, .size] | @tsv' |
+            awk -F '\t' -v name="$ASSET_NAME" '$2 == name { print; exit }'
+          )"
+          asset_id="$(printf '%s' "$asset_row" | cut -f1)"
+          asset_size="$(printf '%s' "$asset_row" | cut -f3)"
+
+          if [ -z "$asset_id" ] || [ -z "$asset_size" ] || [ "$asset_size" -le 0 ]; then
+            echo "Waiting for release asset metadata: $ASSET_NAME (attempt $attempt/20)"
+            sleep $((attempt * 6))
+            continue
+          fi
+
           rm -f artifacts/release-range.headers.txt artifacts/release-range.bin
+          cache_bust="$(date +%s)-${RANDOM}-${attempt}"
           if curl --silent --show-error --fail --location \
             --retry 3 --retry-delay 3 --retry-all-errors \
             --header 'Range: bytes=0-126' \
+            --header 'Cache-Control: no-cache' \
             --dump-header artifacts/release-range.headers.txt \
             --output artifacts/release-range.bin \
-            "$url" \
+            "${public_url}?verify=${cache_bust}" \
             && grep -Eiq '^HTTP/.* 206' artifacts/release-range.headers.txt \
             && test "$(wc -c < artifacts/release-range.bin)" -eq 127 \
             && test "$(head -c 7 artifacts/release-range.bin)" = 'PMTiles'; then
+            echo "Verified public PMTiles byte range: $ASSET_NAME"
             exit 0
           fi
-          sleep $((attempt * 5))
+
+          rm -f artifacts/release-range.headers.txt artifacts/release-range.bin
+          api_url="https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/assets/${asset_id}"
+          if curl --silent --show-error --fail --location \
+            --retry 3 --retry-delay 3 --retry-all-errors \
+            --header "Authorization: Bearer ${GH_TOKEN}" \
+            --header 'Accept: application/octet-stream' \
+            --header 'Range: bytes=0-126' \
+            --header 'X-GitHub-Api-Version: 2022-11-28' \
+            --dump-header artifacts/release-range.headers.txt \
+            --output artifacts/release-range.bin \
+            "$api_url" \
+            && grep -Eiq '^HTTP/.* 206' artifacts/release-range.headers.txt \
+            && test "$(wc -c < artifacts/release-range.bin)" -eq 127 \
+            && test "$(head -c 7 artifacts/release-range.bin)" = 'PMTiles'; then
+            echo "Verified authenticated PMTiles byte range: $ASSET_NAME"
+            exit 0
+          fi
+
+          echo "Byte-range verification still propagating: $ASSET_NAME (attempt $attempt/20)"
+          sleep $((attempt * 6))
         done
 
-        echo "Published archive did not pass byte-range verification: $ASSET_NAME" >&2
+        echo "Published archive did not pass public or authenticated byte-range verification: $ASSET_NAME" >&2
         exit 1
