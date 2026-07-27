@@ -125,8 +125,8 @@ try {
         const map = globalThis.__OCCUMED_MAP__;
         const source = map?.getStyle()?.sources?.['occumed-open'];
         return Boolean(
-          map?.loaded() &&
-          map.areTilesLoaded() &&
+          map?.isStyleLoaded() &&
+          map?.isSourceLoaded?.('occumed-open') &&
           typeof source?.url === 'string' &&
           source.url.startsWith('pmtiles://') &&
           source.url.includes(`/world-tiles/${expectedAsset}`)
@@ -135,6 +135,12 @@ try {
       { expectedAsset: expectedRegion.asset },
       { timeout: 180_000 }
     );
+
+    // Give the completed PMTiles source two extra paint frames without waiting
+    // for unrelated terrain, relief, or other auxiliary sources.
+    await page.evaluate(() => new Promise((resolve) => {
+      requestAnimationFrame(() => requestAnimationFrame(resolve));
+    }));
 
     const view = await page.evaluate(() => {
       const map = globalThis.__OCCUMED_MAP__;
@@ -145,8 +151,9 @@ try {
         center: map.getCenter().toArray(),
         zoom: map.getZoom(),
         source,
-        loaded: map.loaded(),
-        tilesLoaded: map.areTilesLoaded(),
+        styleLoaded: map.isStyleLoaded(),
+        worldSourceLoaded: map.isSourceLoaded('occumed-open'),
+        allSourcesLoaded: map.areTilesLoaded(),
         canvas: {
           cssWidth: rect.width,
           cssHeight: rect.height,
@@ -164,12 +171,25 @@ try {
     if (view.canvas.effectivePixelRatio < 1.9) {
       throw new Error(`${name} rendered below the required 2x effective pixel ratio.`);
     }
-    if (!view.loaded || !view.tilesLoaded) {
-      throw new Error(`${name} did not finish loading worldwide PMTiles.`);
+    if (!view.styleLoaded || !view.worldSourceLoaded) {
+      throw new Error(`${name} did not finish loading the selected worldwide PMTiles source.`);
+    }
+    if (
+      typeof view.source?.url !== 'string' ||
+      !view.source.url.includes(`/world-tiles/${expectedRegion.asset}`)
+    ) {
+      throw new Error(`${name} rendered from the wrong worldwide PMTiles shard.`);
     }
 
-    await page.screenshot({ path: path.join(outputDir, `${name}.png`), fullPage: false });
-    return { ...view, expectedRegion };
+    const screenshot = await page.screenshot({
+      path: path.join(outputDir, `${name}.png`),
+      fullPage: false
+    });
+    if (screenshot.length < 25_000) {
+      throw new Error(`${name} produced an unexpectedly empty browser render.`);
+    }
+
+    return { ...view, screenshotBytes: screenshot.length, expectedRegion };
   }
 
   const views = {
