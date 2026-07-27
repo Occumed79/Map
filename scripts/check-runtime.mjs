@@ -36,6 +36,17 @@ for (const sourceName of Object.keys(runtime.sources || {})) {
   if (!allowedSources.has(sourceName)) fail(`Unexpected shared source: ${sourceName}`);
 }
 
+const sharedVectorSource = runtime.sources?.['occumed-open'];
+if (!String(sharedVectorSource?.url).includes('/empty-vector.json')) {
+  fail('The shared vector source must start from the local empty placeholder before regional PMTiles routing.');
+}
+if (String(sharedVectorSource?.url).includes('tiles.openfreemap.org')) {
+  fail('The OpenFreeMap vector fallback is still active.');
+}
+if (runtime.metadata?.['occumed:external-vector-fallback-enabled'] !== false) {
+  fail('The runtime does not explicitly disable the external vector fallback.');
+}
+
 const requiredSourceLayers = new Set([
   'landcover',
   'landuse',
@@ -117,5 +128,5 @@ if (failures.length) {
 }
 
 console.log(
-  `Open basemap validated: ${runtime.layers.length}/${original.layers.length} visual layers, ${runtime.layers.filter((layer) => layer.type === 'symbol').length} symbol layers, ${activeFontStrings.length} local font references, and ${spriteCount} sprite images.`
+  `Open basemap validated: ${runtime.layers.length}/${original.layers.length} visual layers, ${runtime.layers.filter((layer) => layer.type === 'symbol').length} symbol layers, ${activeFontStrings.length} local font references, ${spriteCount} sprite images, and no external vector fallback.`
 );
