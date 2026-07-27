@@ -105,7 +105,9 @@ export async function createOccumedMap({
     renderWorldCopies: false,
     attributionControl: false,
     cooperativeGestures: false,
-    ...mapOptions
+    ...mapOptions,
+    // Never blend stale low-zoom tiles with a newly selected PMTiles shard.
+    fadeDuration: 0
   });
 
   map.occumedWorldRouter = installWorldPmtilesRouter(map, {
