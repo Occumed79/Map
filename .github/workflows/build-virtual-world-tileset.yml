@@ -53,8 +53,8 @@ permissions:
   contents: write
 
 concurrency:
-  group: occumed-virtual-world-tileset
-  cancel-in-progress: false
+  group: occumed-virtual-worldwide-tileset-${{ github.event_name }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   WORLD_RELEASE_TAG: occumed-world-v1
@@ -65,6 +65,7 @@ env:
 
 jobs:
   plan-storage:
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     outputs:
@@ -122,6 +123,7 @@ jobs:
           NODE
 
   repair-missing:
+    if: github.event_name != 'pull_request'
     needs: plan-storage
     runs-on: ubuntu-latest
     timeout-minutes: 360
@@ -149,6 +151,7 @@ jobs:
           release-tag: ${{ env.WORLD_RELEASE_TAG }}
 
   build:
+    if: github.event_name != 'pull_request'
     needs:
       - plan-storage
       - repair-missing
@@ -305,6 +308,52 @@ jobs:
             virtual-world/occumed-world-overview.pmtiles
             virtual-world/occumed-world-surface.pmtiles
             virtual-world/manifest/world-virtual-manifest.json
+            virtual-world/visual-validation
+            virtual-world/browser-server.log
+          if-no-files-found: error
+          retention-days: 14
+
+  validate-pr:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build and validate the production map
+        run: npm run build
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Render globe, regional, and street references
+        run: |
+          set -euo pipefail
+          mkdir -p virtual-world
+          node server.mjs > virtual-world/browser-server.log 2>&1 &
+          server_pid="$!"
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          for attempt in {1..60}; do
+            if curl --fail --silent http://127.0.0.1:4173/healthz > /dev/null; then
+              break
+            fi
+            sleep 1
+          done
+          curl --fail http://127.0.0.1:4173/healthz
+          OCCUMED_PREVIEW_OUTPUT=virtual-world/visual-validation \
+            node scripts/capture-world-fresno-preview.mjs
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: occumed-visual-validation-${{ github.sha }}
+          path: |
             virtual-world/visual-validation
             virtual-world/browser-server.log
           if-no-files-found: error
