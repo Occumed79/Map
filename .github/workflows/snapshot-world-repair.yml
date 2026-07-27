@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   snapshot:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -75,6 +75,9 @@ jobs:
           const failures = buildJobs
             .filter((job) => job.conclusion === 'failure')
             .map((job) => ({ id: job.id, name: job.name }));
+          const active = buildJobs
+            .filter((job) => job.status === 'in_progress' || job.status === 'queued')
+            .map((job) => ({ id: job.id, name: job.name, status: job.status }));
           const plan = jobs.find((job) => job.name === 'plan-missing');
           const manifest = jobs.find((job) => job.name === 'publish-world-manifest');
           const status = {
@@ -102,6 +105,7 @@ jobs:
             skippedBuildJobs: count((job) => job.conclusion === 'skipped'),
             manifestStatus: manifest?.status || null,
             manifestConclusion: manifest?.conclusion || null,
+            active,
             failures
           };
           fs.writeFileSync('diagnostics/world-repair-status.json', `${JSON.stringify(status, null, 2)}\n`);
