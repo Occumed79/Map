@@ -1,2 +1,2 @@
-requested_at=2026-07-27T14:29:00Z
-purpose=rerun_final_high_dpi_browser_validation_after_font_normalization_fix
+requested_at=2026-07-27T15:24:00Z
+purpose=rerun_final_high_dpi_browser_validation_after_current_architecture_guard_fix
