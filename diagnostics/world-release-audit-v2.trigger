@@ -1,2 +1,2 @@
-requested_at=2026-07-27T11:54:00Z
-purpose=verify_pinned_zero_missing_manifest_sizes_and_pmtiles_headers
+requested_at=2026-07-27T12:00:00Z
+purpose=verify_pinned_zero_missing_manifest_and_release_metadata
