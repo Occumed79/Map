@@ -3,68 +3,10 @@ import path from 'node:path';
 import { chromium } from 'playwright';
 
 const origin = (process.env.OCCUMED_PREVIEW_ORIGIN || 'http://127.0.0.1:4173').replace(/\/$/, '');
-const outputDir = path.resolve(process.env.OCCUMED_PREVIEW_OUTPUT || 'visual-validation/fresno-world-final');
+const outputDir = path.resolve(
+  process.env.OCCUMED_PREVIEW_OUTPUT || 'visual-validation/continuous-world-final'
+);
 await fs.mkdir(outputDir, { recursive: true });
-
-function containsCoordinate(bounds, longitude, latitude) {
-  if (!Array.isArray(bounds) || bounds.length !== 4) return false;
-  const [west, south, east, north] = bounds.map(Number);
-  if (![west, south, east, north].every(Number.isFinite)) return false;
-  const latitudeMatch = latitude >= south && latitude <= north;
-  const longitudeMatch = west <= east
-    ? longitude >= west && longitude <= east
-    : longitude >= west || longitude <= east;
-  return latitudeMatch && longitudeMatch;
-}
-
-function boundsArea(bounds) {
-  const [west, south, east, north] = bounds.map(Number);
-  const width = west <= east ? east - west : 360 - west + east;
-  return Math.max(width, 0) * Math.max(north - south, 0);
-}
-
-function selectRegion(regions, longitude, latitude) {
-  return regions
-    .filter((region) => containsCoordinate(region.bounds, longitude, latitude))
-    .sort((left, right) => boundsArea(left.bounds) - boundsArea(right.bounds))[0] || null;
-}
-
-const manifestResponse = await fetch(`${origin}/world-manifest.json`, {
-  headers: { 'Cache-Control': 'no-cache' }
-});
-if (!manifestResponse.ok) {
-  throw new Error(`Worldwide manifest proxy failed with ${manifestResponse.status}.`);
-}
-const manifest = await manifestResponse.json();
-if (!Array.isArray(manifest.regions) || !manifest.regions.length) {
-  throw new Error('Worldwide manifest contains no regions.');
-}
-if (Number(manifest.missingRegionCount) !== 0) {
-  throw new Error(`Worldwide manifest still reports ${manifest.missingRegionCount} missing regions.`);
-}
-
-const rangeChecks = new Map();
-async function verifyRange(asset) {
-  if (rangeChecks.has(asset)) return rangeChecks.get(asset);
-  const response = await fetch(`${origin}/world-tiles/${encodeURIComponent(asset)}`, {
-    headers: { Range: 'bytes=0-126' },
-    redirect: 'follow'
-  });
-  const bytes = new Uint8Array(await response.arrayBuffer());
-  const magic = new TextDecoder().decode(bytes.slice(0, 7));
-  const result = {
-    asset,
-    status: response.status,
-    returnedBytes: bytes.length,
-    magic,
-    contentRange: response.headers.get('content-range')
-  };
-  if (response.status !== 206 || bytes.length !== 127 || magic !== 'PMTiles') {
-    throw new Error(`Runtime range proxy failed for ${asset}: ${JSON.stringify(result)}`);
-  }
-  rangeChecks.set(asset, result);
-  return result;
-}
 
 const browser = await chromium.launch({ headless: true });
 try {
@@ -77,11 +19,20 @@ try {
   const consoleMessages = [];
   const pageErrors = [];
   const networkFailures = [];
+  const vectorRequests = [];
+  const forbiddenRequests = [];
 
   page.on('console', (message) => {
     consoleMessages.push({ type: message.type(), text: message.text() });
   });
   page.on('pageerror', (error) => pageErrors.push(error.message));
+  page.on('request', (request) => {
+    const url = request.url();
+    if (/openfreemap|\/world-tiles\/|\/world-manifest\.json/i.test(url)) {
+      forbiddenRequests.push(url);
+    }
+    if (/\.pbf(?:$|\?)/i.test(url)) vectorRequests.push(url);
+  });
   page.on('requestfailed', (request) => {
     networkFailures.push({
       type: 'requestfailed',
@@ -107,11 +58,18 @@ try {
     { timeout: 90_000 }
   );
 
-  async function capture(name, center, zoom) {
-    const expectedRegion = selectRegion(manifest.regions, center[0], center[1]);
-    if (!expectedRegion) throw new Error(`${name} has no worldwide shard in the manifest.`);
-    await verifyRange(expectedRegion.asset);
+  const initialSource = await page.evaluate(() => {
+    return globalThis.__OCCUMED_MAP__.getStyle().sources?.['occumed-open'] || null;
+  });
+  const expectedTemplate = `${origin}/tiles/{z}/{x}/{y}.pbf`;
+  if (
+    initialSource?.url ||
+    JSON.stringify(initialSource?.tiles || []) !== JSON.stringify([expectedTemplate])
+  ) {
+    throw new Error(`The browser source is not permanent: ${JSON.stringify(initialSource)}`);
+  }
 
+  async function capture(name, center, zoom) {
     await page.evaluate(
       ({ nextCenter, nextZoom }) => {
         const map = globalThis.__OCCUMED_MAP__;
@@ -122,72 +80,52 @@ try {
     );
 
     await page.waitForFunction(
-      ({ expectedAsset }) => {
+      () => {
         const map = globalThis.__OCCUMED_MAP__;
-        const source = map?.getStyle()?.sources?.['occumed-open'];
-        if (
-          !map?.isStyleLoaded() ||
-          typeof source?.url !== 'string' ||
-          !source.url.startsWith('pmtiles://') ||
-          !source.url.includes(`/world-tiles/${expectedAsset}`)
-        ) {
-          return false;
-        }
-
-        try {
-          return map.queryRenderedFeatures().some((feature) => feature.source === 'occumed-open');
-        } catch {
-          return false;
-        }
+        return map?.isStyleLoaded() && map.areTilesLoaded();
       },
-      { expectedAsset: expectedRegion.asset },
+      null,
       { timeout: 90_000 }
     );
-
-    await page.waitForTimeout(750);
+    await page.waitForTimeout(300);
 
     const view = await page.evaluate(() => {
       const map = globalThis.__OCCUMED_MAP__;
       const canvas = map.getCanvas();
       const rect = canvas.getBoundingClientRect();
       const source = map.getStyle().sources?.['occumed-open'] || null;
-      const renderedWorldFeatureCount = map
+      const features = map
         .queryRenderedFeatures()
-        .filter((feature) => feature.source === 'occumed-open')
-        .length;
+        .filter((feature) => feature.source === 'occumed-open');
       return {
         center: map.getCenter().toArray(),
         zoom: map.getZoom(),
         source,
         styleLoaded: map.isStyleLoaded(),
-        worldSourceLoadedDiagnostic: map.isSourceLoaded('occumed-open'),
-        allSourcesLoadedDiagnostic: map.areTilesLoaded(),
-        renderedWorldFeatureCount,
+        allTilesLoaded: map.areTilesLoaded(),
+        renderedWorldFeatureCount: features.length,
+        renderedSourceLayers: [...new Set(features.map((feature) => feature.sourceLayer))].sort(),
         canvas: {
           cssWidth: rect.width,
           cssHeight: rect.height,
           backingWidth: canvas.width,
           backingHeight: canvas.height,
           effectivePixelRatio: rect.width ? canvas.width / rect.width : null
-        },
-        visibleLayers: map
-          .getStyle()
-          .layers.filter((layer) => map.getLayoutProperty(layer.id, 'visibility') !== 'none')
-          .map((layer) => layer.id)
+        }
       };
     });
 
     if (view.canvas.effectivePixelRatio < 1.9) {
       throw new Error(`${name} rendered below the required 2x effective pixel ratio.`);
     }
-    if (!view.styleLoaded || view.renderedWorldFeatureCount <= 0) {
-      throw new Error(`${name} did not render features from the selected worldwide PMTiles shard.`);
+    if (!view.styleLoaded || !view.allTilesLoaded || view.renderedWorldFeatureCount <= 0) {
+      throw new Error(`${name} did not render a completed worldwide vector view.`);
     }
     if (
-      typeof view.source?.url !== 'string' ||
-      !view.source.url.includes(`/world-tiles/${expectedRegion.asset}`)
+      view.source?.url ||
+      JSON.stringify(view.source?.tiles || []) !== JSON.stringify([expectedTemplate])
     ) {
-      throw new Error(`${name} rendered from the wrong worldwide PMTiles shard.`);
+      throw new Error(`${name} changed the permanent vector source.`);
     }
 
     const screenshot = await page.screenshot({
@@ -197,15 +135,17 @@ try {
     if (screenshot.length < 25_000) {
       throw new Error(`${name} produced an unexpectedly empty browser render.`);
     }
-
-    return { ...view, screenshotBytes: screenshot.length, expectedRegion };
+    return { ...view, screenshotBytes: screenshot.length };
   }
 
   const views = {
-    fresnoRegional: await capture('fresno-regional-z8', [-119.55, 36.75], 8),
+    globe: await capture('world-globe-z2', [0, 20], 1.82),
+    northAmerica: await capture('north-america-z4', [-105, 40], 4),
+    usMexico: await capture('us-mexico-border-z7', [-106.5, 31.8], 7),
+    europe: await capture('europe-boundaries-z6', [12, 50], 6),
+    antimeridian: await capture('russia-antimeridian-z5', [178, 60], 5),
     fresnoCity: await capture('fresno-city-z11', [-119.7871, 36.7378], 11),
-    fresnoStreet: await capture('fresno-street-z14', [-119.7871, 36.7378], 14),
-    sierraTerrain: await capture('sierra-terrain-z10', [-118.85, 36.85], 10)
+    fresnoStreet: await capture('fresno-street-z14', [-119.7871, 36.7378], 14)
   };
 
   const allowedFailure = (entry) => {
@@ -218,40 +158,48 @@ try {
   );
   const unexpectedNetworkFailures = networkFailures.filter((entry) => !allowedFailure(entry));
   const unexpectedConsoleFailures = consoleFailures.filter((entry) => !allowedFailure(entry));
+  const externalVectorRequests = vectorRequests.filter(
+    (url) => !url.startsWith(`${origin}/tiles/`)
+  );
 
   const report = {
     generatedAt: new Date().toISOString(),
     origin,
     browser: 'chromium',
-    mode: 'worldwide-pinned-manifest-through-runtime-proxy',
+    mode: 'one-permanent-virtual-worldwide-source',
     viewport: { width: 1440, height: 1000, deviceScaleFactor: 2 },
-    manifest: {
-      plannedRegionCount: manifest.plannedRegionCount,
-      availableRegionCount: manifest.availableRegionCount,
-      missingRegionCount: manifest.missingRegionCount,
-      regionCount: manifest.regions.length
-    },
-    rangeChecks: [...rangeChecks.values()],
+    initialSource,
     views,
+    vectorRequests: [...new Set(vectorRequests)],
+    externalVectorRequests,
+    forbiddenRequests: [...new Set(forbiddenRequests)],
     pageErrors,
-    networkFailures,
-    consoleFailures,
     unexpectedNetworkFailures,
     unexpectedConsoleFailures,
-    passed: pageErrors.length === 0 && unexpectedNetworkFailures.length === 0 && unexpectedConsoleFailures.length === 0
+    passed:
+      pageErrors.length === 0 &&
+      unexpectedNetworkFailures.length === 0 &&
+      unexpectedConsoleFailures.length === 0 &&
+      externalVectorRequests.length === 0 &&
+      forbiddenRequests.length === 0
   };
 
-  await fs.writeFile(path.join(outputDir, 'final-world-fresno-report.json'), `${JSON.stringify(report, null, 2)}\n`);
+  await fs.writeFile(
+    path.join(outputDir, 'continuous-world-report.json'),
+    `${JSON.stringify(report, null, 2)}\n`
+  );
 
   if (!report.passed) {
-    throw new Error(`Worldwide Fresno browser validation failed: ${JSON.stringify({
+    throw new Error(`Continuous-world browser validation failed: ${JSON.stringify({
       pageErrors,
       unexpectedNetworkFailures,
-      unexpectedConsoleFailures
+      unexpectedConsoleFailures,
+      externalVectorRequests,
+      forbiddenRequests
     })}`);
   }
 
-  console.log(`Validated ${Object.keys(views).length} high-DPI Fresno/Sierra views against the completed worldwide PMTiles release.`);
+  console.log(`Validated ${Object.keys(views).length} high-DPI views through one permanent worldwide source.`);
 } finally {
   await browser.close();
 }

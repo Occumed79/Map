@@ -1,0 +1,159 @@
+name: Build Virtual Worldwide Tileset
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - agent/virtual-worldwide-tileset
+    paths:
+      - .github/workflows/build-virtual-world-tileset.yml
+      - package-lock.json
+      - package.json
+      - planetiler/**
+      - scripts/build-world-manifest.mjs
+      - scripts/build-world-overview.mjs
+      - scripts/check-live-world-tiles.mjs
+      - scripts/pack-mbtiles.py
+      - scripts/plan-world-shards-final.mjs
+      - src/server/**
+
+permissions:
+  contents: write
+
+concurrency:
+  group: occumed-virtual-world-tileset
+  cancel-in-progress: false
+
+env:
+  WORLD_RELEASE_TAG: occumed-world-v1
+  OVERVIEW_ASSET: occumed-world-overview.pmtiles
+  SURFACE_ASSET: occumed-world-surface.pmtiles
+  TIPPECANOE_VERSION: "2.79.0"
+  PMTILES_VERSION: "v1.31.2"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.24.x"
+
+      - name: Install pinned PMTiles converter
+        run: |
+          set -euo pipefail
+          go install "github.com/protomaps/go-pmtiles@${PMTILES_VERSION}"
+          "$(go env GOPATH)/bin/go-pmtiles" version
+
+      - name: Build consolidated zoom 0-5 overview
+        run: |
+          set -euo pipefail
+          mkdir -p virtual-world
+          node scripts/build-world-overview.mjs \
+            --manifest "https://github.com/${GITHUB_REPOSITORY}/releases/download/${WORLD_RELEASE_TAG}/world-manifest.json" \
+            --release-base "https://github.com/${GITHUB_REPOSITORY}/releases/download/${WORLD_RELEASE_TAG}" \
+            --output virtual-world/overview-tiles \
+            --maxzoom 5 \
+            --concurrency 24
+          python3 scripts/pack-mbtiles.py \
+            --tiles virtual-world/overview-tiles \
+            --metadata virtual-world/overview-tiles/metadata.json \
+            --output virtual-world/overview.mbtiles
+          "$(go env GOPATH)/bin/go-pmtiles" convert \
+            virtual-world/overview.mbtiles \
+            "virtual-world/${OVERVIEW_ASSET}"
+
+      - name: Build worldwide land surface
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential libsqlite3-dev zlib1g-dev
+          git clone --depth 1 --branch "${TIPPECANOE_VERSION}" \
+            https://github.com/felt/tippecanoe.git virtual-world/tippecanoe
+          make -C virtual-world/tippecanoe -j2
+          curl --fail --location --retry 5 \
+            --output virtual-world/ne_10m_land.geojson \
+            https://raw.githubusercontent.com/nvkelso/natural-earth-vector/v5.1.2/geojson/ne_10m_land.geojson
+          virtual-world/tippecanoe/tippecanoe \
+            --force \
+            --minimum-zoom=0 \
+            --maximum-zoom=10 \
+            --layer=land \
+            --no-feature-limit \
+            --no-tile-size-limit \
+            --detect-shared-borders \
+            --output="virtual-world/${SURFACE_ASSET}" \
+            virtual-world/ne_10m_land.geojson
+
+      - name: Validate virtual archives
+        run: |
+          set -euo pipefail
+          for asset in "$OVERVIEW_ASSET" "$SURFACE_ASSET"; do
+            test -s "virtual-world/$asset"
+            test "$(head -c 7 "virtual-world/$asset")" = "PMTiles"
+            "$(go env GOPATH)/bin/go-pmtiles" show "virtual-world/$asset" --header-json
+          done
+
+      - name: Publish virtual storage archives
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh release upload "$WORLD_RELEASE_TAG" \
+            "virtual-world/${OVERVIEW_ASSET}" \
+            "virtual-world/${SURFACE_ASSET}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --clobber
+
+      - name: Publish server-only routing manifest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p virtual-world/manifest
+          node scripts/plan-world-shards-final.mjs > virtual-world/manifest/world-plan.json
+          release_id="$(gh api "/repos/${GITHUB_REPOSITORY}/releases/tags/${WORLD_RELEASE_TAG}" --jq '.id')"
+          gh api --paginate --slurp \
+            "/repos/${GITHUB_REPOSITORY}/releases/${release_id}/assets?per_page=100" \
+            > virtual-world/manifest/release-pages.json
+          node scripts/build-world-manifest.mjs \
+            --plan virtual-world/manifest/world-plan.json \
+            --asset-pages virtual-world/manifest/release-pages.json \
+            --repository "$GITHUB_REPOSITORY" \
+            --tag "$WORLD_RELEASE_TAG" \
+            --overview-asset "$OVERVIEW_ASSET" \
+            --surface-asset "$SURFACE_ASSET" \
+            --output virtual-world/manifest/world-virtual-manifest.json
+          gh release upload "$WORLD_RELEASE_TAG" \
+            virtual-world/manifest/world-virtual-manifest.json \
+            --repo "$GITHUB_REPOSITORY" \
+            --clobber
+
+      - name: Smoke-test worldwide gateway coverage
+        run: |
+          set -euo pipefail
+          node scripts/check-live-world-tiles.mjs \
+            --manifest "https://github.com/${GITHUB_REPOSITORY}/releases/download/${WORLD_RELEASE_TAG}/world-virtual-manifest.json" \
+            --release-base "https://github.com/${GITHUB_REPOSITORY}/releases/download/${WORLD_RELEASE_TAG}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: occumed-virtual-world-${{ github.sha }}
+          path: |
+            virtual-world/occumed-world-overview.pmtiles
+            virtual-world/occumed-world-surface.pmtiles
+            virtual-world/manifest/world-virtual-manifest.json
+          if-no-files-found: error
+          retention-days: 14

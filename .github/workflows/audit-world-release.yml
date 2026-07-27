@@ -193,8 +193,16 @@ jobs:
           const missingIds = new Set(missing.map((region) => region.id));
           const repairTargets = plan.include.filter((region) => missingIds.has(region.id) || !healthyIds.has(region.id));
           const canonicalAssetNames = new Set(plan.include.map((region) => region.asset_name));
+          const virtualAssetNames = new Set([
+            'occumed-world-overview.pmtiles',
+            'occumed-world-surface.pmtiles'
+          ]);
           const extraPmtilesAssets = release.assets
-            .filter((asset) => asset.name.endsWith('.pmtiles') && !canonicalAssetNames.has(asset.name))
+            .filter((asset) =>
+              asset.name.endsWith('.pmtiles') &&
+              !canonicalAssetNames.has(asset.name) &&
+              !virtualAssetNames.has(asset.name)
+            )
             .map((asset) => ({ id: asset.id, name: asset.name, size: asset.size, updatedAt: asset.updated_at }));
           const summary = {
             capturedAt: new Date().toISOString(),

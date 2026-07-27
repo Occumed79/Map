@@ -127,42 +127,8 @@ for (const candidate of runtime.layers || []) {
 }
 runtime.sky = normalizeColorLiterals(runtime.sky || {});
 
-// The previous pass made the relief monochrome and almost invisible, leaving the
-// exported pale land background to dominate the whole globe. Keep enough of the
-// open relief's geographic color to restore green mountain belts, warm dry land,
-// and physical depth, but keep saturation and opacity far below the fluorescent
-// build that failed visual QA.
-const relief = layer('occumed-shaded-relief');
-if (!relief) throw new Error('The open shaded-relief layer is missing.');
-relief.maxzoom = 8.5;
-relief.paint = {
-  'raster-opacity': [
-    'interpolate',
-    ['linear'],
-    ['zoom'],
-    0, 0.32,
-    2.5, 0.28,
-    4.5, 0.2,
-    6.5, 0.1,
-    8.5, 0
-  ],
-  'raster-saturation': 0.12,
-  'raster-contrast': 0.09,
-  'raster-hue-rotate': -6,
-  'raster-brightness-min': 0.08,
-  'raster-brightness-max': 0.96,
-  'raster-resampling': 'linear',
-  'raster-fade-duration': 0
-};
-relief.metadata = {
-  ...(relief.metadata || {}),
-  'occumed:purpose': 'restrained colored physical relief beneath the exported per-structure palette',
-  'occumed:reference-color-pass': 7
-};
-
 // Preserve each exported landcover color, but make those separate colors visible
-// at globe and regional zooms instead of allowing one beige background to cover
-// the continent. No fill-color is replaced here.
+// at globe and regional zooms. No fill-color is replaced here.
 const land = layer('land');
 if (land?.paint) land.paint['background-opacity'] = 1;
 

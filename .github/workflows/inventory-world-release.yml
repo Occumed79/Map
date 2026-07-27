@@ -75,8 +75,14 @@ jobs:
           const published = include.filter((region) => byName.has(region.asset_name));
           const missing = include.filter((region) => !byName.has(region.asset_name));
           const canonicalNames = new Set(assetNames);
+          const virtualAssetNames = new Set([
+            'occumed-world-overview.pmtiles',
+            'occumed-world-surface.pmtiles'
+          ]);
           const extraPmtiles = releaseAssets.filter((asset) =>
-            asset.name.endsWith('.pmtiles') && !canonicalNames.has(asset.name)
+            asset.name.endsWith('.pmtiles') &&
+            !canonicalNames.has(asset.name) &&
+            !virtualAssetNames.has(asset.name)
           );
           const publishedBytes = published.reduce((sum, region) => sum + Number(byName.get(region.asset_name)?.size || 0), 0);
           const zeroSize = published.filter((region) => Number(byName.get(region.asset_name)?.size || 0) <= 0);

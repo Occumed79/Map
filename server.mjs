@@ -2,20 +2,17 @@ import { createReadStream } from 'node:fs';
 import fs from 'node:fs/promises';
 import http from 'node:http';
 import path from 'node:path';
-import { Readable } from 'node:stream';
-import { pipeline } from 'node:stream/promises';
 import { fileURLToPath } from 'node:url';
+import { gzipSync } from 'node:zlib';
+import { WorldTileGateway } from './src/server/world-tile-gateway.js';
+import { normalizeTileCoordinates } from './src/server/world-tile-routing.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'dist');
 const port = Number(process.env.PORT || 4173);
 const host = process.env.HOST?.trim() || '0.0.0.0';
 const worldReleaseRepository = process.env.OCCUMED_WORLD_RELEASE_REPOSITORY?.trim() || 'Occumed79/Map';
 const worldReleaseTag = process.env.OCCUMED_WORLD_RELEASE_TAG?.trim() || 'occumed-world-v1';
-const worldManifestAsset = 'world-manifest.json';
-const configuredUpstreamTimeout = Number(process.env.OCCUMED_UPSTREAM_TIMEOUT_MS || 20_000);
-const upstreamTimeoutMs = Number.isFinite(configuredUpstreamTimeout)
-  ? Math.max(configuredUpstreamTimeout, 1_000)
-  : 20_000;
+const worldManifestAsset = 'world-virtual-manifest.json';
 
 const contentTypes = {
   '.css': 'text/css; charset=utf-8',
@@ -93,166 +90,35 @@ function releaseAssetUrl(assetName) {
   return `https://github.com/${worldReleaseRepository}/releases/download/${encodeURIComponent(worldReleaseTag)}/${encodeURIComponent(assetName)}`;
 }
 
-function copyUpstreamHeaders(upstream, response, cacheControl) {
-  const headerNames = [
-    'accept-ranges',
-    'content-length',
-    'content-range',
-    'etag',
-    'last-modified'
-  ];
-  for (const name of headerNames) {
-    const value = upstream.headers.get(name);
-    if (value) response.setHeader(name, value);
-  }
-  response.setHeader('Cache-Control', cacheControl);
-  response.setHeader('CDN-Cache-Control', cacheControl);
-  response.setHeader('Surrogate-Control', cacheControl);
-  for (const [name, value] of Object.entries(corsHeaders)) response.setHeader(name, value);
-}
+const worldTileGateway = new WorldTileGateway({
+  manifestUrl:
+    process.env.OCCUMED_WORLD_MANIFEST_URL?.trim() ||
+    releaseAssetUrl(worldManifestAsset),
+  releaseAssetUrl
+});
 
-function createUpstreamContext(request, response) {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => {
-    controller.abort(new Error(`Upstream request exceeded ${upstreamTimeoutMs}ms.`));
-  }, upstreamTimeoutMs);
-  timeout.unref?.();
-
-  const abortForRequest = () => {
-    controller.abort(new Error('Client disconnected before the upstream request completed.'));
-  };
-  const abortForResponse = () => {
-    if (!response.writableFinished) abortForRequest();
-  };
-
-  request.once('aborted', abortForRequest);
-  response.once('close', abortForResponse);
-
-  return {
-    signal: controller.signal,
-    cleanup() {
-      clearTimeout(timeout);
-      request.off('aborted', abortForRequest);
-      response.off('close', abortForResponse);
-    }
-  };
-}
-
-function isUpstreamAbort(error, signal) {
-  return Boolean(
-    signal.aborted ||
-    error?.name === 'AbortError' ||
-    error?.name === 'TimeoutError' ||
-    error?.code === 'ABORT_ERR'
+async function serveVirtualTile(request, response, coordinates) {
+  const tile = await worldTileGateway.resolveTile(
+    coordinates.z,
+    coordinates.x,
+    coordinates.y
   );
-}
+  const compressed = gzipSync(tile, { level: 6 });
+  const cacheControl = 'public, max-age=86400, stale-while-revalidate=604800';
 
-function handleUpstreamAbort(request, response, label) {
-  if (request.aborted || response.destroyed) return;
-  if (!response.headersSent) {
-    send(
-      response,
-      504,
-      `${label} upstream timed out`,
-      'text/plain; charset=utf-8',
-      'no-store',
-      request.method
-    );
-  } else {
-    response.destroy();
-  }
-}
-
-async function proxyReleaseAsset(request, response, assetName, contentType, cacheControl) {
-  const headers = {
-    'User-Agent': 'Occu-Med-Map/world-pmtiles-proxy',
-    Accept: '*/*'
-  };
-  if (request.headers.range) headers.Range = request.headers.range;
-
-  const upstreamContext = createUpstreamContext(request, response);
-  try {
-    const upstream = await fetch(releaseAssetUrl(assetName), {
-      method: request.method,
-      headers,
-      redirect: 'follow',
-      signal: upstreamContext.signal
-    });
-
-    if (!upstream.ok && upstream.status !== 206 && upstream.status !== 416) {
-      send(
-        response,
-        upstream.status === 404 ? 404 : 502,
-        upstream.status === 404 ? 'Worldwide map asset not built yet' : 'Worldwide map asset upstream failed',
-        'text/plain; charset=utf-8',
-        'no-store',
-        request.method
-      );
-      return;
-    }
-
-    response.statusCode = upstream.status;
-    copyUpstreamHeaders(upstream, response, cacheControl);
-    response.setHeader('Content-Type', upstream.headers.get('content-type') || contentType);
-    if (request.method === 'HEAD' || !upstream.body) {
-      response.end();
-      return;
-    }
-    await pipeline(Readable.fromWeb(upstream.body), response, {
-      signal: upstreamContext.signal
-    });
-  } catch (error) {
-    if (isUpstreamAbort(error, upstreamContext.signal)) {
-      handleUpstreamAbort(request, response, 'Worldwide map asset');
-      return;
-    }
-    throw error;
-  } finally {
-    upstreamContext.cleanup();
-  }
-}
-
-async function serveWorldManifest(request, response) {
-  const upstreamContext = createUpstreamContext(request, response);
-  try {
-    const upstream = await fetch(releaseAssetUrl(worldManifestAsset), {
-      headers: {
-        'User-Agent': 'Occu-Med-Map/world-manifest-proxy',
-        Accept: 'application/json'
-      },
-      redirect: 'follow',
-      signal: upstreamContext.signal
-    });
-    if (!upstream.ok) {
-      send(
-        response,
-        upstream.status === 404 ? 404 : 502,
-        upstream.status === 404 ? 'Worldwide map manifest not built yet' : 'Worldwide map manifest upstream failed',
-        'text/plain; charset=utf-8',
-        'no-store',
-        request.method
-      );
-      return;
-    }
-    const manifest = (await upstream.text())
-      .replaceAll('__OCCUMED_PUBLIC_ORIGIN__', requestOrigin(request));
-    send(
-      response,
-      200,
-      manifest,
-      contentTypes['.json'],
-      'public, max-age=300, must-revalidate',
-      request.method
-    );
-  } catch (error) {
-    if (isUpstreamAbort(error, upstreamContext.signal)) {
-      handleUpstreamAbort(request, response, 'Worldwide map manifest');
-      return;
-    }
-    throw error;
-  } finally {
-    upstreamContext.cleanup();
-  }
+  response.writeHead(200, {
+    ...corsHeaders,
+    'Cache-Control': cacheControl,
+    'CDN-Cache-Control': cacheControl,
+    'Surrogate-Control': cacheControl,
+    'Content-Encoding': 'gzip',
+    'Content-Length': compressed.byteLength,
+    'Content-Type': contentTypes['.pbf'],
+    'Vary': 'Accept-Encoding',
+    'X-Occumed-Tileset': 'virtual-worldwide-v1'
+  });
+  if (request.method === 'HEAD') response.end();
+  else response.end(compressed);
 }
 
 function parseByteRange(header, size) {
@@ -409,20 +275,18 @@ async function handleRequest(request, response) {
     return;
   }
 
-  if (url.pathname === '/world-manifest.json') {
-    await serveWorldManifest(request, response);
-    return;
-  }
-
-  const worldAssetMatch = /^\/world-tiles\/(occumed-[a-z0-9-]+\.pmtiles)$/.exec(url.pathname);
-  if (worldAssetMatch) {
-    await proxyReleaseAsset(
-      request,
-      response,
-      worldAssetMatch[1],
-      contentTypes['.pmtiles'],
-      'public, max-age=86400, immutable'
+  const tileMatch = /^\/tiles\/(\d+)\/(\d+)\/(\d+)\.pbf$/.exec(url.pathname);
+  if (tileMatch) {
+    const coordinates = normalizeTileCoordinates(
+      tileMatch[1],
+      tileMatch[2],
+      tileMatch[3]
     );
+    if (!coordinates) {
+      send(response, 404, 'Tile not found', 'text/plain; charset=utf-8', 'no-store', method);
+      return;
+    }
+    await serveVirtualTile(request, response, coordinates);
     return;
   }
 
@@ -456,8 +320,8 @@ const server = http.createServer((request, response) => {
   });
 });
 
-server.requestTimeout = 30_000;
-server.headersTimeout = 35_000;
+server.requestTimeout = 45_000;
+server.headersTimeout = 50_000;
 server.keepAliveTimeout = 5_000;
 
 server.on('error', (error) => {

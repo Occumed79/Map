@@ -47,7 +47,8 @@ assert(runtime.sky?.['horizon-fog-blend'] === 0, 'Horizon fog must remain disabl
 assert(!runtime.light, 'Directional light must not be reintroduced.');
 assert(!runtime.fog, 'Mapbox fog must not be copied into the MapLibre runtime.');
 
-assert(layer('land')?.paint?.['background-color'] === '#E0E0D1', 'The exact exported land swatch changed.');
+assert(layer('land')?.paint?.['background-color'] === '#4F9CD6', 'The permanent ocean blue changed.');
+assert(layer('occumed-land-surface')?.paint?.['fill-color'] === '#8FB86B', 'The saturated land green changed.');
 assert(layer('water')?.paint?.['fill-color'] === '#79BCEC', 'The exact exported water swatch changed.');
 assert(layer('water-shadow')?.paint?.['fill-color'] === '#7293EE', 'The exact exported water-shadow swatch changed.');
 assert(layer('wetland')?.paint?.['fill-color'] === '#A4CAD6', 'The exact exported wetland swatch changed.');
@@ -63,15 +64,7 @@ assert(JSON.stringify(landcover?.paint?.['fill-opacity'] || []).includes('1'), '
 assert(layer('landuse')?.paint?.['fill-opacity'] === 1, 'Detailed landuse swatches are being weakened by extra opacity.');
 assert(layer('water')?.paint?.['fill-opacity'] === 1, 'Water must remain fully opaque.');
 
-const relief = layer('occumed-shaded-relief');
-assert(relief?.paint?.['raster-saturation'] === -1, 'The independent relief raster is recoloring the exported palette.');
-assert(relief?.paint?.['raster-contrast'] === 0.04, 'The neutral relief contrast changed.');
-assert(relief?.paint?.['raster-hue-rotate'] === 0, 'The independent relief raster is rotating exported hues.');
-assert(relief?.maxzoom === 7, 'Pixel-based relief must disappear before regional and city detail.');
-const reliefOpacity = relief?.paint?.['raster-opacity'] || [];
-assert(reliefOpacity.includes(0.12), 'The restrained neutral relief texture is missing.');
-assert(reliefOpacity.includes(7) && reliefOpacity.at(-1) === 0, 'Neutral relief does not fully disappear by zoom 7.');
-assert(!reliefOpacity.some((value) => typeof value === 'number' && value > 0.12 && value < 1), 'Relief opacity can distort the exported swatches.');
+assert(!runtime.layers.some((candidate) => candidate.type === 'raster'), 'A raster fallback basemap was reintroduced.');
 
 const hillshade = layer('occumed-hillshade');
 assert(hillshade?.minzoom === 1.5, 'Hillshade must begin early enough to shape the globe.');
@@ -114,11 +107,11 @@ assert(JSON.stringify(majorPlace?.layout?.['text-font'] || []).includes('Open Sa
 assert(layer('state-label')?.paint?.['text-opacity'] === 0.5, 'The exported muted state-label hierarchy was lost.');
 
 assert(runtime.metadata?.['occumed:exported-cartography-restored'] === true, 'Exported cartography restoration marker is missing.');
-assert(runtime.metadata?.['occumed:reference-color-system'] === 'exact-exported-swatches-v9', 'Exact exported swatch marker is missing.');
-assert(runtime.metadata?.['occumed:live-visual-qa-pass'] === 9, 'Exact swatch build pass marker is missing.');
+assert(runtime.metadata?.['occumed:reference-color-system'] === 'continuous-world-v10', 'Continuous-world color marker is missing.');
+assert(runtime.metadata?.['occumed:live-visual-qa-pass'] === 10, 'Continuous-world visual pass marker is missing.');
 assert(runtime.metadata?.['occumed:palette-format'] === 'fixed-hex-per-layer', 'Per-layer fixed-hex palette marker is missing.');
 assert(runtime.metadata?.['occumed:layer-specific-palette'] === true, 'Layer-specific palette protection is missing.');
-assert(runtime.metadata?.['occumed:colored-relief-disabled'] === true, 'Colored relief protection is missing.');
+assert(runtime.metadata?.['occumed:raster-relief-disabled'] === true, 'Raster relief protection is missing.');
 assert(runtime.metadata?.['occumed:high-dpi-vector-clarity'] === true, 'High-DPI clarity protection is missing.');
 
 for (const [sourceId, source] of Object.entries(runtime.sources || {})) {
@@ -130,4 +123,4 @@ assert(!/mapbox:\/\//i.test(runtime.sprite || ''), 'Runtime sprite must not use 
 assert(!/api\.mapbox\.com/i.test(runtime.glyphs || ''), 'Runtime glyphs must not use Mapbox.');
 assert(runtime.metadata?.['occumed:mapbox-runtime-dependency'] === false, 'No-Mapbox dependency marker is missing.');
 
-console.log(`Reference guard passed: exact exported greens/blues, high-DPI vector clarity, neutral terrain shading, and ${allColors.size} distinct colors.`);
+console.log(`Reference guard passed: saturated green land, clear blue water, high-DPI vector clarity, and ${allColors.size} distinct colors.`);

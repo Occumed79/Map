@@ -8,9 +8,12 @@ function parseArgs(argv) {
     const key = argv[index];
     if (key === '--plan') options.plan = argv[++index];
     else if (key === '--assets') options.assets = argv[++index];
+    else if (key === '--asset-pages') options.assets = argv[++index];
     else if (key === '--repository') options.repository = argv[++index];
     else if (key === '--tag') options.tag = argv[++index];
     else if (key === '--output') options.output = argv[++index];
+    else if (key === '--overview-asset') options.overviewAsset = argv[++index];
+    else if (key === '--surface-asset') options.surfaceAsset = argv[++index];
   }
   for (const required of ['plan', 'assets', 'repository', 'tag', 'output']) {
     if (!options[required]) throw new Error(`Missing --${required}.`);
@@ -24,22 +27,41 @@ const [plan, assetsPayload] = await Promise.all([
   fs.readFile(options.assets, 'utf8').then(JSON.parse)
 ]);
 
-const assetNames = new Set((assetsPayload.assets || []).map((asset) => asset.name));
+const assets = Array.isArray(assetsPayload)
+  ? assetsPayload.flatMap((page) => page || [])
+  : assetsPayload.assets || [];
+const assetNames = new Set(assets.map((asset) => asset.name));
 const planned = plan.include || [];
 const available = planned.filter((region) => assetNames.has(region.asset_name));
 const missing = planned.filter((region) => !assetNames.has(region.asset_name));
-const releaseBase = `https://github.com/${options.repository}/releases/download/${options.tag}`;
+const overviewAsset = options.overviewAsset || 'occumed-world-overview.pmtiles';
+const surfaceAsset = options.surfaceAsset || 'occumed-world-surface.pmtiles';
+const missingVirtualAssets = [overviewAsset, surfaceAsset].filter((asset) => !assetNames.has(asset));
+
+if (missingVirtualAssets.length) {
+  throw new Error(
+    `Cannot publish the virtual worldwide manifest; missing ${missingVirtualAssets.join(', ')}.`
+  );
+}
 
 const manifest = {
-  version: 1,
+  version: 2,
   generatedAt: new Date().toISOString(),
   releaseTag: options.tag,
   sourceSchema: 'planetiler/occumed-basemap.yml',
-  switchZoom: 6,
   attribution: '<a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors</a>',
-  archiveTransport: 'same-origin-release-proxy',
-  archiveProxyTemplate: '__OCCUMED_PUBLIC_ORIGIN__/world-tiles/{asset}',
-  releaseBase,
+  archiveTransport: 'server-side-release-storage',
+  virtualTiles: {
+    endpoint: '/tiles/{z}/{x}/{y}.pbf',
+    overviewAsset,
+    overviewMaxZoom: 5,
+    surfaceAsset,
+    surfaceLayer: 'land',
+    surfaceMaxZoom: 10,
+    routingZoom: 6,
+    minZoom: 0,
+    maxZoom: 16
+  },
   regions: available.map((region) => ({
     id: region.id,
     slug: region.slug,
@@ -47,8 +69,7 @@ const manifest = {
     continent: region.continent,
     bounds: [region.west, region.south, region.east, region.north],
     asset: region.asset_name,
-    url: `__OCCUMED_PUBLIC_ORIGIN__/world-tiles/${region.asset_name}`,
-    minzoom: 6,
+    minzoom: 0,
     maxzoom: 16
   })),
   plannedRegionCount: planned.length,

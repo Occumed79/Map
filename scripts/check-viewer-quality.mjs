@@ -32,7 +32,8 @@ if (!helper.includes('zoom = 1.82')) fail('The standalone globe must start with 
 if (!helper.includes('antialias: true')) fail('The standalone globe must render with antialiasing enabled.');
 if (fonts.includes("'DIN Pro Medium', 'Open Sans Semibold'")) fail('DIN Pro Medium must not be replaced with an overly heavy open font.');
 
-if (layer('land')?.paint?.['background-color'] !== '#E0E0D1') fail('The exact exported land swatch changed.');
+if (layer('land')?.paint?.['background-color'] !== '#4F9CD6') fail('The permanent ocean blue changed.');
+if (layer('occumed-land-surface')?.paint?.['fill-color'] !== '#8FB86B') fail('The saturated land green changed.');
 if (layer('water')?.paint?.['fill-color'] !== '#79BCEC') fail('The exact exported water blue changed.');
 if (layer('water-shadow')?.paint?.['fill-color'] !== '#7293EE') fail('The exact exported water-shadow blue changed.');
 if (layer('wetland')?.paint?.['fill-color'] !== '#A4CAD6') fail('The exact exported wetland blue changed.');
@@ -48,14 +49,7 @@ if (!JSON.stringify(landcover?.paint?.['fill-opacity'] || []).includes('1')) fai
 if (layer('landuse')?.paint?.['fill-opacity'] !== 1) fail('Detailed landuse swatches are being weakened by extra opacity.');
 if (layer('water')?.paint?.['fill-opacity'] !== 1) fail('Water is translucent and will wash into the land background.');
 
-const relief = layer('occumed-shaded-relief');
-if (relief?.paint?.['raster-saturation'] !== -1) fail('The independent relief raster is recoloring the exported palette.');
-if (relief?.paint?.['raster-hue-rotate'] !== 0) fail('The independent relief raster is rotating exported hues.');
-if ((relief?.paint?.['raster-contrast'] ?? 1) > 0.05) fail('Neutral relief contrast is high enough to distort exported swatches.');
-if ((relief?.maxzoom ?? 99) > 8.5) fail('Raster relief persists too far into city zooms.');
-const reliefOpacity = relief?.paint?.['raster-opacity'] || [];
-if (!reliefOpacity.includes(0.12)) fail('The restrained neutral relief texture is missing.');
-if (reliefOpacity.some((value) => typeof value === 'number' && value > 0.12 && value < 1)) fail('Relief opacity can distort exported swatches.');
+if (runtime.layers.some((candidate) => candidate.type === 'raster')) fail('A raster fallback basemap was reintroduced.');
 
 const hillshade = layer('occumed-hillshade');
 if (hillshade?.minzoom !== 1.5) fail('Hillshade begins too late to give the globe physical form.');
@@ -87,10 +81,10 @@ if (layer('admin-0-boundary')?.paint?.['line-opacity'] !== 0.82) fail('Country b
 if (layer('admin-1-boundary')?.paint?.['line-opacity'] !== 0.58) fail('State boundaries are too faint for regional views.');
 
 if (!runtime.metadata?.['occumed:exported-cartography-restored']) fail('The exported vector cartography was not restored after endpoint translation.');
-if (runtime.metadata?.['occumed:reference-color-system'] !== 'exact-exported-swatches-v9') fail('The exact exported swatch pass did not run.');
+if (runtime.metadata?.['occumed:reference-color-system'] !== 'continuous-world-v10') fail('The continuous-world color pass did not run.');
 if (runtime.metadata?.['occumed:palette-format'] !== 'fixed-hex-per-layer') fail('The per-layer fixed-hex palette marker is missing.');
 if (runtime.metadata?.['occumed:layer-specific-palette'] !== true) fail('Layer-specific palette protection is missing.');
-if (runtime.metadata?.['occumed:colored-relief-disabled'] !== true) fail('Colored relief protection is missing.');
+if (runtime.metadata?.['occumed:raster-relief-disabled'] !== true) fail('Raster relief protection is missing.');
 
 if (failures.length) {
   console.error('Standalone viewer quality validation failed:');
@@ -98,4 +92,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log(`Viewer guard passed: clean chrome, exact exported greens/blues, neutral terrain shading, early hierarchy, and ${allColors.size} structure-specific colors.`);
+console.log(`Viewer guard passed: clean chrome, saturated green land, clear blue water, early hierarchy, and ${allColors.size} structure-specific colors.`);

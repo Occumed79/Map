@@ -313,19 +313,19 @@ jobs:
             --assets world-release/assets.json \
             --repository "$GITHUB_REPOSITORY" \
             --tag "$WORLD_RELEASE_TAG" \
-            --output world-release/occumed-world-manifest.json
+            --output world-release/world-virtual-manifest.json
 
           gh release upload "$WORLD_RELEASE_TAG" \
-            world-release/occumed-world-manifest.json \
+            world-release/world-virtual-manifest.json \
             --repo "$GITHUB_REPOSITORY" \
             --clobber
 
-          cat world-release/occumed-world-manifest.json
+          cat world-release/world-virtual-manifest.json
 
       - name: Require zero missing worldwide shards
         run: |
-          test -s world-release/occumed-world-manifest.json
-          missing="$(node -p "require('./world-release/occumed-world-manifest.json').missingRegionCount")"
+          test -s world-release/world-virtual-manifest.json
+          missing="$(node -p "require('./world-release/world-virtual-manifest.json').missingRegionCount")"
           if [ "$missing" -ne 0 ]; then
             echo "$missing worldwide PMTiles shards are still missing from the release." >&2
             exit 1
@@ -336,6 +336,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: occumed-world-manifest-${{ github.sha }}
-          path: world-release/occumed-world-manifest.json
+          path: world-release/world-virtual-manifest.json
           if-no-files-found: error
           retention-days: 30

@@ -58,25 +58,9 @@ for (const id of requiredVectorLayers) {
   }
 }
 
-const relief = layer('occumed-shaded-relief');
-if (!relief) {
-  fail('The restrained globe relief layer is missing.');
-} else {
-  if ((relief.maxzoom ?? 99) > 7) {
-    fail('Pixel-based relief persists into regional or city detail.');
-  }
-  const opacity = JSON.stringify(relief.paint?.['raster-opacity'] || []);
-  if (!opacity.includes('7,0')) {
-    fail('Pixel-based relief does not fully disappear by zoom 7.');
-  }
-  if (relief.paint?.['raster-resampling'] !== 'linear') {
-    fail('Globe relief is using pixelated nearest-neighbor resampling.');
-  }
-}
-
 const rasterLayers = runtime.layers.filter((candidate) => candidate.type === 'raster');
-if (rasterLayers.some((candidate) => candidate.id !== 'occumed-shaded-relief')) {
-  fail('An additional raster layer can soften the vector basemap.');
+if (rasterLayers.length) {
+  fail('A raster basemap layer can soften or replace the continuous vector map.');
 }
 
 if (runtime.metadata?.['occumed:high-dpi-vector-clarity'] !== true) {
@@ -89,4 +73,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('Render clarity validated: 2x–3x canvas, antialiasing, @2x sprites, vector detail, and no city-level raster blur.');
+console.log('Render clarity validated: 2x–3x canvas, antialiasing, @2x sprites, and vector-only basemap detail.');

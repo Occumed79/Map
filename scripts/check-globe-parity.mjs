@@ -58,16 +58,11 @@ if (horizonOutputs.at(-1) !== 0) {
   fail('The horizon rim does not fade out before detailed zooms.');
 }
 
-const relief = layer('occumed-shaded-relief');
-if (!relief) fail('The low-zoom relief layer is missing.');
-if (relief?.paint?.['raster-saturation'] !== -1) fail('The independent relief raster is recoloring the exported palette.');
-if (relief?.paint?.['raster-hue-rotate'] !== 0) fail('The independent relief raster is rotating exported hues.');
-if ((relief?.paint?.['raster-contrast'] ?? 1) > 0.05) fail('Neutral relief contrast is high enough to distort exported swatches.');
-if ((relief?.maxzoom ?? 99) > 7) fail('Raster relief persists too far into regional or city zooms.');
-const reliefStops = (relief?.paint?.['raster-opacity'] || []).filter((value) => typeof value === 'number');
-if (reliefStops.some((value) => value > 7 ? false : value > 0.12 && value < 1)) {
-  fail('The independent relief raster is opaque enough to recolor the globe.');
+if (runtime.layers.some((candidate) => candidate.type === 'raster')) {
+  fail('A raster fallback basemap was reintroduced.');
 }
+if (layer('land')?.paint?.['background-color'] !== '#4F9CD6') fail('The permanent ocean blue changed.');
+if (layer('occumed-land-surface')?.paint?.['fill-color'] !== '#8FB86B') fail('The saturated land green changed.');
 
 const landcover = layer('landcover');
 if ((landcover?.minzoom ?? 99) !== 0) fail('Landcover is unavailable at globe zoom.');
@@ -93,10 +88,10 @@ const allColors = collectHex(runtime.layers.map((candidate) => candidate.paint |
 if (allColors.size < 25) fail(`The exported globe palette was flattened to only ${allColors.size} colors.`);
 
 if (!runtime.metadata?.['occumed:exported-cartography-restored']) fail('The exported-cartography restoration pass did not run.');
-if (runtime.metadata?.['occumed:reference-color-system'] !== 'exact-exported-swatches-v9') fail('The exact exported swatch pass did not run.');
+if (runtime.metadata?.['occumed:reference-color-system'] !== 'continuous-world-v10') fail('The continuous-world color pass did not run.');
 if (runtime.metadata?.['occumed:palette-format'] !== 'fixed-hex-per-layer') fail('The per-layer fixed-hex palette marker is missing.');
 if (runtime.metadata?.['occumed:layer-specific-palette'] !== true) fail('Layer-specific palette protection is missing.');
-if (runtime.metadata?.['occumed:colored-relief-disabled'] !== true) fail('Colored relief protection is missing.');
+if (runtime.metadata?.['occumed:raster-relief-disabled'] !== true) fail('Raster relief protection is missing.');
 if (runtime.metadata?.['occumed:reference-atmosphere'] !== true) fail('The reference atmosphere pass did not run.');
 if (runtime.metadata?.['occumed:atmosphere-surface-wash-disabled'] !== true) fail('Atmosphere surface-wash protection is missing.');
 
@@ -106,4 +101,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log(`Globe parity validated: dark space, strong white-blue atmosphere, exact exported greens/blues, neutral terrain shading, and ${allColors.size} structure-specific colors.`);
+console.log(`Globe parity validated: dark space, strong white-blue atmosphere, saturated green land, clear blue water, and ${allColors.size} structure-specific colors.`);

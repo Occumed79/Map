@@ -96,32 +96,6 @@ for (const layer of runtime.layers || []) {
     continue;
   }
 
-  if (layer.id === 'occumed-shaded-relief') {
-    layer.maxzoom = 7;
-    layer.paint = {
-      'raster-opacity': [
-        'interpolate', ['linear'], ['zoom'],
-        0, 0.34,
-        2.5, 0.31,
-        4.5, 0.22,
-        6.5, 0
-      ],
-      'raster-saturation': 0.72,
-      'raster-contrast': 0.16,
-      'raster-brightness-min': 0.02,
-      'raster-brightness-max': 0.96,
-      'raster-resampling': 'linear',
-      'raster-fade-duration': 0
-    };
-    layer.metadata = {
-      ...(layer.metadata || {}),
-      'occumed:purpose': 'photo-calibrated bathymetry and low-zoom relief',
-      'occumed:reference': 'Mapbox Studio screenshot set supplied 2026-07-25',
-      'occumed:live-qa-pass': 2
-    };
-    continue;
-  }
-
   if (layer.id === 'occumed-hillshade') {
     layer.minzoom = 3;
     layer.maxzoom = 16;

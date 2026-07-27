@@ -35,26 +35,24 @@ The workflow:
 3. builds every shard on free GitHub-hosted runners;
 4. publishes archives, checksums, and metadata to the `occumed-world-v1` GitHub Release;
 5. validates byte-range delivery for every archive;
-6. publishes `occumed-world-manifest.json` only from successfully uploaded assets;
-7. fails until the manifest reports zero missing regions.
+6. consolidates shard tiles at zoom 0–5 into `occumed-world-overview.pmtiles`;
+7. builds a generalized worldwide `land` surface;
+8. publishes a server-only routing manifest after every required archive exists.
 
-The browser keeps the existing global overview at low zoom. Beginning at zoom 6, `src/world-pmtiles-router.js` selects the smallest matching regional archive and changes the shared vector source without replacing application overlays.
-
-The deployed Node server exposes:
+The browser never selects or reads these archives. It uses one permanent vector template:
 
 ```text
-/world-manifest.json
-/world-tiles/occumed-<region>.pmtiles
+/tiles/{z}/{x}/{y}.pbf
 ```
 
-Those endpoints proxy the GitHub Release assets, preserve HTTP range requests, and add the required CORS and cache headers. No paid object-storage account is required.
+The Node gateway uses the consolidated overview at zoom 0–5. At zoom 6–16 it looks up every regional archive intersecting the requested tile, reads the storage pieces, deduplicates stable feature IDs, merges each MVT layer, adds the worldwide land surface, and caches the completed tile. Shard boundaries and archive URLs are therefore invisible to MapLibre.
 
-## Launch the worldwide build
+## Launch the virtual worldwide build
 
-The workflow can be started manually from GitHub Actions or by changing:
+After the 754 regional archives are complete, run this workflow manually:
 
 ```text
-planetiler/world-build.trigger
+Build Virtual Worldwide Tileset
 ```
 
 The release tag defaults to:
@@ -63,13 +61,7 @@ The release tag defaults to:
 occumed-world-v1
 ```
 
-The runtime automatically checks:
-
-```text
-__OCCUMED_PUBLIC_ORIGIN__/world-manifest.json
-```
-
-Until the release manifest exists, the map safely retains the current global vector source.
+It publishes `occumed-world-overview.pmtiles`, `occumed-world-surface.pmtiles`, and the version 2 server-only `world-virtual-manifest.json` to the release. The legacy `world-manifest.json` can remain during rollout because the new browser never requests either manifest.
 
 ## Build one regional archive locally
 
@@ -94,22 +86,12 @@ OCCUMED_TILE_AREA=australia/new-south-wales npm run tiles:build
 
 An existing `.osm.pbf` can be used by setting `OCCUMED_OSM_PBF` to a file inside `OCCUMED_PLANETILER_DATA_DIR`.
 
-## Single-archive override
-
-Worldwide routing is enabled by default. To disable it and use one archive instead:
+To point the server at a compatible server-only manifest:
 
 ```bash
-OCCUMED_WORLD_MANIFEST_URL=off \
-OCCUMED_PMTILES_URL=__OCCUMED_PUBLIC_ORIGIN__/tiles/occumed.pmtiles \
-npm run build
-```
-
-To use a different worldwide manifest:
-
-```bash
-OCCUMED_WORLD_MANIFEST_URL=https://tiles.example.org/occumed-world-manifest.json npm run build
+OCCUMED_WORLD_MANIFEST_URL=https://storage.example.org/world-virtual-manifest.json npm start
 ```
 
 ## Remaining enrichment stages
 
-The worldwide vector schema and delivery path are independent from terrain enrichment. Generated contours, GEBCO bathymetric bands, Overture enrichment, and complete route-relation shield metadata can be added as separate stages without changing the PMTiles routing architecture.
+The worldwide vector schema and delivery path are independent from terrain enrichment. Generated contours, bathymetric bands, Overture enrichment, and complete route-relation shield metadata can be added to the virtual MVT response without changing the one permanent browser source.

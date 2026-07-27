@@ -7,8 +7,8 @@ A reusable Occu-Med basemap that uses the uploaded **Occu-Med Terrain** export a
 The supplied Mapbox Studio screenshots are the visual acceptance reference for:
 
 - globe scale, black space, and the white-blue atmospheric rim;
-- vivid oceans and visible bathymetry;
-- pale land, forest, grassland, wetland, agriculture, desert, snow, and urban separation;
+- clear blue oceans;
+- saturated green land with forest, grassland, wetland, agriculture, desert, snow, and urban separation;
 - terrain relief and contours;
 - road, boundary, place-label, water-label, and POI hierarchy;
 - globe, regional, city, and street zoom transitions.
@@ -18,14 +18,29 @@ The goal is a close visual replica without a Mapbox token or Mapbox-hosted runti
 ## Runtime
 
 - MapLibre GL JS
-- the worldwide Occu-Med Planetiler + PMTiles source when a regional archive is available
-- a safe global open-vector fallback for low zoom and missing archives
-- open terrain and relief services
+- one permanent MapLibre vector source at `/tiles/{z}/{x}/{y}.pbf`
+- a server-side virtual worldwide tileset backed by the 754 PMTiles storage archives
+- one consolidated zoom 0–5 overview and one generalized worldwide land surface
+- open elevation data used only for hillshade, not as a second basemap
 - locally compiled sprites
-- open glyphs
+- browser-local glyph rendering
 - generated runtime style at `/style/occumed-open.json`
 
-No `VITE_MAPBOX_ACCESS_TOKEN`, `mapbox-gl`, `mapbox://` URL, or Mapbox API endpoint is required by the active build.
+No `VITE_MAPBOX_ACCESS_TOKEN`, `mapbox-gl`, `mapbox://` URL, Mapbox API endpoint, OpenFreeMap source, or external vector fallback is used by the active build.
+
+## Worldwide tile architecture
+
+MapLibre sees only `occumed-open`, whose URL is permanent from zoom 0 through 16. The browser does not load the world manifest, select an archive, register a PMTiles protocol, or replace a source while the map moves.
+
+The Node tile gateway resolves each Z/X/Y request on the server:
+
+- zoom 0–5 comes from a consolidated overview built from the same regional schema;
+- zoom 6–16 is resolved against every storage shard intersecting the requested tile;
+- boundary tiles are decoded, deduplicated by stable feature ID, and re-encoded as one MVT;
+- the worldwide `land` layer is merged into the same response at every zoom;
+- completed virtual tiles are held in a bounded in-memory cache and exposed with CDN cache headers.
+
+The PMTiles archives and routing manifest are storage implementation details. Their URLs never appear in the MapLibre style.
 
 ## Source of truth
 
@@ -64,7 +79,7 @@ Install the repository in the consuming application:
 npm install github:Occumed79/Map
 ```
 
-Create the map through the shared helper rather than constructing a raw MapLibre instance from the style URL. The helper registers the PMTiles protocol, resolves the deployed origin, installs worldwide archive routing, and preserves application-owned overlays.
+Create the map through the shared helper to retain the approved high-DPI, no-fade rendering defaults while preserving application-owned overlays.
 
 ```js
 import { createOccumedMap } from '@occumed/map/src/occumed-map.js';
@@ -79,13 +94,7 @@ const map = await createOccumedMap({
 map.on('load', () => {
   // Add only this application's overlays here.
 });
-
-map.on('occumedworldsourcechange', (event) => {
-  console.debug('Occu-Med regional basemap source', event.region || 'global fallback');
-});
 ```
-
-Directly fetching the style and passing it to a separate `new maplibregl.Map(...)` instance is not supported for worldwide mode because that bypasses PMTiles protocol registration and regional source routing.
 
 ## Validation
 
@@ -95,5 +104,9 @@ The build verifies:
 - the generated style passes the MapLibre style specification;
 - no active source, sprite, or glyph URL points to Mapbox;
 - globe, terrain, landcover, water, labels, and viewer-quality settings remain calibrated to the screenshot reference set;
-- worldwide PMTiles planning, release publication, byte-range proxying, and regional source switching remain wired;
+- only one permanent vector source and one same-origin Z/X/Y template exist in the style;
+- browser-side PMTiles routing, `source.setUrl()`, fallback URLs, and OpenFreeMap are absent;
+- the routing index includes every intersecting shard, including antimeridian segments;
+- duplicate features are removed while boundary geometry is preserved;
+- the overview, land surface, regional merge, in-memory cache, and virtual release workflow remain wired;
 - no application-specific overlay data is included.

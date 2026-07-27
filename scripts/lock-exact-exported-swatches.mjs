@@ -11,7 +11,8 @@ const layer = (id) => runtime.layers.find((candidate) => candidate.id === id);
 // Exact hex equivalents of the uploaded Studio swatches shown in style.json.
 // These are not broad category guesses. Every named structure keeps its own color.
 const EXACT = Object.freeze({
-  land: '#E0E0D1',                    // hsl(60, 20%, 85%)
+  ocean: '#4F9CD6',
+  land: '#8FB86B',
   landcoverWood: '#83CC66CC',         // hsla(103, 50%, 60%, 0.8)
   landcoverScrub: '#A3D48799',        // hsla(98, 47%, 68%, 0.6)
   landcoverCrop: '#D1DD8899',         // hsla(68, 55%, 70%, 0.6)
@@ -37,9 +38,14 @@ function enterBy(candidate, zoom) {
 }
 
 // The base and natural-structure colors are fixed to the exact exported swatches.
-const land = requireLayer('land');
-land.paint['background-color'] = EXACT.land;
-land.paint['background-opacity'] = 1;
+const ocean = requireLayer('land');
+ocean.paint['background-color'] = EXACT.ocean;
+ocean.paint['background-opacity'] = 1;
+
+const land = requireLayer('occumed-land-surface');
+land.paint['fill-color'] = EXACT.land;
+land.paint['fill-opacity'] = 1;
+land.paint['fill-antialias'] = true;
 
 const landcover = requireLayer('landcover');
 enterBy(landcover, 0);
@@ -114,36 +120,6 @@ const waterwayShadow = requireLayer('waterway-shadow');
 waterwayShadow.paint['line-color'] = EXACT.waterShadow;
 waterwayShadow.paint['line-opacity'] = 1;
 
-// The independent Natural Earth raster was the source of the yellow/fluorescent
-// and later washed-out color drift. Keep only faint grayscale physical texture at
-// globe zoom, then remove it before regional/city detail so vector edges stay crisp.
-const relief = requireLayer('occumed-shaded-relief');
-relief.maxzoom = 7;
-relief.paint = {
-  'raster-opacity': [
-    'interpolate',
-    ['linear'],
-    ['zoom'],
-    0, 0.12,
-    2.5, 0.09,
-    4.5, 0.05,
-    6, 0.02,
-    7, 0
-  ],
-  'raster-saturation': -1,
-  'raster-contrast': 0.04,
-  'raster-hue-rotate': 0,
-  'raster-brightness-min': 0.2,
-  'raster-brightness-max': 0.95,
-  'raster-resampling': 'linear',
-  'raster-fade-duration': 0
-};
-relief.metadata = {
-  ...(relief.metadata || {}),
-  'occumed:purpose': 'neutral globe texture that fades before regional vector detail',
-  'occumed:exact-swatches-pass': 9
-};
-
 // Use neutral light and shadow only. Terrain may change lightness, but never hue.
 const hillshade = requireLayer('occumed-hillshade');
 hillshade.minzoom = 1.5;
@@ -169,15 +145,15 @@ hillshade.paint = {
 
 runtime.metadata = {
   ...(runtime.metadata || {}),
-  'occumed:reference-color-system': 'exact-exported-swatches-v9',
-  'occumed:reference-color-pass': 9,
-  'occumed:live-visual-qa-pass': 9,
+  'occumed:reference-color-system': 'continuous-world-v10',
+  'occumed:reference-color-pass': 10,
+  'occumed:live-visual-qa-pass': 10,
   'occumed:palette-format': 'fixed-hex-per-layer',
   'occumed:layer-specific-palette': true,
-  'occumed:colored-relief-disabled': true,
+  'occumed:raster-relief-disabled': true,
   'occumed:high-dpi-vector-clarity': true,
   'occumed:exact-swatches': EXACT
 };
 
 await fs.writeFile(runtimePath, `${JSON.stringify(runtime, null, 2)}\n`);
-console.log('Locked exact exported swatches, preserved vector detail, and faded pixel-based relief before regional zooms.');
+console.log('Locked the green-land/blue-water world palette and preserved sharp vector detail.');
