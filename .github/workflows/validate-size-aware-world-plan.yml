@@ -1,98 +1,10 @@
 name: Validate size-aware worldwide plan
 
 on:
-  push:
-    branches:
-      - feat/custom-planetiler-pmtiles-basemap
-    paths:
-      - .github/workflows/validate-size-aware-world-plan.yml
-
-permissions:
-  contents: write
+  workflow_dispatch:
 
 jobs:
-  validate-plan:
+  manual-only:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: feat/custom-planetiler-pmtiles-basemap
-          fetch-depth: 0
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-
-      - name: Generate and verify the final replacement worldwide plan
-        run: |
-          mkdir -p diagnostics
-          node scripts/plan-world-shards.mjs --scope all > /tmp/size-aware-world-plan.json
-          node <<'NODE'
-          const fs = require('node:fs');
-          const plan = JSON.parse(fs.readFileSync('/tmp/size-aware-world-plan.json', 'utf8'));
-          const regions = plan.include || [];
-          const byId = new Map(regions.map((region) => [region.id, region]));
-          const assetNames = regions.map((region) => region.asset_name);
-          const splitSources = [...new Set(
-            regions
-              .filter((region) => region.extract_bbox)
-              .map((region) => region.source_region_id)
-          )].sort();
-          const argentinaPieces = regions.filter((region) => region.source_region_id === 'argentina');
-          const alpsPieces = regions.filter((region) => region.source_region_id === 'alps');
-          const fiji = regions.find((region) => region.id === 'fiji');
-          const probedCount = regions.filter((region) => Number.isFinite(region.source_size_bytes)).length;
-
-          if (regions.length < 350 || regions.length > 900) {
-            throw new Error(`Unexpected worldwide shard count: ${regions.length}`);
-          }
-          if (new Set(regions.map((region) => region.id)).size !== regions.length) {
-            throw new Error('Worldwide plan contains duplicate region ids.');
-          }
-          if (new Set(assetNames).size !== assetNames.length) {
-            throw new Error('Worldwide plan contains duplicate PMTiles asset names.');
-          }
-          if (byId.has('argentina') || byId.has('alps')) {
-            throw new Error('An oversized parent archive was not replaced by bounded subdivisions.');
-          }
-          if (argentinaPieces.length < 4 || argentinaPieces.some((region) => !region.extract_bbox)) {
-            throw new Error(`Argentina subdivision is incomplete: ${argentinaPieces.length} pieces.`);
-          }
-          if (alpsPieces.length < 4 || alpsPieces.some((region) => !region.extract_bbox)) {
-            throw new Error(`Alps subdivision is incomplete: ${alpsPieces.length} pieces.`);
-          }
-          if (byId.has('us')) {
-            throw new Error('Overlapping United States parent extract remains in the true-leaf plan.');
-          }
-          if (!fiji || !(fiji.west > fiji.east)) {
-            throw new Error('Fiji does not retain an antimeridian-aware wrapped bound.');
-          }
-          if (probedCount < Math.floor(regions.length * 0.9)) {
-            throw new Error(`Remote size coverage is too low: ${probedCount}/${regions.length}.`);
-          }
-
-          const summary = {
-            generatedAt: new Date().toISOString(),
-            plannedRegionCount: regions.length,
-            uniqueAssetCount: new Set(assetNames).size,
-            probedRegionCount: probedCount,
-            splitSourceCount: splitSources.length,
-            splitSources,
-            argentinaPieceCount: argentinaPieces.length,
-            alpsPieceCount: alpsPieces.length,
-            antimeridianFijiBounds: [fiji.west, fiji.south, fiji.east, fiji.north],
-            overlappingUsParentRemoved: !byId.has('us')
-          };
-          fs.writeFileSync('diagnostics/size-aware-world-plan-summary.json', `${JSON.stringify(summary, null, 2)}\n`);
-          console.log(JSON.stringify(summary, null, 2));
-          NODE
-
-      - name: Commit verified summary and remove one-time workflow
-        run: |
-          git rm .github/workflows/validate-size-aware-world-plan.yml
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add diagnostics/size-aware-world-plan-summary.json
-          git commit -m "Validate size-aware worldwide PMTiles plan"
-          git push origin HEAD:feat/custom-planetiler-pmtiles-basemap
+      - run: echo "World-plan validation is paused until the missing-shard completion run finishes."
