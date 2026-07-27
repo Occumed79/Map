@@ -1,2 +1,2 @@
-requested_at=2026-07-26T21:36:00Z
-purpose=authoritative_release_only_audit_without_rebuilding_any_pmtiles
+requested_at=2026-07-27T11:54:00Z
+purpose=verify_pinned_zero_missing_manifest_sizes_and_pmtiles_headers
