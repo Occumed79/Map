@@ -1,6 +1,6 @@
-Repair only canonical worldwide PMTiles archives missing after exact release cleanup.
-Triggered: 2026-07-26T21:59:00Z
-Canonical retained: 310
-Canonical missing: 414
-Release capacity available: 690 slots
-Mode: preserve retained PMTiles; upload no temporary plan assets; publish final manifest only after repair.
+Repair only canonical worldwide PMTiles archives still absent after the 401-success pass.
+Triggered: 2026-07-27T01:57:00Z
+Mode: cancel the two unfinished jobs, preserve every published canonical PMTiles asset, and schedule every genuinely missing shard.
+Verification: public range check plus authenticated GitHub release-asset fallback.
+Shard timeout: 360 minutes.
+Final gate: publish the worldwide manifest only when zero canonical shards remain missing.
