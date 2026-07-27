@@ -11,7 +11,7 @@ const port = Number(process.env.PORT || 4173);
 const host = process.env.HOST?.trim() || '0.0.0.0';
 const worldReleaseRepository = process.env.OCCUMED_WORLD_RELEASE_REPOSITORY?.trim() || 'Occumed79/Map';
 const worldReleaseTag = process.env.OCCUMED_WORLD_RELEASE_TAG?.trim() || 'occumed-world-v1';
-const worldManifestAsset = 'occumed-world-manifest.json';
+const worldManifestAsset = 'world-manifest.json';
 const configuredUpstreamTimeout = Number(process.env.OCCUMED_UPSTREAM_TIMEOUT_MS || 20_000);
 const upstreamTimeoutMs = Number.isFinite(configuredUpstreamTimeout)
   ? Math.max(configuredUpstreamTimeout, 1_000)
