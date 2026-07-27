@@ -1,4 +1,4 @@
-name: Complete Worldwide Occu-Med PMTiles
+name: Complete Worldwide Occu-Med PMTiles One by One
 
 on:
   workflow_dispatch:
@@ -91,22 +91,23 @@ jobs:
           fs.appendFileSync(process.env.GITHUB_OUTPUT, `published_count=${include.length - missing.length}\n`);
           console.log(`Canonical plan: ${include.length}`);
           console.log(`Already published: ${include.length - missing.length}`);
-          console.log(`Missing and scheduled: ${missing.length}`);
+          console.log(`Missing and scheduled sequentially: ${missing.length}`);
+          console.log(missing.map((region, index) => `${index + 1}. ${region.id} -> ${region.asset_name}`).join('\n'));
           NODE
       - uses: actions/upload-artifact@v4
         with:
-          name: occumed-completion-world-plan-${{ github.sha }}
+          name: occumed-sequential-world-plan-${{ github.sha }}
           path: world-plan/world-plan.json
           if-no-files-found: error
           retention-days: 7
 
-  build:
+  build-one-by-one:
     needs: plan
     runs-on: ubuntu-latest
     timeout-minutes: 360
     strategy:
       fail-fast: false
-      max-parallel: 10
+      max-parallel: 1
       matrix: ${{ fromJson(needs.plan.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v4
@@ -130,7 +131,7 @@ jobs:
     if: always() && needs.plan.result == 'success'
     needs:
       - plan
-      - build
+      - build-one-by-one
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -140,7 +141,7 @@ jobs:
           node-version: 24
       - uses: actions/download-artifact@v4
         with:
-          name: occumed-completion-world-plan-${{ github.sha }}
+          name: occumed-sequential-world-plan-${{ github.sha }}
           path: world-plan
       - name: Build manifest from release inventory
         env:
