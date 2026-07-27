@@ -1,2 +1,2 @@
-requested_at=2026-07-27T15:24:00Z
-purpose=rerun_final_high_dpi_browser_validation_after_current_architecture_guard_fix
+requested_at=2026-07-27T15:35:00Z
+purpose=rerun_final_high_dpi_browser_validation_without_external_glyph_service
