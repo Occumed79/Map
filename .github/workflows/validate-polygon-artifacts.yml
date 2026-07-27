@@ -1,0 +1,131 @@
+name: Validate Worldwide Polygon Geometry
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/validate-polygon-artifacts.yml
+      - package-lock.json
+      - package.json
+      - scripts/build-world-overview.mjs
+      - scripts/build-world-surface.sh
+      - scripts/capture-polygon-regression.mjs
+      - scripts/check-world-tile-gateway.mjs
+      - scripts/pack-mbtiles.py
+      - src/server/**
+      - server.mjs
+
+permissions:
+  contents: read
+
+concurrency:
+  group: occumed-polygon-regression-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  WORLD_RELEASE_TAG: occumed-world-v1
+  OVERVIEW_ASSET: occumed-world-overview.pmtiles
+  SURFACE_ASSET: occumed-world-surface.pmtiles
+  PMTILES_VERSION: v1.31.2
+
+jobs:
+  rebuilt-overview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: 1.24.x
+
+      - run: npm ci
+
+      - name: Build and run unit guards
+        run: npm run build
+
+      - name: Install pinned PMTiles converter
+        run: |
+          set -euo pipefail
+          go install "github.com/protomaps/go-pmtiles@${PMTILES_VERSION}"
+          "$(go env GOPATH)/bin/go-pmtiles" version
+
+      - name: Rebuild corrected zoom 0-5 overview
+        run: |
+          set -euo pipefail
+          mkdir -p candidate dist/virtual-assets
+          node scripts/build-world-overview.mjs \
+            --manifest "https://github.com/${GITHUB_REPOSITORY}/releases/download/${WORLD_RELEASE_TAG}/world-manifest.json" \
+            --release-base "https://github.com/${GITHUB_REPOSITORY}/releases/download/${WORLD_RELEASE_TAG}" \
+            --output candidate/overview-tiles \
+            --maxzoom 5 \
+            --concurrency 24
+          python3 scripts/pack-mbtiles.py \
+            --tiles candidate/overview-tiles \
+            --metadata candidate/overview-tiles/metadata.json \
+            --output candidate/overview.mbtiles
+          "$(go env GOPATH)/bin/go-pmtiles" convert \
+            candidate/overview.mbtiles \
+            "dist/virtual-assets/${OVERVIEW_ASSET}"
+          test -s "dist/virtual-assets/${OVERVIEW_ASSET}"
+          test "$(head -c 7 "dist/virtual-assets/${OVERVIEW_ASSET}")" = PMTiles
+
+      - name: Build candidate worldwide land surface
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential libsqlite3-dev zlib1g-dev
+          bash scripts/build-world-surface.sh \
+            "dist/virtual-assets/${SURFACE_ASSET}"
+          test -s "dist/virtual-assets/${SURFACE_ASSET}"
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Render polygon regression globe views
+        run: |
+          set -euo pipefail
+          mkdir -p polygon-regression
+          OCCUMED_WORLD_OVERVIEW_URL="http://127.0.0.1:4173/virtual-assets/${OVERVIEW_ASSET}" \
+          OCCUMED_WORLD_SURFACE_URL="http://127.0.0.1:4173/virtual-assets/${SURFACE_ASSET}" \
+            node server.mjs > polygon-regression/server.log 2>&1 &
+          server_pid="$!"
+          cleanup() {
+            status="$?"
+            if [ "$status" -ne 0 ]; then
+              tail -300 polygon-regression/server.log || true
+            fi
+            kill "$server_pid" 2>/dev/null || true
+            exit "$status"
+          }
+          trap cleanup EXIT
+
+          for attempt in {1..90}; do
+            if curl --fail --silent http://127.0.0.1:4173/healthz > /dev/null; then
+              break
+            fi
+            sleep 1
+          done
+          curl --fail http://127.0.0.1:4173/healthz
+
+          OCCUMED_PREVIEW_OUTPUT=polygon-regression/results \
+            node scripts/capture-polygon-regression.mjs
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: polygon-regression-${{ github.sha }}
+          path: |
+            polygon-regression/results
+            polygon-regression/server.log
+            dist/virtual-assets/occumed-world-overview.pmtiles
+          if-no-files-found: error
+          retention-days: 14
