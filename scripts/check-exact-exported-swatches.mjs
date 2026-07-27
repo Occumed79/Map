@@ -88,9 +88,29 @@ for (const [name, value] of Object.entries({
 
 expect(layer('landcover')?.minzoom === 0, 'Landcover no longer begins at globe zoom.');
 expect(layer('continent-label')?.layout?.visibility === 'none', 'Multilingual continent labels returned to the globe limb.');
+const expectedCountryFilter = [
+  'all',
+  ['==', ['get', 'class'], 'country'],
+  [
+    'step',
+    ['zoom'],
+    ['<=', ['coalesce', ['get', 'rank'], 99], 3],
+    2.5,
+    ['<=', ['coalesce', ['get', 'rank'], 99], 4],
+    3.5,
+    ['<=', ['coalesce', ['get', 'rank'], 99], 5],
+    5,
+    true
+  ]
+];
 expect(
-  JSON.stringify(layer('country-label')?.filter || []) === JSON.stringify(['==', ['get', 'class'], 'country']),
-  'The clean country-label filter changed.'
+  JSON.stringify(layer('country-label')?.filter || []) === JSON.stringify(expectedCountryFilter),
+  'The globe country-label hierarchy changed.'
+);
+expect(
+  JSON.stringify(layer('country-label')?.layout?.['symbol-sort-key']) ===
+    JSON.stringify(['coalesce', ['get', 'rank'], 99]),
+  'Major countries no longer receive deterministic placement priority.'
 );
 expect(color('occumed-land-surface', 'fill-opacity') === 1, 'The worldwide land surface is translucent.');
 expect(color('landuse', 'fill-opacity') === 1, 'Detailed landuse colors are weakened.');

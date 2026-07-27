@@ -95,7 +95,21 @@ continentLabel.layout ||= {};
 continentLabel.layout.visibility = 'none';
 
 const countryLabel = requireLayer('country-label');
-countryLabel.filter = ['==', ['get', 'class'], 'country'];
+countryLabel.filter = [
+  'all',
+  ['==', ['get', 'class'], 'country'],
+  [
+    'step',
+    ['zoom'],
+    ['<=', ['coalesce', ['get', 'rank'], 99], 3],
+    2.5,
+    ['<=', ['coalesce', ['get', 'rank'], 99], 4],
+    3.5,
+    ['<=', ['coalesce', ['get', 'rank'], 99], 5],
+    5,
+    true
+  ]
+];
 countryLabel.layout['text-field'] = [
   'coalesce',
   ['get', 'name:en'],
@@ -103,6 +117,7 @@ countryLabel.layout['text-field'] = [
   ['get', 'name'],
   ''
 ];
+countryLabel.layout['symbol-sort-key'] = ['coalesce', ['get', 'rank'], 99];
 
 // Once detailed landuse takes over, do not multiply the exported color by another
 // zoom opacity. The color literal itself already contains any intended alpha.
