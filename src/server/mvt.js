@@ -43,6 +43,14 @@ function geometrySignature(feature) {
 }
 
 function featureKey(feature) {
+  // Polygon IDs are not safe cross-extract identifiers. Planetiler-generated,
+  // Natural Earth, bathymetry, and post-processed polygon layers can reuse the
+  // same numeric ID in separate regional archives. Joining those rings by ID
+  // creates giant wedges and bands when the merged MVT is encoded. Only exact
+  // polygon geometry is deduplicated; unrelated rings remain separate features.
+  if (feature.type === 3) {
+    return `${feature.type}:shape:${geometrySignature(feature)}`;
+  }
   if (feature.id !== undefined && feature.id !== null) {
     return `${feature.type}:id:${feature.id}`;
   }
@@ -126,9 +134,10 @@ class CombinedFeature {
   }
 
   merge(feature) {
-    // Point labels get one deterministic anchor. Lines and polygon rings retain
-    // complementary pieces clipped into neighboring storage extracts.
-    if (this.type !== 1) {
+    // Only line features are joined across extracts. Point labels keep one
+    // deterministic anchor, and polygons are deduplicated only by exact shape.
+    // Never append polygon rings from separate archives under a reused ID.
+    if (this.type === 2) {
       this.geometry = mergeGeometryParts(this.geometry, feature.loadGeometry());
     }
   }
@@ -141,22 +150,25 @@ class CombinedFeature {
 /**
  * Merges independently generated MVT payloads into one valid tile.
  *
- * Planetiler preserves OSM feature IDs in the Occu-Med schema. When adjacent
- * extracts contain the same feature, complementary line and ring parts are
- * retained under one feature ID while contained duplicates collapse. Point
- * labels retain one anchor. No unrelated polygon rings are stitched together.
+ * Planetiler preserves OSM IDs for line and point features, which allows road
+ * fragments and label anchors to be deduplicated across overlapping extracts.
+ * Polygon IDs are not assumed to be globally unique: exact duplicate shapes
+ * collapse, while unrelated rings remain separate features.
  */
 export function mergeVectorTiles(payloads, {
   includeLayers,
+  excludeLayers,
   coordinateScale = 64
 } = {}) {
   const allowedLayers = includeLayers ? new Set(includeLayers) : null;
+  const blockedLayers = excludeLayers ? new Set(excludeLayers) : null;
   const layers = new Map();
 
   for (const payload of payloads.filter(Boolean)) {
     const tile = decodeTile(payload);
     for (const [name, sourceLayer] of Object.entries(tile.layers)) {
       if (allowedLayers && !allowedLayers.has(name)) continue;
+      if (blockedLayers?.has(name)) continue;
 
       let target = layers.get(name);
       if (!target) {
@@ -203,31 +215,81 @@ export function mergeVectorTiles(payloads, {
   return Buffer.from(vtpbf.fromVectorTileJs({ layers: encodedLayers }));
 }
 
+function interpolateAtX(start, end, x) {
+  const delta = end.x - start.x;
+  if (delta === 0) return { x, y: start.y };
+  const ratio = (x - start.x) / delta;
+  return { x, y: start.y + (end.y - start.y) * ratio };
+}
+
+function interpolateAtY(start, end, y) {
+  const delta = end.y - start.y;
+  if (delta === 0) return { x: start.x, y };
+  const ratio = (y - start.y) / delta;
+  return { x: start.x + (end.x - start.x) * ratio, y };
+}
+
+function clipAgainstBoundary(points, inside, intersect) {
+  if (!points.length) return [];
+  const output = [];
+  let previous = points.at(-1);
+  let previousInside = inside(previous);
+
+  for (const current of points) {
+    const currentInside = inside(current);
+    if (currentInside) {
+      if (!previousInside) output.push(intersect(previous, current));
+      output.push(current);
+    } else if (previousInside) {
+      output.push(intersect(previous, current));
+    }
+    previous = current;
+    previousInside = currentInside;
+  }
+  return output;
+}
+
+function dedupeConsecutivePoints(points) {
+  const output = [];
+  for (const point of points) {
+    const rounded = { x: Math.round(point.x), y: Math.round(point.y) };
+    if (!output.length || !pointsEqual(output.at(-1), rounded)) output.push(rounded);
+  }
+  if (output.length > 1 && pointsEqual(output[0], output.at(-1))) output.pop();
+  return output;
+}
+
+function clipPolygonRing(points, extent) {
+  if (points.length < 3) return [];
+  let ring = pointsEqual(points[0], points.at(-1)) ? points.slice(0, -1) : [...points];
+  ring = clipAgainstBoundary(ring, (point) => point.x >= 0, (a, b) => interpolateAtX(a, b, 0));
+  ring = clipAgainstBoundary(ring, (point) => point.x <= extent, (a, b) => interpolateAtX(a, b, extent));
+  ring = clipAgainstBoundary(ring, (point) => point.y >= 0, (a, b) => interpolateAtY(a, b, 0));
+  ring = clipAgainstBoundary(ring, (point) => point.y <= extent, (a, b) => interpolateAtY(a, b, extent));
+  ring = dedupeConsecutivePoints(ring);
+  if (ring.length < 3) return [];
+  ring.push({ ...ring[0] });
+  return ring.length >= 4 ? ring : [];
+}
+
 class TransformedFeature {
-  constructor(feature, scale, offsetX, offsetY, extent) {
+  constructor(feature, geometry, extent) {
     this.id = feature.id;
     this.type = feature.type;
     this.properties = normalizeMvtProperties(feature.properties);
     this.extent = extent;
-    this.source = feature;
-    this.scale = scale;
-    this.offsetX = offsetX;
-    this.offsetY = offsetY;
+    this.geometry = geometry;
   }
 
   loadGeometry() {
-    return this.source.loadGeometry().map((line) =>
-      line.map((point) => ({
-        x: point.x * this.scale - this.offsetX,
-        y: point.y * this.scale - this.offsetY
-      }))
-    );
+    return this.geometry;
   }
 }
 
 /**
  * Overscales one layer from an ancestor tile without changing its source-layer
- * name. MapLibre still receives one ordinary MVT payload at the requested Z/X/Y.
+ * name. Geometry is clipped to the requested child tile before encoding so an
+ * ancestor polygon cannot spill across the globe as a giant wedge or band.
  */
 export function overscaleVectorLayer(payload, {
   layerName,
@@ -255,15 +317,18 @@ export function overscaleVectorLayer(payload, {
   const features = [];
 
   for (let index = 0; index < sourceLayer.length; index += 1) {
-    features.push(
-      new TransformedFeature(
-        sourceLayer.feature(index),
-        scale,
-        offsetX,
-        offsetY,
-        sourceLayer.extent
-      )
+    const feature = sourceLayer.feature(index);
+    const transformed = feature.loadGeometry().map((line) =>
+      line.map((point) => ({
+        x: point.x * scale - offsetX,
+        y: point.y * scale - offsetY
+      }))
     );
+    const geometry = feature.type === 3
+      ? transformed.map((ring) => clipPolygonRing(ring, sourceLayer.extent)).filter((ring) => ring.length)
+      : transformed;
+    if (!geometry.length) continue;
+    features.push(new TransformedFeature(feature, geometry, sourceLayer.extent));
   }
 
   if (!features.length) return EMPTY_MVT;
@@ -293,7 +358,18 @@ export function inspectVectorTile(payload) {
             (total, line) => total + line.length,
             0
           )
-        )
+        ),
+        bounds: Array.from({ length: layer.length }, (_, index) => {
+          const geometry = layer.feature(index).loadGeometry().flat();
+          return geometry.length
+            ? {
+                minX: Math.min(...geometry.map((point) => point.x)),
+                minY: Math.min(...geometry.map((point) => point.y)),
+                maxX: Math.max(...geometry.map((point) => point.x)),
+                maxY: Math.max(...geometry.map((point) => point.y))
+              }
+            : null;
+        })
       }
     ])
   );
