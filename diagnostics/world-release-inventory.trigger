@@ -1,2 +1,2 @@
-requested_at=2026-07-26T22:12:00Z
-purpose=refresh_publication_growth_after_capacity_safe_repair_launch
+requested_at=2026-07-27T01:17:00Z
+purpose=user_requested_exact_post_repair_release_inventory
