@@ -1,4 +1,4 @@
-name: Build Northwestern Federal District Split Shards Concurrently
+name: Complete Remaining Worldwide Occu-Med PMTiles Concurrently
 
 on:
   workflow_dispatch:
@@ -12,90 +12,140 @@ permissions:
   contents: write
 
 concurrency:
-  group: occumed-world-pmtiles-northwestern-split
+  group: occumed-world-pmtiles-final-completion
   cancel-in-progress: true
 
 env:
   WORLD_RELEASE_TAG: occumed-world-v1
+  OCCUMED_DIRECT_PBF_LIMIT_BYTES: 400000000
+  OCCUMED_TARGET_SPLIT_PBF_BYTES: 250000000
+  OCCUMED_MAX_SPLIT_CELLS: 24
 
 jobs:
-  build-child:
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      matrix: ${{ steps.missing.outputs.matrix }}
+      missing_count: ${{ steps.missing.outputs.missing_count }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Generate final plan and exact missing-only matrix
+        id: missing
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p world-plan
+          node scripts/plan-world-shards-final.mjs --scope all > world-plan/world-plan.json
+          release_id="$(gh api "/repos/${GITHUB_REPOSITORY}/releases/tags/${WORLD_RELEASE_TAG}" --jq '.id')"
+          gh api --paginate --slurp \
+            "/repos/${GITHUB_REPOSITORY}/releases/${release_id}/assets?per_page=100" \
+            > world-plan/release-pages.json
+          node <<'NODE'
+          const fs = require('node:fs');
+          const plan = JSON.parse(fs.readFileSync('world-plan/world-plan.json', 'utf8'));
+          const pages = JSON.parse(fs.readFileSync('world-plan/release-pages.json', 'utf8'));
+          const assets = pages.flatMap((page) => page || []);
+          const published = new Map(assets.map((asset) => [asset.name, Number(asset.size || 0)]));
+          const missing = (plan.include || []).filter((region) => (published.get(region.asset_name) || 0) <= 0);
+          const matrixInclude = missing.length ? missing : [{
+            skip: true,
+            id: 'nothing-missing',
+            slug: 'nothing-missing',
+            name: 'Nothing missing',
+            continent: 'none',
+            pbf_url: 'https://example.invalid/nothing.osm.pbf',
+            extract_bbox: '',
+            west: 0,
+            south: 0,
+            east: 0,
+            north: 0,
+            asset_name: 'nothing-missing.pmtiles'
+          }];
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `matrix=${JSON.stringify({ include: matrixInclude })}\n`);
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `missing_count=${missing.length}\n`);
+          console.log(`Final canonical shard count: ${plan.include.length}`);
+          console.log(`Already published: ${plan.include.length - missing.length}`);
+          console.log(`Missing and scheduled: ${missing.length}`);
+          for (const [index, region] of missing.entries()) {
+            console.log(`${index + 1}. ${region.id} -> ${region.asset_name}`);
+          }
+          NODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: occumed-final-world-plan-${{ github.sha }}
+          path: world-plan/world-plan.json
+          if-no-files-found: error
+          retention-days: 7
+
+  build-missing:
+    needs: plan
     runs-on: ubuntu-latest
     timeout-minutes: 360
     strategy:
       fail-fast: false
       max-parallel: 8
-      matrix:
-        include:
-          - id: northwestern-fed-district--r1-c1--s2-r1-c1
-            name: Northwestern Federal District 1.1 split 1.1
-            bbox: 19.40837,54.31282,26.060425,61.371018
-            west: 19.40837
-            south: 54.31282
-            east: 26.060425
-            north: 61.371018
-          - id: northwestern-fed-district--r1-c1--s2-r1-c2
-            name: Northwestern Federal District 1.1 split 1.2
-            bbox: 26.060425,54.31282,32.71248,61.371018
-            west: 26.060425
-            south: 54.31282
-            east: 32.71248
-            north: 61.371018
-          - id: northwestern-fed-district--r1-c1--s2-r1-c3
-            name: Northwestern Federal District 1.1 split 1.3
-            bbox: 32.71248,54.31282,39.364535,61.371018
-            west: 32.71248
-            south: 54.31282
-            east: 39.364535
-            north: 61.371018
-          - id: northwestern-fed-district--r1-c1--s2-r1-c4
-            name: Northwestern Federal District 1.1 split 1.4
-            bbox: 39.364535,54.31282,46.01659,61.371018
-            west: 39.364535
-            south: 54.31282
-            east: 46.01659
-            north: 61.371018
-          - id: northwestern-fed-district--r1-c1--s2-r2-c1
-            name: Northwestern Federal District 1.1 split 2.1
-            bbox: 19.40837,61.371018,26.060425,68.429215
-            west: 19.40837
-            south: 61.371018
-            east: 26.060425
-            north: 68.429215
-          - id: northwestern-fed-district--r1-c1--s2-r2-c2
-            name: Northwestern Federal District 1.1 split 2.2
-            bbox: 26.060425,61.371018,32.71248,68.429215
-            west: 26.060425
-            south: 61.371018
-            east: 32.71248
-            north: 68.429215
-          - id: northwestern-fed-district--r1-c1--s2-r2-c3
-            name: Northwestern Federal District 1.1 split 2.3
-            bbox: 32.71248,61.371018,39.364535,68.429215
-            west: 32.71248
-            south: 61.371018
-            east: 39.364535
-            north: 68.429215
-          - id: northwestern-fed-district--r1-c1--s2-r2-c4
-            name: Northwestern Federal District 1.1 split 2.4
-            bbox: 39.364535,61.371018,46.01659,68.429215
-            west: 39.364535
-            south: 61.371018
-            east: 46.01659
-            north: 68.429215
+      matrix: ${{ fromJson(needs.plan.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/build-pmtiles-shard-final
+        if: matrix.skip != true
         with:
           id: ${{ matrix.id }}
-          slug: ${{ matrix.id }}
+          slug: ${{ matrix.slug }}
           name: ${{ matrix.name }}
-          continent: northwestern-fed-district
-          pbf-url: https://download.geofabrik.de/russia/northwestern-fed-district-latest.osm.pbf
-          extract-bbox: ${{ matrix.bbox }}
+          continent: ${{ matrix.continent }}
+          pbf-url: ${{ matrix.pbf_url }}
+          extract-bbox: ${{ matrix.extract_bbox }}
           west: ${{ matrix.west }}
           south: ${{ matrix.south }}
           east: ${{ matrix.east }}
           north: ${{ matrix.north }}
-          asset-name: occumed-${{ matrix.id }}.pmtiles
+          asset-name: ${{ matrix.asset_name }}
           release-tag: ${{ env.WORLD_RELEASE_TAG }}
+
+  publish-manifest:
+    needs:
+      - plan
+      - build-missing
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: actions/download-artifact@v4
+        with:
+          name: occumed-final-world-plan-${{ github.sha }}
+          path: world-plan
+      - name: Build zero-missing manifest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p world-release
+          release_id="$(gh api "/repos/${GITHUB_REPOSITORY}/releases/tags/${WORLD_RELEASE_TAG}" --jq '.id')"
+          gh api --paginate --slurp \
+            "/repos/${GITHUB_REPOSITORY}/releases/${release_id}/assets?per_page=100" \
+            > world-release/pages.json
+          node <<'NODE'
+          const fs = require('node:fs');
+          const pages = JSON.parse(fs.readFileSync('world-release/pages.json', 'utf8'));
+          fs.writeFileSync('world-release/assets.json', JSON.stringify({ assets: pages.flatMap((page) => page || []) }));
+          NODE
+          node scripts/build-world-manifest.mjs \
+            --plan world-plan/world-plan.json \
+            --assets world-release/assets.json \
+            --repository "$GITHUB_REPOSITORY" \
+            --tag "$WORLD_RELEASE_TAG" \
+            --output world-release/world-manifest.json
+          missing="$(node -e "const m=require('./world-release/world-manifest.json'); process.stdout.write(String(m.missingRegionCount))")"
+          echo "missing_shards=$missing"
+          test "$missing" = "0"
+          gh release upload "$WORLD_RELEASE_TAG" world-release/world-manifest.json \
+            --repo "$GITHUB_REPOSITORY" --clobber
