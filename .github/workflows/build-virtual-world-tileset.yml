@@ -2,10 +2,32 @@ name: Build Virtual Worldwide Tileset
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/build-virtual-world-tileset.yml
+      - package-lock.json
+      - package.json
+      - planetiler/**
+      - style.json
+      - scripts/build-runtime-style.mjs
+      - scripts/build-world-manifest.mjs
+      - scripts/build-world-overview.mjs
+      - scripts/capture-world-fresno-preview.mjs
+      - scripts/prepare-world-bathymetry.mjs
+      - scripts/check-live-world-tiles.mjs
+      - scripts/lock-exact-exported-swatches.mjs
+      - scripts/lock-reference-atmosphere.mjs
+      - scripts/pack-mbtiles.py
+      - scripts/plan-world-shards-final.mjs
+      - scripts/reference-studio-swatches.mjs
+      - src/occumed-map.js
+      - src/server/**
+      - src/styles.css
   push:
     branches:
       - main
-      - agent/virtual-worldwide-tileset
     paths:
       - .github/workflows/build-virtual-world-tileset.yml
       - package-lock.json
