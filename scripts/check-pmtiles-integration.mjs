@@ -52,7 +52,18 @@ if (styleBuilder.toLowerCase().includes('openfreemap')) {
 if (helper.includes('Protocol') || helper.includes('setUrl(') || helper.includes('world-pmtiles-router')) {
   fail('The browser helper still contains PMTiles shard routing.');
 }
-if (!helper.includes('fadeDuration: 0')) fail('The browser can crossfade stale basemap tiles.');
+if (!helper.includes('cancelPendingTileRequestsWhileZooming: false')) {
+  fail('The browser can cancel still-loading parent tiles during zoom.');
+}
+if (!helper.includes('maxTileCacheZoomLevels: 8')) {
+  fail('The browser does not retain enough parent zoom levels for seamless motion.');
+}
+if (!helper.includes('refreshExpiredTiles: false')) {
+  fail('The browser can replace visible tiles through in-session expiry refreshes.');
+}
+if (!helper.includes('fadeDuration: 300')) {
+  fail('Normal symbol collision fading is not enabled during zoom.');
+}
 if (!helper.includes("source.tiles = source.tiles.map")) {
   fail('Permanent vector tile templates are not resolved to the style origin.');
 }
@@ -66,6 +77,12 @@ if (!gateway.includes('Promise.all')) fail('The gateway cannot resolve intersect
 if (!gateway.includes('mergeVectorTiles')) fail('The gateway cannot merge MVT layers at shard boundaries.');
 if (!gateway.includes('MemoryTileCache')) fail('Resolved worldwide tiles are not cached.');
 if (!gateway.includes('overscaleVectorLayer')) fail('The land surface cannot remain continuous above its generalized zoom.');
+if (!gateway.includes("includeLayers: ['land']")) {
+  fail('The gateway does not isolate the worldwide surface to a non-overlapping land mask.');
+}
+if (gateway.includes("includeLayers: ['land', 'landcover', 'depth']")) {
+  fail('The gateway still overlays generalized surface detail on regional geometry.');
+}
 if (!server.includes('OCCUMED_WORLD_SURFACE_URL')) {
   fail('Read-only visual validation cannot serve its candidate physical surface.');
 }
@@ -77,7 +94,7 @@ if (!manifestBuilder.includes('version: 2')) fail('The server-only routing manif
 if (!manifestBuilder.includes('overviewAsset')) fail('The manifest does not declare the consolidated overview archive.');
 if (!manifestBuilder.includes('surfaceAsset')) fail('The manifest does not declare the worldwide land surface.');
 if (!manifestBuilder.includes("surfaceLayers: ['land', 'landcover', 'depth']")) {
-  fail('The manifest does not declare continuous vector land, landcover, and bathymetry.');
+  fail('The manifest does not document the physical surface archive schema.');
 }
 if (manifestBuilder.includes('switchZoom')) fail('The obsolete browser switch zoom remains in the manifest.');
 if (manifestBuilder.includes('archiveProxyTemplate')) fail('The manifest still advertises regional archives to browsers.');
@@ -121,4 +138,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('PMTiles storage integration validated behind one permanent worldwide vector endpoint.');
+console.log('PMTiles storage integration validated behind one permanent worldwide vector endpoint with parent-tile retention and non-overlapping surface geometry.');
