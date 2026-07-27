@@ -26,6 +26,7 @@ const EXACT = {
   crop: '#D1DD8899',
   grass: '#B4DE9C99',
   snow: '#EDF3F8',
+  sand: '#E0E0D1',
   fallback: '#A0D382',
   park: '#A5CC8E',
   pitch: '#A9DB70',
@@ -79,12 +80,18 @@ for (const [name, value] of Object.entries({
   crop: EXACT.crop,
   grass: EXACT.grass,
   snow: EXACT.snow,
+  sand: EXACT.sand,
   fallback: EXACT.fallback
 })) {
   expect(landcoverColors.includes(value), `The landcover ${name} swatch changed.`);
 }
 
 expect(layer('landcover')?.minzoom === 0, 'Landcover no longer begins at globe zoom.');
+expect(layer('continent-label')?.layout?.visibility === 'none', 'Multilingual continent labels returned to the globe limb.');
+expect(
+  JSON.stringify(layer('country-label')?.filter || []) === JSON.stringify(['==', ['get', 'class'], 'country']),
+  'The clean country-label filter changed.'
+);
 expect(color('occumed-land-surface', 'fill-opacity') === 1, 'The worldwide land surface is translucent.');
 expect(color('landuse', 'fill-opacity') === 1, 'Detailed landuse colors are weakened.');
 expect(color('water', 'fill-opacity') === 1, 'Water is not fully opaque.');

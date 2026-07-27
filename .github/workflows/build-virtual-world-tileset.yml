@@ -16,6 +16,7 @@ on:
       - scripts/build-world-overview.mjs
       - scripts/capture-world-fresno-preview.mjs
       - scripts/prepare-world-bathymetry.mjs
+      - scripts/prepare-world-landcover.mjs
       - scripts/check-live-world-tiles.mjs
       - scripts/lock-exact-exported-swatches.mjs
       - scripts/lock-reference-atmosphere.mjs
@@ -39,6 +40,7 @@ on:
       - scripts/build-world-overview.mjs
       - scripts/capture-world-fresno-preview.mjs
       - scripts/prepare-world-bathymetry.mjs
+      - scripts/prepare-world-landcover.mjs
       - scripts/check-live-world-tiles.mjs
       - scripts/lock-exact-exported-swatches.mjs
       - scripts/lock-reference-atmosphere.mjs
@@ -207,6 +209,12 @@ jobs:
           curl --fail --location --retry 5 \
             --output virtual-world/ne_10m_land.geojson \
             https://raw.githubusercontent.com/nvkelso/natural-earth-vector/v5.1.2/geojson/ne_10m_land.geojson
+          curl --fail --location --retry 5 \
+            --output virtual-world/ne_10m_geography_regions_polys.geojson \
+            https://raw.githubusercontent.com/nvkelso/natural-earth-vector/v5.1.2/geojson/ne_10m_geography_regions_polys.geojson
+          curl --fail --location --retry 5 \
+            --output virtual-world/ne_10m_glaciated_areas.geojson \
+            https://raw.githubusercontent.com/nvkelso/natural-earth-vector/v5.1.2/geojson/ne_10m_glaciated_areas.geojson
           mkdir -p virtual-world/bathymetry
           for band in \
             A_10000 B_9000 C_8000 D_7000 E_6000 F_5000 \
@@ -218,6 +226,11 @@ jobs:
           node scripts/prepare-world-bathymetry.mjs \
             --input-dir virtual-world/bathymetry \
             --output virtual-world/ne_10m_bathymetry.geojson
+          node scripts/prepare-world-landcover.mjs \
+            --land virtual-world/ne_10m_land.geojson \
+            --geography virtual-world/ne_10m_geography_regions_polys.geojson \
+            --glaciers virtual-world/ne_10m_glaciated_areas.geojson \
+            --output virtual-world/ne_10m_landcover.geojson
           virtual-world/tippecanoe/tippecanoe \
             --force \
             --minimum-zoom=0 \
@@ -227,6 +240,7 @@ jobs:
             --no-tile-size-limit \
             --no-simplification-of-shared-nodes \
             -L land:virtual-world/ne_10m_land.geojson \
+            -L landcover:virtual-world/ne_10m_landcover.geojson \
             -L depth:virtual-world/ne_10m_bathymetry.geojson \
             --output="virtual-world/${SURFACE_ASSET}"
 

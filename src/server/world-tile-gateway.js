@@ -188,7 +188,7 @@ export class WorldTileGateway {
     if (zoom <= surfaceMaxZoom) {
       const payload = await this.readArchiveTile(surfaceAsset, zoom, x, y);
       return payload
-        ? mergeVectorTiles([payload], { includeLayers: ['land', 'depth'] })
+        ? mergeVectorTiles([payload], { includeLayers: ['land', 'landcover', 'depth'] })
         : EMPTY_MVT;
     }
 

@@ -67,7 +67,7 @@ export async function createOccumedMap({
   container,
   styleUrl = DEFAULT_STYLE_URL,
   center = [-98.5, 25],
-  zoom = 1.82,
+  zoom = 2.43,
   minZoom = 0,
   maxZoom = 16,
   controls = true,

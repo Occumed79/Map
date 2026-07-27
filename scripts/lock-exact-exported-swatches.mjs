@@ -23,6 +23,7 @@ const EXACT = Object.freeze({
   landcoverCrop: '#D1DD8899',         // hsla(68, 55%, 70%, 0.6)
   landcoverGrass: '#B4DE9C99',        // hsla(98, 50%, 74%, 0.6)
   landcoverSnow: '#EDF3F8',           // hsl(205, 45%, 95%)
+  landcoverSand: '#E0E0D1',           // supplied Studio land chip
   landcoverFallback: '#A0D382',       // hsl(98, 48%, 67%)
   nationalPark: '#A5CC8E',            // hsl(98, 38%, 68%)
   pitchOutline: '#A9DB70',            // hsl(88, 60%, 65%)
@@ -73,6 +74,7 @@ landcover.paint['fill-color'] = [
   'crop', EXACT.landcoverCrop,
   'grass', EXACT.landcoverGrass,
   'snow', EXACT.landcoverSnow,
+  'sand', EXACT.landcoverSand,
   EXACT.landcoverFallback
 ];
 landcover.paint['fill-opacity'] = [
@@ -84,6 +86,23 @@ landcover.paint['fill-opacity'] = [
   12, 0
 ];
 landcover.paint['fill-antialias'] = false;
+
+// OpenMapTiles continent values can contain multilingual aliases joined by
+// semicolons. The supplied globe uses country and city labels instead, so the
+// continent layer is intentionally suppressed at the limb.
+const continentLabel = requireLayer('continent-label');
+continentLabel.layout ||= {};
+continentLabel.layout.visibility = 'none';
+
+const countryLabel = requireLayer('country-label');
+countryLabel.filter = ['==', ['get', 'class'], 'country'];
+countryLabel.layout['text-field'] = [
+  'coalesce',
+  ['get', 'name:en'],
+  ['get', 'name:latin'],
+  ['get', 'name'],
+  ''
+];
 
 // Once detailed landuse takes over, do not multiply the exported color by another
 // zoom opacity. The color literal itself already contains any intended alpha.

@@ -56,10 +56,11 @@ assert(layer('national-park')?.paint?.['fill-color'] === '#A5CC8E', 'The exact e
 
 const landcover = layer('landcover');
 const landcoverColor = JSON.stringify(landcover?.paint?.['fill-color'] || []);
-for (const required of ['#83CC66CC', '#A3D48799', '#D1DD8899', '#B4DE9C99', '#EDF3F8', '#A0D382']) {
+for (const required of ['#83CC66CC', '#A3D48799', '#D1DD8899', '#B4DE9C99', '#EDF3F8', '#E0E0D1', '#A0D382']) {
   assert(landcoverColor.includes(required), `The exact exported landcover swatch ${required} is missing.`);
 }
 assert((landcover?.minzoom ?? 99) === 0, 'Landcover must be available at globe zoom.');
+assert(layer('continent-label')?.layout?.visibility === 'none', 'Noisy continent aliases returned to the globe limb.');
 assert(JSON.stringify(landcover?.paint?.['fill-opacity'] || []).includes('1'), 'Landcover swatches are being weakened by zoom opacity.');
 assert(layer('landuse')?.paint?.['fill-opacity'] === 1, 'Detailed landuse swatches are being weakened by extra opacity.');
 assert(layer('water')?.paint?.['fill-opacity'] === 1, 'Water must remain fully opaque.');

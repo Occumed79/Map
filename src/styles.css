@@ -124,6 +124,21 @@ body {
   border-radius: 999px !important;
 }
 
+.maplibregl-ctrl-attrib:not(.maplibregl-compact-show) {
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  padding: 0;
+}
+
+.maplibregl-ctrl-attrib:not(.maplibregl-compact-show) .maplibregl-ctrl-attrib-inner {
+  display: none;
+}
+
+.maplibregl-ctrl-attrib:not(.maplibregl-compact-show) .maplibregl-ctrl-attrib-button {
+  display: block;
+}
+
 @media (max-width: 640px) {
   .map-header {
     top: 10px;

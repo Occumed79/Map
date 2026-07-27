@@ -69,6 +69,9 @@ if ((landcover?.minzoom ?? 99) !== 0) fail('Landcover is unavailable at globe zo
 if (!JSON.stringify(landcover?.paint?.['fill-opacity'] || []).includes('1')) {
   fail('Exported landcover swatches are being weakened at globe and regional zooms.');
 }
+if (layer('continent-label')?.layout?.visibility !== 'none') {
+  fail('Multilingual continent aliases are cluttering the globe limb.');
+}
 
 const water = layer('water');
 if (water?.paint?.['fill-color'] !== '#79BCEC') fail('The exact exported water blue changed.');

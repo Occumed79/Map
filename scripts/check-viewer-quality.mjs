@@ -28,7 +28,7 @@ function collectHex(value, colors = new Set()) {
 
 if (html.includes('map-error') || html.includes('Map could not be displayed')) fail('The standalone viewer still contains the obsolete fatal error overlay.');
 if (main.includes('startupTimer') || main.includes('showFatalError')) fail('The standalone viewer still contains timeout-based false fatal logic.');
-if (!helper.includes('zoom = 1.82')) fail('The standalone globe must start with the approved full-globe framing.');
+if (!helper.includes('zoom = 2.43')) fail('The standalone globe must start with the supplied full-globe framing.');
 if (!helper.includes('antialias: true')) fail('The standalone globe must render with antialiasing enabled.');
 if (fonts.includes("'DIN Pro Medium', 'Open Sans Semibold'")) fail('DIN Pro Medium must not be replaced with an overly heavy open font.');
 
@@ -41,10 +41,11 @@ if (layer('national-park')?.paint?.['fill-color'] !== '#A5CC8E') fail('The exact
 
 const landcover = layer('landcover');
 const landcoverColors = JSON.stringify(landcover?.paint?.['fill-color'] || []);
-for (const required of ['#83CC66CC', '#A3D48799', '#D1DD8899', '#B4DE9C99', '#EDF3F8', '#A0D382']) {
+for (const required of ['#83CC66CC', '#A3D48799', '#D1DD8899', '#B4DE9C99', '#EDF3F8', '#E0E0D1', '#A0D382']) {
   if (!landcoverColors.includes(required)) fail(`The exact exported landcover swatch ${required} is missing.`);
 }
 if ((landcover?.minzoom ?? 99) !== 0) fail('Landcover is unavailable at globe zoom.');
+if (layer('continent-label')?.layout?.visibility !== 'none') fail('Noisy continent aliases are visible at the globe limb.');
 if (!JSON.stringify(landcover?.paint?.['fill-opacity'] || []).includes('1')) fail('Landcover swatches are being weakened by zoom opacity.');
 if (layer('landuse')?.paint?.['fill-opacity'] !== 1) fail('Detailed landuse swatches are being weakened by extra opacity.');
 if (layer('water')?.paint?.['fill-opacity'] !== 1) fail('Water is translucent and will wash into the land background.');

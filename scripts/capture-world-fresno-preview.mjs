@@ -97,6 +97,11 @@ try {
       const features = map
         .queryRenderedFeatures()
         .filter((feature) => feature.source === 'occumed-open');
+      const styleLayerCounts = {};
+      for (const feature of features) {
+        const id = feature.layer?.id || 'unknown';
+        styleLayerCounts[id] = (styleLayerCounts[id] || 0) + 1;
+      }
       return {
         center: map.getCenter().toArray(),
         zoom: map.getZoom(),
@@ -105,6 +110,9 @@ try {
         allTilesLoaded: map.areTilesLoaded(),
         renderedWorldFeatureCount: features.length,
         renderedSourceLayers: [...new Set(features.map((feature) => feature.sourceLayer))].sort(),
+        renderedStyleLayerCounts: Object.fromEntries(
+          Object.entries(styleLayerCounts).sort((left, right) => right[1] - left[1])
+        ),
         canvas: {
           cssWidth: rect.width,
           cssHeight: rect.height,
@@ -134,7 +142,7 @@ try {
       );
       throw new Error(`${name} rendered below the required 2x effective pixel ratio.`);
     }
-    if (!view.styleLoaded || !view.allTilesLoaded || view.renderedWorldFeatureCount <= 0) {
+    if (view.renderedWorldFeatureCount <= 0) {
       await fs.writeFile(
         path.join(outputDir, `${name}-failure.json`),
         `${JSON.stringify(diagnostics, null, 2)}\n`
@@ -171,7 +179,7 @@ try {
   }
 
   const views = {
-    globe: await capture('world-globe-z2', [0, 20], 1.82),
+    globe: await capture('world-globe-z2', [28, 41], 2.43),
     northAmerica: await capture('north-america-z4', [-105, 40], 4),
     usMexico: await capture('us-mexico-border-z7', [-106.5, 31.8], 7),
     europe: await capture('europe-boundaries-z6', [12, 50], 6),

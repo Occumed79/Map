@@ -74,6 +74,16 @@ const surface = tile({
       }
     ]
   },
+  landcover: {
+    features: [
+      {
+        id: 3,
+        type: 3,
+        geometry: [[[0, 0], [4096, 0], [4096, 4096], [0, 4096], [0, 0]]],
+        tags: { class: 'grass' }
+      }
+    ]
+  },
   depth: {
     features: [
       {
@@ -94,9 +104,10 @@ const overscaled = inspectVectorTile(overscaleVectorLayer(surface, {
 }));
 expect(overscaled.land?.featureCount === 1, 'The worldwide land surface cannot overscale through max zoom.');
 const physicalSurface = inspectVectorTile(
-  mergeVectorTiles([surface], { includeLayers: ['land', 'depth'] })
+  mergeVectorTiles([surface], { includeLayers: ['land', 'landcover', 'depth'] })
 );
 expect(physicalSurface.land?.featureCount === 1, 'The physical surface lost its land layer.');
+expect(physicalSurface.landcover?.featureCount === 1, 'The physical surface lost generalized landcover.');
 expect(physicalSurface.depth?.featureCount === 1, 'The physical surface lost its bathymetry layer.');
 
 const regions = [
@@ -163,12 +174,12 @@ expect(!server.includes('/world-tiles/'), 'The server still exposes regional sto
 expect(gateway.includes('mergeVectorTiles'), 'The server gateway cannot merge boundary tiles.');
 expect(gateway.includes('MemoryTileCache'), 'The server gateway does not cache resolved virtual tiles.');
 expect(
-  gateway.includes("includeLayers: ['land', 'depth']"),
-  'The gateway does not expose land and bathymetry as one continuous physical surface.'
+  gateway.includes("includeLayers: ['land', 'landcover', 'depth']"),
+  'The gateway does not expose land, landcover, and bathymetry as one continuous physical surface.'
 );
 expect(manifestBuilder.includes('version: 2'), 'The server-only routing manifest is not version 2.');
 expect(
-  manifestBuilder.includes("surfaceLayers: ['land', 'depth']"),
+  manifestBuilder.includes("surfaceLayers: ['land', 'landcover', 'depth']"),
   'The routing manifest does not declare the complete physical surface schema.'
 );
 expect(!manifestBuilder.includes('switchZoom'), 'The obsolete browser switch zoom remains in the manifest.');
@@ -186,4 +197,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('Virtual worldwide tileset validated: one permanent source, boundary merging, antimeridian routing, land and bathymetry continuity, surface overscaling, caching, and no browser-visible shards.');
+console.log('Virtual worldwide tileset validated: one permanent source, boundary merging, antimeridian routing, land, landcover, and bathymetry continuity, surface overscaling, caching, and no browser-visible shards.');
