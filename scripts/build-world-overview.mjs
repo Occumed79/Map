@@ -95,9 +95,16 @@ for (let zoom = 0; zoom <= options.maxZoom; zoom += 1) {
     for (let y = 0; y < count; y += 1) {
       const regions = routing.regionsForTile(zoom, x, y);
       const payloads = await mapLimit(regions, options.concurrency, async (region) => {
-        const result = await archive(region).getZxy(zoom, x, y);
-        sourceTileReads += 1;
-        return result?.data ? Buffer.from(result.data) : null;
+        try {
+          const result = await archive(region).getZxy(zoom, x, y);
+          sourceTileReads += 1;
+          return result?.data ? Buffer.from(result.data) : null;
+        } catch (error) {
+          throw new Error(
+            `Unable to read ${region.id} (${region.asset}) at ${zoom}/${x}/${y}: ${error.message}`,
+            { cause: error }
+          );
+        }
       });
       const merged = mergeVectorTiles(payloads);
       if (!merged.byteLength) continue;

@@ -33,7 +33,91 @@ env:
   PMTILES_VERSION: "v1.31.2"
 
 jobs:
+  plan-storage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      matrix: ${{ steps.missing.outputs.matrix }}
+      missing_count: ${{ steps.missing.outputs.missing_count }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Resolve missing canonical storage shards
+        id: missing
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p virtual-world/preflight
+          node scripts/plan-world-shards-final.mjs \
+            > virtual-world/preflight/world-plan.json
+          release_id="$(gh api "/repos/${GITHUB_REPOSITORY}/releases/tags/${WORLD_RELEASE_TAG}" --jq '.id')"
+          gh api --paginate --slurp \
+            "/repos/${GITHUB_REPOSITORY}/releases/${release_id}/assets?per_page=100" \
+            > virtual-world/preflight/release-pages.json
+
+          node <<'NODE'
+          const fs = require('node:fs');
+          const plan = JSON.parse(fs.readFileSync('virtual-world/preflight/world-plan.json', 'utf8'));
+          const pages = JSON.parse(fs.readFileSync('virtual-world/preflight/release-pages.json', 'utf8'));
+          const assets = pages.flatMap((page) => page || []);
+          const sizes = new Map(assets.map((asset) => [asset.name, Number(asset.size || 0)]));
+          const missing = plan.include.filter((region) => (sizes.get(region.asset_name) || 0) <= 0);
+          const include = missing.length ? missing : [{
+            skip: true,
+            id: 'nothing-missing',
+            slug: 'nothing-missing',
+            name: 'Nothing missing',
+            continent: 'none',
+            pbf_url: 'https://example.invalid/nothing.osm.pbf',
+            extract_bbox: '',
+            west: 0,
+            south: 0,
+            east: 0,
+            north: 0,
+            asset_name: 'nothing-missing.pmtiles'
+          }];
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `matrix=${JSON.stringify({ include })}\n`);
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `missing_count=${missing.length}\n`);
+          console.log(`Canonical storage: ${plan.include.length - missing.length}/${plan.include.length}; repairing ${missing.length}.`);
+          for (const region of missing) console.log(`Missing: ${region.id} -> ${region.asset_name}`);
+          NODE
+
+  repair-missing:
+    needs: plan-storage
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix: ${{ fromJson(needs.plan-storage.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/build-pmtiles-shard-final
+        if: matrix.skip != true
+        with:
+          id: ${{ matrix.id }}
+          slug: ${{ matrix.slug }}
+          name: ${{ matrix.name }}
+          continent: ${{ matrix.continent }}
+          pbf-url: ${{ matrix.pbf_url }}
+          extract-bbox: ${{ matrix.extract_bbox }}
+          west: ${{ matrix.west }}
+          south: ${{ matrix.south }}
+          east: ${{ matrix.east }}
+          north: ${{ matrix.north }}
+          asset-name: ${{ matrix.asset_name }}
+          release-tag: ${{ env.WORLD_RELEASE_TAG }}
+
   build:
+    needs:
+      - plan-storage
+      - repair-missing
     runs-on: ubuntu-latest
     timeout-minutes: 180
     steps:
