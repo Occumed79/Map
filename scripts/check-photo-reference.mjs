@@ -41,11 +41,19 @@ function collectNonHexColors(value, colors = []) {
 
 assert(runtime.projection?.type === 'globe', 'Photo-reference build must use globe projection.');
 assert(runtime.sky?.['sky-color'] === '#181A1D', 'Photo-reference build must preserve the dark charcoal reference space.');
-assert(runtime.sky?.['horizon-color'] === '#F5FDFF', 'The luminous globe rim is missing.');
+assert(
+  runtime.sky?.['horizon-color'] === 'rgba(245, 253, 255, 0.98)',
+  'The narrow luminous globe rim is missing.'
+);
+assert(
+  runtime.sky?.['fog-color'] === 'rgba(184, 230, 255, 0.14)',
+  'The cool-blue outer atmosphere bloom is missing.'
+);
 assert(runtime.sky?.['fog-ground-blend'] === 0, 'Ground fog must remain disabled.');
-assert(runtime.sky?.['horizon-fog-blend'] === 0, 'Horizon fog must remain disabled.');
+assert(runtime.sky?.['horizon-fog-blend'] === 0.08, 'The narrow edge bloom strength changed.');
 assert(!runtime.light, 'Directional light must not be reintroduced.');
 assert(!runtime.fog, 'Mapbox fog must not be copied into the MapLibre runtime.');
+assert(runtime.metadata?.['occumed:atmosphere-edge-only'] === true, 'The edge-only atmosphere protection marker is missing.');
 
 assert(layer('land')?.paint?.['background-color'] === '#79BCEC', 'The supplied Studio ocean blue changed.');
 assert(layer('occumed-land-surface')?.paint?.['fill-color'] === '#E0E0D1', 'The supplied Studio land base changed.');
@@ -131,4 +139,4 @@ assert(!/mapbox:\/\//i.test(runtime.sprite || ''), 'Runtime sprite must not use 
 assert(!/api\.mapbox\.com/i.test(runtime.glyphs || ''), 'Runtime glyphs must not use Mapbox.');
 assert(runtime.metadata?.['occumed:mapbox-runtime-dependency'] === false, 'No-Mapbox dependency marker is missing.');
 
-console.log(`Reference guard passed: supplied Studio land and water, high-DPI vector clarity, and ${allColors.size} distinct colors.`);
+console.log(`Reference guard passed: supplied Studio land and water, narrow edge-only atmosphere, high-DPI vector clarity, and ${allColors.size} distinct colors.`);
