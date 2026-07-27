@@ -28,12 +28,16 @@ runs:
       run: |
         set -euo pipefail
         release_id="$(gh api "/repos/${GITHUB_REPOSITORY}/releases/tags/${RELEASE_TAG}" --jq '.id')"
+        assets_json="$(mktemp)"
+        gh api --paginate --slurp \
+          "/repos/${GITHUB_REPOSITORY}/releases/${release_id}/assets?per_page=100" \
+          > "$assets_json"
         row="$(
-          gh api --paginate \
-            "/repos/${GITHUB_REPOSITORY}/releases/${release_id}/assets?per_page=100" \
-            --jq '.[] | [.id, .name, .size] | @tsv' |
-          awk -F '\t' -v name="$ASSET_NAME" '$2 == name { print; exit }'
+          jq -r --arg name "$ASSET_NAME" \
+            '[.[][] | select(.name == $name)][0] | if . == null then "" else [.id, .name, .size] | @tsv end' \
+            "$assets_json"
         )"
+        rm -f "$assets_json"
         asset_id="$(printf '%s' "$row" | cut -f1)"
         asset_size="$(printf '%s' "$row" | cut -f3)"
         if [ -n "$asset_id" ] && [ -n "$asset_size" ] && [ "$asset_size" -gt 0 ]; then
@@ -108,30 +112,37 @@ runs:
       run: |
         set -euo pipefail
         release_id="$(gh api "/repos/${GITHUB_REPOSITORY}/releases/tags/${RELEASE_TAG}" --jq '.id')"
+
+        lookup_size() {
+          local assets_json
+          assets_json="$(mktemp)"
+          gh api --paginate --slurp \
+            "/repos/${GITHUB_REPOSITORY}/releases/${release_id}/assets?per_page=100" \
+            > "$assets_json"
+          jq -r --arg name "$ASSET_NAME" \
+            '[.[][] | select(.name == $name)][0] | if . == null then "" else (.size | tostring) end' \
+            "$assets_json"
+          rm -f "$assets_json"
+        }
+
+        uploaded=false
         for attempt in 1 2 3 4 5; do
           if gh release upload "$RELEASE_TAG" "artifacts/$ASSET_NAME" \
             --repo "$GITHUB_REPOSITORY"; then
+            uploaded=true
             break
           fi
-          size="$(
-            gh api --paginate \
-              "/repos/${GITHUB_REPOSITORY}/releases/${release_id}/assets?per_page=100" \
-              --jq '.[] | [.name, .size] | @tsv' |
-            awk -F '\t' -v name="$ASSET_NAME" '$1 == name { print $2; exit }'
-          )"
+          size="$(lookup_size)"
           if [ -n "$size" ] && [ "$size" -gt 0 ]; then
             echo "Asset appeared during upload: $ASSET_NAME ($size bytes)"
-            exit 0
+            uploaded=true
+            break
           fi
           sleep $((attempt * 10))
         done
-        size="$(
-          gh api --paginate \
-            "/repos/${GITHUB_REPOSITORY}/releases/${release_id}/assets?per_page=100" \
-            --jq '.[] | [.name, .size] | @tsv' |
-          awk -F '\t' -v name="$ASSET_NAME" '$1 == name { print $2; exit }'
-        )"
-        if [ -z "$size" ] || [ "$size" -le 0 ]; then
+
+        size="$(lookup_size)"
+        if [ "$uploaded" != true ] || [ -z "$size" ] || [ "$size" -le 0 ]; then
           echo "Release asset is still missing after upload: $ASSET_NAME" >&2
           exit 1
         fi
