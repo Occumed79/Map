@@ -22,12 +22,15 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  WORLD_RELEASE_TAG: occumed-world-v1
+  OVERVIEW_ASSET: occumed-world-overview.pmtiles
   SURFACE_ASSET: occumed-world-surface.pmtiles
+  PMTILES_VERSION: v1.31.2
 
 jobs:
   continuous-motion:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
 
@@ -36,13 +39,40 @@ jobs:
           node-version: 24
           cache: npm
 
+      - uses: actions/setup-go@v5
+        with:
+          go-version: 1.24.x
+
       - run: npm ci
 
       - name: Build and validate the production map
         run: npm run build
 
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+      - name: Install pinned PMTiles converter
+        run: |
+          set -euo pipefail
+          go install "github.com/protomaps/go-pmtiles@${PMTILES_VERSION}"
+          "$(go env GOPATH)/bin/go-pmtiles" version
+
+      - name: Build corrected candidate worldwide overview
+        run: |
+          set -euo pipefail
+          mkdir -p candidate dist/virtual-assets
+          node scripts/build-world-overview.mjs \
+            --manifest "https://github.com/${GITHUB_REPOSITORY}/releases/download/${WORLD_RELEASE_TAG}/world-manifest.json" \
+            --release-base "https://github.com/${GITHUB_REPOSITORY}/releases/download/${WORLD_RELEASE_TAG}" \
+            --output candidate/overview-tiles \
+            --maxzoom 5 \
+            --concurrency 24
+          python3 scripts/pack-mbtiles.py \
+            --tiles candidate/overview-tiles \
+            --metadata candidate/overview-tiles/metadata.json \
+            --output candidate/overview.mbtiles
+          "$(go env GOPATH)/bin/go-pmtiles" convert \
+            candidate/overview.mbtiles \
+            "dist/virtual-assets/${OVERVIEW_ASSET}"
+          test -s "dist/virtual-assets/${OVERVIEW_ASSET}"
+          test "$(head -c 7 "dist/virtual-assets/${OVERVIEW_ASSET}")" = PMTiles
 
       - name: Build candidate worldwide physical surface
         run: |
@@ -53,10 +83,14 @@ jobs:
           bash scripts/build-world-surface.sh \
             "dist/virtual-assets/${SURFACE_ASSET}"
 
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
       - name: Run continuous zoom and pan gate
         run: |
           set -euo pipefail
           mkdir -p continuous-motion
+          OCCUMED_WORLD_OVERVIEW_URL="http://127.0.0.1:4173/virtual-assets/${OVERVIEW_ASSET}" \
           OCCUMED_WORLD_SURFACE_URL="http://127.0.0.1:4173/virtual-assets/${SURFACE_ASSET}" \
             node server.mjs > continuous-motion/server.log 2>&1 &
           server_pid="$!"
@@ -88,5 +122,6 @@ jobs:
           path: |
             continuous-motion/results
             continuous-motion/server.log
+            dist/virtual-assets/occumed-world-overview.pmtiles
           if-no-files-found: error
           retention-days: 14
