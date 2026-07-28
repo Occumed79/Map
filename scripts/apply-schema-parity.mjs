@@ -174,6 +174,7 @@ water.metadata = {
 
 const landcover = runtime.layers.find((layer) => layer.id === 'landcover');
 if (!landcover) throw new Error('The exported landcover layer is missing from the runtime style.');
+landcover.minzoom = 0;
 landcover.paint ||= {};
 landcover.paint['fill-opacity'] = [
   'interpolate',
@@ -190,7 +191,7 @@ landcover.paint['fill-opacity'] = [
 ];
 landcover.metadata = {
   ...(landcover.metadata || {}),
-  'occumed:purpose': 'strong exported vegetation hierarchy over open landcover data'
+  'occumed:purpose': 'continuous worldwide vegetation foundation with regional detail added above it'
 };
 
 runtime.metadata = {
