@@ -247,8 +247,9 @@ expect(
   'MapLibre can still cancel parent tiles while child zoom tiles are loading.'
 );
 expect(
-  helper.includes('maxTileCacheZoomLevels: 8'),
-  'The browser does not retain enough parent zoom levels for continuous motion.'
+  helper.includes('const WORLD_ZOOM_PYRAMID_LEVELS = WORLD_MAX_ZOOM - WORLD_MIN_ZOOM + 1') &&
+    helper.includes('maxTileCacheZoomLevels: WORLD_ZOOM_PYRAMID_LEVELS'),
+  'The browser does not retain the complete 0-16 parent zoom pyramid for continuous reverse motion.'
 );
 expect(
   helper.includes('fadeDuration: 300'),
@@ -303,4 +304,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('Virtual worldwide tileset validated: one permanent source, one continuous land/landcover/depth foundation at every zoom, safe polygon merging, clipped overscaling, antimeridian routing, parent-tile retention, caching, and no browser-visible shards.');
+console.log('Virtual worldwide tileset validated: one permanent source, one continuous land/landcover/depth foundation at every zoom, safe polygon merging, clipped overscaling, antimeridian routing, full parent-pyramid retention, caching, and no browser-visible shards.');
