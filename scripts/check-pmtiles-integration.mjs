@@ -11,6 +11,7 @@ const [
   manifestBuilder,
   overviewBuilder,
   gateway,
+  mvt,
   retryingSource,
   tileSafety,
   server,
@@ -25,6 +26,7 @@ const [
   fs.readFile(path.join(root, 'scripts/build-world-manifest.mjs'), 'utf8'),
   fs.readFile(path.join(root, 'scripts/build-world-overview.mjs'), 'utf8'),
   fs.readFile(path.join(root, 'src/server/world-tile-gateway.js'), 'utf8'),
+  fs.readFile(path.join(root, 'src/server/mvt.js'), 'utf8'),
   fs.readFile(path.join(root, 'src/server/pmtiles-source.js'), 'utf8'),
   fs.readFile(path.join(root, 'src/server/tile-safety.js'), 'utf8'),
   fs.readFile(path.join(root, 'server.mjs'), 'utf8'),
@@ -72,7 +74,7 @@ if (!helper.includes('source.tiles = source.tiles.map')) {
   fail('Permanent vector tile templates are not resolved to the style origin.');
 }
 
-if (!server.includes("const tileMatch = /^\\/tiles\\/(\\d+)\\/(\\d+)\\/(\\d+)\\.pbf$/")) {
+if (!server.includes("const tileMatch = /^\/tiles\/(\d+)\/(\d+)\/(\d+)\.pbf$/")) {
   fail('The server is missing the single virtual Z/X/Y endpoint.');
 }
 if (server.includes('/world-tiles/')) fail('The server still publishes browser-visible regional archive paths.');
@@ -108,6 +110,15 @@ if (!retryingSource.includes('maxRangeBytes') || !retryingSource.includes('isRet
 }
 if (!tileSafety.includes('validateVectorTilePayload') || !tileSafety.includes('maxTotalPoints')) {
   fail('Vector tiles are not protected by decode and geometry budgets.');
+}
+if (!mvt.includes("import { validateVectorTilePayload } from './tile-safety.js'")) {
+  fail('MVT merge and overscale operations bypass the safety validator.');
+}
+if (!mvt.includes('MVT merge input') || !mvt.includes('MVT overscale input')) {
+  fail('Upstream MVT payloads are not validated before merge and overscale processing.');
+}
+if (!mvt.includes('merged MVT output') || !mvt.includes('overscaled MVT output')) {
+  fail('Encoded MVT outputs are not revalidated before delivery or caching.');
 }
 if (!server.includes('gzipAsync')) fail('Tile compression still blocks the Node event loop.');
 if (!server.includes("url.pathname === '/readyz'")) fail('The production server lacks a readiness endpoint.');
@@ -174,4 +185,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('PMTiles storage integration validated behind one permanent worldwide vector endpoint with a continuous physical foundation, bounded upstream work, circuit breaking, stale recovery, vector-tile budgets, and hardened HTTP delivery.');
+console.log('PMTiles storage integration validated behind one permanent worldwide vector endpoint with a continuous physical foundation, pre-merge and post-encode MVT budgets, bounded upstream work, circuit breaking, stale recovery, and hardened HTTP delivery.');
