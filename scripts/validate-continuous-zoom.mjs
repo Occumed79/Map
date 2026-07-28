@@ -9,31 +9,55 @@ const outputDir = path.resolve(
 await fs.mkdir(outputDir, { recursive: true });
 
 const expectedTemplate = `${origin}/tiles/{z}/{x}/{y}.pbf`;
-const browser = await chromium.launch({ headless: true });
+const reportPath = path.join(outputDir, 'continuous-motion-report.json');
+const report = {
+  generatedAt: new Date().toISOString(),
+  origin,
+  expectedTemplate,
+  motions: [],
+  tileRequests: null,
+  pageErrors: [],
+  networkFailures: [],
+  externalVectorRequests: [],
+  fatalError: null,
+  passed: false
+};
 
+function serializeError(error) {
+  return {
+    name: error?.name || 'Error',
+    message: error?.message || String(error),
+    stack: error?.stack || null
+  };
+}
+
+async function persistReport() {
+  report.externalVectorRequests = [...new Set(report.externalVectorRequests)];
+  await fs.writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`);
+}
+
+let browser;
 try {
+  browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({
     viewport: { width: 1440, height: 1000 },
     deviceScaleFactor: 2,
     colorScheme: 'dark'
   });
   const page = await context.newPage();
-  const pageErrors = [];
-  const networkFailures = [];
-  const externalVectorRequests = [];
   const tileStartedAt = new Map();
   const tileDurations = [];
 
-  page.on('pageerror', (error) => pageErrors.push(error.message));
+  page.on('pageerror', (error) => report.pageErrors.push(error.message));
   page.on('request', (request) => {
     const url = request.url();
     if (/\.pbf(?:$|\?)/i.test(url)) {
       tileStartedAt.set(request, performance.now());
-      if (!url.startsWith(`${origin}/tiles/`)) externalVectorRequests.push(url);
+      if (!url.startsWith(`${origin}/tiles/`)) report.externalVectorRequests.push(url);
     }
   });
   page.on('requestfailed', (request) => {
-    networkFailures.push({
+    report.networkFailures.push({
       type: 'requestfailed',
       url: request.url(),
       error: request.failure()?.errorText || 'unknown request failure'
@@ -41,7 +65,7 @@ try {
   });
   page.on('response', (response) => {
     if (response.status() >= 400) {
-      networkFailures.push({
+      report.networkFailures.push({
         type: 'http',
         url: response.url(),
         status: response.status()
@@ -65,7 +89,7 @@ try {
     { timeout: 90_000 }
   );
 
-  async function waitForStableView(center, zoom) {
+  async function waitForStableView(center, zoom, requiredLayers) {
     await page.evaluate(({ center, zoom }) => {
       const map = globalThis.__OCCUMED_MAP__;
       map.jumpTo({ center, zoom, pitch: 0, bearing: 0 });
@@ -73,20 +97,32 @@ try {
     }, { center, zoom });
 
     await page.waitForFunction(
-      () => {
+      ({ requiredLayers }) => {
         const map = globalThis.__OCCUMED_MAP__;
-        return map?.isStyleLoaded() && map.areTilesLoaded() &&
-          map.queryRenderedFeatures().some((feature) => feature.source === 'occumed-open');
+        if (!map?.isStyleLoaded() || !map.areTilesLoaded()) return false;
+        const rendered = map
+          .queryRenderedFeatures()
+          .filter((feature) => feature.source === 'occumed-open');
+        if (!rendered.length) return false;
+        return requiredLayers.every((required) =>
+          rendered.some((feature) => feature.sourceLayer === required)
+        );
       },
-      null,
+      { requiredLayers },
       { timeout: 90_000 }
     );
   }
 
-  async function runMotion(name, start, end, durationMs) {
-    await waitForStableView(start.center, start.zoom);
+  async function runMotion({ name, start, end, durationMs, requiredLayers }) {
+    await waitForStableView(start.center, start.zoom, requiredLayers);
 
-    const result = await page.evaluate(async ({ name, end, durationMs, expectedTemplate }) => {
+    const result = await page.evaluate(async ({
+      name,
+      end,
+      durationMs,
+      expectedTemplate,
+      requiredLayers
+    }) => {
       const map = globalThis.__OCCUMED_MAP__;
       const samples = [];
       let lastSampleAt = -Infinity;
@@ -99,19 +135,27 @@ try {
       const expectedSignature = JSON.stringify({ url: null, tiles: [expectedTemplate] });
 
       const sample = (timestamp) => {
-        if (timestamp - lastSampleAt < 80) return;
+        if (timestamp - lastSampleAt < 70) return;
         lastSampleAt = timestamp;
         const signature = sourceSignature();
         sourceChanged ||= signature !== expectedSignature;
-        const vectorFeatureCount = map
+        const rendered = map
           .queryRenderedFeatures()
-          .filter((feature) => feature.source === 'occumed-open')
-          .length;
+          .filter((feature) => feature.source === 'occumed-open');
+        const sourceLayers = {};
+        for (const feature of rendered) {
+          const layer = feature.sourceLayer || 'unknown';
+          sourceLayers[layer] = (sourceLayers[layer] || 0) + 1;
+        }
         samples.push({
           timestamp,
           zoom: map.getZoom(),
           center: map.getCenter().toArray(),
-          vectorFeatureCount,
+          vectorFeatureCount: rendered.length,
+          requiredLayerCounts: Object.fromEntries(
+            requiredLayers.map((layer) => [layer, sourceLayers[layer] || 0])
+          ),
+          sourceLayers,
           tilesLoaded: map.areTilesLoaded(),
           sourceSignature: signature
         });
@@ -121,13 +165,16 @@ try {
         const timeout = setTimeout(() => {
           map.off('render', sample);
           reject(new Error(`${name} motion timed out.`));
-        }, durationMs + 30_000);
+        }, durationMs + 35_000);
 
         const finish = () => {
           clearTimeout(timeout);
           map.off('render', sample);
           sample(performance.now());
           const blankSamples = samples.filter((entry) => entry.vectorFeatureCount === 0);
+          const missingFoundationSamples = samples.filter((entry) =>
+            requiredLayers.some((layer) => (entry.requiredLayerCounts[layer] || 0) <= 0)
+          );
           let longestBlankRun = 0;
           let currentBlankRun = 0;
           for (const entry of samples) {
@@ -140,12 +187,19 @@ try {
           }
           resolve({
             name,
+            requiredLayers,
             sampleCount: samples.length,
             sourceChanged,
             blankSampleCount: blankSamples.length,
+            missingFoundationSampleCount: missingFoundationSamples.length,
+            firstMissingFoundationSamples: missingFoundationSamples.slice(0, 20),
             longestBlankRun,
-            minimumFeatureCount: Math.min(...samples.map((entry) => entry.vectorFeatureCount)),
-            maximumFeatureCount: Math.max(...samples.map((entry) => entry.vectorFeatureCount)),
+            minimumFeatureCount: samples.length
+              ? Math.min(...samples.map((entry) => entry.vectorFeatureCount))
+              : 0,
+            maximumFeatureCount: samples.length
+              ? Math.max(...samples.map((entry) => entry.vectorFeatureCount))
+              : 0,
             samples
           });
         };
@@ -162,41 +216,79 @@ try {
           essential: true
         });
       });
-    }, { name, end, durationMs, expectedTemplate });
+    }, { name, end, durationMs, expectedTemplate, requiredLayers });
 
     await page.screenshot({
       path: path.join(outputDir, `${name}-final.png`),
       fullPage: false
     });
+    report.motions.push(result);
+    await persistReport();
     return result;
   }
 
-  const motions = [
-    await runMotion(
-      'world-to-fresno',
-      { center: [-98.5, 25], zoom: 2.43 },
-      { center: [-119.7871, 36.7378], zoom: 14 },
-      12_000
-    ),
-    await runMotion(
-      'fresno-to-world',
-      { center: [-119.7871, 36.7378], zoom: 14 },
-      { center: [-98.5, 25], zoom: 2.43 },
-      12_000
-    ),
-    await runMotion(
-      'cross-border-pan',
-      { center: [-112.5, 31.8], zoom: 7 },
-      { center: [-101.5, 31.8], zoom: 7 },
-      8_000
-    ),
-    await runMotion(
-      'europe-shard-pan',
-      { center: [-4, 50], zoom: 6.5 },
-      { center: [24, 50], zoom: 6.5 },
-      9_000
-    )
+  const definitions = [
+    {
+      name: 'world-to-fresno',
+      start: { center: [-98.5, 25], zoom: 2.43 },
+      end: { center: [-119.7871, 36.7378], zoom: 16 },
+      durationMs: 14_000,
+      requiredLayers: ['land', 'landcover']
+    },
+    {
+      name: 'fresno-to-world',
+      start: { center: [-119.7871, 36.7378], zoom: 16 },
+      end: { center: [-98.5, 25], zoom: 1.65 },
+      durationMs: 14_000,
+      requiredLayers: ['land', 'landcover']
+    },
+    {
+      name: 'cross-border-pan',
+      start: { center: [-112.5, 31.8], zoom: 7 },
+      end: { center: [-101.5, 31.8], zoom: 7 },
+      durationMs: 9_000,
+      requiredLayers: ['land', 'landcover']
+    },
+    {
+      name: 'europe-shard-pan',
+      start: { center: [-4, 50], zoom: 6.5 },
+      end: { center: [24, 50], zoom: 6.5 },
+      durationMs: 10_000,
+      requiredLayers: ['land', 'landcover']
+    },
+    {
+      name: 'antimeridian-pan',
+      start: { center: [168, 0], zoom: 6.5 },
+      end: { center: [-168, 0], zoom: 6.5 },
+      durationMs: 10_000,
+      requiredLayers: ['depth']
+    },
+    {
+      name: 'amazon-routing-threshold-in',
+      start: { center: [-60, -8], zoom: 5.7 },
+      end: { center: [-60, -8], zoom: 6.3 },
+      durationMs: 8_000,
+      requiredLayers: ['land', 'landcover']
+    },
+    {
+      name: 'amazon-routing-threshold-out',
+      start: { center: [-60, -8], zoom: 6.3 },
+      end: { center: [-60, -8], zoom: 5.7 },
+      durationMs: 8_000,
+      requiredLayers: ['land', 'landcover']
+    },
+    {
+      name: 'pacific-routing-threshold-in',
+      start: { center: [-140, 0], zoom: 5.7 },
+      end: { center: [-140, 0], zoom: 6.3 },
+      durationMs: 8_000,
+      requiredLayers: ['depth']
+    }
   ];
+
+  for (const definition of definitions) {
+    await runMotion(definition);
+  }
 
   const sortedDurations = tileDurations
     .map((entry) => entry.durationMs)
@@ -205,58 +297,58 @@ try {
     ? sortedDurations[Math.min(sortedDurations.length - 1, Math.floor(sortedDurations.length * fraction))]
     : null;
 
-  const report = {
-    generatedAt: new Date().toISOString(),
-    origin,
-    expectedTemplate,
-    motions,
-    tileRequests: {
-      count: tileDurations.length,
-      p50Ms: percentile(0.5),
-      p95Ms: percentile(0.95),
-      maximumMs: sortedDurations.at(-1) || null,
-      slowest: [...tileDurations]
-        .sort((left, right) => right.durationMs - left.durationMs)
-        .slice(0, 20)
-    },
-    pageErrors,
-    networkFailures,
-    externalVectorRequests: [...new Set(externalVectorRequests)]
+  report.tileRequests = {
+    count: tileDurations.length,
+    p50Ms: percentile(0.5),
+    p95Ms: percentile(0.95),
+    p99Ms: percentile(0.99),
+    maximumMs: sortedDurations.at(-1) || null,
+    slowest: [...tileDurations]
+      .sort((left, right) => right.durationMs - left.durationMs)
+      .slice(0, 30)
   };
 
-  await fs.writeFile(
-    path.join(outputDir, 'continuous-motion-report.json'),
-    `${JSON.stringify(report, null, 2)}\n`
+  const failedMotions = report.motions.filter(
+    (motion) =>
+      motion.sourceChanged ||
+      motion.blankSampleCount > 0 ||
+      motion.missingFoundationSampleCount > 0 ||
+      motion.sampleCount < 20
   );
+  report.externalVectorRequests = [...new Set(report.externalVectorRequests)];
+  report.passed =
+    failedMotions.length === 0 &&
+    report.pageErrors.length === 0 &&
+    report.networkFailures.length === 0 &&
+    report.externalVectorRequests.length === 0;
+  await persistReport();
 
-  const failedMotions = motions.filter(
-    (motion) => motion.sourceChanged || motion.blankSampleCount > 0 || motion.sampleCount < 20
-  );
-  if (
-    failedMotions.length ||
-    pageErrors.length ||
-    networkFailures.length ||
-    externalVectorRequests.length
-  ) {
+  if (!report.passed) {
     throw new Error(`Continuous motion validation failed: ${JSON.stringify({
       failedMotions: failedMotions.map((motion) => ({
         name: motion.name,
         sampleCount: motion.sampleCount,
         sourceChanged: motion.sourceChanged,
         blankSampleCount: motion.blankSampleCount,
+        missingFoundationSampleCount: motion.missingFoundationSampleCount,
         longestBlankRun: motion.longestBlankRun,
-        minimumFeatureCount: motion.minimumFeatureCount
+        minimumFeatureCount: motion.minimumFeatureCount,
+        firstMissingFoundationSamples: motion.firstMissingFoundationSamples
       })),
-      pageErrors,
-      networkFailures,
-      externalVectorRequests
+      pageErrors: report.pageErrors,
+      networkFailures: report.networkFailures,
+      externalVectorRequests: report.externalVectorRequests
     })}`);
   }
 
   console.log(
-    `Validated ${motions.length} continuous motions with zero blank vector frames; ` +
-    `tile p95 ${Math.round(report.tileRequests.p95Ms || 0)}ms.`
+    `Validated ${definitions.length} continuous motions with no blank frames or missing physical foundation; tile p95 ${Math.round(report.tileRequests.p95Ms || 0)}ms.`
   );
+} catch (error) {
+  report.fatalError = serializeError(error);
+  report.passed = false;
+  await persistReport().catch(() => {});
+  throw error;
 } finally {
-  await browser.close();
+  await browser?.close();
 }
