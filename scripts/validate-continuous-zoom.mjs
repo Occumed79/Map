@@ -18,6 +18,7 @@ const report = {
   tileRequests: null,
   pageErrors: [],
   networkFailures: [],
+  abortedTileRequests: [],
   externalVectorRequests: [],
   fatalError: null,
   passed: false
@@ -93,11 +94,14 @@ try {
     }
   });
   page.on('requestfailed', (request) => {
-    report.networkFailures.push({
-      type: 'requestfailed',
-      url: request.url(),
-      error: request.failure()?.errorText || 'unknown request failure'
-    });
+    const url = request.url();
+    const error = request.failure()?.errorText || 'unknown request failure';
+    tileStartedAt.delete(request);
+    if (url.startsWith(`${origin}/tiles/`) && error === 'net::ERR_ABORTED') {
+      report.abortedTileRequests.push(url);
+      return;
+    }
+    report.networkFailures.push({ type: 'requestfailed', url, error });
   });
   page.on('response', (response) => {
     if (response.status() >= 400) {
@@ -126,27 +130,59 @@ try {
   );
 
   async function waitForStableView(center, zoom, requiredLayers) {
-    await page.evaluate(({ center, zoom }) => {
+    await page.evaluate(async ({ center, zoom, requiredLayers }) => {
       const map = globalThis.__OCCUMED_MAP__;
       map.jumpTo({ center, zoom, pitch: 0, bearing: 0 });
       map.triggerRepaint();
-    }, { center, zoom });
 
-    await page.waitForFunction(
-      ({ requiredLayers }) => {
-        const map = globalThis.__OCCUMED_MAP__;
-        if (!map?.isStyleLoaded() || !map.areTilesLoaded()) return false;
-        const rendered = map
-          .queryRenderedFeatures()
-          .filter((feature) => feature.source === 'occumed-open');
-        if (!rendered.length) return false;
-        return requiredLayers.every((required) =>
-          rendered.some((feature) => feature.sourceLayer === required)
-        );
-      },
-      { requiredLayers },
-      { timeout: 90_000 }
-    );
+      await new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          cleanup();
+          reject(new Error(`The source did not become idle with ${requiredLayers.join(', ')} rendered.`));
+        }, 90_000);
+        const interval = setInterval(check, 100);
+
+        function renderedLayersPresent() {
+          const rendered = map
+            .queryRenderedFeatures()
+            .filter((feature) => feature.source === 'occumed-open');
+          return rendered.length > 0 && requiredLayers.every((required) =>
+            rendered.some((feature) => feature.sourceLayer === required)
+          );
+        }
+
+        function check() {
+          if (
+            map.isStyleLoaded() &&
+            map.areTilesLoaded() &&
+            renderedLayersPresent()
+          ) {
+            cleanup();
+            resolve();
+          }
+        }
+
+        function onSourceData(event) {
+          if (
+            event.sourceId === 'occumed-open' &&
+            event.sourceDataType === 'idle'
+          ) {
+            check();
+          }
+        }
+
+        function cleanup() {
+          clearTimeout(timeout);
+          clearInterval(interval);
+          map.off('sourcedata', onSourceData);
+          map.off('idle', check);
+        }
+
+        map.on('sourcedata', onSourceData);
+        map.on('idle', check);
+        check();
+      });
+    }, { center, zoom, requiredLayers });
   }
 
   async function runMotion(definition) {
@@ -162,13 +198,11 @@ try {
     }) => {
       const map = globalThis.__OCCUMED_MAP__;
       const samples = [];
-      let lastSampleAt = -Infinity;
       let sourceChanged = false;
       const expectedSignature = JSON.stringify({ url: null, tiles: [expectedTemplate] });
 
-      const sample = (timestamp) => {
-        if (timestamp - lastSampleAt < 70) return;
-        lastSampleAt = timestamp;
+      const sample = () => {
+        const timestamp = performance.now();
         const source = map.getStyle().sources?.['occumed-open'] || null;
         const signature = JSON.stringify({ url: source?.url || null, tiles: source?.tiles || [] });
         sourceChanged ||= signature !== expectedSignature;
@@ -181,7 +215,7 @@ try {
           sourceLayers[layer] = (sourceLayers[layer] || 0) + 1;
         }
         samples.push({
-          timestamp: Number(timestamp),
+          timestamp,
           zoom: Number(map.getZoom()),
           center: map.getCenter().toArray().map(Number),
           vectorFeatureCount: rendered.length,
@@ -195,15 +229,17 @@ try {
       };
 
       return await new Promise((resolve, reject) => {
+        const sampleTimer = setInterval(sample, 50);
         const timeout = setTimeout(() => {
-          map.off('render', sample);
+          clearInterval(sampleTimer);
+          map.off('moveend', finish);
           reject(new Error(`${name} motion timed out.`));
         }, durationMs + 35_000);
 
         const finish = () => {
           clearTimeout(timeout);
-          map.off('render', sample);
-          sample(performance.now());
+          clearInterval(sampleTimer);
+          sample();
           const blankSamples = samples.filter((entry) => entry.vectorFeatureCount === 0);
           const missingFoundationSamples = samples.filter((entry) =>
             requiredLayers.some((layer) => (entry.requiredLayerCounts[layer] || 0) <= 0)
@@ -236,7 +272,7 @@ try {
           });
         };
 
-        map.on('render', sample);
+        sample();
         map.once('moveend', finish);
         map.easeTo({
           center: end.center,
@@ -358,6 +394,7 @@ try {
     p95Ms: percentile(0.95),
     p99Ms: percentile(0.99),
     maximumMs: sortedDurations.at(-1) || null,
+    abortedCount: report.abortedTileRequests.length,
     slowest: [...tileDurations]
       .sort((left, right) => right.durationMs - left.durationMs)
       .slice(0, 30)
@@ -383,12 +420,13 @@ try {
       failedMotions,
       pageErrors: report.pageErrors,
       networkFailures: report.networkFailures,
+      abortedTileRequestCount: report.abortedTileRequests.length,
       externalVectorRequests: report.externalVectorRequests
     })}`);
   }
 
   console.log(
-    `Validated ${definitions.length} continuous motions with no blank frames or missing physical foundation; tile p95 ${Math.round(report.tileRequests.p95Ms || 0)}ms.`
+    `Validated ${definitions.length} continuous motions with 50ms sampling, no blank frames, no missing physical foundation, and ${report.abortedTileRequests.length} expected canceled tile requests; tile p95 ${Math.round(report.tileRequests.p95Ms || 0)}ms.`
   );
 } catch (error) {
   report.fatalError = serializeError(error);
