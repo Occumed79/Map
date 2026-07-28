@@ -9,8 +9,9 @@ on:
       - .github/workflows/**
       - package.json
       - package-lock.json
-      - scripts/check-world-hardening.mjs
+      - scripts/**
       - src/server/**
+      - src/occumed-map.js
       - server.mjs
 
 permissions:
@@ -23,7 +24,7 @@ concurrency:
 jobs:
   production-security:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
@@ -51,3 +52,16 @@ jobs:
 
       - name: Run deterministic gateway chaos guards
         run: node scripts/check-world-hardening.mjs
+
+      - name: Capture complete hardened production build
+        run: |
+          set -o pipefail
+          npm run build 2>&1 | tee hardening-build.log
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hardening-build-${{ github.sha }}
+          path: hardening-build.log
+          if-no-files-found: error
+          retention-days: 7
