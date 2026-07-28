@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { PMTiles, SharedPromiseCache } from 'pmtiles';
 import {
   EMPTY_MVT,
@@ -325,6 +326,7 @@ export class WorldTileGateway {
     archiveReadConcurrency = DEFAULT_MAX_ARCHIVE_READS,
     archiveReadQueue = DEFAULT_MAX_ARCHIVE_QUEUE,
     overviewUrl = process.env.OCCUMED_WORLD_OVERVIEW_URL?.trim() || '',
+    persistentTileCache = null,
     now = () => Date.now()
   }) {
     this.manifestUrl = validateHttpUrl(manifestUrl, 'The worldwide manifest URL');
@@ -334,6 +336,7 @@ export class WorldTileGateway {
     this.releaseAssetUrl = releaseAssetUrl;
     this.fetchImpl = fetchImpl;
     this.overviewUrl = overviewUrl ? validateHttpUrl(overviewUrl, 'The overview URL') : '';
+    this.persistentTileCache = persistentTileCache;
     this.now = now;
     this.manifestTimeoutMs = boundedInteger(manifestTimeoutMs, DEFAULT_MANIFEST_TIMEOUT_MS, 500, 60_000);
     this.manifestTtlMs = boundedInteger(manifestTtlMs, DEFAULT_MANIFEST_TTL_MS, 1_000, 24 * 60 * 60 * 1_000);
@@ -364,7 +367,10 @@ export class WorldTileGateway {
       failed: 0,
       staleServed: 0,
       overloads: 0,
-      missingSurface: 0
+      missingSurface: 0,
+      persistentHits: 0,
+      persistentMisses: 0,
+      persistentWrites: 0
     };
   }
 
@@ -397,6 +403,7 @@ export class WorldTileGateway {
     const manifest = parseManifest(document, { maxRegions: this.maxRegions });
     return {
       ...manifest,
+      cacheVersion: createHash('sha256').update(text).digest('hex').slice(0, 32),
       routingIndex: new WorldTileRoutingIndex(manifest.regions, {
         routingZoom: manifest.virtualTiles.routingZoom,
         maxCellFanout: this.maxTileFanout
@@ -579,15 +586,47 @@ export class WorldTileGateway {
     }
 
     const promise = this.loadManifest()
-      .then((manifest) => this.buildTile(
-        manifest,
-        coordinates.z,
-        coordinates.x,
-        coordinates.y
-      ))
-      .then((tile) => {
+      .then(async (manifest) => {
+        if (this.persistentTileCache) {
+          const persisted = await this.persistentTileCache.get(
+            manifest.cacheVersion,
+            coordinates.z,
+            coordinates.x,
+            coordinates.y
+          );
+          if (
+            persisted?.byteLength > 0 &&
+            persisted.byteLength <= this.maxResolvedTileBytes
+          ) {
+            this.metrics.persistentHits += 1;
+            return { tile: persisted, manifest, built: false };
+          }
+          this.metrics.persistentMisses += 1;
+        }
+
+        const tile = await this.buildTile(
+          manifest,
+          coordinates.z,
+          coordinates.x,
+          coordinates.y
+        );
+        return { tile, manifest, built: true };
+      })
+      .then(({ tile, manifest, built }) => {
         this.metrics.resolved += 1;
-        return this.tileCache.set(key, tile);
+        const cached = this.tileCache.set(key, tile);
+        if (built && this.persistentTileCache) {
+          void this.persistentTileCache.set(
+            manifest.cacheVersion,
+            coordinates.z,
+            coordinates.x,
+            coordinates.y,
+            cached
+          ).then((written) => {
+            if (written) this.metrics.persistentWrites += 1;
+          }).catch(() => {});
+        }
+        return cached;
       })
       .catch((error) => {
         this.metrics.failed += 1;
@@ -601,6 +640,16 @@ export class WorldTileGateway {
 
     this.inflight.set(key, promise);
     return promise;
+  }
+
+  async initializePersistentCache() {
+    return this.persistentTileCache?.initialize
+      ? this.persistentTileCache.initialize()
+      : 0;
+  }
+
+  async close() {
+    await this.persistentTileCache?.close?.();
   }
 
   async ready() {
@@ -619,10 +668,12 @@ export class WorldTileGateway {
             loadedAt: this.manifestState.loadedAt,
             freshUntil: this.manifestState.freshUntil,
             staleUntil: this.manifestState.staleUntil,
-            regions: this.manifestState.manifest.regions.length
+            regions: this.manifestState.manifest.regions.length,
+            cacheVersion: this.manifestState.manifest.cacheVersion
           }
         : null,
       cache: this.tileCache.snapshot(),
+      persistentCache: this.persistentTileCache?.snapshot?.() || { enabled: false },
       archiveReads: this.archiveReadLimiter.snapshot(),
       inflightTiles: this.inflight.size,
       archives: this.archives.size,
