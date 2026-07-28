@@ -33,7 +33,11 @@ export function validateVectorTilePayload(payload, {
   const name = safeLabel(label);
   const bytes = Buffer.from(payload || []);
   const byteLimit = boundedInteger(maxBytes, DEFAULT_MAX_BYTES, 1_024, 96 * 1024 * 1024);
-  if (!bytes.byteLength || bytes.byteLength > byteLimit) {
+  // A protobuf message with no fields is canonically encoded as zero bytes.
+  // Mapbox Vector Tile uses protobuf, so a zero-byte payload is the valid empty
+  // tile used internally when no source layers are present. Non-empty malformed
+  // payloads still fail during decoding below.
+  if (bytes.byteLength > byteLimit) {
     throw new Error(`${name} has unsafe encoded size ${bytes.byteLength}.`);
   }
 
