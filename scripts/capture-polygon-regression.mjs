@@ -55,12 +55,12 @@ try {
 
   const continuityZooms = [1.65, 2.43, 3.5, 5.5, 6.5];
   const views = [
-    { name: 'north-america-z2', center: [-102, 36], zoom: 2.43 },
-    { name: 'central-pacific-z2', center: [175, 7], zoom: 2.43 },
-    { name: 'australia-z2', center: [135, -25], zoom: 2.43 },
-    { name: 'asia-pacific-z2', center: [118, 22], zoom: 2.43 },
-    { name: 'africa-europe-z2', center: [20, 20], zoom: 2.43 },
-    { name: 'world-north-america-z1', center: [-100, 25], zoom: 1.65 },
+    { name: 'north-america-z2', center: [-102, 36], zoom: 2.43, requiresAtmosphereBloom: true },
+    { name: 'central-pacific-z2', center: [175, 7], zoom: 2.43, requiresAtmosphereBloom: true },
+    { name: 'australia-z2', center: [135, -25], zoom: 2.43, requiresAtmosphereBloom: true },
+    { name: 'asia-pacific-z2', center: [118, 22], zoom: 2.43, requiresAtmosphereBloom: true },
+    { name: 'africa-europe-z2', center: [20, 20], zoom: 2.43, requiresAtmosphereBloom: true },
+    { name: 'world-north-america-z1', center: [-100, 25], zoom: 1.65, requiresAtmosphereBloom: true },
     ...continuityZooms.map((zoom) => ({
       name: `amazon-z${String(zoom).replace('.', '-')}`,
       center: [-60, -8],
@@ -116,6 +116,9 @@ try {
           map.querySourceFeatures('occumed-open', { sourceLayer }).length
         ])
       );
+      const bloom = document.querySelector('.occumed-atmosphere-bloom');
+      const bloomStyle = bloom ? getComputedStyle(bloom) : null;
+      const bloomRect = bloom?.getBoundingClientRect() || null;
       return {
         center: map.getCenter().toArray(),
         zoom: map.getZoom(),
@@ -125,7 +128,16 @@ try {
         renderedFeatureCount: features.length,
         renderedSourceLayerCounts,
         sourceFeatureCounts,
-        styleLayerCounts
+        styleLayerCounts,
+        atmosphereBloom: {
+          exists: Boolean(bloom),
+          hidden: Boolean(bloom?.hidden),
+          opacity: Number(bloomStyle?.opacity || 0),
+          filter: bloomStyle?.filter || 'none',
+          mixBlendMode: bloomStyle?.mixBlendMode || 'normal',
+          width: bloomRect?.width || 0,
+          height: bloomRect?.height || 0
+        }
       };
     }, expectedTemplate);
 
@@ -145,6 +157,18 @@ try {
         throw new Error(`${view.name} stopped rendering the ${sourceLayer} foundation at zoom ${view.zoom}.`);
       }
     }
+    if (view.requiresAtmosphereBloom) {
+      const bloom = diagnostics.atmosphereBloom;
+      if (!bloom.exists || bloom.hidden || bloom.opacity < 0.95) {
+        throw new Error(`${view.name} does not show the full-strength globe atmosphere bloom.`);
+      }
+      if (bloom.filter === 'none' || bloom.mixBlendMode !== 'screen') {
+        throw new Error(`${view.name} has a hard rim instead of the luminous white-blue bloom.`);
+      }
+      if (bloom.width < 150 || Math.abs(bloom.width - bloom.height) > 1) {
+        throw new Error(`${view.name} atmosphere bloom does not track the rendered globe.`);
+      }
+    }
 
     const screenshot = await page.screenshot({
       path: path.join(outputDir, `${view.name}.png`),
@@ -159,7 +183,7 @@ try {
   const report = {
     generatedAt: new Date().toISOString(),
     origin,
-    mode: 'rebuilt-overview-polygon-and-layer-continuity-regression',
+    mode: 'rebuilt-overview-polygon-layer-continuity-and-atmosphere-regression',
     expectedTemplate,
     continuityZooms,
     results,
@@ -178,7 +202,7 @@ try {
   );
 
   if (!report.passed) {
-    throw new Error(`Polygon and layer continuity validation failed: ${JSON.stringify({
+    throw new Error(`Polygon, layer continuity, and atmosphere validation failed: ${JSON.stringify({
       pageErrors,
       networkFailures,
       externalVectorRequests: report.externalVectorRequests
@@ -186,7 +210,7 @@ try {
   }
 
   console.log(
-    `Rendered ${views.length} rebuilt-overview views with continuous land, landcover, and depth across zoom thresholds.`
+    `Rendered ${views.length} rebuilt-overview views with continuous physical layers and a tracked exterior atmosphere bloom.`
   );
 } finally {
   await browser.close();
