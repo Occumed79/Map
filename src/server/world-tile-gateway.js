@@ -14,6 +14,7 @@ const DEFAULT_SURFACE_MAX_ZOOM = 10;
 const DEFAULT_ROUTING_ZOOM = 6;
 const DEFAULT_MAX_ZOOM = 16;
 const DEFAULT_CACHE_BYTES = 128 * 1024 * 1024;
+const CONTINUOUS_SURFACE_LAYERS = Object.freeze(['land', 'landcover', 'depth']);
 
 class MemoryTileCache {
   constructor(maxBytes = DEFAULT_CACHE_BYTES) {
@@ -193,7 +194,7 @@ export class WorldTileGateway {
     if (zoom <= surfaceMaxZoom) {
       const payload = await this.readArchiveTile(surfaceAsset, zoom, x, y);
       return payload
-        ? mergeVectorTiles([payload], { includeLayers: ['land'] })
+        ? mergeVectorTiles([payload], { includeLayers: CONTINUOUS_SURFACE_LAYERS })
         : EMPTY_MVT;
     }
 
@@ -208,13 +209,16 @@ export class WorldTileGateway {
     );
     if (!payload) return EMPTY_MVT;
 
-    return overscaleVectorLayer(payload, {
-      layerName: 'land',
-      sourceZoom: surfaceMaxZoom,
-      targetZoom: zoom,
-      targetX: x,
-      targetY: y
-    });
+    const overscaledLayers = CONTINUOUS_SURFACE_LAYERS.map((layerName) =>
+      overscaleVectorLayer(payload, {
+        layerName,
+        sourceZoom: surfaceMaxZoom,
+        targetZoom: zoom,
+        targetX: x,
+        targetY: y
+      })
+    );
+    return mergeVectorTiles(overscaledLayers);
   }
 
   async readBasemapTile(manifest, zoom, x, y) {
@@ -249,14 +253,13 @@ export class WorldTileGateway {
           this.readBasemapTile(manifest, zoom, x, y)
         ]);
 
-        // The physical surface is the single authoritative land mask. The
-        // overview and regional archives may also contain a layer named `land`;
-        // merging both copies can create duplicate rings and reused-ID joins.
-        // Retain basemap land only as an emergency fallback when the surface tile
-        // is genuinely empty.
-        const hasSurfaceLand = !Buffer.from(surface).equals(EMPTY_MVT);
-        const cartography = hasSurfaceLand
-          ? mergeVectorTiles([basemap], { excludeLayers: ['land'] })
+        // Land, generalized vegetation, and bathymetry form one continuous
+        // physical surface from minimum zoom through street zoom. Overview and
+        // regional archives may add cartographic detail, but they must never
+        // replace these foundational layers as the user crosses a zoom boundary.
+        const hasContinuousSurface = !Buffer.from(surface).equals(EMPTY_MVT);
+        const cartography = hasContinuousSurface
+          ? mergeVectorTiles([basemap], { excludeLayers: CONTINUOUS_SURFACE_LAYERS })
           : basemap;
 
         return this.tileCache.set(
