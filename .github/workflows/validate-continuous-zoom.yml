@@ -86,18 +86,19 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Run continuous zoom and pan gate
+      - name: Run hardened HTTP, continuous zoom, and pan gates
         run: |
           set -euo pipefail
           mkdir -p continuous-motion
           OCCUMED_WORLD_OVERVIEW_URL="http://127.0.0.1:4173/virtual-assets/${OVERVIEW_ASSET}" \
           OCCUMED_WORLD_SURFACE_URL="http://127.0.0.1:4173/virtual-assets/${SURFACE_ASSET}" \
+          OCCUMED_ENABLE_DIAGNOSTICS="true" \
             node server.mjs > continuous-motion/server.log 2>&1 &
           server_pid="$!"
           cleanup() {
             status="$?"
             if [ "$status" -ne 0 ]; then
-              tail -300 continuous-motion/server.log || true
+              tail -400 continuous-motion/server.log || true
             fi
             kill "$server_pid" 2>/dev/null || true
             exit "$status"
@@ -112,11 +113,16 @@ jobs:
           done
           curl --fail http://127.0.0.1:4173/healthz
 
+          node scripts/check-world-http-hardening.mjs
+
           OCCUMED_PREVIEW_OUTPUT=continuous-motion/results \
             node scripts/validate-continuous-zoom.mjs
 
           OCCUMED_PREVIEW_OUTPUT=continuous-motion/all-zoom-levels \
             node scripts/validate-all-zoom-levels.mjs
+
+          curl --fail --silent http://127.0.0.1:4173/internal/tile-health \
+            > continuous-motion/tile-health.json
 
       - uses: actions/upload-artifact@v4
         if: always()
@@ -126,6 +132,7 @@ jobs:
             continuous-motion/results
             continuous-motion/all-zoom-levels
             continuous-motion/server.log
+            continuous-motion/tile-health.json
             dist/virtual-assets/occumed-world-overview.pmtiles
           if-no-files-found: error
           retention-days: 14
