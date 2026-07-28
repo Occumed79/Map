@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {
   collectNavigationDatabaseUrls,
+  neonHttpSqlEndpoint,
   navigationTileShardIndex,
   NeonNavigationTileCache
 } from '../src/server/neon-navigation-tile-cache.js';
@@ -13,6 +14,10 @@ const urls = collectNavigationDatabaseUrls({
   NAV_DATABASE_URL_4: 'postgresql://one:secret@one.example/neondb?sslmode=require'
 });
 assert.deepEqual(urls.map(({ slot }) => slot), [1, 3]);
+assert.equal(
+  neonHttpSqlEndpoint('postgresql://owner:secret@ep-example-pooler.us-west-2.aws.neon.tech/neondb'),
+  'https://api.us-west-2.aws.neon.tech/sql'
+);
 assert.equal(navigationTileShardIndex('version/6/32/20', 8), navigationTileShardIndex('version/6/32/20', 8));
 assert.equal(navigationTileShardIndex('version/6/32/20', 0), -1);
 
@@ -63,6 +68,36 @@ assert.equal(JSON.stringify(snapshot).includes('secret'), false);
 
 await cache.close();
 assert.deepEqual(closed.sort((a, b) => a - b), [1, 3]);
+
+const httpRequests = [];
+const httpConnectionString = 'postgresql://owner:secret@ep-example-pooler.us-west-2.aws.neon.tech/neondb?sslmode=require';
+const httpCache = new NeonNavigationTileCache([
+  { slot: 1, url: httpConnectionString }
+], {
+  fetchImpl: async (url, options) => {
+    const body = JSON.parse(options.body);
+    httpRequests.push({ url, options, body });
+    const isRead = /SELECT encode\(tile, 'base64'\)/.test(body.query);
+    return new Response(JSON.stringify(isRead
+      ? {
+          fields: [{ name: 'tile_base64' }],
+          rows: [[Buffer.from([0x1a, 0x00]).toString('base64')]]
+        }
+      : { fields: [], rows: [] }), {
+      status: 200,
+      headers: { 'content-type': 'application/json' }
+    });
+  }
+});
+assert.equal(await httpCache.initialize(), 1);
+assert.equal((await httpCache.get('manifest-http', 0, 0, 0)).toString('hex'), '1a00');
+assert.equal(await httpCache.set('manifest-http', 0, 0, 0, Buffer.from([0x1a, 0x00])), true);
+assert.equal(httpRequests.every(({ url }) => url === 'https://api.us-west-2.aws.neon.tech/sql'), true);
+assert.equal(httpRequests.every(({ options }) => options.headers['Neon-Connection-String'] === httpConnectionString), true);
+const insertRequest = httpRequests.find(({ body }) => /INSERT INTO/.test(body.query));
+assert.equal(insertRequest.body.params[4], '\\x1a00');
+assert.equal(JSON.stringify(httpCache.snapshot()).includes('secret'), false);
+await httpCache.close();
 
 const manifest = {
   version: 2,
@@ -140,4 +175,4 @@ assert.equal(gateway.getHealthSnapshot().persistentCache.enabled, true);
 await gateway.close();
 assert.equal(persistentCalls.some(([operation]) => operation === 'close'), true);
 
-console.log('Neon navigation cache validated: deterministic sharding, memory-first reads, z0-6 persistence, bounded fallback behavior, and secret-free health output.');
+console.log('Neon navigation cache validated: HTTP SQL transport, deterministic sharding, memory-first reads, z0-6 persistence, bounded fallback behavior, and secret-free health output.');
