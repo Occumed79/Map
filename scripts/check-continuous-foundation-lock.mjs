@@ -64,7 +64,7 @@ for (const marker of [
   'source.minzoom = 0',
   'source.maxzoom = 16',
   "delete layer.maxzoom",
-  "runtime.transition = { duration: 0, delay: 0 }",
+  'runtime.transition = { duration: 0, delay: 0 }',
   "layer.paint['fill-opacity'] = ['max', 0.06, existingOpacity]"
 ]) {
   assert(renderingContract.includes(marker), `The documented rendering contract lost ${marker}.`);
@@ -123,7 +123,8 @@ for (const marker of [
   'BLOOM_FADE_START_ZOOM',
   'BLOOM_FADE_END_ZOOM',
   'cancelPendingTileRequestsWhileZooming: false',
-  'maxTileCacheZoomLevels: 8'
+  'const WORLD_ZOOM_PYRAMID_LEVELS = WORLD_MAX_ZOOM - WORLD_MIN_ZOOM + 1',
+  'maxTileCacheZoomLevels: WORLD_ZOOM_PYRAMID_LEVELS'
 ]) {
   assert(mapHelper.includes(marker), `MapLibre continuity behavior lost ${marker}.`);
 }
@@ -177,5 +178,5 @@ assert(workflow.includes('continuous-motion/*.json'), 'Runtime JSON diagnostics 
 assert(workflow.includes('gate-status.txt'), 'Aggregate runtime gate status is no longer preserved.');
 
 console.log(
-  'Continuous-foundation lock passed: documented source/layer zoom semantics, nonzero landcover and depth through zoom 16, parent tile retention, strengthened atmosphere, exhaustive boundary checks, and sustained worldwide soak are mandatory.'
+  'Continuous-foundation lock passed: documented source/layer zoom semantics, nonzero landcover and depth through zoom 16, full 0–16 parent-tile retention, strengthened atmosphere, exhaustive boundary checks, and sustained worldwide soak are mandatory.'
 );
