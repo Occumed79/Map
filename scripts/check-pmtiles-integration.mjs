@@ -61,8 +61,11 @@ if (helper.includes('Protocol') || helper.includes('setUrl(') || helper.includes
 if (!helper.includes('cancelPendingTileRequestsWhileZooming: false')) {
   fail('The browser can cancel still-loading parent tiles during zoom.');
 }
-if (!helper.includes('maxTileCacheZoomLevels: 8')) {
-  fail('The browser does not retain enough parent zoom levels for seamless motion.');
+if (
+  !helper.includes('const WORLD_ZOOM_PYRAMID_LEVELS = WORLD_MAX_ZOOM - WORLD_MIN_ZOOM + 1') ||
+  !helper.includes('maxTileCacheZoomLevels: WORLD_ZOOM_PYRAMID_LEVELS')
+) {
+  fail('The browser does not retain the complete 0-16 parent zoom pyramid for reverse navigation.');
 }
 if (!helper.includes('refreshExpiredTiles: false')) {
   fail('The browser can replace visible tiles through in-session expiry refreshes.');
@@ -185,4 +188,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('PMTiles storage integration validated behind one permanent worldwide vector endpoint with a continuous physical foundation, pre-merge and post-encode MVT budgets, bounded upstream work, circuit breaking, stale recovery, and hardened HTTP delivery.');
+console.log('PMTiles storage integration validated behind one permanent worldwide vector endpoint with a continuous physical foundation, complete browser parent-pyramid retention, pre-merge and post-encode MVT budgets, bounded upstream work, circuit breaking, stale recovery, and hardened HTTP delivery.');
