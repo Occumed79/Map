@@ -9,6 +9,9 @@ const GLOBE_TILE_SIZE = 512;
 const GLOBE_CIRCUMFERENCE = Math.PI * 2;
 const BLOOM_FADE_START_ZOOM = 2.85;
 const BLOOM_FADE_END_ZOOM = 4.25;
+const WORLD_MIN_ZOOM = 0;
+const WORLD_MAX_ZOOM = 16;
+const WORLD_ZOOM_PYRAMID_LEVELS = WORLD_MAX_ZOOM - WORLD_MIN_ZOOM + 1;
 
 export function resolveOccumedPixelRatio() {
   const deviceRatio = Number(globalThis.devicePixelRatio);
@@ -138,8 +141,8 @@ export async function createOccumedMap({
   styleUrl = DEFAULT_STYLE_URL,
   center = [-98.5, 25],
   zoom = 2.43,
-  minZoom = 0,
-  maxZoom = 16,
+  minZoom = WORLD_MIN_ZOOM,
+  maxZoom = WORLD_MAX_ZOOM,
   controls = true,
   scaleControl = false,
   mapOptions = {}
@@ -161,11 +164,11 @@ export async function createOccumedMap({
     hash: false,
     pixelRatio: resolveOccumedPixelRatio(),
     antialias: true,
-    // The virtual gateway can take longer than a CDN-hosted static tile source.
-    // Keep already-requested parent tiles alive while child tiles arrive so zoom
-    // gestures never expose blank map frames.
+    // MapLibre only retains pending smaller-zoom requests during zoom-in when
+    // cancellation is disabled. Reverse zooms also require the already-loaded
+    // parent pyramid to remain in cache, so retain every zoom level from 0–16.
     cancelPendingTileRequestsWhileZooming: false,
-    maxTileCacheZoomLevels: 8,
+    maxTileCacheZoomLevels: WORLD_ZOOM_PYRAMID_LEVELS,
     refreshExpiredTiles: false,
     fadeDuration: 300,
     renderWorldCopies: false,
