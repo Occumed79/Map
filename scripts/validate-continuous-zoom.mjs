@@ -31,9 +31,45 @@ function serializeError(error) {
   };
 }
 
+function safeStringify(value) {
+  const seen = new WeakSet();
+  return JSON.stringify(value, (_key, entry) => {
+    if (!entry || typeof entry !== 'object') return entry;
+    if (seen.has(entry)) return `[Circular:${entry.constructor?.name || 'Object'}]`;
+    seen.add(entry);
+    if (
+      !Array.isArray(entry) &&
+      Object.getPrototypeOf(entry) !== Object.prototype &&
+      Object.getPrototypeOf(entry) !== null
+    ) {
+      return `[NonPlain:${entry.constructor?.name || 'Object'}]`;
+    }
+    return entry;
+  }, 2);
+}
+
 async function persistReport() {
   report.externalVectorRequests = [...new Set(report.externalVectorRequests)];
-  await fs.writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`);
+  await fs.writeFile(reportPath, `${safeStringify(report)}\n`);
+}
+
+function normalizeMotion(result, definition) {
+  return {
+    name: String(result?.name || definition.name),
+    requiredLayers: [...definition.requiredLayers],
+    sampleCount: Number(result?.sampleCount || 0),
+    sourceChanged: Boolean(result?.sourceChanged),
+    blankSampleCount: Number(result?.blankSampleCount || 0),
+    missingFoundationSampleCount: Number(result?.missingFoundationSampleCount || 0),
+    firstMissingFoundationSamples: Array.isArray(result?.firstMissingFoundationSamples)
+      ? result.firstMissingFoundationSamples
+      : [],
+    longestBlankRun: Number(result?.longestBlankRun || 0),
+    minimumFeatureCount: Number(result?.minimumFeatureCount || 0),
+    maximumFeatureCount: Number(result?.maximumFeatureCount || 0),
+    samples: Array.isArray(result?.samples) ? result.samples : [],
+    executionError: null
+  };
 }
 
 let browser;
@@ -113,10 +149,11 @@ try {
     );
   }
 
-  async function runMotion({ name, start, end, durationMs, requiredLayers }) {
+  async function runMotion(definition) {
+    const { name, start, end, durationMs, requiredLayers } = definition;
     await waitForStableView(start.center, start.zoom, requiredLayers);
 
-    const result = await page.evaluate(async ({
+    const raw = await page.evaluate(async ({
       name,
       end,
       durationMs,
@@ -127,17 +164,13 @@ try {
       const samples = [];
       let lastSampleAt = -Infinity;
       let sourceChanged = false;
-
-      const sourceSignature = () => {
-        const source = map.getStyle().sources?.['occumed-open'] || null;
-        return JSON.stringify({ url: source?.url || null, tiles: source?.tiles || [] });
-      };
       const expectedSignature = JSON.stringify({ url: null, tiles: [expectedTemplate] });
 
       const sample = (timestamp) => {
         if (timestamp - lastSampleAt < 70) return;
         lastSampleAt = timestamp;
-        const signature = sourceSignature();
+        const source = map.getStyle().sources?.['occumed-open'] || null;
+        const signature = JSON.stringify({ url: source?.url || null, tiles: source?.tiles || [] });
         sourceChanged ||= signature !== expectedSignature;
         const rendered = map
           .queryRenderedFeatures()
@@ -148,15 +181,15 @@ try {
           sourceLayers[layer] = (sourceLayers[layer] || 0) + 1;
         }
         samples.push({
-          timestamp,
-          zoom: map.getZoom(),
-          center: map.getCenter().toArray(),
+          timestamp: Number(timestamp),
+          zoom: Number(map.getZoom()),
+          center: map.getCenter().toArray().map(Number),
           vectorFeatureCount: rendered.length,
           requiredLayerCounts: Object.fromEntries(
             requiredLayers.map((layer) => [layer, sourceLayers[layer] || 0])
           ),
           sourceLayers,
-          tilesLoaded: map.areTilesLoaded(),
+          tilesLoaded: Boolean(map.areTilesLoaded()),
           sourceSignature: signature
         });
       };
@@ -187,7 +220,6 @@ try {
           }
           resolve({
             name,
-            requiredLayers,
             sampleCount: samples.length,
             sourceChanged,
             blankSampleCount: blankSamples.length,
@@ -218,6 +250,7 @@ try {
       });
     }, { name, end, durationMs, expectedTemplate, requiredLayers });
 
+    const result = normalizeMotion(raw, definition);
     await page.screenshot({
       path: path.join(outputDir, `${name}-final.png`),
       fullPage: false
@@ -287,7 +320,29 @@ try {
   ];
 
   for (const definition of definitions) {
-    await runMotion(definition);
+    try {
+      await runMotion(definition);
+    } catch (error) {
+      report.motions.push({
+        name: definition.name,
+        requiredLayers: [...definition.requiredLayers],
+        sampleCount: 0,
+        sourceChanged: false,
+        blankSampleCount: 0,
+        missingFoundationSampleCount: 0,
+        firstMissingFoundationSamples: [],
+        longestBlankRun: 0,
+        minimumFeatureCount: 0,
+        maximumFeatureCount: 0,
+        samples: [],
+        executionError: serializeError(error)
+      });
+      await page.screenshot({
+        path: path.join(outputDir, `${definition.name}-error.png`),
+        fullPage: false
+      }).catch(() => {});
+      await persistReport();
+    }
   }
 
   const sortedDurations = tileDurations
@@ -308,12 +363,12 @@ try {
       .slice(0, 30)
   };
 
-  const failedMotions = report.motions.filter(
-    (motion) =>
-      motion.sourceChanged ||
-      motion.blankSampleCount > 0 ||
-      motion.missingFoundationSampleCount > 0 ||
-      motion.sampleCount < 20
+  const failedMotions = report.motions.filter((motion) =>
+    motion.executionError ||
+    motion.sourceChanged ||
+    motion.blankSampleCount > 0 ||
+    motion.missingFoundationSampleCount > 0 ||
+    motion.sampleCount < 20
   );
   report.externalVectorRequests = [...new Set(report.externalVectorRequests)];
   report.passed =
@@ -324,17 +379,8 @@ try {
   await persistReport();
 
   if (!report.passed) {
-    throw new Error(`Continuous motion validation failed: ${JSON.stringify({
-      failedMotions: failedMotions.map((motion) => ({
-        name: motion.name,
-        sampleCount: motion.sampleCount,
-        sourceChanged: motion.sourceChanged,
-        blankSampleCount: motion.blankSampleCount,
-        missingFoundationSampleCount: motion.missingFoundationSampleCount,
-        longestBlankRun: motion.longestBlankRun,
-        minimumFeatureCount: motion.minimumFeatureCount,
-        firstMissingFoundationSamples: motion.firstMissingFoundationSamples
-      })),
+    throw new Error(`Continuous motion validation failed: ${safeStringify({
+      failedMotions,
       pageErrors: report.pageErrors,
       networkFailures: report.networkFailures,
       externalVectorRequests: report.externalVectorRequests
