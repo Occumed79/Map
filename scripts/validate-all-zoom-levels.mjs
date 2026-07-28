@@ -30,9 +30,53 @@ function serializeError(error) {
   };
 }
 
+function safeStringify(value) {
+  const seen = new WeakSet();
+  return JSON.stringify(value, (_key, entry) => {
+    if (!entry || typeof entry !== 'object') return entry;
+    if (seen.has(entry)) return `[Circular:${entry.constructor?.name || 'Object'}]`;
+    seen.add(entry);
+    if (
+      !Array.isArray(entry) &&
+      Object.getPrototypeOf(entry) !== Object.prototype &&
+      Object.getPrototypeOf(entry) !== null
+    ) {
+      return `[NonPlain:${entry.constructor?.name || 'Object'}]`;
+    }
+    return entry;
+  }, 2);
+}
+
 async function persistReport() {
   report.externalVectorRequests = [...new Set(report.externalVectorRequests)];
-  await fs.writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`);
+  await fs.writeFile(reportPath, `${safeStringify(report)}\n`);
+}
+
+function normalizeSweep(result, definition) {
+  return {
+    name: String(result?.name || definition.name),
+    center: [...definition.center],
+    startZoom: definition.startZoom,
+    endZoom: definition.endZoom,
+    requiredLayers: [...definition.requiredLayers],
+    sampleCount: Number(result?.sampleCount || 0),
+    sourceChanged: Boolean(result?.sourceChanged),
+    blankSampleCount: Number(result?.blankSampleCount || 0),
+    missingFoundationSampleCount: Number(result?.missingFoundationSampleCount || 0),
+    firstMissingFoundationSamples: Array.isArray(result?.firstMissingFoundationSamples)
+      ? result.firstMissingFoundationSamples
+      : [],
+    minimumZoom: result?.minimumZoom === null || result?.minimumZoom === undefined
+      ? null
+      : Number(result.minimumZoom),
+    maximumZoom: result?.maximumZoom === null || result?.maximumZoom === undefined
+      ? null
+      : Number(result.maximumZoom),
+    maximumZoomGap: Number(result?.maximumZoomGap || 0),
+    minimumFeatureCount: Number(result?.minimumFeatureCount || 0),
+    samples: Array.isArray(result?.samples) ? result.samples : [],
+    executionError: null
+  };
 }
 
 let browser;
@@ -72,7 +116,8 @@ try {
     { timeout: 90_000 }
   );
 
-  async function runSweep({ name, center, startZoom, endZoom, requiredLayers }) {
+  async function runSweep(definition) {
+    const { name, center, startZoom, endZoom, requiredLayers } = definition;
     await page.evaluate(({ center, startZoom }) => {
       const map = globalThis.__OCCUMED_MAP__;
       map.jumpTo({ center, zoom: startZoom, pitch: 0, bearing: 0 });
@@ -95,7 +140,7 @@ try {
       { timeout: 90_000 }
     );
 
-    const result = await page.evaluate(async ({
+    const raw = await page.evaluate(async ({
       name,
       center,
       startZoom,
@@ -124,14 +169,14 @@ try {
           sourceLayers[layer] = (sourceLayers[layer] || 0) + 1;
         }
         samples.push({
-          timestamp,
-          zoom: map.getZoom(),
+          timestamp: Number(timestamp),
+          zoom: Number(map.getZoom()),
           renderedFeatureCount: rendered.length,
           requiredLayerCounts: Object.fromEntries(
             requiredLayers.map((layer) => [layer, sourceLayers[layer] || 0])
           ),
           sourceLayers,
-          tilesLoaded: map.areTilesLoaded(),
+          tilesLoaded: Boolean(map.areTilesLoaded()),
           sourceSignature: signature
         });
       };
@@ -158,10 +203,6 @@ try {
           );
           resolve({
             name,
-            center,
-            startZoom,
-            endZoom,
-            requiredLayers,
             sampleCount: samples.length,
             sourceChanged,
             blankSampleCount: blankSamples.length,
@@ -191,6 +232,7 @@ try {
       });
     }, { name, center, startZoom, endZoom, expectedTemplate, requiredLayers });
 
+    const result = normalizeSweep(raw, definition);
     await page.screenshot({
       path: path.join(outputDir, `${name}-final.png`),
       fullPage: false
@@ -210,10 +252,37 @@ try {
   ];
 
   for (const definition of definitions) {
-    await runSweep(definition);
+    try {
+      await runSweep(definition);
+    } catch (error) {
+      report.sweeps.push({
+        name: definition.name,
+        center: [...definition.center],
+        startZoom: definition.startZoom,
+        endZoom: definition.endZoom,
+        requiredLayers: [...definition.requiredLayers],
+        sampleCount: 0,
+        sourceChanged: false,
+        blankSampleCount: 0,
+        missingFoundationSampleCount: 0,
+        firstMissingFoundationSamples: [],
+        minimumZoom: null,
+        maximumZoom: null,
+        maximumZoomGap: 0,
+        minimumFeatureCount: 0,
+        samples: [],
+        executionError: serializeError(error)
+      });
+      await page.screenshot({
+        path: path.join(outputDir, `${definition.name}-error.png`),
+        fullPage: false
+      }).catch(() => {});
+      await persistReport();
+    }
   }
 
   const failedSweeps = report.sweeps.filter((sweep) =>
+    sweep.executionError ||
     sweep.sourceChanged ||
     sweep.blankSampleCount > 0 ||
     sweep.missingFoundationSampleCount > 0 ||
@@ -232,19 +301,8 @@ try {
   await persistReport();
 
   if (!report.passed) {
-    throw new Error(`All-zoom validation failed: ${JSON.stringify({
-      failedSweeps: failedSweeps.map((sweep) => ({
-        name: sweep.name,
-        sampleCount: sweep.sampleCount,
-        sourceChanged: sweep.sourceChanged,
-        blankSampleCount: sweep.blankSampleCount,
-        missingFoundationSampleCount: sweep.missingFoundationSampleCount,
-        minimumZoom: sweep.minimumZoom,
-        maximumZoom: sweep.maximumZoom,
-        maximumZoomGap: sweep.maximumZoomGap,
-        minimumFeatureCount: sweep.minimumFeatureCount,
-        firstMissingFoundationSamples: sweep.firstMissingFoundationSamples
-      })),
+    throw new Error(`All-zoom validation failed: ${safeStringify({
+      failedSweeps,
       pageErrors: report.pageErrors,
       networkFailures: report.networkFailures,
       externalVectorRequests: report.externalVectorRequests
