@@ -74,8 +74,8 @@ if (!helper.includes('source.tiles = source.tiles.map')) {
   fail('Permanent vector tile templates are not resolved to the style origin.');
 }
 
-if (!server.includes("const tileMatch = /^\/tiles\/(\d+)\/(\d+)\/(\d+)\.pbf$/")) {
-  fail('The server is missing the single virtual Z/X/Y endpoint.');
+if (!server.includes('const tileMatch =') || !server.includes('await serveVirtualTile(request, response, coordinates)')) {
+  fail('The server is missing the single virtual Z/X/Y route contract.');
 }
 if (server.includes('/world-tiles/')) fail('The server still publishes browser-visible regional archive paths.');
 if (!gateway.includes('regionsForTile(zoom, x, y)')) fail('The gateway does not route each requested tile by bounds.');
