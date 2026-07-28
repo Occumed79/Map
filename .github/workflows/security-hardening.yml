@@ -1,0 +1,53 @@
+name: Validate Map Security Hardening
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/**
+      - package.json
+      - package-lock.json
+      - scripts/check-world-hardening.mjs
+      - src/server/**
+      - server.mjs
+
+permissions:
+  contents: read
+
+concurrency:
+  group: occumed-map-security-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  production-security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install exactly from the committed lockfile
+        run: npm ci --ignore-scripts
+
+      - name: Reject production dependency vulnerabilities
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Validate production dependency graph
+        run: npm ls --omit=dev --all
+
+      - name: Reject remote Git package sources
+        run: |
+          set -euo pipefail
+          if grep -E '"resolved": "(?:git\+|git://|ssh://|https://github\.com/.+\.git)' package-lock.json; then
+            echo 'Remote Git package sources are not allowed in the production lockfile.' >&2
+            exit 1
+          fi
+
+      - name: Run deterministic gateway chaos guards
+        run: node scripts/check-world-hardening.mjs
