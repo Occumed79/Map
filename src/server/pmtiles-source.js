@@ -25,14 +25,22 @@ function abortError(signal) {
 function delay(milliseconds, signal) {
   if (signal?.aborted) return Promise.reject(abortError(signal));
   return new Promise((resolve, reject) => {
-    const timer = setTimeout(resolve, milliseconds);
-    const onAbort = () => {
+    let timer;
+    const cleanup = () => {
       clearTimeout(timer);
+      signal?.removeEventListener('abort', onAbort);
+    };
+    const onAbort = () => {
+      cleanup();
       reject(abortError(signal));
     };
+    timer = setTimeout(() => {
+      cleanup();
+      resolve();
+    }, milliseconds);
     signal?.addEventListener('abort', onAbort, { once: true });
     timer.unref?.();
-  }).finally(() => signal?.removeEventListener?.('abort', () => {}));
+  });
 }
 
 function errorStatus(error) {
