@@ -53,13 +53,28 @@ try {
     { timeout: 90_000 }
   );
 
+  const continuityZooms = [1.65, 2.43, 3.5, 5.5, 6.5];
   const views = [
     { name: 'north-america-z2', center: [-102, 36], zoom: 2.43 },
     { name: 'central-pacific-z2', center: [175, 7], zoom: 2.43 },
     { name: 'australia-z2', center: [135, -25], zoom: 2.43 },
     { name: 'asia-pacific-z2', center: [118, 22], zoom: 2.43 },
     { name: 'africa-europe-z2', center: [20, 20], zoom: 2.43 },
-    { name: 'world-north-america-z1', center: [-100, 25], zoom: 1.65 }
+    { name: 'world-north-america-z1', center: [-100, 25], zoom: 1.65 },
+    ...continuityZooms.map((zoom) => ({
+      name: `amazon-z${String(zoom).replace('.', '-')}`,
+      center: [-60, -8],
+      zoom,
+      requiredSourceLayers: ['land', 'landcover'],
+      requiredRenderedLayers: ['land', 'landcover']
+    })),
+    ...continuityZooms.map((zoom) => ({
+      name: `pacific-depth-z${String(zoom).replace('.', '-')}`,
+      center: [-140, 0],
+      zoom,
+      requiredSourceLayers: ['depth'],
+      requiredRenderedLayers: ['depth']
+    }))
   ];
   const results = {};
 
@@ -87,14 +102,20 @@ try {
       const features = map
         .queryRenderedFeatures()
         .filter((feature) => feature.source === 'occumed-open');
-      const sourceLayerCounts = {};
+      const renderedSourceLayerCounts = {};
       const styleLayerCounts = {};
       for (const feature of features) {
         const sourceLayer = feature.sourceLayer || 'unknown';
         const styleLayer = feature.layer?.id || 'unknown';
-        sourceLayerCounts[sourceLayer] = (sourceLayerCounts[sourceLayer] || 0) + 1;
+        renderedSourceLayerCounts[sourceLayer] = (renderedSourceLayerCounts[sourceLayer] || 0) + 1;
         styleLayerCounts[styleLayer] = (styleLayerCounts[styleLayer] || 0) + 1;
       }
+      const sourceFeatureCounts = Object.fromEntries(
+        ['land', 'landcover', 'depth'].map((sourceLayer) => [
+          sourceLayer,
+          map.querySourceFeatures('occumed-open', { sourceLayer }).length
+        ])
+      );
       return {
         center: map.getCenter().toArray(),
         zoom: map.getZoom(),
@@ -102,7 +123,8 @@ try {
         sourceIsPermanent:
           !source?.url && JSON.stringify(source?.tiles || []) === JSON.stringify([expectedTemplate]),
         renderedFeatureCount: features.length,
-        sourceLayerCounts,
+        renderedSourceLayerCounts,
+        sourceFeatureCounts,
         styleLayerCounts
       };
     }, expectedTemplate);
@@ -112,6 +134,16 @@ try {
     }
     if (diagnostics.renderedFeatureCount <= 0) {
       throw new Error(`${view.name} rendered no worldwide vector features.`);
+    }
+    for (const sourceLayer of view.requiredSourceLayers || []) {
+      if ((diagnostics.sourceFeatureCounts[sourceLayer] || 0) <= 0) {
+        throw new Error(`${view.name} lost the ${sourceLayer} source layer at zoom ${view.zoom}.`);
+      }
+    }
+    for (const sourceLayer of view.requiredRenderedLayers || []) {
+      if ((diagnostics.renderedSourceLayerCounts[sourceLayer] || 0) <= 0) {
+        throw new Error(`${view.name} stopped rendering the ${sourceLayer} foundation at zoom ${view.zoom}.`);
+      }
     }
 
     const screenshot = await page.screenshot({
@@ -127,8 +159,9 @@ try {
   const report = {
     generatedAt: new Date().toISOString(),
     origin,
-    mode: 'rebuilt-overview-polygon-regression',
+    mode: 'rebuilt-overview-polygon-and-layer-continuity-regression',
     expectedTemplate,
+    continuityZooms,
     results,
     pageErrors,
     networkFailures,
@@ -145,14 +178,16 @@ try {
   );
 
   if (!report.passed) {
-    throw new Error(`Polygon regression validation failed: ${JSON.stringify({
+    throw new Error(`Polygon and layer continuity validation failed: ${JSON.stringify({
       pageErrors,
       networkFailures,
       externalVectorRequests: report.externalVectorRequests
     })}`);
   }
 
-  console.log(`Rendered ${views.length} rebuilt-overview globe views without browser or network errors.`);
+  console.log(
+    `Rendered ${views.length} rebuilt-overview views with continuous land, landcover, and depth across zoom thresholds.`
+  );
 } finally {
   await browser.close();
 }
