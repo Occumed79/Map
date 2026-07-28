@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const [
   landcoverBuilder,
+  bathymetryBuilder,
   surfaceBuilder,
   mapHelper,
   appCss,
@@ -19,6 +20,7 @@ const [
   runtimeStyleDocument
 ] = await Promise.all([
   fs.readFile(path.join(root, 'scripts/prepare-world-landcover.mjs'), 'utf8'),
+  fs.readFile(path.join(root, 'scripts/prepare-world-bathymetry.mjs'), 'utf8'),
   fs.readFile(path.join(root, 'scripts/build-world-surface.sh'), 'utf8'),
   fs.readFile(path.join(root, 'src/occumed-map.js'), 'utf8'),
   fs.readFile(path.join(root, 'src/styles.css'), 'utf8'),
@@ -48,9 +50,17 @@ assert(
   'Worldwide landcover no longer carries an explicit continuous maximum zoom.'
 );
 assert(
-  surfaceBuilder.includes('--maximum-zoom=10') &&
-    surfaceBuilder.includes('-L "landcover:'),
-  'The physical surface build no longer publishes landcover through zoom 10.'
+  bathymetryBuilder.includes('const SURFACE_MAX_ZOOM = 10;') &&
+    bathymetryBuilder.includes('minzoom: 0') &&
+    bathymetryBuilder.includes('maxzoom: SURFACE_MAX_ZOOM'),
+  'Worldwide bathymetry is not explicitly guaranteed from zoom 0 through the surface maximum.'
+);
+assert(
+  surfaceBuilder.includes('--minimum-zoom=0') &&
+    surfaceBuilder.includes('--maximum-zoom=10') &&
+    surfaceBuilder.includes('-L "landcover:') &&
+    surfaceBuilder.includes('-L "depth:'),
+  'The physical surface build no longer publishes landcover and depth from zoom 0 through zoom 10.'
 );
 
 const prepareStyle = packageJson.scripts?.['prepare:style'] || '';
@@ -146,7 +156,10 @@ for (const marker of [
   'amazon-routing-threshold-out',
   'pacific-routing-threshold-in',
   'antimeridian-pan',
-  'missingFoundationSampleCount'
+  'missingFoundationSampleCount',
+  'setInterval(sample, 50)',
+  "event.sourceDataType === 'idle'",
+  "error === 'net::ERR_ABORTED'"
 ]) {
   assert(motionGate.includes(marker), `The continuous motion gate lost ${marker}.`);
 }
@@ -157,9 +170,13 @@ for (const marker of [
   'pacific-all-zooms-out',
   'antimeridian-all-zooms-out',
   'startZoom: 0, endZoom: 16',
-  'startZoom: 16, endZoom: 0'
+  'startZoom: 16, endZoom: 0',
+  'setInterval(sample, 50)',
+  "event.sourceDataType === 'idle'",
+  'actualStartZoom',
+  'actualEndZoom'
 ]) {
-  assert(allZoomGate.includes(marker), `The complete zoom 0–16 gate lost ${marker}.`);
+  assert(allZoomGate.includes(marker), `The complete zoom-range gate lost ${marker}.`);
 }
 
 for (const marker of [
@@ -178,5 +195,5 @@ assert(workflow.includes('continuous-motion/*.json'), 'Runtime JSON diagnostics 
 assert(workflow.includes('gate-status.txt'), 'Aggregate runtime gate status is no longer preserved.');
 
 console.log(
-  'Continuous-foundation lock passed: documented source/layer zoom semantics, nonzero landcover and depth through zoom 16, full 0–16 parent-tile retention, strengthened atmosphere, exhaustive boundary checks, and sustained worldwide soak are mandatory.'
+  'Continuous-foundation lock passed: documented source/layer zoom semantics, explicit zoom-0 bathymetry, nonzero landcover and depth through zoom 16, full 0–16 parent-tile retention, source-idle stabilization, 50ms motion sampling, strengthened atmosphere, exhaustive boundary checks, and sustained worldwide soak are mandatory.'
 );
