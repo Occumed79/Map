@@ -77,6 +77,7 @@ function normalizeSweep(result, definition) {
       : Number(result.maximumZoom),
     maximumZoomGap: Number(result?.maximumZoomGap || 0),
     minimumFeatureCount: Number(result?.minimumFeatureCount || 0),
+    postMoveendSettleMs: Number(result?.postMoveendSettleMs || 0),
     samples: Array.isArray(result?.samples) ? result.samples : [],
     executionError: null
   };
@@ -134,17 +135,29 @@ try {
         }, 90_000);
         const interval = setInterval(check, 100);
 
-        function renderedLayersPresent() {
-          const rendered = map
-            .queryRenderedFeatures()
-            .filter((feature) => feature.source === 'occumed-open');
-          return rendered.length > 0 && requiredLayers.every((required) =>
-            rendered.some((feature) => feature.sourceLayer === required)
-          );
+        function requiredLayerCounts() {
+          const counts = Object.fromEntries(requiredLayers.map((layer) => [layer, 0]));
+          const layerIds = (map.getStyle().layers || [])
+            .filter((layer) =>
+              layer.source === 'occumed-open' &&
+              requiredLayers.includes(layer['source-layer'])
+            )
+            .map((layer) => layer.id);
+          if (layerIds.length === 0) return counts;
+          for (const feature of map.queryRenderedFeatures({ layers: layerIds })) {
+            const sourceLayer = feature.sourceLayer;
+            if (sourceLayer in counts) counts[sourceLayer] += 1;
+          }
+          return counts;
         }
 
         function check() {
-          if (map.isStyleLoaded() && map.areTilesLoaded() && renderedLayersPresent()) {
+          const counts = requiredLayerCounts();
+          if (
+            map.isStyleLoaded() &&
+            map.isSourceLoaded('occumed-open') &&
+            requiredLayers.every((layer) => counts[layer] > 0)
+          ) {
             cleanup();
             resolve();
           }
@@ -187,26 +200,72 @@ try {
       let sourceChanged = false;
       const expectedSignature = JSON.stringify({ url: null, tiles: [expectedTemplate] });
 
+      const requiredLayerCounts = () => {
+        const counts = Object.fromEntries(requiredLayers.map((layer) => [layer, 0]));
+        const layerIds = (map.getStyle().layers || [])
+          .filter((layer) =>
+            layer.source === 'occumed-open' &&
+            requiredLayers.includes(layer['source-layer'])
+          )
+          .map((layer) => layer.id);
+        if (layerIds.length === 0) return counts;
+        for (const feature of map.queryRenderedFeatures({ layers: layerIds })) {
+          const sourceLayer = feature.sourceLayer;
+          if (sourceLayer in counts) counts[sourceLayer] += 1;
+        }
+        return counts;
+      };
+
+      const waitForRequiredFoundation = () => new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          cleanup();
+          reject(new Error(
+            `The source did not settle with ${requiredLayers.join(', ')} rendered after moveend.`
+          ));
+        }, 30_000);
+        const interval = setInterval(check, 100);
+
+        function check() {
+          const counts = requiredLayerCounts();
+          if (
+            map.isStyleLoaded() &&
+            map.isSourceLoaded('occumed-open') &&
+            requiredLayers.every((layer) => counts[layer] > 0)
+          ) {
+            cleanup();
+            resolve();
+          }
+        }
+
+        function onSourceData(event) {
+          if (event.sourceId === 'occumed-open') check();
+        }
+
+        function cleanup() {
+          clearTimeout(timeout);
+          clearInterval(interval);
+          map.off('sourcedata', onSourceData);
+          map.off('idle', check);
+        }
+
+        map.on('sourcedata', onSourceData);
+        map.on('idle', check);
+        check();
+      });
+
       const sample = () => {
         const timestamp = performance.now();
         const source = map.getStyle().sources?.['occumed-open'] || null;
         const signature = JSON.stringify({ url: source?.url || null, tiles: source?.tiles || [] });
         sourceChanged ||= signature !== expectedSignature;
-        const rendered = map
-          .queryRenderedFeatures()
-          .filter((feature) => feature.source === 'occumed-open');
-        const sourceLayers = {};
-        for (const feature of rendered) {
-          const layer = feature.sourceLayer || 'unknown';
-          sourceLayers[layer] = (sourceLayers[layer] || 0) + 1;
-        }
+        const sourceLayers = requiredLayerCounts();
+        const renderedFeatureCount = Object.values(sourceLayers)
+          .reduce((total, count) => total + count, 0);
         samples.push({
           timestamp,
           zoom: Number(map.getZoom()),
-          renderedFeatureCount: rendered.length,
-          requiredLayerCounts: Object.fromEntries(
-            requiredLayers.map((layer) => [layer, sourceLayers[layer] || 0])
-          ),
+          renderedFeatureCount,
+          requiredLayerCounts: { ...sourceLayers },
           sourceLayers,
           tilesLoaded: Boolean(map.areTilesLoaded()),
           sourceSignature: signature
@@ -215,44 +274,67 @@ try {
 
       return await new Promise((resolve, reject) => {
         const durationMs = 20_000;
-        const sampleTimer = setInterval(sample, 50);
-        const timeout = setTimeout(() => {
+        let sampleFrame = null;
+        const queueSample = () => {
+          if (sampleFrame !== null) return;
+          sampleFrame = requestAnimationFrame(() => {
+            sampleFrame = null;
+            sample();
+          });
+        };
+        const sampleTimer = setInterval(queueSample, 50);
+        const stopSampling = () => {
           clearInterval(sampleTimer);
+          if (sampleFrame !== null) {
+            cancelAnimationFrame(sampleFrame);
+            sampleFrame = null;
+          }
+        };
+        const timeout = setTimeout(() => {
+          stopSampling();
           map.off('moveend', finish);
           reject(new Error(`${name} full-range zoom sweep timed out.`));
         }, durationMs + 35_000);
 
-        const finish = () => {
-          clearTimeout(timeout);
-          clearInterval(sampleTimer);
-          sample();
-          const actualEndZoom = Number(map.getZoom());
-          const zooms = samples.map((entry) => entry.zoom).sort((a, b) => a - b);
-          let maximumZoomGap = 0;
-          for (let index = 1; index < zooms.length; index += 1) {
-            maximumZoomGap = Math.max(maximumZoomGap, zooms[index] - zooms[index - 1]);
+        const finish = async () => {
+          stopSampling();
+          const moveendAt = performance.now();
+          try {
+            await waitForRequiredFoundation();
+            clearTimeout(timeout);
+            sample();
+            const actualEndZoom = Number(map.getZoom());
+            const zooms = samples.map((entry) => entry.zoom).sort((a, b) => a - b);
+            let maximumZoomGap = 0;
+            for (let index = 1; index < zooms.length; index += 1) {
+              maximumZoomGap = Math.max(maximumZoomGap, zooms[index] - zooms[index - 1]);
+            }
+            const blankSamples = samples.filter((entry) => entry.renderedFeatureCount === 0);
+            const missingFoundationSamples = samples.filter((entry) =>
+              requiredLayers.some((layer) => (entry.requiredLayerCounts[layer] || 0) <= 0)
+            );
+            resolve({
+              name,
+              actualStartZoom,
+              actualEndZoom,
+              sampleCount: samples.length,
+              sourceChanged,
+              blankSampleCount: blankSamples.length,
+              missingFoundationSampleCount: missingFoundationSamples.length,
+              firstMissingFoundationSamples: missingFoundationSamples.slice(0, 20),
+              minimumZoom: zooms.length ? Math.min(...zooms) : null,
+              maximumZoom: zooms.length ? Math.max(...zooms) : null,
+              maximumZoomGap,
+              minimumFeatureCount: samples.length
+                ? Math.min(...samples.map((entry) => entry.renderedFeatureCount))
+                : 0,
+              postMoveendSettleMs: performance.now() - moveendAt,
+              samples
+            });
+          } catch (error) {
+            clearTimeout(timeout);
+            reject(error);
           }
-          const blankSamples = samples.filter((entry) => entry.renderedFeatureCount === 0);
-          const missingFoundationSamples = samples.filter((entry) =>
-            requiredLayers.some((layer) => (entry.requiredLayerCounts[layer] || 0) <= 0)
-          );
-          resolve({
-            name,
-            actualStartZoom,
-            actualEndZoom,
-            sampleCount: samples.length,
-            sourceChanged,
-            blankSampleCount: blankSamples.length,
-            missingFoundationSampleCount: missingFoundationSamples.length,
-            firstMissingFoundationSamples: missingFoundationSamples.slice(0, 20),
-            minimumZoom: zooms.length ? Math.min(...zooms) : null,
-            maximumZoom: zooms.length ? Math.max(...zooms) : null,
-            maximumZoomGap,
-            minimumFeatureCount: samples.length
-              ? Math.min(...samples.map((entry) => entry.renderedFeatureCount))
-              : 0,
-            samples
-          });
         };
 
         sample();
@@ -309,6 +391,7 @@ try {
         maximumZoom: null,
         maximumZoomGap: 0,
         minimumFeatureCount: 0,
+        postMoveendSettleMs: 0,
         samples: [],
         executionError: serializeError(error)
       });
