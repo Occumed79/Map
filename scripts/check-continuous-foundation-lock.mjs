@@ -157,12 +157,19 @@ for (const marker of [
   'pacific-routing-threshold-in',
   'antimeridian-pan',
   'missingFoundationSampleCount',
-  'setInterval(sample, 50)',
+  'setInterval(queueSample, 50)',
+  'requestAnimationFrame(() =>',
+  'await waitForRequiredFoundation()',
+  'postMoveendSettleMs',
   "event.sourceDataType === 'idle'",
   "error === 'net::ERR_ABORTED'"
 ]) {
   assert(motionGate.includes(marker), `The continuous motion gate lost ${marker}.`);
 }
+assert(
+  !motionGate.includes('map.queryRenderedFeatures()'),
+  'The continuous motion gate reintroduced unfiltered full-viewport feature enumeration.'
+);
 for (const marker of [
   'amazon-all-zooms-in',
   'amazon-all-zooms-out',
@@ -171,13 +178,20 @@ for (const marker of [
   'antimeridian-all-zooms-out',
   'startZoom: 0, endZoom: 16',
   'startZoom: 16, endZoom: 0',
-  'setInterval(sample, 50)',
+  'setInterval(queueSample, 50)',
+  'requestAnimationFrame(() =>',
+  'await waitForRequiredFoundation()',
+  'postMoveendSettleMs',
   "event.sourceDataType === 'idle'",
   'actualStartZoom',
   'actualEndZoom'
 ]) {
   assert(allZoomGate.includes(marker), `The complete zoom-range gate lost ${marker}.`);
 }
+assert(
+  !allZoomGate.includes('map.queryRenderedFeatures()'),
+  'The complete zoom-range gate reintroduced unfiltered full-viewport feature enumeration.'
+);
 
 for (const marker of [
   'const waves = 3',
@@ -195,5 +209,5 @@ assert(workflow.includes('continuous-motion/*.json'), 'Runtime JSON diagnostics 
 assert(workflow.includes('gate-status.txt'), 'Aggregate runtime gate status is no longer preserved.');
 
 console.log(
-  'Continuous-foundation lock passed: documented source/layer zoom semantics, explicit zoom-0 bathymetry, nonzero landcover and depth through zoom 16, full 0–16 parent-tile retention, source-idle stabilization, 50ms motion sampling, strengthened atmosphere, exhaustive boundary checks, and sustained worldwide soak are mandatory.'
+  'Continuous-foundation lock passed: documented source/layer zoom semantics, explicit zoom-0 bathymetry, nonzero landcover and depth through zoom 16, full 0–16 parent-tile retention, source-idle stabilization, non-overlapping 50ms motion sampling, required-layer settlement after moveend, strengthened atmosphere, exhaustive boundary checks, and sustained worldwide soak are mandatory.'
 );
