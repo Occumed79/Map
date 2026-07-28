@@ -13,7 +13,10 @@ const [
   motionGate,
   allZoomGate,
   soakGate,
-  workflow
+  workflow,
+  packageDocument,
+  renderingContract,
+  runtimeStyleDocument
 ] = await Promise.all([
   fs.readFile(path.join(root, 'scripts/prepare-world-landcover.mjs'), 'utf8'),
   fs.readFile(path.join(root, 'scripts/build-world-surface.sh'), 'utf8'),
@@ -23,8 +26,14 @@ const [
   fs.readFile(path.join(root, 'scripts/validate-continuous-zoom.mjs'), 'utf8'),
   fs.readFile(path.join(root, 'scripts/validate-all-zoom-levels.mjs'), 'utf8'),
   fs.readFile(path.join(root, 'scripts/check-world-soak.mjs'), 'utf8'),
-  fs.readFile(path.join(root, '.github/workflows/validate-continuous-zoom.yml'), 'utf8')
+  fs.readFile(path.join(root, '.github/workflows/validate-continuous-zoom.yml'), 'utf8'),
+  fs.readFile(path.join(root, 'package.json'), 'utf8'),
+  fs.readFile(path.join(root, 'scripts/apply-mapbox-rendering-contract.mjs'), 'utf8'),
+  fs.readFile(path.join(root, 'public/style/occumed-open.json'), 'utf8')
 ]);
+
+const packageJson = JSON.parse(packageDocument);
+const runtimeStyle = JSON.parse(runtimeStyleDocument);
 
 assert(
   landcoverBuilder.includes('const SURFACE_MAX_ZOOM = 10;'),
@@ -44,13 +53,79 @@ assert(
   'The physical surface build no longer publishes landcover through zoom 10.'
 );
 
+const prepareStyle = packageJson.scripts?.['prepare:style'] || '';
+const contractIndex = prepareStyle.indexOf('apply-mapbox-rendering-contract.mjs');
+const restoreIndex = prepareStyle.indexOf('restore-exported-cartography.mjs');
+const atmosphereIndex = prepareStyle.indexOf('lock-reference-atmosphere.mjs');
+assert(contractIndex > restoreIndex && contractIndex > atmosphereIndex,
+  'The documented rendering contract must run after all style restoration and atmosphere passes.');
+
+for (const marker of [
+  'source.minzoom = 0',
+  'source.maxzoom = 16',
+  "delete layer.maxzoom",
+  "runtime.transition = { duration: 0, delay: 0 }",
+  "layer.paint['fill-opacity'] = ['max', 0.06, existingOpacity]"
+]) {
+  assert(renderingContract.includes(marker), `The documented rendering contract lost ${marker}.`);
+}
+
+const permanentSources = Object.values(runtimeStyle.sources || {}).filter((source) =>
+  source?.type === 'vector' &&
+  Array.isArray(source.tiles) &&
+  source.tiles.some((url) => String(url).includes('/tiles/{z}/{x}/{y}.pbf'))
+);
+assert.equal(permanentSources.length, 1, 'The runtime must expose exactly one permanent worldwide vector source.');
+assert.equal(permanentSources[0].minzoom, 0, 'The permanent worldwide vector source must begin at zoom 0.');
+assert.equal(permanentSources[0].maxzoom, 16, 'The permanent worldwide vector source must cover through zoom 16.');
+assert.deepEqual(runtimeStyle.transition, { duration: 0, delay: 0 },
+  'The runtime style must not delay foundation paint updates.');
+
+const foundationLayers = (runtimeStyle.layers || []).filter((layer) =>
+  ['land', 'landcover', 'depth'].includes(String(layer['source-layer'] || layer.metadata?.['occumed:open-source-layer'] || '').toLowerCase())
+);
+assert(foundationLayers.length > 0, 'The runtime style has no physical foundation layers.');
+for (const layer of foundationLayers) {
+  assert.equal(layer.minzoom, 0, `${layer.id} must begin at zoom 0.`);
+  assert(!Object.hasOwn(layer, 'maxzoom'), `${layer.id} must not have a style-layer maxzoom cutoff.`);
+  assert.equal(layer.layout?.visibility, 'visible', `${layer.id} must remain visible.`);
+}
+
+const landcoverLayers = foundationLayers.filter((layer) =>
+  String(layer['source-layer'] || layer.metadata?.['occumed:open-source-layer'] || '').toLowerCase() === 'landcover' &&
+  layer.type === 'fill'
+);
+assert(landcoverLayers.length > 0, 'The runtime has no rendered landcover foundation.');
+for (const layer of landcoverLayers) {
+  assert.deepEqual(layer.paint?.['fill-opacity'], [
+    'interpolate', ['linear'], ['zoom'],
+    0, 0.92,
+    6, 0.88,
+    10, 0.82,
+    16, 0.82
+  ], `${layer.id} landcover opacity must remain nonzero through zoom 16.`);
+}
+
+const depthLayers = foundationLayers.filter((layer) =>
+  String(layer['source-layer'] || layer.metadata?.['occumed:open-source-layer'] || '').toLowerCase() === 'depth' &&
+  layer.type === 'fill'
+);
+assert(depthLayers.length > 0, 'The runtime has no rendered depth foundation.');
+for (const layer of depthLayers) {
+  const opacity = layer.paint?.['fill-opacity'];
+  assert(Array.isArray(opacity) && opacity[0] === 'max' && opacity[1] >= 0.06,
+    `${layer.id} bathymetry opacity can still collapse to zero.`);
+}
+
 for (const marker of [
   'installOccumedAtmosphereBloom(map)',
   'resolveGlobeRadius',
   'BLOOM_FADE_START_ZOOM',
-  'BLOOM_FADE_END_ZOOM'
+  'BLOOM_FADE_END_ZOOM',
+  'cancelPendingTileRequestsWhileZooming: false',
+  'maxTileCacheZoomLevels: 8'
 ]) {
-  assert(mapHelper.includes(marker), `Atmosphere tracking lost ${marker}.`);
+  assert(mapHelper.includes(marker), `MapLibre continuity behavior lost ${marker}.`);
 }
 for (const marker of [
   'scale(1.006)',
@@ -102,5 +177,5 @@ assert(workflow.includes('continuous-motion/*.json'), 'Runtime JSON diagnostics 
 assert(workflow.includes('gate-status.txt'), 'Aggregate runtime gate status is no longer preserved.');
 
 console.log(
-  'Continuous-foundation lock passed: landcover through zoom 10, overscaling through zoom 16, strengthened tracked atmosphere, exhaustive boundary checks, and sustained worldwide soak are mandatory.'
+  'Continuous-foundation lock passed: documented source/layer zoom semantics, nonzero landcover and depth through zoom 16, parent tile retention, strengthened atmosphere, exhaustive boundary checks, and sustained worldwide soak are mandatory.'
 );
