@@ -18,7 +18,7 @@
     "dev": "npm run prepare:assets && vite",
     "build": "npm run prepare:assets && npm run check && vite build && npm run check:server",
     "preview": "vite preview",
-    "start": "node server.mjs"
+    "start": "node scripts/start-localized-world.mjs"
   },
   "dependencies": {
     "@mapbox/vector-tile": "2.0.4",
