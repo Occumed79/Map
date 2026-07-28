@@ -79,6 +79,35 @@ await assert.rejects(() => permanent.getBytes(0, 10), /bounded retries/);
 assert.equal(permanentCalls, 1, 'Permanent 4xx failures were retried.');
 await assert.rejects(() => permanent.getBytes(0, 100_000_000), /range length/);
 
+let circuitClock = 1_000;
+let circuitCalls = 0;
+const circuitSource = {
+  getKey: () => 'circuit-source',
+  getBytes: async () => {
+    circuitCalls += 1;
+    const error = new Error('HTTP status 503');
+    error.status = 503;
+    throw error;
+  }
+};
+const circuit = new RetryingFetchSource('https://example.test/unavailable.pmtiles', {
+  source: circuitSource,
+  attempts: 1,
+  circuitFailures: 2,
+  circuitCooldownMs: 1_000,
+  now: () => circuitClock
+});
+await assert.rejects(() => circuit.getBytes(0, 10), /bounded retries/);
+await assert.rejects(() => circuit.getBytes(0, 10), /bounded retries/);
+await assert.rejects(
+  () => circuit.getBytes(0, 10),
+  (error) => error.code === 'OCCUMED_UPSTREAM_CIRCUIT_OPEN'
+);
+assert.equal(circuitCalls, 2, 'An open circuit still called the failing upstream.');
+circuitClock = 2_100;
+await assert.rejects(() => circuit.getBytes(0, 10), /bounded retries/);
+assert.equal(circuitCalls, 3, 'The circuit did not permit a bounded probe after cooldown.');
+
 let clock = 1_000;
 const cache = new MemoryTileCache(2 * 1024 * 1024, {
   ttlMs: 1_000,
@@ -155,4 +184,4 @@ const stale = await gateway.resolveTile(0, 0, 0);
 assert(stale.equals(validTile), 'A last-known-good tile was not served during an upstream outage.');
 assert.equal(gateway.getHealthSnapshot().metrics.staleServed, 1);
 
-console.log('Worldwide hardening validated: bounded retries, permanent-failure classification, circuit-safe ranges, MVT budgets, strict manifests, fan-out limits, cache expiry, and stale-tile recovery.');
+console.log('Worldwide hardening validated: bounded retries, permanent-failure classification, circuit breaking, MVT budgets, strict manifests, fan-out limits, cache expiry, and stale-tile recovery.');
