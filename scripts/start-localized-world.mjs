@@ -14,6 +14,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const assetDir = path.join(root, 'dist', 'virtual-assets');
 const maxAssetBytes = Number(process.env.OCCUMED_NAVIGATION_ASSET_MAX_BYTES || 512 * 1024 * 1024);
 const required = process.env.OCCUMED_REQUIRE_LOCAL_NAVIGATION_ASSETS !== 'false';
+const defaultNavigationCacheBytesPerProject = 48 * 1024 * 1024;
 
 const assets = [
   {
@@ -106,6 +107,7 @@ try {
 }
 
 const env = { ...process.env };
+env.OCCUMED_NAV_CACHE_MAX_BYTES_PER_SHARD ||= String(defaultNavigationCacheBytesPerProject);
 if (localized.length === assets.length) {
   const localOrigin = `http://127.0.0.1:${port}/virtual-assets`;
   env.OCCUMED_WORLD_OVERVIEW_URL = `${localOrigin}/${assets[0].name}`;
