@@ -1,4 +1,4 @@
-name: Validate Continuous Worldwide Zoom
+name: Validate Worldwide Polygon Geometry
 
 on:
   workflow_dispatch:
@@ -6,19 +6,22 @@ on:
     branches:
       - main
     paths:
-      - .github/workflows/validate-continuous-zoom.yml
+      - .github/workflows/validate-polygon-artifacts.yml
       - package-lock.json
       - package.json
-      - style.json
-      - scripts/**
-      - src/**
+      - scripts/build-world-overview.mjs
+      - scripts/build-world-surface.sh
+      - scripts/capture-polygon-regression.mjs
+      - scripts/check-world-tile-gateway.mjs
+      - scripts/pack-mbtiles.py
+      - src/server/**
       - server.mjs
 
 permissions:
   contents: read
 
 concurrency:
-  group: occumed-continuous-zoom-${{ github.ref }}
+  group: occumed-polygon-regression-${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -28,7 +31,7 @@ env:
   PMTILES_VERSION: v1.31.2
 
 jobs:
-  continuous-motion:
+  rebuilt-overview:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
@@ -45,7 +48,7 @@ jobs:
 
       - run: npm ci
 
-      - name: Build and validate the production map
+      - name: Build and run unit guards
         run: npm run build
 
       - name: Install pinned PMTiles converter
@@ -54,7 +57,7 @@ jobs:
           go install "github.com/protomaps/go-pmtiles@${PMTILES_VERSION}"
           "$(go env GOPATH)/bin/go-pmtiles" version
 
-      - name: Build corrected candidate worldwide overview
+      - name: Rebuild corrected zoom 0-5 overview
         run: |
           set -euo pipefail
           mkdir -p candidate dist/virtual-assets
@@ -74,7 +77,7 @@ jobs:
           test -s "dist/virtual-assets/${OVERVIEW_ASSET}"
           test "$(head -c 7 "dist/virtual-assets/${OVERVIEW_ASSET}")" = PMTiles
 
-      - name: Build candidate worldwide physical surface
+      - name: Build candidate worldwide land surface
         run: |
           set -euo pipefail
           sudo apt-get update
@@ -82,22 +85,23 @@ jobs:
             build-essential libsqlite3-dev zlib1g-dev
           bash scripts/build-world-surface.sh \
             "dist/virtual-assets/${SURFACE_ASSET}"
+          test -s "dist/virtual-assets/${SURFACE_ASSET}"
 
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Run continuous zoom and pan gate
+      - name: Render polygon regression globe views
         run: |
           set -euo pipefail
-          mkdir -p continuous-motion
+          mkdir -p polygon-regression
           OCCUMED_WORLD_OVERVIEW_URL="http://127.0.0.1:4173/virtual-assets/${OVERVIEW_ASSET}" \
           OCCUMED_WORLD_SURFACE_URL="http://127.0.0.1:4173/virtual-assets/${SURFACE_ASSET}" \
-            node server.mjs > continuous-motion/server.log 2>&1 &
+            node server.mjs > polygon-regression/server.log 2>&1 &
           server_pid="$!"
           cleanup() {
             status="$?"
             if [ "$status" -ne 0 ]; then
-              tail -300 continuous-motion/server.log || true
+              tail -300 polygon-regression/server.log || true
             fi
             kill "$server_pid" 2>/dev/null || true
             exit "$status"
@@ -112,16 +116,16 @@ jobs:
           done
           curl --fail http://127.0.0.1:4173/healthz
 
-          OCCUMED_PREVIEW_OUTPUT=continuous-motion/results \
-            node scripts/validate-continuous-zoom.mjs
+          OCCUMED_PREVIEW_OUTPUT=polygon-regression/results \
+            node scripts/capture-polygon-regression.mjs
 
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: continuous-zoom-${{ github.sha }}
+          name: polygon-regression-${{ github.sha }}
           path: |
-            continuous-motion/results
-            continuous-motion/server.log
+            polygon-regression/results
+            polygon-regression/server.log
             dist/virtual-assets/occumed-world-overview.pmtiles
           if-no-files-found: error
           retention-days: 14

@@ -124,11 +124,13 @@ export class WorldTileGateway {
     manifestUrl,
     releaseAssetUrl,
     fetchImpl = fetch,
-    cacheBytes = Number(process.env.OCCUMED_TILE_CACHE_MAX_BYTES || DEFAULT_CACHE_BYTES)
+    cacheBytes = Number(process.env.OCCUMED_TILE_CACHE_MAX_BYTES || DEFAULT_CACHE_BYTES),
+    overviewUrl = process.env.OCCUMED_WORLD_OVERVIEW_URL?.trim() || ''
   }) {
     this.manifestUrl = manifestUrl;
     this.releaseAssetUrl = releaseAssetUrl;
     this.fetchImpl = fetchImpl;
+    this.overviewUrl = overviewUrl;
     this.tileCache = new MemoryTileCache(cacheBytes);
     this.directoryCache = new SharedPromiseCache(4096);
     this.archives = new Map();
@@ -166,8 +168,11 @@ export class WorldTileGateway {
   archive(asset) {
     let archive = this.archives.get(asset);
     if (!archive) {
+      const sourceUrl = asset === DEFAULT_OVERVIEW_ASSET && this.overviewUrl
+        ? this.overviewUrl
+        : this.releaseAssetUrl(asset);
       archive = new PMTiles(
-        new RetryingFetchSource(this.releaseAssetUrl(asset)),
+        new RetryingFetchSource(sourceUrl),
         this.directoryCache
       );
       this.archives.set(asset, archive);
@@ -243,9 +248,20 @@ export class WorldTileGateway {
           this.readSurfaceTile(manifest, zoom, x, y),
           this.readBasemapTile(manifest, zoom, x, y)
         ]);
+
+        // The physical surface is the single authoritative land mask. The
+        // overview and regional archives may also contain a layer named `land`;
+        // merging both copies can create duplicate rings and reused-ID joins.
+        // Retain basemap land only as an emergency fallback when the surface tile
+        // is genuinely empty.
+        const hasSurfaceLand = !Buffer.from(surface).equals(EMPTY_MVT);
+        const cartography = hasSurfaceLand
+          ? mergeVectorTiles([basemap], { excludeLayers: ['land'] })
+          : basemap;
+
         return this.tileCache.set(
           key,
-          mergeVectorTiles([surface, basemap], { coordinateScale: 128 })
+          mergeVectorTiles([surface, cartography], { coordinateScale: 128 })
         );
       })
       .finally(() => this.inflight.delete(key));

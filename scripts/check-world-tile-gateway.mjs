@@ -64,6 +64,44 @@ expect(
   'Complementary or contained road geometry was lost or duplicated at a shard boundary.'
 );
 
+// Separate extracts can reuse polygon IDs for unrelated clipped features. These
+// rings must remain distinct or the encoder can produce giant tile-spanning
+// wedges, circles, and bands like the production screenshots.
+const westDepth = tile({
+  depth: {
+    features: [
+      {
+        id: 7,
+        type: 3,
+        geometry: [[[100, 100], [1500, 100], [1500, 1500], [100, 1500], [100, 100]]],
+        tags: { min_depth: 4000 }
+      }
+    ]
+  }
+});
+const eastDepth = tile({
+  depth: {
+    features: [
+      {
+        id: 7,
+        type: 3,
+        geometry: [[[2500, 2500], [3900, 2500], [3900, 3900], [2500, 3900], [2500, 2500]]],
+        tags: { min_depth: 4000 }
+      }
+    ]
+  }
+});
+const mergedDepth = inspectVectorTile(mergeVectorTiles([westDepth, eastDepth]));
+expect(
+  mergedDepth.depth?.featureCount === 2,
+  'Unrelated polygons with a reused feature ID were stitched into one geometry.'
+);
+const duplicateDepth = inspectVectorTile(mergeVectorTiles([westDepth, westDepth]));
+expect(
+  duplicateDepth.depth?.featureCount === 1,
+  'Exact duplicate polygons were not deduplicated.'
+);
+
 const surface = tile({
   land: {
     features: [
@@ -104,12 +142,25 @@ const overscaled = inspectVectorTile(overscaleVectorLayer(surface, {
   targetY: 32768
 }));
 expect(overscaled.land?.featureCount === 1, 'The worldwide land surface cannot overscale through max zoom.');
+for (const bounds of overscaled.land?.bounds || []) {
+  expect(
+    bounds && bounds.minX >= 0 && bounds.minY >= 0 && bounds.maxX <= 4096 && bounds.maxY <= 4096,
+    'Overscaled land geometry escaped the requested child tile.'
+  );
+}
 const physicalLandMask = inspectVectorTile(
   mergeVectorTiles([surface], { includeLayers: ['land'] })
 );
 expect(physicalLandMask.land?.featureCount === 1, 'The physical surface lost its land layer.');
 expect(!physicalLandMask.landcover, 'The physical surface still overlays generalized landcover on regional detail.');
 expect(!physicalLandMask.depth, 'The physical surface still overlays generalized bathymetry on regional detail.');
+const cartographyWithoutLand = inspectVectorTile(
+  mergeVectorTiles([surface], { excludeLayers: ['land'] })
+);
+expect(!cartographyWithoutLand.land, 'The duplicate basemap land layer was not excluded.');
+expect(cartographyWithoutLand.landcover?.featureCount === 1, 'Excluding land removed unrelated cartography.');
+expect(cartographyWithoutLand.depth?.featureCount === 1, 'Excluding land removed bathymetry.');
+
 const normalizedProperties = normalizeMvtProperties({
   safeRank: 4,
   unsafePositive: 2 ** 65,
@@ -209,6 +260,10 @@ expect(
   'The gateway does not isolate the continuous physical surface to the land mask.'
 );
 expect(
+  gateway.includes("excludeLayers: ['land']"),
+  'The gateway can still merge duplicate land masks from the surface and basemap.'
+);
+expect(
   !gateway.includes("includeLayers: ['land', 'landcover', 'depth']"),
   'The gateway still overlays generalized landcover and bathymetry on regional detail.'
 );
@@ -232,4 +287,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('Virtual worldwide tileset validated: one permanent source, boundary merging, antimeridian routing, land-mask continuity, parent-tile retention, caching, and no browser-visible shards.');
+console.log('Virtual worldwide tileset validated: one permanent source, safe polygon merging, clipped surface overscaling, one land mask, antimeridian routing, parent-tile retention, caching, and no browser-visible shards.');
