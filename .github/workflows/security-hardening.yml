@@ -34,7 +34,7 @@ jobs:
           cache: npm
 
       - name: Install exactly from the committed lockfile
-        run: npm ci --ignore-scripts
+        run: npm ci
 
       - name: Reject production dependency vulnerabilities
         run: npm audit --omit=dev --audit-level=high
