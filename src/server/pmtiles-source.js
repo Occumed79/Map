@@ -39,7 +39,6 @@ function delay(milliseconds, signal) {
       resolve();
     }, milliseconds);
     signal?.addEventListener('abort', onAbort, { once: true });
-    timer.unref?.();
   });
 }
 
