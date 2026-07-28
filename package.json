@@ -10,8 +10,9 @@
     "tiles:build": "bash planetiler/build-region.sh",
     "tiles:plan-world": "node scripts/plan-world-shards.mjs --scope all",
     "check:export": "node scripts/check-export.mjs",
-    "check:hardening": "node scripts/check-world-hardening.mjs && node scripts/check-continuous-foundation-lock.mjs",
-    "check:runtime": "node scripts/check-runtime.mjs && node scripts/validate-maplibre-style.mjs && node scripts/check-globe-parity.mjs && node scripts/check-cartography-parity.mjs && node scripts/check-viewer-quality.mjs && node scripts/check-photo-reference.mjs && node scripts/check-exact-exported-swatches.mjs && node scripts/check-render-clarity.mjs && node scripts/check-pmtiles-integration.mjs && node scripts/check-world-tile-gateway.mjs && npm run check:hardening",
+    "check:hardening": "node scripts/check-world-hardening.mjs",
+    "check:foundation": "node scripts/check-continuous-foundation-lock.mjs",
+    "check:runtime": "node scripts/check-runtime.mjs && node scripts/validate-maplibre-style.mjs && node scripts/check-globe-parity.mjs && node scripts/check-cartography-parity.mjs && node scripts/check-viewer-quality.mjs && node scripts/check-photo-reference.mjs && node scripts/check-exact-exported-swatches.mjs && node scripts/check-render-clarity.mjs && node scripts/check-pmtiles-integration.mjs && node scripts/check-world-tile-gateway.mjs && npm run check:hardening && npm run check:foundation",
     "check:server": "node scripts/check-server-health.mjs",
     "check": "npm run check:export && npm run check:runtime",
     "dev": "npm run prepare:assets && vite",
@@ -28,7 +29,7 @@
   },
   "devDependencies": {
     "@chrispahm/spritezero": "8.1.0",
-    "@maplibre/maplibre-gl-style-spec": "24.8.1",
+    "@mapbox/mapbox-gl-style-spec": "24.8.1",
     "playwright": "1.55.0",
     "vite": "8.1.5"
   }
