@@ -9,28 +9,51 @@ const outputDir = path.resolve(
 await fs.mkdir(outputDir, { recursive: true });
 
 const expectedTemplate = `${origin}/tiles/{z}/{x}/{y}.pbf`;
-const browser = await chromium.launch({ headless: true });
+const reportPath = path.join(outputDir, 'all-zoom-levels-report.json');
+const report = {
+  generatedAt: new Date().toISOString(),
+  origin,
+  expectedTemplate,
+  sweeps: [],
+  pageErrors: [],
+  networkFailures: [],
+  externalVectorRequests: [],
+  fatalError: null,
+  passed: false
+};
 
+function serializeError(error) {
+  return {
+    name: error?.name || 'Error',
+    message: error?.message || String(error),
+    stack: error?.stack || null
+  };
+}
+
+async function persistReport() {
+  report.externalVectorRequests = [...new Set(report.externalVectorRequests)];
+  await fs.writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`);
+}
+
+let browser;
 try {
+  browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({
     viewport: { width: 1440, height: 1000 },
     deviceScaleFactor: 2,
     colorScheme: 'dark'
   });
   const page = await context.newPage();
-  const pageErrors = [];
-  const networkFailures = [];
-  const externalVectorRequests = [];
 
-  page.on('pageerror', (error) => pageErrors.push(error.message));
+  page.on('pageerror', (error) => report.pageErrors.push(error.message));
   page.on('request', (request) => {
     const url = request.url();
     if (/\.pbf(?:$|\?)/i.test(url) && !url.startsWith(`${origin}/tiles/`)) {
-      externalVectorRequests.push(url);
+      report.externalVectorRequests.push(url);
     }
   });
   page.on('requestfailed', (request) => {
-    networkFailures.push({
+    report.networkFailures.push({
       type: 'requestfailed',
       url: request.url(),
       error: request.failure()?.errorText || 'unknown request failure'
@@ -38,7 +61,7 @@ try {
   });
   page.on('response', (response) => {
     if (response.status() >= 400) {
-      networkFailures.push({ type: 'http', url: response.url(), status: response.status() });
+      report.networkFailures.push({ type: 'http', url: response.url(), status: response.status() });
     }
   });
 
@@ -49,7 +72,7 @@ try {
     { timeout: 90_000 }
   );
 
-  async function runSweep(name, center, startZoom, endZoom) {
+  async function runSweep({ name, center, startZoom, endZoom, requiredLayers }) {
     await page.evaluate(({ center, startZoom }) => {
       const map = globalThis.__OCCUMED_MAP__;
       map.jumpTo({ center, zoom: startZoom, pitch: 0, bearing: 0 });
@@ -57,12 +80,18 @@ try {
     }, { center, startZoom });
 
     await page.waitForFunction(
-      () => {
+      ({ requiredLayers }) => {
         const map = globalThis.__OCCUMED_MAP__;
-        return map?.isStyleLoaded() &&
-          map.queryRenderedFeatures().some((feature) => feature.source === 'occumed-open');
+        if (!map?.isStyleLoaded() || !map.areTilesLoaded()) return false;
+        const rendered = map
+          .queryRenderedFeatures()
+          .filter((feature) => feature.source === 'occumed-open');
+        if (!rendered.length) return false;
+        return requiredLayers.every((required) =>
+          rendered.some((feature) => feature.sourceLayer === required)
+        );
       },
-      null,
+      { requiredLayers },
       { timeout: 90_000 }
     );
 
@@ -71,7 +100,8 @@ try {
       center,
       startZoom,
       endZoom,
-      expectedTemplate
+      expectedTemplate,
+      requiredLayers
     }) => {
       const map = globalThis.__OCCUMED_MAP__;
       const samples = [];
@@ -80,7 +110,7 @@ try {
       const expectedSignature = JSON.stringify({ url: null, tiles: [expectedTemplate] });
 
       const sample = (timestamp) => {
-        if (timestamp - lastSampleAt < 50) return;
+        if (timestamp - lastSampleAt < 55) return;
         lastSampleAt = timestamp;
         const source = map.getStyle().sources?.['occumed-open'] || null;
         const signature = JSON.stringify({ url: source?.url || null, tiles: source?.tiles || [] });
@@ -97,17 +127,21 @@ try {
           timestamp,
           zoom: map.getZoom(),
           renderedFeatureCount: rendered.length,
+          requiredLayerCounts: Object.fromEntries(
+            requiredLayers.map((layer) => [layer, sourceLayers[layer] || 0])
+          ),
           sourceLayers,
+          tilesLoaded: map.areTilesLoaded(),
           sourceSignature: signature
         });
       };
 
       return await new Promise((resolve, reject) => {
-        const durationMs = 18_000;
+        const durationMs = 20_000;
         const timeout = setTimeout(() => {
           map.off('render', sample);
           reject(new Error(`${name} full-range zoom sweep timed out.`));
-        }, durationMs + 30_000);
+        }, durationMs + 35_000);
 
         const finish = () => {
           clearTimeout(timeout);
@@ -119,18 +153,26 @@ try {
             maximumZoomGap = Math.max(maximumZoomGap, zooms[index] - zooms[index - 1]);
           }
           const blankSamples = samples.filter((entry) => entry.renderedFeatureCount === 0);
+          const missingFoundationSamples = samples.filter((entry) =>
+            requiredLayers.some((layer) => (entry.requiredLayerCounts[layer] || 0) <= 0)
+          );
           resolve({
             name,
             center,
             startZoom,
             endZoom,
+            requiredLayers,
             sampleCount: samples.length,
             sourceChanged,
             blankSampleCount: blankSamples.length,
-            minimumZoom: Math.min(...zooms),
-            maximumZoom: Math.max(...zooms),
+            missingFoundationSampleCount: missingFoundationSamples.length,
+            firstMissingFoundationSamples: missingFoundationSamples.slice(0, 20),
+            minimumZoom: zooms.length ? Math.min(...zooms) : null,
+            maximumZoom: zooms.length ? Math.max(...zooms) : null,
             maximumZoomGap,
-            minimumFeatureCount: Math.min(...samples.map((entry) => entry.renderedFeatureCount)),
+            minimumFeatureCount: samples.length
+              ? Math.min(...samples.map((entry) => entry.renderedFeatureCount))
+              : 0,
             samples
           });
         };
@@ -147,48 +189,47 @@ try {
           essential: true
         });
       });
-    }, { name, center, startZoom, endZoom, expectedTemplate });
+    }, { name, center, startZoom, endZoom, expectedTemplate, requiredLayers });
 
     await page.screenshot({
       path: path.join(outputDir, `${name}-final.png`),
       fullPage: false
     });
+    report.sweeps.push(result);
+    await persistReport();
     return result;
   }
 
-  const sweeps = [
-    await runSweep('amazon-all-zooms-in', [-62.5, -4], 0, 14),
-    await runSweep('hawaii-all-zooms-out', [-157.8583, 21.3069], 14, 0)
+  const definitions = [
+    { name: 'amazon-all-zooms-in', center: [-60, -8], startZoom: 0, endZoom: 16, requiredLayers: ['land', 'landcover'] },
+    { name: 'amazon-all-zooms-out', center: [-60, -8], startZoom: 16, endZoom: 0, requiredLayers: ['land', 'landcover'] },
+    { name: 'pacific-all-zooms-in', center: [-140, 0], startZoom: 0, endZoom: 16, requiredLayers: ['depth'] },
+    { name: 'pacific-all-zooms-out', center: [-140, 0], startZoom: 16, endZoom: 0, requiredLayers: ['depth'] },
+    { name: 'europe-all-zooms-in', center: [12, 50], startZoom: 0, endZoom: 16, requiredLayers: ['land', 'landcover'] },
+    { name: 'antimeridian-all-zooms-out', center: [179, 0], startZoom: 16, endZoom: 0, requiredLayers: ['depth'] }
   ];
 
-  const failedSweeps = sweeps.filter((sweep) =>
+  for (const definition of definitions) {
+    await runSweep(definition);
+  }
+
+  const failedSweeps = report.sweeps.filter((sweep) =>
     sweep.sourceChanged ||
     sweep.blankSampleCount > 0 ||
-    sweep.sampleCount < 100 ||
-    sweep.minimumZoom > 0.1 ||
-    sweep.maximumZoom < 13.9 ||
-    sweep.maximumZoomGap > 0.25
+    sweep.missingFoundationSampleCount > 0 ||
+    sweep.sampleCount < 180 ||
+    sweep.minimumZoom === null || sweep.minimumZoom > 0.1 ||
+    sweep.maximumZoom === null || sweep.maximumZoom < 15.9 ||
+    sweep.maximumZoomGap > 0.3
   );
 
-  const report = {
-    generatedAt: new Date().toISOString(),
-    origin,
-    expectedTemplate,
-    sweeps,
-    pageErrors,
-    networkFailures,
-    externalVectorRequests: [...new Set(externalVectorRequests)],
-    passed:
-      failedSweeps.length === 0 &&
-      pageErrors.length === 0 &&
-      networkFailures.length === 0 &&
-      externalVectorRequests.length === 0
-  };
-
-  await fs.writeFile(
-    path.join(outputDir, 'all-zoom-levels-report.json'),
-    `${JSON.stringify(report, null, 2)}\n`
-  );
+  report.externalVectorRequests = [...new Set(report.externalVectorRequests)];
+  report.passed =
+    failedSweeps.length === 0 &&
+    report.pageErrors.length === 0 &&
+    report.networkFailures.length === 0 &&
+    report.externalVectorRequests.length === 0;
+  await persistReport();
 
   if (!report.passed) {
     throw new Error(`All-zoom validation failed: ${JSON.stringify({
@@ -197,20 +238,27 @@ try {
         sampleCount: sweep.sampleCount,
         sourceChanged: sweep.sourceChanged,
         blankSampleCount: sweep.blankSampleCount,
+        missingFoundationSampleCount: sweep.missingFoundationSampleCount,
         minimumZoom: sweep.minimumZoom,
         maximumZoom: sweep.maximumZoom,
         maximumZoomGap: sweep.maximumZoomGap,
-        minimumFeatureCount: sweep.minimumFeatureCount
+        minimumFeatureCount: sweep.minimumFeatureCount,
+        firstMissingFoundationSamples: sweep.firstMissingFoundationSamples
       })),
-      pageErrors,
-      networkFailures,
+      pageErrors: report.pageErrors,
+      networkFailures: report.networkFailures,
       externalVectorRequests: report.externalVectorRequests
     })}`);
   }
 
   console.log(
-    `Validated the complete zoom 0–14 range in both directions with ${sweeps.reduce((sum, sweep) => sum + sweep.sampleCount, 0)} sampled frames and zero blank frames.`
+    `Validated ${definitions.length} complete zoom 0–16 sweeps with ${report.sweeps.reduce((sum, sweep) => sum + sweep.sampleCount, 0)} sampled frames and no missing physical foundation layers.`
   );
+} catch (error) {
+  report.fatalError = serializeError(error);
+  report.passed = false;
+  await persistReport().catch(() => {});
+  throw error;
 } finally {
-  await browser.close();
+  await browser?.close();
 }
