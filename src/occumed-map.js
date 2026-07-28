@@ -5,11 +5,86 @@ export const DEFAULT_STYLE_URL = '/style/occumed-open.json';
 
 const MIN_RENDER_PIXEL_RATIO = 2;
 const MAX_RENDER_PIXEL_RATIO = 3;
+const GLOBE_TILE_SIZE = 512;
+const GLOBE_CIRCUMFERENCE = Math.PI * 2;
+const BLOOM_FADE_START_ZOOM = 2.85;
+const BLOOM_FADE_END_ZOOM = 4.25;
 
 export function resolveOccumedPixelRatio() {
   const deviceRatio = Number(globalThis.devicePixelRatio);
   if (!Number.isFinite(deviceRatio) || deviceRatio <= 0) return MIN_RENDER_PIXEL_RATIO;
   return Math.min(Math.max(deviceRatio, MIN_RENDER_PIXEL_RATIO), MAX_RENDER_PIXEL_RATIO);
+}
+
+function clamp01(value) {
+  return Math.min(1, Math.max(0, value));
+}
+
+function resolveGlobeBloomOpacity(zoom) {
+  if (zoom <= BLOOM_FADE_START_ZOOM) return 1;
+  if (zoom >= BLOOM_FADE_END_ZOOM) return 0;
+  return 1 - clamp01(
+    (zoom - BLOOM_FADE_START_ZOOM) /
+    (BLOOM_FADE_END_ZOOM - BLOOM_FADE_START_ZOOM)
+  );
+}
+
+function resolveGlobeRadius(zoom) {
+  return (GLOBE_TILE_SIZE * (2 ** zoom)) / GLOBE_CIRCUMFERENCE;
+}
+
+/**
+ * Adds a true outward atmosphere bloom around the globe limb.
+ *
+ * MapLibre's sky properties provide the crisp horizon rim, but increasing their
+ * blend values also brightens the visible hemisphere. This DOM halo tracks the
+ * rendered globe radius and adds only an exterior white-blue bloom, leaving the
+ * map surface neutral. It fades away before the projection reads as a regional
+ * map rather than a complete globe.
+ */
+export function installOccumedAtmosphereBloom(map) {
+  const canvasContainer = map.getCanvasContainer();
+  const existing = canvasContainer.querySelector('.occumed-atmosphere-bloom');
+  if (existing) return existing;
+
+  const bloom = document.createElement('div');
+  bloom.className = 'occumed-atmosphere-bloom';
+  bloom.setAttribute('aria-hidden', 'true');
+  canvasContainer.append(bloom);
+
+  let animationFrame = null;
+
+  const update = () => {
+    animationFrame = null;
+    const zoom = map.getZoom();
+    const center = map.project(map.getCenter());
+    const radius = resolveGlobeRadius(zoom);
+    const opacity = resolveGlobeBloomOpacity(zoom);
+
+    bloom.style.setProperty('--occumed-globe-bloom-x', `${center.x.toFixed(2)}px`);
+    bloom.style.setProperty('--occumed-globe-bloom-y', `${center.y.toFixed(2)}px`);
+    bloom.style.setProperty('--occumed-globe-diameter', `${(radius * 2).toFixed(2)}px`);
+    bloom.style.setProperty('--occumed-globe-bloom-opacity', opacity.toFixed(3));
+    bloom.hidden = opacity <= 0.001;
+  };
+
+  const scheduleUpdate = () => {
+    if (animationFrame !== null) return;
+    animationFrame = requestAnimationFrame(update);
+  };
+
+  const remove = () => {
+    if (animationFrame !== null) cancelAnimationFrame(animationFrame);
+    map.off('render', scheduleUpdate);
+    map.off('resize', scheduleUpdate);
+    bloom.remove();
+  };
+
+  map.on('render', scheduleUpdate);
+  map.on('resize', scheduleUpdate);
+  map.once('remove', remove);
+  update();
+  return bloom;
 }
 
 function resolvePublicOrigin(style, styleUrl) {
@@ -103,6 +178,8 @@ export async function createOccumedMap({
     cooperativeGestures: false,
     ...mapOptions
   });
+
+  installOccumedAtmosphereBloom(map);
 
   if (controls) {
     map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-right');
