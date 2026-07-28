@@ -145,7 +145,7 @@ const persistentCache = {
 const gateway = new WorldTileGateway({
   manifestUrl: 'https://example.test/world-virtual-manifest.json',
   releaseAssetUrl: (asset) => `https://example.test/${asset}`,
-  persistentTileCache,
+  persistentTileCache: persistentCache,
   fetchImpl: async () => new Response(JSON.stringify(manifest), {
     status: 200,
     headers: { 'content-type': 'application/json' }
