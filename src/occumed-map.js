@@ -52,10 +52,10 @@ export function installOccumedAtmosphereBloom(map) {
   bloom.setAttribute('aria-hidden', 'true');
   canvasContainer.append(bloom);
 
-  let animationFrame = null;
+  let removed = false;
 
   const update = () => {
-    animationFrame = null;
+    if (removed) return;
     const zoom = map.getZoom();
     const center = map.project(map.getCenter());
     const radius = resolveGlobeRadius(zoom);
@@ -68,20 +68,15 @@ export function installOccumedAtmosphereBloom(map) {
     bloom.hidden = opacity <= 0.001;
   };
 
-  const scheduleUpdate = () => {
-    if (animationFrame !== null) return;
-    animationFrame = requestAnimationFrame(update);
-  };
+  const trackedEvents = ['render', 'move', 'zoom', 'resize', 'moveend', 'zoomend'];
+  for (const eventName of trackedEvents) map.on(eventName, update);
 
   const remove = () => {
-    if (animationFrame !== null) cancelAnimationFrame(animationFrame);
-    map.off('render', scheduleUpdate);
-    map.off('resize', scheduleUpdate);
+    removed = true;
+    for (const eventName of trackedEvents) map.off(eventName, update);
     bloom.remove();
   };
 
-  map.on('render', scheduleUpdate);
-  map.on('resize', scheduleUpdate);
   map.once('remove', remove);
   update();
   return bloom;
