@@ -131,6 +131,10 @@ jobs:
           run_gate http-hardening \
             node scripts/check-world-http-hardening.mjs
 
+          run_gate world-soak \
+            env OCCUMED_SOAK_OUTPUT=continuous-motion/world-soak-report.json \
+            node scripts/check-world-soak.mjs
+
           run_gate continuous-motion \
             env OCCUMED_PREVIEW_OUTPUT=continuous-motion/results \
             node scripts/validate-continuous-zoom.mjs
@@ -159,8 +163,8 @@ jobs:
             continuous-motion/results
             continuous-motion/all-zoom-levels
             continuous-motion/*.log
+            continuous-motion/*.json
             continuous-motion/gate-status.txt
-            continuous-motion/tile-health.json
             dist/virtual-assets/occumed-world-overview.pmtiles
           if-no-files-found: error
           retention-days: 14
