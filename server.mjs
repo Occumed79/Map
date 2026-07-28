@@ -6,6 +6,7 @@ import path from 'node:path';
 import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import { gzip } from 'node:zlib';
+import { createNeonNavigationTileCacheFromEnv } from './src/server/neon-navigation-tile-cache.js';
 import {
   GatewayOverloadedError,
   WorldTileGateway
@@ -171,11 +172,13 @@ function releaseAssetUrl(assetName) {
   return `https://github.com/${worldReleaseRepository}/releases/download/${encodeURIComponent(worldReleaseTag)}/${encodeURIComponent(assetName)}`;
 }
 
+const navigationTileCache = createNeonNavigationTileCacheFromEnv();
 const worldTileGateway = new WorldTileGateway({
   manifestUrl:
     process.env.OCCUMED_WORLD_MANIFEST_URL?.trim() ||
     releaseAssetUrl(worldManifestAsset),
   releaseAssetUrl,
+  persistentTileCache: navigationTileCache,
   maxResolvedTileBytes: safeInteger(
     maxResolvedTileBytes,
     24 * 1024 * 1024,
@@ -555,13 +558,16 @@ function shutdown(signal) {
   shuttingDown = true;
   console.log(`Occu-Med Map received ${signal}; draining connections.`);
   server.close((error) => {
-    if (error) {
-      console.error('Occu-Med Map shutdown error:', error);
-      process.exitCode = 1;
-    }
+    void worldTileGateway.close().finally(() => {
+      if (error) {
+        console.error('Occu-Med Map shutdown error:', error);
+        process.exitCode = 1;
+      }
+    });
   });
   const timer = setTimeout(() => {
     server.closeAllConnections?.();
+    void worldTileGateway.close();
     process.exitCode = 1;
   }, 25_000);
   timer.unref?.();
@@ -573,6 +579,14 @@ process.once('SIGINT', () => shutdown('SIGINT'));
 server.listen(port, host, () => {
   console.log(`Occu-Med Map listening on ${host}:${port}.`);
   console.log(`Health endpoint ready at http://127.0.0.1:${port}/health.`);
+  if (navigationTileCache) {
+    const snapshot = navigationTileCache.snapshot();
+    console.log(`Neon navigation cache configured with ${snapshot.configuredShards} of ${snapshot.expectedShards} shards.`);
+    void worldTileGateway.initializePersistentCache().then(
+      (initialized) => console.log(`Neon navigation cache initialized ${initialized} shard(s).`),
+      (error) => console.error(`Neon navigation cache initialization failed: ${error?.code || error?.name || 'UNKNOWN'}`)
+    );
+  }
   void worldTileGateway.ready().then(
     (ready) => console.log(`Worldwide gateway ready with ${ready.regions} regional shards.`),
     (error) => console.error('Worldwide gateway readiness failed:', error)
