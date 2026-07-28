@@ -1,5 +1,3 @@
-import postgres from 'postgres';
-
 const DEFAULT_MAX_ZOOM = 6;
 const DEFAULT_QUERY_TIMEOUT_MS = 1_500;
 const DEFAULT_RETRY_DELAY_MS = 30_000;
@@ -28,6 +26,15 @@ function safeDatabaseUrl(value) {
   }
 }
 
+export function neonHttpSqlEndpoint(connectionString) {
+  const database = new URL(connectionString);
+  const endpointHost = database.hostname.replace(/^[^.]+\./, 'api.');
+  if (endpointHost === database.hostname) {
+    throw new TypeError('The Neon database hostname is not compatible with the HTTP SQL endpoint.');
+  }
+  return `https://${endpointHost}/sql`;
+}
+
 export function collectNavigationDatabaseUrls(env = process.env) {
   const seen = new Set();
   const entries = [];
@@ -50,22 +57,92 @@ export function navigationTileShardIndex(key, shardCount) {
   return (hash >>> 0) % shardCount;
 }
 
-function timeoutAfter(milliseconds, label) {
-  return new Promise((_, reject) => {
+function encodeHttpParameter(value) {
+  if (Buffer.isBuffer(value) || value instanceof Uint8Array) {
+    return `\\x${Buffer.from(value).toString('hex')}`;
+  }
+  if (typeof value === 'bigint') return value.toString();
+  if (value instanceof Date) return value.toISOString();
+  return value === undefined ? null : value;
+}
+
+class NeonHttpQueryClient {
+  constructor(connectionString, {
+    timeoutMs,
+    fetchImpl = fetch
+  }) {
+    this.connectionString = connectionString;
+    this.endpoint = neonHttpSqlEndpoint(connectionString);
+    this.timeoutMs = timeoutMs;
+    this.fetchImpl = fetchImpl;
+  }
+
+  async query(query, params = [], timeoutMs = this.timeoutMs) {
+    const controller = new AbortController();
     const timer = setTimeout(() => {
-      const error = new Error(`${label} timed out.`);
-      error.code = 'OCCUMED_NAV_CACHE_TIMEOUT';
-      reject(error);
-    }, milliseconds);
+      controller.abort(new Error('Neon HTTP SQL query timed out.'));
+    }, timeoutMs);
     timer.unref?.();
-  });
+
+    let response;
+    try {
+      response = await this.fetchImpl(this.endpoint, {
+        method: 'POST',
+        redirect: 'follow',
+        signal: controller.signal,
+        headers: {
+          'Content-Type': 'application/json',
+          'Neon-Connection-String': this.connectionString,
+          'Neon-Raw-Text-Output': 'true',
+          'Neon-Array-Mode': 'true',
+          'User-Agent': 'Occu-Med-Map/navigation-cache'
+        },
+        body: JSON.stringify({
+          query,
+          params: params.map(encodeHttpParameter)
+        })
+      });
+    } catch (error) {
+      if (controller.signal.aborted) {
+        const timeoutError = new Error('Neon HTTP SQL query timed out.', { cause: error });
+        timeoutError.code = 'OCCUMED_NAV_CACHE_TIMEOUT';
+        throw timeoutError;
+      }
+      const connectionError = new Error('Unable to reach the Neon HTTP SQL endpoint.', { cause: error });
+      connectionError.code = error?.code || 'OCCUMED_NAV_CACHE_CONNECTION_FAILED';
+      throw connectionError;
+    } finally {
+      clearTimeout(timer);
+    }
+
+    let document;
+    try {
+      document = await response.json();
+    } catch (error) {
+      const responseError = new Error(`Neon HTTP SQL returned an unreadable HTTP ${response.status} response.`, {
+        cause: error
+      });
+      responseError.code = 'OCCUMED_NAV_CACHE_INVALID_RESPONSE';
+      throw responseError;
+    }
+
+    if (!response.ok) {
+      const queryError = new Error(document?.message || `Neon HTTP SQL returned HTTP ${response.status}.`);
+      queryError.code = document?.code || `OCCUMED_NAV_CACHE_HTTP_${response.status}`;
+      throw queryError;
+    }
+
+    const rows = Array.isArray(document?.rows) ? document.rows : [];
+    if (!rows.length || !Array.isArray(rows[0])) return rows;
+    const fields = Array.isArray(document?.fields) ? document.fields : [];
+    const names = fields.map((field, index) => String(field?.name || `column_${index}`));
+    return rows.map((row) => Object.fromEntries(
+      row.map((value, index) => [names[index] || `column_${index}`, value])
+    ));
+  }
 }
 
-async function withinTimeout(task, milliseconds, label) {
-  return Promise.race([task, timeoutAfter(milliseconds, label)]);
-}
-
-class PostgresNavigationShard {
+class NeonHttpNavigationShard {
   constructor({
     slot,
     url,
@@ -74,7 +151,8 @@ class PostgresNavigationShard {
     maxBytes,
     pruneEveryWrites,
     now,
-    logger
+    logger,
+    fetchImpl
   }) {
     this.slot = slot;
     this.queryTimeoutMs = queryTimeoutMs;
@@ -83,6 +161,7 @@ class PostgresNavigationShard {
     this.pruneEveryWrites = pruneEveryWrites;
     this.now = now;
     this.logger = logger;
+    this.client = new NeonHttpQueryClient(url, { timeoutMs: queryTimeoutMs, fetchImpl });
     this.initialization = null;
     this.initialized = false;
     this.disabledUntil = 0;
@@ -95,14 +174,6 @@ class PostgresNavigationShard {
       errors: 0,
       prunes: 0
     };
-    this.sql = postgres(url, {
-      max: 1,
-      prepare: false,
-      connect_timeout: 5,
-      idle_timeout: 20,
-      max_lifetime: 60 * 30,
-      onnotice: () => {}
-    });
   }
 
   available() {
@@ -127,8 +198,8 @@ class PostgresNavigationShard {
     if (!this.available()) return false;
     if (this.initialization) return this.initialization;
 
-    this.initialization = withinTimeout(
-      this.sql.unsafe(`
+    this.initialization = Promise.all([
+      this.client.query(`
         CREATE TABLE IF NOT EXISTS ${TABLE_NAME} (
           tileset_version text NOT NULL,
           z smallint NOT NULL CHECK (z BETWEEN 0 AND ${DEFAULT_MAX_ZOOM}),
@@ -138,13 +209,13 @@ class PostgresNavigationShard {
           byte_length integer NOT NULL CHECK (byte_length = octet_length(tile)),
           created_at timestamptz NOT NULL DEFAULT now(),
           PRIMARY KEY (tileset_version, z, x, y)
-        );
+        )
+      `, [], this.queryTimeoutMs * 4),
+      this.client.query(`
         CREATE INDEX IF NOT EXISTS ${TABLE_NAME}_created_at_idx
-          ON ${TABLE_NAME} (created_at);
-      `),
-      this.queryTimeoutMs * 4,
-      `Navigation cache shard ${this.slot} initialization`
-    )
+          ON ${TABLE_NAME} (created_at)
+      `, [], this.queryTimeoutMs * 4)
+    ])
       .then(() => {
         this.initialized = true;
         this.disabledUntil = 0;
@@ -165,26 +236,27 @@ class PostgresNavigationShard {
   async get(tilesetVersion, zoom, x, y) {
     if (!(await this.initialize())) return null;
     try {
-      const rows = await withinTimeout(
-        this.sql`
-          SELECT tile
-          FROM ${this.sql(TABLE_NAME)}
-          WHERE tileset_version = ${tilesetVersion}
-            AND z = ${zoom}
-            AND x = ${x}
-            AND y = ${y}
-          LIMIT 1
-        `,
-        this.queryTimeoutMs,
-        `Navigation cache shard ${this.slot} read`
-      );
-      const tile = rows?.[0]?.tile;
-      if (!tile) {
+      const rows = await this.client.query(`
+        SELECT encode(tile, 'base64') AS tile_base64
+        FROM ${TABLE_NAME}
+        WHERE tileset_version = $1
+          AND z = $2
+          AND x = $3
+          AND y = $4
+        LIMIT 1
+      `, [tilesetVersion, zoom, x, y]);
+      const encoded = rows?.[0]?.tile_base64;
+      if (!encoded) {
+        this.metrics.misses += 1;
+        return null;
+      }
+      const tile = Buffer.from(String(encoded), 'base64');
+      if (!tile.byteLength) {
         this.metrics.misses += 1;
         return null;
       }
       this.metrics.hits += 1;
-      return Buffer.from(tile);
+      return tile;
     } catch (error) {
       this.recordError(error, 'read');
       return null;
@@ -195,22 +267,16 @@ class PostgresNavigationShard {
     if (!(await this.initialize())) return false;
     const tile = Buffer.from(value);
     try {
-      await withinTimeout(
-        this.sql`
-          INSERT INTO ${this.sql(TABLE_NAME)} (
-            tileset_version, z, x, y, tile, byte_length, created_at
-          ) VALUES (
-            ${tilesetVersion}, ${zoom}, ${x}, ${y}, ${tile}, ${tile.byteLength}, now()
-          )
-          ON CONFLICT (tileset_version, z, x, y)
-          DO UPDATE SET
-            tile = EXCLUDED.tile,
-            byte_length = EXCLUDED.byte_length,
-            created_at = now()
-        `,
-        this.queryTimeoutMs,
-        `Navigation cache shard ${this.slot} write`
-      );
+      await this.client.query(`
+        INSERT INTO ${TABLE_NAME} (
+          tileset_version, z, x, y, tile, byte_length, created_at
+        ) VALUES ($1, $2, $3, $4, $5, $6, now())
+        ON CONFLICT (tileset_version, z, x, y)
+        DO UPDATE SET
+          tile = EXCLUDED.tile,
+          byte_length = EXCLUDED.byte_length,
+          created_at = now()
+      `, [tilesetVersion, zoom, x, y, tile, tile.byteLength]);
       this.metrics.writes += 1;
       this.writeCount += 1;
       this.disabledUntil = 0;
@@ -228,31 +294,25 @@ class PostgresNavigationShard {
   async prune(tilesetVersion) {
     if (!this.initialized || !this.available()) return false;
     try {
-      await withinTimeout(
-        this.sql.begin(async (transaction) => {
-          await transaction`
-            DELETE FROM ${transaction(TABLE_NAME)}
-            WHERE tileset_version <> ${tilesetVersion}
-          `;
-          await transaction.unsafe(`
-            WITH ranked AS (
-              SELECT
-                ctid,
-                sum(byte_length) OVER (
-                  ORDER BY created_at DESC, z DESC, x DESC, y DESC
-                ) AS running_bytes
-              FROM ${TABLE_NAME}
-              WHERE tileset_version = $1
-            )
-            DELETE FROM ${TABLE_NAME} AS cache
-            USING ranked
-            WHERE cache.ctid = ranked.ctid
-              AND ranked.running_bytes > $2
-          `, [tilesetVersion, this.maxBytes]);
-        }),
-        this.queryTimeoutMs * 4,
-        `Navigation cache shard ${this.slot} prune`
-      );
+      await this.client.query(`
+        DELETE FROM ${TABLE_NAME}
+        WHERE tileset_version <> $1
+      `, [tilesetVersion], this.queryTimeoutMs * 4);
+      await this.client.query(`
+        WITH ranked AS (
+          SELECT
+            ctid,
+            sum(byte_length) OVER (
+              ORDER BY created_at DESC, z DESC, x DESC, y DESC
+            ) AS running_bytes
+          FROM ${TABLE_NAME}
+          WHERE tileset_version = $1
+        )
+        DELETE FROM ${TABLE_NAME} AS cache
+        USING ranked
+        WHERE cache.ctid = ranked.ctid
+          AND ranked.running_bytes > $2
+      `, [tilesetVersion, this.maxBytes], this.queryTimeoutMs * 4);
       this.metrics.prunes += 1;
       return true;
     } catch (error) {
@@ -261,9 +321,7 @@ class PostgresNavigationShard {
     }
   }
 
-  async close() {
-    await this.sql.end({ timeout: 2 }).catch(() => {});
-  }
+  async close() {}
 
   snapshot() {
     return {
@@ -287,7 +345,8 @@ export class NeonNavigationTileCache {
     pruneEveryWrites = DEFAULT_PRUNE_EVERY_WRITES,
     now = () => Date.now(),
     logger = console,
-    shardFactory = (options) => new PostgresNavigationShard(options)
+    fetchImpl = fetch,
+    shardFactory = (options) => new NeonHttpNavigationShard(options)
   } = {}) {
     this.maxZoom = boundedInteger(maxZoom, DEFAULT_MAX_ZOOM, 0, DEFAULT_MAX_ZOOM);
     this.queryTimeoutMs = boundedInteger(queryTimeoutMs, DEFAULT_QUERY_TIMEOUT_MS, 100, 30_000);
@@ -313,7 +372,8 @@ export class NeonNavigationTileCache {
       maxBytes: this.maxBytesPerShard,
       pruneEveryWrites: this.pruneEveryWrites,
       now,
-      logger
+      logger,
+      fetchImpl
     }));
   }
 
@@ -331,8 +391,7 @@ export class NeonNavigationTileCache {
   }
 
   async initialize() {
-    const results = [];
-    for (const shard of this.shards) results.push(await shard.initialize());
+    const results = await Promise.all(this.shards.map((shard) => shard.initialize()));
     return results.filter(Boolean).length;
   }
 
