@@ -134,32 +134,44 @@ const surface = tile({
     ]
   }
 });
-const overscaled = inspectVectorTile(overscaleVectorLayer(surface, {
-  layerName: 'land',
-  sourceZoom: 10,
-  targetZoom: 16,
-  targetX: 32768,
-  targetY: 32768
-}));
-expect(overscaled.land?.featureCount === 1, 'The worldwide land surface cannot overscale through max zoom.');
-for (const bounds of overscaled.land?.bounds || []) {
+const continuousSurfaceLayers = ['land', 'landcover', 'depth'];
+const overscaledSurface = inspectVectorTile(
+  mergeVectorTiles(
+    continuousSurfaceLayers.map((layerName) =>
+      overscaleVectorLayer(surface, {
+        layerName,
+        sourceZoom: 10,
+        targetZoom: 16,
+        targetX: 32768,
+        targetY: 32768
+      })
+    )
+  )
+);
+for (const layerName of continuousSurfaceLayers) {
   expect(
-    bounds && bounds.minX >= 0 && bounds.minY >= 0 && bounds.maxX <= 4096 && bounds.maxY <= 4096,
-    'Overscaled land geometry escaped the requested child tile.'
+    overscaledSurface[layerName]?.featureCount === 1,
+    `The worldwide ${layerName} surface cannot overscale through max zoom.`
   );
+  for (const bounds of overscaledSurface[layerName]?.bounds || []) {
+    expect(
+      bounds && bounds.minX >= 0 && bounds.minY >= 0 && bounds.maxX <= 4096 && bounds.maxY <= 4096,
+      `Overscaled ${layerName} geometry escaped the requested child tile.`
+    );
+  }
 }
-const physicalLandMask = inspectVectorTile(
-  mergeVectorTiles([surface], { includeLayers: ['land'] })
+const physicalSurface = inspectVectorTile(
+  mergeVectorTiles([surface], { includeLayers: continuousSurfaceLayers })
 );
-expect(physicalLandMask.land?.featureCount === 1, 'The physical surface lost its land layer.');
-expect(!physicalLandMask.landcover, 'The physical surface still overlays generalized landcover on regional detail.');
-expect(!physicalLandMask.depth, 'The physical surface still overlays generalized bathymetry on regional detail.');
-const cartographyWithoutLand = inspectVectorTile(
-  mergeVectorTiles([surface], { excludeLayers: ['land'] })
+expect(physicalSurface.land?.featureCount === 1, 'The physical surface lost its land layer.');
+expect(physicalSurface.landcover?.featureCount === 1, 'The physical surface lost continuous landcover.');
+expect(physicalSurface.depth?.featureCount === 1, 'The physical surface lost continuous bathymetry.');
+const cartographyWithoutSurface = inspectVectorTile(
+  mergeVectorTiles([surface], { excludeLayers: continuousSurfaceLayers })
 );
-expect(!cartographyWithoutLand.land, 'The duplicate basemap land layer was not excluded.');
-expect(cartographyWithoutLand.landcover?.featureCount === 1, 'Excluding land removed unrelated cartography.');
-expect(cartographyWithoutLand.depth?.featureCount === 1, 'Excluding land removed bathymetry.');
+expect(!cartographyWithoutSurface.land, 'The duplicate basemap land layer was not excluded.');
+expect(!cartographyWithoutSurface.landcover, 'The duplicate basemap landcover layer was not excluded.');
+expect(!cartographyWithoutSurface.depth, 'The duplicate basemap bathymetry layer was not excluded.');
 
 const normalizedProperties = normalizeMvtProperties({
   safeRank: 4,
@@ -256,16 +268,20 @@ expect(
   'A missing overview enrichment can still reject the complete worldwide tile.'
 );
 expect(
-  gateway.includes("includeLayers: ['land']"),
-  'The gateway does not isolate the continuous physical surface to the land mask.'
+  gateway.includes("const CONTINUOUS_SURFACE_LAYERS = Object.freeze(['land', 'landcover', 'depth'])"),
+  'The gateway does not define one authoritative set of foundational surface layers.'
 );
 expect(
-  gateway.includes("excludeLayers: ['land']"),
-  'The gateway can still merge duplicate land masks from the surface and basemap.'
+  gateway.includes('includeLayers: CONTINUOUS_SURFACE_LAYERS'),
+  'The gateway does not retain land, landcover, and bathymetry from the physical surface.'
 );
 expect(
-  !gateway.includes("includeLayers: ['land', 'landcover', 'depth']"),
-  'The gateway still overlays generalized landcover and bathymetry on regional detail.'
+  gateway.includes('excludeLayers: CONTINUOUS_SURFACE_LAYERS'),
+  'The overview or regional archives can still replace the foundational surface layers.'
+);
+expect(
+  gateway.includes('CONTINUOUS_SURFACE_LAYERS.map'),
+  'All foundational surface layers are not overscaled continuously through maximum zoom.'
 );
 expect(manifestBuilder.includes('version: 2'), 'The server-only routing manifest is not version 2.');
 expect(
@@ -287,4 +303,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('Virtual worldwide tileset validated: one permanent source, safe polygon merging, clipped surface overscaling, one land mask, antimeridian routing, parent-tile retention, caching, and no browser-visible shards.');
+console.log('Virtual worldwide tileset validated: one permanent source, one continuous land/landcover/depth foundation at every zoom, safe polygon merging, clipped overscaling, antimeridian routing, parent-tile retention, caching, and no browser-visible shards.');
