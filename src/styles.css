@@ -57,6 +57,35 @@ body {
   background: transparent;
 }
 
+.maplibregl-canvas-container {
+  isolation: isolate;
+}
+
+.occumed-atmosphere-bloom {
+  position: absolute;
+  z-index: 1;
+  left: var(--occumed-globe-bloom-x, 50%);
+  top: var(--occumed-globe-bloom-y, 50%);
+  width: var(--occumed-globe-diameter, 0px);
+  height: var(--occumed-globe-diameter, 0px);
+  border-radius: 50%;
+  transform: translate3d(-50%, -50%, 0);
+  pointer-events: none;
+  opacity: var(--occumed-globe-bloom-opacity, 0);
+  background: radial-gradient(
+    circle at center,
+    transparent calc(100% - 2px),
+    rgba(245, 253, 255, 0.98) calc(100% - 1px),
+    rgba(245, 253, 255, 0.98) 100%
+  );
+  filter:
+    drop-shadow(0 0 5px rgba(245, 253, 255, 0.96))
+    drop-shadow(0 0 14px rgba(184, 230, 255, 0.74))
+    drop-shadow(0 0 30px rgba(121, 188, 236, 0.34));
+  mix-blend-mode: screen;
+  will-change: left, top, width, height, opacity;
+}
+
 .map-header {
   position: absolute;
   z-index: 2;
