@@ -2,16 +2,6 @@ name: Rebuild Forced-Split Parent
 # The default PR pilot intentionally rebuilds sul from its unsplit parent source.
 
 on:
-  push:
-    branches:
-      - repair/replace-forced-split-families
-    paths:
-      - .github/workflows/rebuild-forced-split-parent.yml
-      - config/forced-split-families.json
-      - scripts/select-unsplit-replacement-source.mjs
-      - scripts/check-forced-split-quarantine.mjs
-      - scripts/build-world-manifest.mjs
-      - planetiler/**
   pull_request:
     branches:
       - hotfix/emergency-stable-online
