@@ -46,41 +46,21 @@ const report = {
   passed: false
 };
 
-function layerCountsInPage() {
-  const map = globalThis.__OCCUMED_MAP__;
-  const sourceLayerNames = [...new Set(
-    (map.getStyle().layers || [])
-      .filter((layer) => layer.source === 'occumed-open' && layer['source-layer'])
-      .map((layer) => layer['source-layer'])
-  )];
-  const layerIds = Object.fromEntries(sourceLayerNames.map((sourceLayer) => [
-    sourceLayer,
-    (map.getStyle().layers || [])
-      .filter((layer) => layer.source === 'occumed-open' && layer['source-layer'] === sourceLayer)
-      .map((layer) => layer.id)
-  ]));
-  const counts = Object.fromEntries(sourceLayerNames.map((name) => [name, 0]));
-  const manager = map.style?.tileManagers?.['occumed-open'];
-  if (!manager) return counts;
-  for (const id of manager.getRenderableIds()) {
-    const tile = manager.getTileByID(id);
-    for (const sourceLayer of sourceLayerNames) {
-      if (layerIds[sourceLayer].some((layerId) => tile?.buckets?.[layerId])) counts[sourceLayer] += 1;
-    }
-  }
-  return counts;
-}
-
 async function waitForPosition(page, definition) {
   return page.evaluate(async ({ definition, expectedTemplate }) => {
     const map = globalThis.__OCCUMED_MAP__;
+    const expectedSignature = JSON.stringify({ url: null, tiles: [expectedTemplate] });
     map.jumpTo({ center: definition.center, zoom: definition.zoom, pitch: 0, bearing: 0 });
     map.triggerRepaint();
 
-    const result = await new Promise((resolve, reject) => {
+    return await new Promise((resolve, reject) => {
+      let consecutivePhysicalPasses = 0;
+      let lastState = null;
       const timeout = setTimeout(() => {
         cleanup();
-        reject(new Error(`Timed out at ${definition.name} z${definition.zoom}.`));
+        reject(new Error(
+          `Timed out at ${definition.name} z${definition.zoom}: ${JSON.stringify(lastState)}`
+        ));
       }, 60_000);
       const interval = setInterval(check, 100);
 
@@ -112,20 +92,32 @@ async function waitForPosition(page, definition) {
         const layerCounts = counts();
         const source = map.getStyle().sources?.['occumed-open'];
         const signature = JSON.stringify({ url: source?.url || null, tiles: source?.tiles || [] });
-        if (
-          map.isStyleLoaded() &&
-          map.isSourceLoaded('occumed-open') &&
-          signature === JSON.stringify({ url: null, tiles: [expectedTemplate] }) &&
-          definition.requiredLayers.every((layer) => (layerCounts[layer] || 0) > 0)
-        ) {
-          cleanup();
-          resolve({
-            actualCenter: [map.getCenter().lng, map.getCenter().lat],
-            actualZoom: map.getZoom(),
-            layerCounts,
-            tilesLoaded: map.areTilesLoaded(),
-            sourceSignature: signature
-          });
+        const physicalLayersPresent = definition.requiredLayers.every(
+          (layer) => (layerCounts[layer] || 0) > 0
+        );
+        lastState = {
+          styleLoaded: map.isStyleLoaded(),
+          sourceLoaded: map.isSourceLoaded('occumed-open'),
+          tilesLoaded: map.areTilesLoaded(),
+          actualCenter: [map.getCenter().lng, map.getCenter().lat],
+          actualZoom: map.getZoom(),
+          requiredLayers: definition.requiredLayers,
+          layerCounts,
+          sourceSignature: signature,
+          expectedSignature,
+          physicalLayersPresent,
+          consecutivePhysicalPasses
+        };
+
+        if (map.isStyleLoaded() && signature === expectedSignature && physicalLayersPresent) {
+          consecutivePhysicalPasses += 1;
+          lastState.consecutivePhysicalPasses = consecutivePhysicalPasses;
+          if (consecutivePhysicalPasses >= 3) {
+            cleanup();
+            resolve(lastState);
+          }
+        } else {
+          consecutivePhysicalPasses = 0;
         }
       }
 
@@ -134,12 +126,13 @@ async function waitForPosition(page, definition) {
         clearInterval(interval);
         map.off('idle', check);
         map.off('sourcedata', check);
+        map.off('render', check);
       }
       map.on('idle', check);
       map.on('sourcedata', check);
+      map.on('render', check);
       check();
     });
-    return result;
   }, { definition, expectedTemplate });
 }
 
