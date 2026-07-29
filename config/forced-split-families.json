@@ -5,6 +5,7 @@
   "splitAssetCount": 262,
   "quarantinePolicy": "No published --r#-c# child archive may appear in an active routing manifest. Replacements must be rebuilt from the original parent source and assigned exclusive z/x/y ownership before activation.",
   "pilotFamily": "sul",
+  "pilotRunNonce": "2026-07-29T08:45:00Z",
   "families": [
     {"id":"austria","children":6,"combinedGiB":1.78},
     {"id":"belgium","children":6,"combinedGiB":1.43},
