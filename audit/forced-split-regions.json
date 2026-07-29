@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-29T06:25:16.112Z",
+  "generated_at": "2026-07-29T06:26:09.634Z",
   "direct_split_limit_bytes": 850000000,
   "forced_split_family_count": 16,
   "forced_split_child_count": 176,
@@ -7,7 +7,7 @@
     {
       "source_region_id": "us",
       "continent": "north-america",
-      "source_size_bytes": 12048136856,
+      "source_size_bytes": 12049130025,
       "child_count": 32,
       "children": [
         {
@@ -650,7 +650,7 @@
     {
       "source_region_id": "us-south",
       "continent": "north-america",
-      "source_size_bytes": 4093737233,
+      "source_size_bytes": 4093292386,
       "child_count": 18,
       "children": [
         {
@@ -856,7 +856,7 @@
     {
       "source_region_id": "sea",
       "continent": "asia",
-      "source_size_bytes": 3634443322,
+      "source_size_bytes": 3634737562,
       "child_count": 15,
       "children": [
         {
@@ -1276,7 +1276,7 @@
     {
       "source_region_id": "us-midwest",
       "continent": "north-america",
-      "source_size_bytes": 2474364429,
+      "source_size_bytes": 2474124802,
       "child_count": 12,
       "children": [
         {
@@ -1416,7 +1416,7 @@
     {
       "source_region_id": "alps",
       "continent": "europe",
-      "source_size_bytes": 2301582947,
+      "source_size_bytes": 2301259383,
       "child_count": 8,
       "children": [
         {
@@ -1745,7 +1745,7 @@
     {
       "source_region_id": "ontario",
       "continent": "north-america",
-      "source_size_bytes": 966741555,
+      "source_size_bytes": 966871523,
       "child_count": 4,
       "children": [
         {
@@ -1871,7 +1871,7 @@
     {
       "source_region_id": "ukraine",
       "continent": "europe",
-      "source_size_bytes": 870676344,
+      "source_size_bytes": 870539197,
       "child_count": 6,
       "children": [
         {
@@ -1945,7 +1945,7 @@
     {
       "source_region_id": "central-fed-district",
       "continent": "central-fed-district",
-      "source_size_bytes": 870533571,
+      "source_size_bytes": 870430847,
       "child_count": 4,
       "children": [
         {

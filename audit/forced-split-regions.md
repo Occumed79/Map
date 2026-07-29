@@ -1,6 +1,6 @@
 # Forced Grid-Split Region Audit
 
-Generated: 2026-07-29T06:25:16.112Z
+Generated: 2026-07-29T06:26:09.634Z
 
 - Forced-split parent families: **16**
 - Generated child archives: **176**
@@ -11,7 +11,7 @@ Generated: 2026-07-29T06:25:16.112Z
 | `us` | north-america | 11.22 GiB | 32 |
 | `dach` | europe | 5.76 GiB | 25 |
 | `us-south` | north-america | 3.81 GiB | 18 |
-| `sea` | asia | 3.38 GiB | 15 |
+| `sea` | asia | 3.39 GiB | 15 |
 | `us-west` | north-america | 3.14 GiB | 12 |
 | `britain-and-ireland` | europe | 2.41 GiB | 9 |
 | `us-midwest` | north-america | 2.30 GiB | 12 |
@@ -122,7 +122,7 @@ Children: 18
 
 ### sea
 
-Source size: 3.38 GiB  
+Source size: 3.39 GiB  
 Children: 15
 
 - `occumed-sea--r1-c1.pmtiles` — bbox `90.65133,-11.60655,100.725404,1.78722`
