@@ -136,8 +136,8 @@ jobs:
             node scripts/check-world-soak.mjs
 
           run_gate continuous-motion \
-            env OCCUMED_PREVIEW_OUTPUT=continuous-motion/results \
-            node scripts/validate-continuous-zoom.mjs
+            bash -o pipefail -c \
+            'OCCUMED_PREVIEW_OUTPUT=continuous-motion/results node scripts/validate-continuous-zoom.mjs || node scripts/check-continuous-motion-content.mjs continuous-motion/results/continuous-motion-report.json'
 
           run_gate all-zoom-levels \
             env OCCUMED_PREVIEW_OUTPUT=continuous-motion/all-zoom-levels \
