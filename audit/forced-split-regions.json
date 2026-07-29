@@ -1,0 +1,2072 @@
+{
+  "generated_at": "2026-07-29T06:25:16.112Z",
+  "direct_split_limit_bytes": 850000000,
+  "forced_split_family_count": 16,
+  "forced_split_child_count": 176,
+  "families": [
+    {
+      "source_region_id": "us",
+      "continent": "north-america",
+      "source_size_bytes": 12048136856,
+      "child_count": 32,
+      "children": [
+        {
+          "id": "us--r1-c1-s1",
+          "asset_name": "occumed-us--r1-c1-s1.pmtiles",
+          "extract_bbox": "170.9033,15.92097,180,30.18784",
+          "bounds": [
+            170.9033,
+            15.92097,
+            180,
+            30.18784
+          ]
+        },
+        {
+          "id": "us--r1-c1-s2",
+          "asset_name": "occumed-us--r1-c1-s2.pmtiles",
+          "extract_bbox": "-180,15.92097,-171.636566,30.18784",
+          "bounds": [
+            -180,
+            15.92097,
+            -171.636566,
+            30.18784
+          ]
+        },
+        {
+          "id": "us--r1-c2",
+          "asset_name": "occumed-us--r1-c2.pmtiles",
+          "extract_bbox": "-171.636566,15.92097,-154.176431,30.18784",
+          "bounds": [
+            -171.636566,
+            15.92097,
+            -154.176431,
+            30.18784
+          ]
+        },
+        {
+          "id": "us--r1-c3",
+          "asset_name": "occumed-us--r1-c3.pmtiles",
+          "extract_bbox": "-154.176431,15.92097,-136.716297,30.18784",
+          "bounds": [
+            -154.176431,
+            15.92097,
+            -136.716297,
+            30.18784
+          ]
+        },
+        {
+          "id": "us--r1-c4",
+          "asset_name": "occumed-us--r1-c4.pmtiles",
+          "extract_bbox": "-136.716297,15.92097,-119.256163,30.18784",
+          "bounds": [
+            -136.716297,
+            15.92097,
+            -119.256163,
+            30.18784
+          ]
+        },
+        {
+          "id": "us--r1-c5",
+          "asset_name": "occumed-us--r1-c5.pmtiles",
+          "extract_bbox": "-119.256163,15.92097,-101.796029,30.18784",
+          "bounds": [
+            -119.256163,
+            15.92097,
+            -101.796029,
+            30.18784
+          ]
+        },
+        {
+          "id": "us--r1-c6",
+          "asset_name": "occumed-us--r1-c6.pmtiles",
+          "extract_bbox": "-101.796029,15.92097,-84.335894,30.18784",
+          "bounds": [
+            -101.796029,
+            15.92097,
+            -84.335894,
+            30.18784
+          ]
+        },
+        {
+          "id": "us--r1-c7",
+          "asset_name": "occumed-us--r1-c7.pmtiles",
+          "extract_bbox": "-84.335894,15.92097,-66.87576,30.18784",
+          "bounds": [
+            -84.335894,
+            15.92097,
+            -66.87576,
+            30.18784
+          ]
+        },
+        {
+          "id": "us--r2-c1-s1",
+          "asset_name": "occumed-us--r2-c1-s1.pmtiles",
+          "extract_bbox": "170.9033,30.18784,180,44.45471",
+          "bounds": [
+            170.9033,
+            30.18784,
+            180,
+            44.45471
+          ]
+        },
+        {
+          "id": "us--r2-c1-s2",
+          "asset_name": "occumed-us--r2-c1-s2.pmtiles",
+          "extract_bbox": "-180,30.18784,-171.636566,44.45471",
+          "bounds": [
+            -180,
+            30.18784,
+            -171.636566,
+            44.45471
+          ]
+        },
+        {
+          "id": "us--r2-c2",
+          "asset_name": "occumed-us--r2-c2.pmtiles",
+          "extract_bbox": "-171.636566,30.18784,-154.176431,44.45471",
+          "bounds": [
+            -171.636566,
+            30.18784,
+            -154.176431,
+            44.45471
+          ]
+        },
+        {
+          "id": "us--r2-c3",
+          "asset_name": "occumed-us--r2-c3.pmtiles",
+          "extract_bbox": "-154.176431,30.18784,-136.716297,44.45471",
+          "bounds": [
+            -154.176431,
+            30.18784,
+            -136.716297,
+            44.45471
+          ]
+        },
+        {
+          "id": "us--r2-c4",
+          "asset_name": "occumed-us--r2-c4.pmtiles",
+          "extract_bbox": "-136.716297,30.18784,-119.256163,44.45471",
+          "bounds": [
+            -136.716297,
+            30.18784,
+            -119.256163,
+            44.45471
+          ]
+        },
+        {
+          "id": "us--r2-c5",
+          "asset_name": "occumed-us--r2-c5.pmtiles",
+          "extract_bbox": "-119.256163,30.18784,-101.796029,44.45471",
+          "bounds": [
+            -119.256163,
+            30.18784,
+            -101.796029,
+            44.45471
+          ]
+        },
+        {
+          "id": "us--r2-c6",
+          "asset_name": "occumed-us--r2-c6.pmtiles",
+          "extract_bbox": "-101.796029,30.18784,-84.335894,44.45471",
+          "bounds": [
+            -101.796029,
+            30.18784,
+            -84.335894,
+            44.45471
+          ]
+        },
+        {
+          "id": "us--r2-c7",
+          "asset_name": "occumed-us--r2-c7.pmtiles",
+          "extract_bbox": "-84.335894,30.18784,-66.87576,44.45471",
+          "bounds": [
+            -84.335894,
+            30.18784,
+            -66.87576,
+            44.45471
+          ]
+        },
+        {
+          "id": "us--r3-c1-s1",
+          "asset_name": "occumed-us--r3-c1-s1.pmtiles",
+          "extract_bbox": "170.9033,44.45471,180,58.72158",
+          "bounds": [
+            170.9033,
+            44.45471,
+            180,
+            58.72158
+          ]
+        },
+        {
+          "id": "us--r3-c1-s2",
+          "asset_name": "occumed-us--r3-c1-s2.pmtiles",
+          "extract_bbox": "-180,44.45471,-171.636566,58.72158",
+          "bounds": [
+            -180,
+            44.45471,
+            -171.636566,
+            58.72158
+          ]
+        },
+        {
+          "id": "us--r3-c2",
+          "asset_name": "occumed-us--r3-c2.pmtiles",
+          "extract_bbox": "-171.636566,44.45471,-154.176431,58.72158",
+          "bounds": [
+            -171.636566,
+            44.45471,
+            -154.176431,
+            58.72158
+          ]
+        },
+        {
+          "id": "us--r3-c3",
+          "asset_name": "occumed-us--r3-c3.pmtiles",
+          "extract_bbox": "-154.176431,44.45471,-136.716297,58.72158",
+          "bounds": [
+            -154.176431,
+            44.45471,
+            -136.716297,
+            58.72158
+          ]
+        },
+        {
+          "id": "us--r3-c4",
+          "asset_name": "occumed-us--r3-c4.pmtiles",
+          "extract_bbox": "-136.716297,44.45471,-119.256163,58.72158",
+          "bounds": [
+            -136.716297,
+            44.45471,
+            -119.256163,
+            58.72158
+          ]
+        },
+        {
+          "id": "us--r3-c5",
+          "asset_name": "occumed-us--r3-c5.pmtiles",
+          "extract_bbox": "-119.256163,44.45471,-101.796029,58.72158",
+          "bounds": [
+            -119.256163,
+            44.45471,
+            -101.796029,
+            58.72158
+          ]
+        },
+        {
+          "id": "us--r3-c6",
+          "asset_name": "occumed-us--r3-c6.pmtiles",
+          "extract_bbox": "-101.796029,44.45471,-84.335894,58.72158",
+          "bounds": [
+            -101.796029,
+            44.45471,
+            -84.335894,
+            58.72158
+          ]
+        },
+        {
+          "id": "us--r3-c7",
+          "asset_name": "occumed-us--r3-c7.pmtiles",
+          "extract_bbox": "-84.335894,44.45471,-66.87576,58.72158",
+          "bounds": [
+            -84.335894,
+            44.45471,
+            -66.87576,
+            58.72158
+          ]
+        },
+        {
+          "id": "us--r4-c1-s1",
+          "asset_name": "occumed-us--r4-c1-s1.pmtiles",
+          "extract_bbox": "170.9033,58.72158,180,72.98845",
+          "bounds": [
+            170.9033,
+            58.72158,
+            180,
+            72.98845
+          ]
+        },
+        {
+          "id": "us--r4-c1-s2",
+          "asset_name": "occumed-us--r4-c1-s2.pmtiles",
+          "extract_bbox": "-180,58.72158,-171.636566,72.98845",
+          "bounds": [
+            -180,
+            58.72158,
+            -171.636566,
+            72.98845
+          ]
+        },
+        {
+          "id": "us--r4-c2",
+          "asset_name": "occumed-us--r4-c2.pmtiles",
+          "extract_bbox": "-171.636566,58.72158,-154.176431,72.98845",
+          "bounds": [
+            -171.636566,
+            58.72158,
+            -154.176431,
+            72.98845
+          ]
+        },
+        {
+          "id": "us--r4-c3",
+          "asset_name": "occumed-us--r4-c3.pmtiles",
+          "extract_bbox": "-154.176431,58.72158,-136.716297,72.98845",
+          "bounds": [
+            -154.176431,
+            58.72158,
+            -136.716297,
+            72.98845
+          ]
+        },
+        {
+          "id": "us--r4-c4",
+          "asset_name": "occumed-us--r4-c4.pmtiles",
+          "extract_bbox": "-136.716297,58.72158,-119.256163,72.98845",
+          "bounds": [
+            -136.716297,
+            58.72158,
+            -119.256163,
+            72.98845
+          ]
+        },
+        {
+          "id": "us--r4-c5",
+          "asset_name": "occumed-us--r4-c5.pmtiles",
+          "extract_bbox": "-119.256163,58.72158,-101.796029,72.98845",
+          "bounds": [
+            -119.256163,
+            58.72158,
+            -101.796029,
+            72.98845
+          ]
+        },
+        {
+          "id": "us--r4-c6",
+          "asset_name": "occumed-us--r4-c6.pmtiles",
+          "extract_bbox": "-101.796029,58.72158,-84.335894,72.98845",
+          "bounds": [
+            -101.796029,
+            58.72158,
+            -84.335894,
+            72.98845
+          ]
+        },
+        {
+          "id": "us--r4-c7",
+          "asset_name": "occumed-us--r4-c7.pmtiles",
+          "extract_bbox": "-84.335894,58.72158,-66.87576,72.98845",
+          "bounds": [
+            -84.335894,
+            58.72158,
+            -66.87576,
+            72.98845
+          ]
+        }
+      ]
+    },
+    {
+      "source_region_id": "dach",
+      "continent": "europe",
+      "source_size_bytes": 6183091366,
+      "child_count": 25,
+      "children": [
+        {
+          "id": "dach--r1-c1",
+          "asset_name": "occumed-dach--r1-c1.pmtiles",
+          "extract_bbox": "5.864417,45.81617,8.12408,47.68249",
+          "bounds": [
+            5.864417,
+            45.81617,
+            8.12408,
+            47.68249
+          ]
+        },
+        {
+          "id": "dach--r1-c2",
+          "asset_name": "occumed-dach--r1-c2.pmtiles",
+          "extract_bbox": "8.12408,45.81617,10.383742,47.68249",
+          "bounds": [
+            8.12408,
+            45.81617,
+            10.383742,
+            47.68249
+          ]
+        },
+        {
+          "id": "dach--r1-c3",
+          "asset_name": "occumed-dach--r1-c3.pmtiles",
+          "extract_bbox": "10.383742,45.81617,12.643405,47.68249",
+          "bounds": [
+            10.383742,
+            45.81617,
+            12.643405,
+            47.68249
+          ]
+        },
+        {
+          "id": "dach--r1-c4",
+          "asset_name": "occumed-dach--r1-c4.pmtiles",
+          "extract_bbox": "12.643405,45.81617,14.903067,47.68249",
+          "bounds": [
+            12.643405,
+            45.81617,
+            14.903067,
+            47.68249
+          ]
+        },
+        {
+          "id": "dach--r1-c5",
+          "asset_name": "occumed-dach--r1-c5.pmtiles",
+          "extract_bbox": "14.903067,45.81617,17.16273,47.68249",
+          "bounds": [
+            14.903067,
+            45.81617,
+            17.16273,
+            47.68249
+          ]
+        },
+        {
+          "id": "dach--r2-c1",
+          "asset_name": "occumed-dach--r2-c1.pmtiles",
+          "extract_bbox": "5.864417,47.68249,8.12408,49.54881",
+          "bounds": [
+            5.864417,
+            47.68249,
+            8.12408,
+            49.54881
+          ]
+        },
+        {
+          "id": "dach--r2-c2",
+          "asset_name": "occumed-dach--r2-c2.pmtiles",
+          "extract_bbox": "8.12408,47.68249,10.383742,49.54881",
+          "bounds": [
+            8.12408,
+            47.68249,
+            10.383742,
+            49.54881
+          ]
+        },
+        {
+          "id": "dach--r2-c3",
+          "asset_name": "occumed-dach--r2-c3.pmtiles",
+          "extract_bbox": "10.383742,47.68249,12.643405,49.54881",
+          "bounds": [
+            10.383742,
+            47.68249,
+            12.643405,
+            49.54881
+          ]
+        },
+        {
+          "id": "dach--r2-c4",
+          "asset_name": "occumed-dach--r2-c4.pmtiles",
+          "extract_bbox": "12.643405,47.68249,14.903067,49.54881",
+          "bounds": [
+            12.643405,
+            47.68249,
+            14.903067,
+            49.54881
+          ]
+        },
+        {
+          "id": "dach--r2-c5",
+          "asset_name": "occumed-dach--r2-c5.pmtiles",
+          "extract_bbox": "14.903067,47.68249,17.16273,49.54881",
+          "bounds": [
+            14.903067,
+            47.68249,
+            17.16273,
+            49.54881
+          ]
+        },
+        {
+          "id": "dach--r3-c1",
+          "asset_name": "occumed-dach--r3-c1.pmtiles",
+          "extract_bbox": "5.864417,49.54881,8.12408,51.41513",
+          "bounds": [
+            5.864417,
+            49.54881,
+            8.12408,
+            51.41513
+          ]
+        },
+        {
+          "id": "dach--r3-c2",
+          "asset_name": "occumed-dach--r3-c2.pmtiles",
+          "extract_bbox": "8.12408,49.54881,10.383742,51.41513",
+          "bounds": [
+            8.12408,
+            49.54881,
+            10.383742,
+            51.41513
+          ]
+        },
+        {
+          "id": "dach--r3-c3",
+          "asset_name": "occumed-dach--r3-c3.pmtiles",
+          "extract_bbox": "10.383742,49.54881,12.643405,51.41513",
+          "bounds": [
+            10.383742,
+            49.54881,
+            12.643405,
+            51.41513
+          ]
+        },
+        {
+          "id": "dach--r3-c4",
+          "asset_name": "occumed-dach--r3-c4.pmtiles",
+          "extract_bbox": "12.643405,49.54881,14.903067,51.41513",
+          "bounds": [
+            12.643405,
+            49.54881,
+            14.903067,
+            51.41513
+          ]
+        },
+        {
+          "id": "dach--r3-c5",
+          "asset_name": "occumed-dach--r3-c5.pmtiles",
+          "extract_bbox": "14.903067,49.54881,17.16273,51.41513",
+          "bounds": [
+            14.903067,
+            49.54881,
+            17.16273,
+            51.41513
+          ]
+        },
+        {
+          "id": "dach--r4-c1",
+          "asset_name": "occumed-dach--r4-c1.pmtiles",
+          "extract_bbox": "5.864417,51.41513,8.12408,53.28145",
+          "bounds": [
+            5.864417,
+            51.41513,
+            8.12408,
+            53.28145
+          ]
+        },
+        {
+          "id": "dach--r4-c2",
+          "asset_name": "occumed-dach--r4-c2.pmtiles",
+          "extract_bbox": "8.12408,51.41513,10.383742,53.28145",
+          "bounds": [
+            8.12408,
+            51.41513,
+            10.383742,
+            53.28145
+          ]
+        },
+        {
+          "id": "dach--r4-c3",
+          "asset_name": "occumed-dach--r4-c3.pmtiles",
+          "extract_bbox": "10.383742,51.41513,12.643405,53.28145",
+          "bounds": [
+            10.383742,
+            51.41513,
+            12.643405,
+            53.28145
+          ]
+        },
+        {
+          "id": "dach--r4-c4",
+          "asset_name": "occumed-dach--r4-c4.pmtiles",
+          "extract_bbox": "12.643405,51.41513,14.903067,53.28145",
+          "bounds": [
+            12.643405,
+            51.41513,
+            14.903067,
+            53.28145
+          ]
+        },
+        {
+          "id": "dach--r4-c5",
+          "asset_name": "occumed-dach--r4-c5.pmtiles",
+          "extract_bbox": "14.903067,51.41513,17.16273,53.28145",
+          "bounds": [
+            14.903067,
+            51.41513,
+            17.16273,
+            53.28145
+          ]
+        },
+        {
+          "id": "dach--r5-c1",
+          "asset_name": "occumed-dach--r5-c1.pmtiles",
+          "extract_bbox": "5.864417,53.28145,8.12408,55.14777",
+          "bounds": [
+            5.864417,
+            53.28145,
+            8.12408,
+            55.14777
+          ]
+        },
+        {
+          "id": "dach--r5-c2",
+          "asset_name": "occumed-dach--r5-c2.pmtiles",
+          "extract_bbox": "8.12408,53.28145,10.383742,55.14777",
+          "bounds": [
+            8.12408,
+            53.28145,
+            10.383742,
+            55.14777
+          ]
+        },
+        {
+          "id": "dach--r5-c3",
+          "asset_name": "occumed-dach--r5-c3.pmtiles",
+          "extract_bbox": "10.383742,53.28145,12.643405,55.14777",
+          "bounds": [
+            10.383742,
+            53.28145,
+            12.643405,
+            55.14777
+          ]
+        },
+        {
+          "id": "dach--r5-c4",
+          "asset_name": "occumed-dach--r5-c4.pmtiles",
+          "extract_bbox": "12.643405,53.28145,14.903067,55.14777",
+          "bounds": [
+            12.643405,
+            53.28145,
+            14.903067,
+            55.14777
+          ]
+        },
+        {
+          "id": "dach--r5-c5",
+          "asset_name": "occumed-dach--r5-c5.pmtiles",
+          "extract_bbox": "14.903067,53.28145,17.16273,55.14777",
+          "bounds": [
+            14.903067,
+            53.28145,
+            17.16273,
+            55.14777
+          ]
+        }
+      ]
+    },
+    {
+      "source_region_id": "us-south",
+      "continent": "north-america",
+      "source_size_bytes": 4093737233,
+      "child_count": 18,
+      "children": [
+        {
+          "id": "us-south--r1-c1",
+          "asset_name": "occumed-us-south--r1-c1.pmtiles",
+          "extract_bbox": "-106.6494,24.20031,-100.792802,29.682327",
+          "bounds": [
+            -106.6494,
+            24.20031,
+            -100.792802,
+            29.682327
+          ]
+        },
+        {
+          "id": "us-south--r1-c2",
+          "asset_name": "occumed-us-south--r1-c2.pmtiles",
+          "extract_bbox": "-100.792802,24.20031,-94.936203,29.682327",
+          "bounds": [
+            -100.792802,
+            24.20031,
+            -94.936203,
+            29.682327
+          ]
+        },
+        {
+          "id": "us-south--r1-c3",
+          "asset_name": "occumed-us-south--r1-c3.pmtiles",
+          "extract_bbox": "-94.936203,24.20031,-89.079605,29.682327",
+          "bounds": [
+            -94.936203,
+            24.20031,
+            -89.079605,
+            29.682327
+          ]
+        },
+        {
+          "id": "us-south--r1-c4",
+          "asset_name": "occumed-us-south--r1-c4.pmtiles",
+          "extract_bbox": "-89.079605,24.20031,-83.223007,29.682327",
+          "bounds": [
+            -89.079605,
+            24.20031,
+            -83.223007,
+            29.682327
+          ]
+        },
+        {
+          "id": "us-south--r1-c5",
+          "asset_name": "occumed-us-south--r1-c5.pmtiles",
+          "extract_bbox": "-83.223007,24.20031,-77.366408,29.682327",
+          "bounds": [
+            -83.223007,
+            24.20031,
+            -77.366408,
+            29.682327
+          ]
+        },
+        {
+          "id": "us-south--r1-c6",
+          "asset_name": "occumed-us-south--r1-c6.pmtiles",
+          "extract_bbox": "-77.366408,24.20031,-71.50981,29.682327",
+          "bounds": [
+            -77.366408,
+            24.20031,
+            -71.50981,
+            29.682327
+          ]
+        },
+        {
+          "id": "us-south--r2-c1",
+          "asset_name": "occumed-us-south--r2-c1.pmtiles",
+          "extract_bbox": "-106.6494,29.682327,-100.792802,35.164343",
+          "bounds": [
+            -106.6494,
+            29.682327,
+            -100.792802,
+            35.164343
+          ]
+        },
+        {
+          "id": "us-south--r2-c2",
+          "asset_name": "occumed-us-south--r2-c2.pmtiles",
+          "extract_bbox": "-100.792802,29.682327,-94.936203,35.164343",
+          "bounds": [
+            -100.792802,
+            29.682327,
+            -94.936203,
+            35.164343
+          ]
+        },
+        {
+          "id": "us-south--r2-c3",
+          "asset_name": "occumed-us-south--r2-c3.pmtiles",
+          "extract_bbox": "-94.936203,29.682327,-89.079605,35.164343",
+          "bounds": [
+            -94.936203,
+            29.682327,
+            -89.079605,
+            35.164343
+          ]
+        },
+        {
+          "id": "us-south--r2-c4",
+          "asset_name": "occumed-us-south--r2-c4.pmtiles",
+          "extract_bbox": "-89.079605,29.682327,-83.223007,35.164343",
+          "bounds": [
+            -89.079605,
+            29.682327,
+            -83.223007,
+            35.164343
+          ]
+        },
+        {
+          "id": "us-south--r2-c5",
+          "asset_name": "occumed-us-south--r2-c5.pmtiles",
+          "extract_bbox": "-83.223007,29.682327,-77.366408,35.164343",
+          "bounds": [
+            -83.223007,
+            29.682327,
+            -77.366408,
+            35.164343
+          ]
+        },
+        {
+          "id": "us-south--r2-c6",
+          "asset_name": "occumed-us-south--r2-c6.pmtiles",
+          "extract_bbox": "-77.366408,29.682327,-71.50981,35.164343",
+          "bounds": [
+            -77.366408,
+            29.682327,
+            -71.50981,
+            35.164343
+          ]
+        },
+        {
+          "id": "us-south--r3-c1",
+          "asset_name": "occumed-us-south--r3-c1.pmtiles",
+          "extract_bbox": "-106.6494,35.164343,-100.792802,40.64636",
+          "bounds": [
+            -106.6494,
+            35.164343,
+            -100.792802,
+            40.64636
+          ]
+        },
+        {
+          "id": "us-south--r3-c2",
+          "asset_name": "occumed-us-south--r3-c2.pmtiles",
+          "extract_bbox": "-100.792802,35.164343,-94.936203,40.64636",
+          "bounds": [
+            -100.792802,
+            35.164343,
+            -94.936203,
+            40.64636
+          ]
+        },
+        {
+          "id": "us-south--r3-c3",
+          "asset_name": "occumed-us-south--r3-c3.pmtiles",
+          "extract_bbox": "-94.936203,35.164343,-89.079605,40.64636",
+          "bounds": [
+            -94.936203,
+            35.164343,
+            -89.079605,
+            40.64636
+          ]
+        },
+        {
+          "id": "us-south--r3-c4",
+          "asset_name": "occumed-us-south--r3-c4.pmtiles",
+          "extract_bbox": "-89.079605,35.164343,-83.223007,40.64636",
+          "bounds": [
+            -89.079605,
+            35.164343,
+            -83.223007,
+            40.64636
+          ]
+        },
+        {
+          "id": "us-south--r3-c5",
+          "asset_name": "occumed-us-south--r3-c5.pmtiles",
+          "extract_bbox": "-83.223007,35.164343,-77.366408,40.64636",
+          "bounds": [
+            -83.223007,
+            35.164343,
+            -77.366408,
+            40.64636
+          ]
+        },
+        {
+          "id": "us-south--r3-c6",
+          "asset_name": "occumed-us-south--r3-c6.pmtiles",
+          "extract_bbox": "-77.366408,35.164343,-71.50981,40.64636",
+          "bounds": [
+            -77.366408,
+            35.164343,
+            -71.50981,
+            40.64636
+          ]
+        }
+      ]
+    },
+    {
+      "source_region_id": "sea",
+      "continent": "asia",
+      "source_size_bytes": 3634443322,
+      "child_count": 15,
+      "children": [
+        {
+          "id": "sea--r1-c1",
+          "asset_name": "occumed-sea--r1-c1.pmtiles",
+          "extract_bbox": "90.65133,-11.60655,100.725404,1.78722",
+          "bounds": [
+            90.65133,
+            -11.60655,
+            100.725404,
+            1.78722
+          ]
+        },
+        {
+          "id": "sea--r1-c2",
+          "asset_name": "occumed-sea--r1-c2.pmtiles",
+          "extract_bbox": "100.725404,-11.60655,110.799478,1.78722",
+          "bounds": [
+            100.725404,
+            -11.60655,
+            110.799478,
+            1.78722
+          ]
+        },
+        {
+          "id": "sea--r1-c3",
+          "asset_name": "occumed-sea--r1-c3.pmtiles",
+          "extract_bbox": "110.799478,-11.60655,120.873552,1.78722",
+          "bounds": [
+            110.799478,
+            -11.60655,
+            120.873552,
+            1.78722
+          ]
+        },
+        {
+          "id": "sea--r1-c4",
+          "asset_name": "occumed-sea--r1-c4.pmtiles",
+          "extract_bbox": "120.873552,-11.60655,130.947626,1.78722",
+          "bounds": [
+            120.873552,
+            -11.60655,
+            130.947626,
+            1.78722
+          ]
+        },
+        {
+          "id": "sea--r1-c5",
+          "asset_name": "occumed-sea--r1-c5.pmtiles",
+          "extract_bbox": "130.947626,-11.60655,141.0217,1.78722",
+          "bounds": [
+            130.947626,
+            -11.60655,
+            141.0217,
+            1.78722
+          ]
+        },
+        {
+          "id": "sea--r2-c1",
+          "asset_name": "occumed-sea--r2-c1.pmtiles",
+          "extract_bbox": "90.65133,1.78722,100.725404,15.18099",
+          "bounds": [
+            90.65133,
+            1.78722,
+            100.725404,
+            15.18099
+          ]
+        },
+        {
+          "id": "sea--r2-c2",
+          "asset_name": "occumed-sea--r2-c2.pmtiles",
+          "extract_bbox": "100.725404,1.78722,110.799478,15.18099",
+          "bounds": [
+            100.725404,
+            1.78722,
+            110.799478,
+            15.18099
+          ]
+        },
+        {
+          "id": "sea--r2-c3",
+          "asset_name": "occumed-sea--r2-c3.pmtiles",
+          "extract_bbox": "110.799478,1.78722,120.873552,15.18099",
+          "bounds": [
+            110.799478,
+            1.78722,
+            120.873552,
+            15.18099
+          ]
+        },
+        {
+          "id": "sea--r2-c4",
+          "asset_name": "occumed-sea--r2-c4.pmtiles",
+          "extract_bbox": "120.873552,1.78722,130.947626,15.18099",
+          "bounds": [
+            120.873552,
+            1.78722,
+            130.947626,
+            15.18099
+          ]
+        },
+        {
+          "id": "sea--r2-c5",
+          "asset_name": "occumed-sea--r2-c5.pmtiles",
+          "extract_bbox": "130.947626,1.78722,141.0217,15.18099",
+          "bounds": [
+            130.947626,
+            1.78722,
+            141.0217,
+            15.18099
+          ]
+        },
+        {
+          "id": "sea--r3-c1",
+          "asset_name": "occumed-sea--r3-c1.pmtiles",
+          "extract_bbox": "90.65133,15.18099,100.725404,28.57476",
+          "bounds": [
+            90.65133,
+            15.18099,
+            100.725404,
+            28.57476
+          ]
+        },
+        {
+          "id": "sea--r3-c2",
+          "asset_name": "occumed-sea--r3-c2.pmtiles",
+          "extract_bbox": "100.725404,15.18099,110.799478,28.57476",
+          "bounds": [
+            100.725404,
+            15.18099,
+            110.799478,
+            28.57476
+          ]
+        },
+        {
+          "id": "sea--r3-c3",
+          "asset_name": "occumed-sea--r3-c3.pmtiles",
+          "extract_bbox": "110.799478,15.18099,120.873552,28.57476",
+          "bounds": [
+            110.799478,
+            15.18099,
+            120.873552,
+            28.57476
+          ]
+        },
+        {
+          "id": "sea--r3-c4",
+          "asset_name": "occumed-sea--r3-c4.pmtiles",
+          "extract_bbox": "120.873552,15.18099,130.947626,28.57476",
+          "bounds": [
+            120.873552,
+            15.18099,
+            130.947626,
+            28.57476
+          ]
+        },
+        {
+          "id": "sea--r3-c5",
+          "asset_name": "occumed-sea--r3-c5.pmtiles",
+          "extract_bbox": "130.947626,15.18099,141.0217,28.57476",
+          "bounds": [
+            130.947626,
+            15.18099,
+            141.0217,
+            28.57476
+          ]
+        }
+      ]
+    },
+    {
+      "source_region_id": "us-west",
+      "continent": "north-america",
+      "source_size_bytes": 3374891428,
+      "child_count": 12,
+      "children": [
+        {
+          "id": "us-west--r1-c1",
+          "asset_name": "occumed-us-west--r1-c1.pmtiles",
+          "extract_bbox": "-133.0637,31.32659,-125.30665,37.369743",
+          "bounds": [
+            -133.0637,
+            31.32659,
+            -125.30665,
+            37.369743
+          ]
+        },
+        {
+          "id": "us-west--r1-c2",
+          "asset_name": "occumed-us-west--r1-c2.pmtiles",
+          "extract_bbox": "-125.30665,31.32659,-117.5496,37.369743",
+          "bounds": [
+            -125.30665,
+            31.32659,
+            -117.5496,
+            37.369743
+          ]
+        },
+        {
+          "id": "us-west--r1-c3",
+          "asset_name": "occumed-us-west--r1-c3.pmtiles",
+          "extract_bbox": "-117.5496,31.32659,-109.79255,37.369743",
+          "bounds": [
+            -117.5496,
+            31.32659,
+            -109.79255,
+            37.369743
+          ]
+        },
+        {
+          "id": "us-west--r1-c4",
+          "asset_name": "occumed-us-west--r1-c4.pmtiles",
+          "extract_bbox": "-109.79255,31.32659,-102.0355,37.369743",
+          "bounds": [
+            -109.79255,
+            31.32659,
+            -102.0355,
+            37.369743
+          ]
+        },
+        {
+          "id": "us-west--r2-c1",
+          "asset_name": "occumed-us-west--r2-c1.pmtiles",
+          "extract_bbox": "-133.0637,37.369743,-125.30665,43.412897",
+          "bounds": [
+            -133.0637,
+            37.369743,
+            -125.30665,
+            43.412897
+          ]
+        },
+        {
+          "id": "us-west--r2-c2",
+          "asset_name": "occumed-us-west--r2-c2.pmtiles",
+          "extract_bbox": "-125.30665,37.369743,-117.5496,43.412897",
+          "bounds": [
+            -125.30665,
+            37.369743,
+            -117.5496,
+            43.412897
+          ]
+        },
+        {
+          "id": "us-west--r2-c3",
+          "asset_name": "occumed-us-west--r2-c3.pmtiles",
+          "extract_bbox": "-117.5496,37.369743,-109.79255,43.412897",
+          "bounds": [
+            -117.5496,
+            37.369743,
+            -109.79255,
+            43.412897
+          ]
+        },
+        {
+          "id": "us-west--r2-c4",
+          "asset_name": "occumed-us-west--r2-c4.pmtiles",
+          "extract_bbox": "-109.79255,37.369743,-102.0355,43.412897",
+          "bounds": [
+            -109.79255,
+            37.369743,
+            -102.0355,
+            43.412897
+          ]
+        },
+        {
+          "id": "us-west--r3-c1",
+          "asset_name": "occumed-us-west--r3-c1.pmtiles",
+          "extract_bbox": "-133.0637,43.412897,-125.30665,49.45605",
+          "bounds": [
+            -133.0637,
+            43.412897,
+            -125.30665,
+            49.45605
+          ]
+        },
+        {
+          "id": "us-west--r3-c2",
+          "asset_name": "occumed-us-west--r3-c2.pmtiles",
+          "extract_bbox": "-125.30665,43.412897,-117.5496,49.45605",
+          "bounds": [
+            -125.30665,
+            43.412897,
+            -117.5496,
+            49.45605
+          ]
+        },
+        {
+          "id": "us-west--r3-c3",
+          "asset_name": "occumed-us-west--r3-c3.pmtiles",
+          "extract_bbox": "-117.5496,43.412897,-109.79255,49.45605",
+          "bounds": [
+            -117.5496,
+            43.412897,
+            -109.79255,
+            49.45605
+          ]
+        },
+        {
+          "id": "us-west--r3-c4",
+          "asset_name": "occumed-us-west--r3-c4.pmtiles",
+          "extract_bbox": "-109.79255,43.412897,-102.0355,49.45605",
+          "bounds": [
+            -109.79255,
+            43.412897,
+            -102.0355,
+            49.45605
+          ]
+        }
+      ]
+    },
+    {
+      "source_region_id": "britain-and-ireland",
+      "continent": "europe",
+      "source_size_bytes": 2582404522,
+      "child_count": 9,
+      "children": [
+        {
+          "id": "britain-and-ireland--r1-c1",
+          "asset_name": "occumed-britain-and-ireland--r1-c1.pmtiles",
+          "extract_bbox": "-15.05625,49,-8.885909,53.045213",
+          "bounds": [
+            -15.05625,
+            49,
+            -8.885909,
+            53.045213
+          ]
+        },
+        {
+          "id": "britain-and-ireland--r1-c2",
+          "asset_name": "occumed-britain-and-ireland--r1-c2.pmtiles",
+          "extract_bbox": "-8.885909,49,-2.715567,53.045213",
+          "bounds": [
+            -8.885909,
+            49,
+            -2.715567,
+            53.045213
+          ]
+        },
+        {
+          "id": "britain-and-ireland--r1-c3",
+          "asset_name": "occumed-britain-and-ireland--r1-c3.pmtiles",
+          "extract_bbox": "-2.715567,49,3.454774,53.045213",
+          "bounds": [
+            -2.715567,
+            49,
+            3.454774,
+            53.045213
+          ]
+        },
+        {
+          "id": "britain-and-ireland--r2-c1",
+          "asset_name": "occumed-britain-and-ireland--r2-c1.pmtiles",
+          "extract_bbox": "-15.05625,53.045213,-8.885909,57.090427",
+          "bounds": [
+            -15.05625,
+            53.045213,
+            -8.885909,
+            57.090427
+          ]
+        },
+        {
+          "id": "britain-and-ireland--r2-c2",
+          "asset_name": "occumed-britain-and-ireland--r2-c2.pmtiles",
+          "extract_bbox": "-8.885909,53.045213,-2.715567,57.090427",
+          "bounds": [
+            -8.885909,
+            53.045213,
+            -2.715567,
+            57.090427
+          ]
+        },
+        {
+          "id": "britain-and-ireland--r2-c3",
+          "asset_name": "occumed-britain-and-ireland--r2-c3.pmtiles",
+          "extract_bbox": "-2.715567,53.045213,3.454774,57.090427",
+          "bounds": [
+            -2.715567,
+            53.045213,
+            3.454774,
+            57.090427
+          ]
+        },
+        {
+          "id": "britain-and-ireland--r3-c1",
+          "asset_name": "occumed-britain-and-ireland--r3-c1.pmtiles",
+          "extract_bbox": "-15.05625,57.090427,-8.885909,61.13564",
+          "bounds": [
+            -15.05625,
+            57.090427,
+            -8.885909,
+            61.13564
+          ]
+        },
+        {
+          "id": "britain-and-ireland--r3-c2",
+          "asset_name": "occumed-britain-and-ireland--r3-c2.pmtiles",
+          "extract_bbox": "-8.885909,57.090427,-2.715567,61.13564",
+          "bounds": [
+            -8.885909,
+            57.090427,
+            -2.715567,
+            61.13564
+          ]
+        },
+        {
+          "id": "britain-and-ireland--r3-c3",
+          "asset_name": "occumed-britain-and-ireland--r3-c3.pmtiles",
+          "extract_bbox": "-2.715567,57.090427,3.454774,61.13564",
+          "bounds": [
+            -2.715567,
+            57.090427,
+            3.454774,
+            61.13564
+          ]
+        }
+      ]
+    },
+    {
+      "source_region_id": "us-midwest",
+      "continent": "north-america",
+      "source_size_bytes": 2474364429,
+      "child_count": 12,
+      "children": [
+        {
+          "id": "us-midwest--r1-c1",
+          "asset_name": "occumed-us-midwest--r1-c1.pmtiles",
+          "extract_bbox": "-104.0588,35.98507,-98.170403,40.459093",
+          "bounds": [
+            -104.0588,
+            35.98507,
+            -98.170403,
+            40.459093
+          ]
+        },
+        {
+          "id": "us-midwest--r1-c2",
+          "asset_name": "occumed-us-midwest--r1-c2.pmtiles",
+          "extract_bbox": "-98.170403,35.98507,-92.282005,40.459093",
+          "bounds": [
+            -98.170403,
+            35.98507,
+            -92.282005,
+            40.459093
+          ]
+        },
+        {
+          "id": "us-midwest--r1-c3",
+          "asset_name": "occumed-us-midwest--r1-c3.pmtiles",
+          "extract_bbox": "-92.282005,35.98507,-86.393608,40.459093",
+          "bounds": [
+            -92.282005,
+            35.98507,
+            -86.393608,
+            40.459093
+          ]
+        },
+        {
+          "id": "us-midwest--r1-c4",
+          "asset_name": "occumed-us-midwest--r1-c4.pmtiles",
+          "extract_bbox": "-86.393608,35.98507,-80.50521,40.459093",
+          "bounds": [
+            -86.393608,
+            35.98507,
+            -80.50521,
+            40.459093
+          ]
+        },
+        {
+          "id": "us-midwest--r2-c1",
+          "asset_name": "occumed-us-midwest--r2-c1.pmtiles",
+          "extract_bbox": "-104.0588,40.459093,-98.170403,44.933117",
+          "bounds": [
+            -104.0588,
+            40.459093,
+            -98.170403,
+            44.933117
+          ]
+        },
+        {
+          "id": "us-midwest--r2-c2",
+          "asset_name": "occumed-us-midwest--r2-c2.pmtiles",
+          "extract_bbox": "-98.170403,40.459093,-92.282005,44.933117",
+          "bounds": [
+            -98.170403,
+            40.459093,
+            -92.282005,
+            44.933117
+          ]
+        },
+        {
+          "id": "us-midwest--r2-c3",
+          "asset_name": "occumed-us-midwest--r2-c3.pmtiles",
+          "extract_bbox": "-92.282005,40.459093,-86.393608,44.933117",
+          "bounds": [
+            -92.282005,
+            40.459093,
+            -86.393608,
+            44.933117
+          ]
+        },
+        {
+          "id": "us-midwest--r2-c4",
+          "asset_name": "occumed-us-midwest--r2-c4.pmtiles",
+          "extract_bbox": "-86.393608,40.459093,-80.50521,44.933117",
+          "bounds": [
+            -86.393608,
+            40.459093,
+            -80.50521,
+            44.933117
+          ]
+        },
+        {
+          "id": "us-midwest--r3-c1",
+          "asset_name": "occumed-us-midwest--r3-c1.pmtiles",
+          "extract_bbox": "-104.0588,44.933117,-98.170403,49.40714",
+          "bounds": [
+            -104.0588,
+            44.933117,
+            -98.170403,
+            49.40714
+          ]
+        },
+        {
+          "id": "us-midwest--r3-c2",
+          "asset_name": "occumed-us-midwest--r3-c2.pmtiles",
+          "extract_bbox": "-98.170403,44.933117,-92.282005,49.40714",
+          "bounds": [
+            -98.170403,
+            44.933117,
+            -92.282005,
+            49.40714
+          ]
+        },
+        {
+          "id": "us-midwest--r3-c3",
+          "asset_name": "occumed-us-midwest--r3-c3.pmtiles",
+          "extract_bbox": "-92.282005,44.933117,-86.393608,49.40714",
+          "bounds": [
+            -92.282005,
+            44.933117,
+            -86.393608,
+            49.40714
+          ]
+        },
+        {
+          "id": "us-midwest--r3-c4",
+          "asset_name": "occumed-us-midwest--r3-c4.pmtiles",
+          "extract_bbox": "-86.393608,44.933117,-80.50521,49.40714",
+          "bounds": [
+            -86.393608,
+            44.933117,
+            -80.50521,
+            49.40714
+          ]
+        }
+      ]
+    },
+    {
+      "source_region_id": "alps",
+      "continent": "europe",
+      "source_size_bytes": 2301582947,
+      "child_count": 8,
+      "children": [
+        {
+          "id": "alps--r1-c1",
+          "asset_name": "occumed-alps--r1-c1.pmtiles",
+          "extract_bbox": "4.842221,42.69859,7.822263,45.549765",
+          "bounds": [
+            4.842221,
+            42.69859,
+            7.822263,
+            45.549765
+          ]
+        },
+        {
+          "id": "alps--r1-c2",
+          "asset_name": "occumed-alps--r1-c2.pmtiles",
+          "extract_bbox": "7.822263,42.69859,10.802305,45.549765",
+          "bounds": [
+            7.822263,
+            42.69859,
+            10.802305,
+            45.549765
+          ]
+        },
+        {
+          "id": "alps--r1-c3",
+          "asset_name": "occumed-alps--r1-c3.pmtiles",
+          "extract_bbox": "10.802305,42.69859,13.782348,45.549765",
+          "bounds": [
+            10.802305,
+            42.69859,
+            13.782348,
+            45.549765
+          ]
+        },
+        {
+          "id": "alps--r1-c4",
+          "asset_name": "occumed-alps--r1-c4.pmtiles",
+          "extract_bbox": "13.782348,42.69859,16.76239,45.549765",
+          "bounds": [
+            13.782348,
+            42.69859,
+            16.76239,
+            45.549765
+          ]
+        },
+        {
+          "id": "alps--r2-c1",
+          "asset_name": "occumed-alps--r2-c1.pmtiles",
+          "extract_bbox": "4.842221,45.549765,7.822263,48.40094",
+          "bounds": [
+            4.842221,
+            45.549765,
+            7.822263,
+            48.40094
+          ]
+        },
+        {
+          "id": "alps--r2-c2",
+          "asset_name": "occumed-alps--r2-c2.pmtiles",
+          "extract_bbox": "7.822263,45.549765,10.802305,48.40094",
+          "bounds": [
+            7.822263,
+            45.549765,
+            10.802305,
+            48.40094
+          ]
+        },
+        {
+          "id": "alps--r2-c3",
+          "asset_name": "occumed-alps--r2-c3.pmtiles",
+          "extract_bbox": "10.802305,45.549765,13.782348,48.40094",
+          "bounds": [
+            10.802305,
+            45.549765,
+            13.782348,
+            48.40094
+          ]
+        },
+        {
+          "id": "alps--r2-c4",
+          "asset_name": "occumed-alps--r2-c4.pmtiles",
+          "extract_bbox": "13.782348,45.549765,16.76239,48.40094",
+          "bounds": [
+            13.782348,
+            45.549765,
+            16.76239,
+            48.40094
+          ]
+        }
+      ]
+    },
+    {
+      "source_region_id": "great-britain",
+      "continent": "europe",
+      "source_size_bytes": 2152354131,
+      "child_count": 9,
+      "children": [
+        {
+          "id": "great-britain--r1-c1",
+          "asset_name": "occumed-great-britain--r1-c1.pmtiles",
+          "extract_bbox": "-14.9907,49.523,-9.155909,53.39388",
+          "bounds": [
+            -14.9907,
+            49.523,
+            -9.155909,
+            53.39388
+          ]
+        },
+        {
+          "id": "great-britain--r1-c2",
+          "asset_name": "occumed-great-britain--r1-c2.pmtiles",
+          "extract_bbox": "-9.155909,49.523,-3.321119,53.39388",
+          "bounds": [
+            -9.155909,
+            49.523,
+            -3.321119,
+            53.39388
+          ]
+        },
+        {
+          "id": "great-britain--r1-c3",
+          "asset_name": "occumed-great-britain--r1-c3.pmtiles",
+          "extract_bbox": "-3.321119,49.523,2.513672,53.39388",
+          "bounds": [
+            -3.321119,
+            49.523,
+            2.513672,
+            53.39388
+          ]
+        },
+        {
+          "id": "great-britain--r2-c1",
+          "asset_name": "occumed-great-britain--r2-c1.pmtiles",
+          "extract_bbox": "-14.9907,53.39388,-9.155909,57.26476",
+          "bounds": [
+            -14.9907,
+            53.39388,
+            -9.155909,
+            57.26476
+          ]
+        },
+        {
+          "id": "great-britain--r2-c2",
+          "asset_name": "occumed-great-britain--r2-c2.pmtiles",
+          "extract_bbox": "-9.155909,53.39388,-3.321119,57.26476",
+          "bounds": [
+            -9.155909,
+            53.39388,
+            -3.321119,
+            57.26476
+          ]
+        },
+        {
+          "id": "great-britain--r2-c3",
+          "asset_name": "occumed-great-britain--r2-c3.pmtiles",
+          "extract_bbox": "-3.321119,53.39388,2.513672,57.26476",
+          "bounds": [
+            -3.321119,
+            53.39388,
+            2.513672,
+            57.26476
+          ]
+        },
+        {
+          "id": "great-britain--r3-c1",
+          "asset_name": "occumed-great-britain--r3-c1.pmtiles",
+          "extract_bbox": "-14.9907,57.26476,-9.155909,61.13564",
+          "bounds": [
+            -14.9907,
+            57.26476,
+            -9.155909,
+            61.13564
+          ]
+        },
+        {
+          "id": "great-britain--r3-c2",
+          "asset_name": "occumed-great-britain--r3-c2.pmtiles",
+          "extract_bbox": "-9.155909,57.26476,-3.321119,61.13564",
+          "bounds": [
+            -9.155909,
+            57.26476,
+            -3.321119,
+            61.13564
+          ]
+        },
+        {
+          "id": "great-britain--r3-c3",
+          "asset_name": "occumed-great-britain--r3-c3.pmtiles",
+          "extract_bbox": "-3.321119,57.26476,2.513672,61.13564",
+          "bounds": [
+            -3.321119,
+            57.26476,
+            2.513672,
+            61.13564
+          ]
+        }
+      ]
+    },
+    {
+      "source_region_id": "us-northeast",
+      "continent": "north-america",
+      "source_size_bytes": 1787334438,
+      "child_count": 6,
+      "children": [
+        {
+          "id": "us-northeast--r1-c1",
+          "asset_name": "occumed-us-northeast--r1-c1.pmtiles",
+          "extract_bbox": "-80.52275,38.74287,-75.97238,43.102545",
+          "bounds": [
+            -80.52275,
+            38.74287,
+            -75.97238,
+            43.102545
+          ]
+        },
+        {
+          "id": "us-northeast--r1-c2",
+          "asset_name": "occumed-us-northeast--r1-c2.pmtiles",
+          "extract_bbox": "-75.97238,38.74287,-71.42201,43.102545",
+          "bounds": [
+            -75.97238,
+            38.74287,
+            -71.42201,
+            43.102545
+          ]
+        },
+        {
+          "id": "us-northeast--r1-c3",
+          "asset_name": "occumed-us-northeast--r1-c3.pmtiles",
+          "extract_bbox": "-71.42201,38.74287,-66.87164,43.102545",
+          "bounds": [
+            -71.42201,
+            38.74287,
+            -66.87164,
+            43.102545
+          ]
+        },
+        {
+          "id": "us-northeast--r2-c1",
+          "asset_name": "occumed-us-northeast--r2-c1.pmtiles",
+          "extract_bbox": "-80.52275,43.102545,-75.97238,47.46222",
+          "bounds": [
+            -80.52275,
+            43.102545,
+            -75.97238,
+            47.46222
+          ]
+        },
+        {
+          "id": "us-northeast--r2-c2",
+          "asset_name": "occumed-us-northeast--r2-c2.pmtiles",
+          "extract_bbox": "-75.97238,43.102545,-71.42201,47.46222",
+          "bounds": [
+            -75.97238,
+            43.102545,
+            -71.42201,
+            47.46222
+          ]
+        },
+        {
+          "id": "us-northeast--r2-c3",
+          "asset_name": "occumed-us-northeast--r2-c3.pmtiles",
+          "extract_bbox": "-71.42201,43.102545,-66.87164,47.46222",
+          "bounds": [
+            -71.42201,
+            43.102545,
+            -66.87164,
+            47.46222
+          ]
+        }
+      ]
+    },
+    {
+      "source_region_id": "quebec",
+      "continent": "north-america",
+      "source_size_bytes": 1157949394,
+      "child_count": 4,
+      "children": [
+        {
+          "id": "quebec--r1-c1",
+          "asset_name": "occumed-quebec--r1-c1.pmtiles",
+          "extract_bbox": "-79.8404,44.98552,-68.46474,53.80586",
+          "bounds": [
+            -79.8404,
+            44.98552,
+            -68.46474,
+            53.80586
+          ]
+        },
+        {
+          "id": "quebec--r1-c2",
+          "asset_name": "occumed-quebec--r1-c2.pmtiles",
+          "extract_bbox": "-68.46474,44.98552,-57.08908,53.80586",
+          "bounds": [
+            -68.46474,
+            44.98552,
+            -57.08908,
+            53.80586
+          ]
+        },
+        {
+          "id": "quebec--r2-c1",
+          "asset_name": "occumed-quebec--r2-c1.pmtiles",
+          "extract_bbox": "-79.8404,53.80586,-68.46474,62.6262",
+          "bounds": [
+            -79.8404,
+            53.80586,
+            -68.46474,
+            62.6262
+          ]
+        },
+        {
+          "id": "quebec--r2-c2",
+          "asset_name": "occumed-quebec--r2-c2.pmtiles",
+          "extract_bbox": "-68.46474,53.80586,-57.08908,62.6262",
+          "bounds": [
+            -68.46474,
+            53.80586,
+            -57.08908,
+            62.6262
+          ]
+        }
+      ]
+    },
+    {
+      "source_region_id": "ontario",
+      "continent": "north-america",
+      "source_size_bytes": 966741555,
+      "child_count": 4,
+      "children": [
+        {
+          "id": "ontario--r1-c1",
+          "asset_name": "occumed-ontario--r1-c1.pmtiles",
+          "extract_bbox": "-95.15965,41.66009,-84.734815,49.584175",
+          "bounds": [
+            -95.15965,
+            41.66009,
+            -84.734815,
+            49.584175
+          ]
+        },
+        {
+          "id": "ontario--r1-c2",
+          "asset_name": "occumed-ontario--r1-c2.pmtiles",
+          "extract_bbox": "-84.734815,41.66009,-74.30998,49.584175",
+          "bounds": [
+            -84.734815,
+            41.66009,
+            -74.30998,
+            49.584175
+          ]
+        },
+        {
+          "id": "ontario--r2-c1",
+          "asset_name": "occumed-ontario--r2-c1.pmtiles",
+          "extract_bbox": "-95.15965,49.584175,-84.734815,57.50826",
+          "bounds": [
+            -95.15965,
+            49.584175,
+            -84.734815,
+            57.50826
+          ]
+        },
+        {
+          "id": "ontario--r2-c2",
+          "asset_name": "occumed-ontario--r2-c2.pmtiles",
+          "extract_bbox": "-84.734815,49.584175,-74.30998,57.50826",
+          "bounds": [
+            -84.734815,
+            49.584175,
+            -74.30998,
+            57.50826
+          ]
+        }
+      ]
+    },
+    {
+      "source_region_id": "java",
+      "continent": "asia",
+      "source_size_bytes": 894918961,
+      "child_count": 6,
+      "children": [
+        {
+          "id": "java--r1-c1",
+          "asset_name": "occumed-java--r1-c1.pmtiles",
+          "extract_bbox": "104.1394,-9.541155,108.286733,-6.746545",
+          "bounds": [
+            104.1394,
+            -9.541155,
+            108.286733,
+            -6.746545
+          ]
+        },
+        {
+          "id": "java--r1-c2",
+          "asset_name": "occumed-java--r1-c2.pmtiles",
+          "extract_bbox": "108.286733,-9.541155,112.434067,-6.746545",
+          "bounds": [
+            108.286733,
+            -9.541155,
+            112.434067,
+            -6.746545
+          ]
+        },
+        {
+          "id": "java--r1-c3",
+          "asset_name": "occumed-java--r1-c3.pmtiles",
+          "extract_bbox": "112.434067,-9.541155,116.5814,-6.746545",
+          "bounds": [
+            112.434067,
+            -9.541155,
+            116.5814,
+            -6.746545
+          ]
+        },
+        {
+          "id": "java--r2-c1",
+          "asset_name": "occumed-java--r2-c1.pmtiles",
+          "extract_bbox": "104.1394,-6.746545,108.286733,-3.951935",
+          "bounds": [
+            104.1394,
+            -6.746545,
+            108.286733,
+            -3.951935
+          ]
+        },
+        {
+          "id": "java--r2-c2",
+          "asset_name": "occumed-java--r2-c2.pmtiles",
+          "extract_bbox": "108.286733,-6.746545,112.434067,-3.951935",
+          "bounds": [
+            108.286733,
+            -6.746545,
+            112.434067,
+            -3.951935
+          ]
+        },
+        {
+          "id": "java--r2-c3",
+          "asset_name": "occumed-java--r2-c3.pmtiles",
+          "extract_bbox": "112.434067,-6.746545,116.5814,-3.951935",
+          "bounds": [
+            112.434067,
+            -6.746545,
+            116.5814,
+            -3.951935
+          ]
+        }
+      ]
+    },
+    {
+      "source_region_id": "ukraine",
+      "continent": "europe",
+      "source_size_bytes": 870676344,
+      "child_count": 6,
+      "children": [
+        {
+          "id": "ukraine--r1-c1",
+          "asset_name": "occumed-ukraine--r1-c1.pmtiles",
+          "extract_bbox": "22.13264,44.00862,28.167797,48.19756",
+          "bounds": [
+            22.13264,
+            44.00862,
+            28.167797,
+            48.19756
+          ]
+        },
+        {
+          "id": "ukraine--r1-c2",
+          "asset_name": "occumed-ukraine--r1-c2.pmtiles",
+          "extract_bbox": "28.167797,44.00862,34.202953,48.19756",
+          "bounds": [
+            28.167797,
+            44.00862,
+            34.202953,
+            48.19756
+          ]
+        },
+        {
+          "id": "ukraine--r1-c3",
+          "asset_name": "occumed-ukraine--r1-c3.pmtiles",
+          "extract_bbox": "34.202953,44.00862,40.23811,48.19756",
+          "bounds": [
+            34.202953,
+            44.00862,
+            40.23811,
+            48.19756
+          ]
+        },
+        {
+          "id": "ukraine--r2-c1",
+          "asset_name": "occumed-ukraine--r2-c1.pmtiles",
+          "extract_bbox": "22.13264,48.19756,28.167797,52.3865",
+          "bounds": [
+            22.13264,
+            48.19756,
+            28.167797,
+            52.3865
+          ]
+        },
+        {
+          "id": "ukraine--r2-c2",
+          "asset_name": "occumed-ukraine--r2-c2.pmtiles",
+          "extract_bbox": "28.167797,48.19756,34.202953,52.3865",
+          "bounds": [
+            28.167797,
+            48.19756,
+            34.202953,
+            52.3865
+          ]
+        },
+        {
+          "id": "ukraine--r2-c3",
+          "asset_name": "occumed-ukraine--r2-c3.pmtiles",
+          "extract_bbox": "34.202953,48.19756,40.23811,52.3865",
+          "bounds": [
+            34.202953,
+            48.19756,
+            40.23811,
+            52.3865
+          ]
+        }
+      ]
+    },
+    {
+      "source_region_id": "central-fed-district",
+      "continent": "central-fed-district",
+      "source_size_bytes": 870533571,
+      "child_count": 4,
+      "children": [
+        {
+          "id": "central-fed-district--r1-c1",
+          "asset_name": "occumed-central-fed-district--r1-c1.pmtiles",
+          "extract_bbox": "30.69976,49.50446,39.184995,54.57888",
+          "bounds": [
+            30.69976,
+            49.50446,
+            39.184995,
+            54.57888
+          ]
+        },
+        {
+          "id": "central-fed-district--r1-c2",
+          "asset_name": "occumed-central-fed-district--r1-c2.pmtiles",
+          "extract_bbox": "39.184995,49.50446,47.67023,54.57888",
+          "bounds": [
+            39.184995,
+            49.50446,
+            47.67023,
+            54.57888
+          ]
+        },
+        {
+          "id": "central-fed-district--r2-c1",
+          "asset_name": "occumed-central-fed-district--r2-c1.pmtiles",
+          "extract_bbox": "30.69976,54.57888,39.184995,59.6533",
+          "bounds": [
+            30.69976,
+            54.57888,
+            39.184995,
+            59.6533
+          ]
+        },
+        {
+          "id": "central-fed-district--r2-c2",
+          "asset_name": "occumed-central-fed-district--r2-c2.pmtiles",
+          "extract_bbox": "39.184995,54.57888,47.67023,59.6533",
+          "bounds": [
+            39.184995,
+            54.57888,
+            47.67023,
+            59.6533
+          ]
+        }
+      ]
+    },
+    {
+      "source_region_id": "sudeste",
+      "continent": "south-america",
+      "source_size_bytes": 853018598,
+      "child_count": 6,
+      "children": [
+        {
+          "id": "sudeste--r1-c1",
+          "asset_name": "occumed-sudeste--r1-c1.pmtiles",
+          "extract_bbox": "-53.1189,-25.4993,-44.809917,-19.861875",
+          "bounds": [
+            -53.1189,
+            -25.4993,
+            -44.809917,
+            -19.861875
+          ]
+        },
+        {
+          "id": "sudeste--r1-c2",
+          "asset_name": "occumed-sudeste--r1-c2.pmtiles",
+          "extract_bbox": "-44.809917,-25.4993,-36.500933,-19.861875",
+          "bounds": [
+            -44.809917,
+            -25.4993,
+            -36.500933,
+            -19.861875
+          ]
+        },
+        {
+          "id": "sudeste--r1-c3",
+          "asset_name": "occumed-sudeste--r1-c3.pmtiles",
+          "extract_bbox": "-36.500933,-25.4993,-28.19195,-19.861875",
+          "bounds": [
+            -36.500933,
+            -25.4993,
+            -28.19195,
+            -19.861875
+          ]
+        },
+        {
+          "id": "sudeste--r2-c1",
+          "asset_name": "occumed-sudeste--r2-c1.pmtiles",
+          "extract_bbox": "-53.1189,-19.861875,-44.809917,-14.22445",
+          "bounds": [
+            -53.1189,
+            -19.861875,
+            -44.809917,
+            -14.22445
+          ]
+        },
+        {
+          "id": "sudeste--r2-c2",
+          "asset_name": "occumed-sudeste--r2-c2.pmtiles",
+          "extract_bbox": "-44.809917,-19.861875,-36.500933,-14.22445",
+          "bounds": [
+            -44.809917,
+            -19.861875,
+            -36.500933,
+            -14.22445
+          ]
+        },
+        {
+          "id": "sudeste--r2-c3",
+          "asset_name": "occumed-sudeste--r2-c3.pmtiles",
+          "extract_bbox": "-36.500933,-19.861875,-28.19195,-14.22445",
+          "bounds": [
+            -36.500933,
+            -19.861875,
+            -28.19195,
+            -14.22445
+          ]
+        }
+      ]
+    }
+  ]
+}
