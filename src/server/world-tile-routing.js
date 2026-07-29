@@ -1,4 +1,5 @@
 const WEB_MERCATOR_LIMIT = 85.0511287798066;
+const DEFAULT_MAX_CELL_FANOUT = 64;
 
 function clamp(value, minimum, maximum) {
   return Math.min(Math.max(value, minimum), maximum);
@@ -40,12 +41,14 @@ export function normalizeTileCoordinates(zoom, x, y, maximumZoom = 16) {
 }
 
 export function tileBounds(zoom, x, y) {
-  const count = 2 ** zoom;
+  const coordinates = normalizeTileCoordinates(zoom, x, y, 22);
+  if (!coordinates) throw new RangeError('Invalid tile coordinates.');
+  const count = 2 ** coordinates.z;
   return [
-    (x / count) * 360 - 180,
-    tileLatitude(y + 1, zoom),
-    ((x + 1) / count) * 360 - 180,
-    tileLatitude(y, zoom)
+    (coordinates.x / count) * 360 - 180,
+    tileLatitude(coordinates.y + 1, coordinates.z),
+    ((coordinates.x + 1) / count) * 360 - 180,
+    tileLatitude(coordinates.y, coordinates.z)
   ];
 }
 
@@ -79,13 +82,31 @@ function cellKey(x, y) {
   return `${x}/${y}`;
 }
 
+function compareRegions(left, right) {
+  return String(left.asset || left.id).localeCompare(String(right.asset || right.id));
+}
+
 export class WorldTileRoutingIndex {
-  constructor(regions, { routingZoom = 6 } = {}) {
+  constructor(regions, {
+    routingZoom = 6,
+    maxCellFanout = DEFAULT_MAX_CELL_FANOUT
+  } = {}) {
+    if (!Number.isSafeInteger(routingZoom) || routingZoom < 0 || routingZoom > 22) {
+      throw new RangeError('The routing zoom must be a safe integer between 0 and 22.');
+    }
+    if (!Number.isSafeInteger(maxCellFanout) || maxCellFanout < 1 || maxCellFanout > 256) {
+      throw new RangeError('The routing cell fan-out limit must be between 1 and 256.');
+    }
+
     this.routingZoom = routingZoom;
-    this.regions = (regions || []).map((region) => ({
-      ...region,
-      segments: regionSegments(region.bounds)
-    }));
+    this.maxCellFanout = maxCellFanout;
+    this.regions = (regions || []).map((region) => {
+      const segments = regionSegments(region.bounds);
+      if (!segments.length) {
+        throw new Error(`Region ${region.id || region.asset || 'unknown'} has no routable bounds.`);
+      }
+      return { ...region, segments };
+    }).sort(compareRegions);
     this.cells = new Map();
 
     for (const region of this.regions) {
@@ -103,6 +124,12 @@ export class WorldTileRoutingIndex {
             const key = cellKey(x, y);
             const entries = this.cells.get(key) || [];
             if (!entries.includes(region)) entries.push(region);
+            if (entries.length > this.maxCellFanout) {
+              throw new Error(
+                `Routing cell ${key} exceeds the ${this.maxCellFanout}-region fan-out limit.`
+              );
+            }
+            entries.sort(compareRegions);
             this.cells.set(key, entries);
           }
         }
@@ -111,18 +138,20 @@ export class WorldTileRoutingIndex {
   }
 
   regionsForTile(zoom, x, y) {
-    const bounds = tileBounds(zoom, x, y);
+    const coordinates = normalizeTileCoordinates(zoom, x, y, 22);
+    if (!coordinates) return [];
+    const bounds = tileBounds(coordinates.z, coordinates.x, coordinates.y);
     let candidates = this.regions;
 
-    if (zoom >= this.routingZoom) {
-      const divisor = 2 ** (zoom - this.routingZoom);
-      const cellX = Math.floor(x / divisor);
-      const cellY = Math.floor(y / divisor);
+    if (coordinates.z >= this.routingZoom) {
+      const divisor = 2 ** (coordinates.z - this.routingZoom);
+      const cellX = Math.floor(coordinates.x / divisor);
+      const cellY = Math.floor(coordinates.y / divisor);
       candidates = this.cells.get(cellKey(cellX, cellY)) || [];
     }
 
-    return candidates.filter((region) =>
-      region.segments.some((segment) => intersects(segment, bounds))
-    );
+    return candidates
+      .filter((region) => region.segments.some((segment) => intersects(segment, bounds)))
+      .sort(compareRegions);
   }
 }

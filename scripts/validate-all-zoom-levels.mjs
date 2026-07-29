@@ -4,18 +4,17 @@ import { chromium } from 'playwright';
 
 const origin = (process.env.OCCUMED_PREVIEW_ORIGIN || 'http://127.0.0.1:4173').replace(/\/$/, '');
 const outputDir = path.resolve(
-  process.env.OCCUMED_PREVIEW_OUTPUT || 'visual-validation/continuous-motion'
+  process.env.OCCUMED_PREVIEW_OUTPUT || 'visual-validation/all-zoom-levels'
 );
 await fs.mkdir(outputDir, { recursive: true });
 
 const expectedTemplate = `${origin}/tiles/{z}/{x}/{y}.pbf`;
-const reportPath = path.join(outputDir, 'continuous-motion-report.json');
+const reportPath = path.join(outputDir, 'all-zoom-levels-report.json');
 const report = {
   generatedAt: new Date().toISOString(),
   origin,
   expectedTemplate,
-  motions: [],
-  tileRequests: null,
+  sweeps: [],
   pageErrors: [],
   networkFailures: [],
   abortedTileRequests: [],
@@ -54,9 +53,14 @@ async function persistReport() {
   await fs.writeFile(reportPath, `${safeStringify(report)}\n`);
 }
 
-function normalizeMotion(result, definition) {
+function normalizeSweep(result, definition) {
   return {
     name: String(result?.name || definition.name),
+    center: [...definition.center],
+    requestedStartZoom: definition.startZoom,
+    requestedEndZoom: definition.endZoom,
+    actualStartZoom: Number(result?.actualStartZoom),
+    actualEndZoom: Number(result?.actualEndZoom),
     requiredLayers: [...definition.requiredLayers],
     sampleCount: Number(result?.sampleCount || 0),
     sourceChanged: Boolean(result?.sourceChanged),
@@ -65,9 +69,14 @@ function normalizeMotion(result, definition) {
     firstMissingFoundationSamples: Array.isArray(result?.firstMissingFoundationSamples)
       ? result.firstMissingFoundationSamples.map((sample) => structuredClone(sample))
       : [],
-    longestBlankRun: Number(result?.longestBlankRun || 0),
+    minimumZoom: result?.minimumZoom === null || result?.minimumZoom === undefined
+      ? null
+      : Number(result.minimumZoom),
+    maximumZoom: result?.maximumZoom === null || result?.maximumZoom === undefined
+      ? null
+      : Number(result.maximumZoom),
+    maximumZoomGap: Number(result?.maximumZoomGap || 0),
     minimumFeatureCount: Number(result?.minimumFeatureCount || 0),
-    maximumFeatureCount: Number(result?.maximumFeatureCount || 0),
     postMoveendSettleMs: Number(result?.postMoveendSettleMs || 0),
     samples: Array.isArray(result?.samples) ? result.samples : [],
     executionError: null
@@ -83,21 +92,17 @@ try {
     colorScheme: 'dark'
   });
   const page = await context.newPage();
-  const tileStartedAt = new Map();
-  const tileDurations = [];
 
   page.on('pageerror', (error) => report.pageErrors.push(error.message));
   page.on('request', (request) => {
     const url = request.url();
-    if (/\.pbf(?:$|\?)/i.test(url)) {
-      tileStartedAt.set(request, performance.now());
-      if (!url.startsWith(`${origin}/tiles/`)) report.externalVectorRequests.push(url);
+    if (/\.pbf(?:$|\?)/i.test(url) && !url.startsWith(`${origin}/tiles/`)) {
+      report.externalVectorRequests.push(url);
     }
   });
   page.on('requestfailed', (request) => {
     const url = request.url();
     const error = request.failure()?.errorText || 'unknown request failure';
-    tileStartedAt.delete(request);
     if (url.startsWith(`${origin}/tiles/`) && error === 'net::ERR_ABORTED') {
       report.abortedTileRequests.push(url);
       return;
@@ -106,21 +111,8 @@ try {
   });
   page.on('response', (response) => {
     if (response.status() >= 400) {
-      report.networkFailures.push({
-        type: 'http',
-        url: response.url(),
-        status: response.status()
-      });
+      report.networkFailures.push({ type: 'http', url: response.url(), status: response.status() });
     }
-  });
-  page.on('requestfinished', (request) => {
-    const started = tileStartedAt.get(request);
-    if (started === undefined) return;
-    tileDurations.push({
-      url: request.url(),
-      durationMs: performance.now() - started
-    });
-    tileStartedAt.delete(request);
   });
 
   await page.goto(origin, { waitUntil: 'domcontentloaded', timeout: 90_000 });
@@ -136,8 +128,8 @@ try {
     globalThis.__OCCUMED_MAP__.setPixelRatio(1);
   });
 
-  async function waitForStableView(center, zoom, requiredLayers) {
-    await page.evaluate(async ({ center, zoom, requiredLayers }) => {
+  async function positionAndWait(center, zoom, requiredLayers) {
+    return await page.evaluate(async ({ center, zoom, requiredLayers }) => {
       const map = globalThis.__OCCUMED_MAP__;
       map.jumpTo({ center, zoom, pitch: 0, bearing: 0 });
       map.triggerRepaint();
@@ -186,12 +178,7 @@ try {
         }
 
         function onSourceData(event) {
-          if (
-            event.sourceId === 'occumed-open' &&
-            event.sourceDataType === 'idle'
-          ) {
-            check();
-          }
+          if (event.sourceId === 'occumed-open' && event.sourceDataType === 'idle') check();
         }
 
         function cleanup() {
@@ -205,19 +192,22 @@ try {
         map.on('idle', check);
         check();
       });
+
+      return Number(map.getZoom());
     }, { center, zoom, requiredLayers });
   }
 
-  async function runMotion(definition) {
-    const { name, start, end, durationMs, requiredLayers } = definition;
-    await waitForStableView(start.center, start.zoom, requiredLayers);
+  async function runSweep(definition) {
+    const { name, center, startZoom, endZoom, requiredLayers } = definition;
+    const actualStartZoom = await positionAndWait(center, startZoom, requiredLayers);
 
     const raw = await page.evaluate(async ({
       name,
-      end,
-      durationMs,
+      center,
+      endZoom,
       expectedTemplate,
-      requiredLayers
+      requiredLayers,
+      actualStartZoom
     }) => {
       const map = globalThis.__OCCUMED_MAP__;
       const samples = [];
@@ -291,13 +281,12 @@ try {
         const signature = JSON.stringify({ url: source?.url || null, tiles: source?.tiles || [] });
         sourceChanged ||= signature !== expectedSignature;
         const sourceLayers = requiredLayerCounts();
-        const vectorFeatureCount = Object.values(sourceLayers)
+        const renderedFeatureCount = Object.values(sourceLayers)
           .reduce((total, count) => total + count, 0);
         samples.push({
           timestamp,
           zoom: Number(map.getZoom()),
-          center: map.getCenter().toArray().map(Number),
-          vectorFeatureCount,
+          renderedFeatureCount,
           requiredLayerCounts: { ...sourceLayers },
           sourceLayers,
           tilesLoaded: Boolean(map.areTilesLoaded()),
@@ -306,6 +295,7 @@ try {
       };
 
       return await new Promise((resolve, reject) => {
+        const durationMs = 20_000;
         let sampling = false;
         const queueSample = () => {
           if (sampling) return;
@@ -325,7 +315,7 @@ try {
         const timeout = setTimeout(() => {
           stopSampling();
           map.off('moveend', finish);
-          reject(new Error(`${name} motion timed out.`));
+          reject(new Error(`${name} full-range zoom sweep timed out.`));
         }, durationMs + 35_000);
 
         const finish = async () => {
@@ -335,33 +325,30 @@ try {
             await waitForRequiredFoundation();
             clearTimeout(timeout);
             sample();
-            const blankSamples = samples.filter((entry) => entry.vectorFeatureCount === 0);
+            const actualEndZoom = Number(map.getZoom());
+            const zooms = samples.map((entry) => entry.zoom).sort((a, b) => a - b);
+            let maximumZoomGap = 0;
+            for (let index = 1; index < zooms.length; index += 1) {
+              maximumZoomGap = Math.max(maximumZoomGap, zooms[index] - zooms[index - 1]);
+            }
+            const blankSamples = samples.filter((entry) => entry.renderedFeatureCount === 0);
             const missingFoundationSamples = samples.filter((entry) =>
               requiredLayers.some((layer) => (entry.requiredLayerCounts[layer] || 0) <= 0)
             );
-            let longestBlankRun = 0;
-            let currentBlankRun = 0;
-            for (const entry of samples) {
-              if (entry.vectorFeatureCount === 0) {
-                currentBlankRun += 1;
-                longestBlankRun = Math.max(longestBlankRun, currentBlankRun);
-              } else {
-                currentBlankRun = 0;
-              }
-            }
             resolve({
               name,
+              actualStartZoom,
+              actualEndZoom,
               sampleCount: samples.length,
               sourceChanged,
               blankSampleCount: blankSamples.length,
               missingFoundationSampleCount: missingFoundationSamples.length,
               firstMissingFoundationSamples: missingFoundationSamples.slice(0, 20),
-              longestBlankRun,
+              minimumZoom: zooms.length ? Math.min(...zooms) : null,
+              maximumZoom: zooms.length ? Math.max(...zooms) : null,
+              maximumZoomGap,
               minimumFeatureCount: samples.length
-                ? Math.min(...samples.map((entry) => entry.vectorFeatureCount))
-                : 0,
-              maximumFeatureCount: samples.length
-                ? Math.max(...samples.map((entry) => entry.vectorFeatureCount))
+                ? Math.min(...samples.map((entry) => entry.renderedFeatureCount))
                 : 0,
               postMoveendSettleMs: performance.now() - moveendAt,
               samples
@@ -375,8 +362,8 @@ try {
         sample();
         map.once('moveend', finish);
         map.easeTo({
-          center: end.center,
-          zoom: end.zoom,
+          center,
+          zoom: endZoom,
           pitch: 0,
           bearing: 0,
           duration: durationMs,
@@ -384,92 +371,48 @@ try {
           essential: true
         });
       });
-    }, { name, end, durationMs, expectedTemplate, requiredLayers });
+    }, { name, center, endZoom, expectedTemplate, requiredLayers, actualStartZoom });
 
-    const result = normalizeMotion(raw, definition);
+    const result = normalizeSweep(raw, definition);
     await page.screenshot({
       path: path.join(outputDir, `${name}-final.png`),
       fullPage: false
     });
-    report.motions.push(result);
+    report.sweeps.push(result);
     await persistReport();
     return result;
   }
 
   const definitions = [
-    {
-      name: 'world-to-fresno',
-      start: { center: [-98.5, 25], zoom: 2.43 },
-      end: { center: [-119.7871, 36.7378], zoom: 16 },
-      durationMs: 14_000,
-      requiredLayers: ['land', 'landcover']
-    },
-    {
-      name: 'fresno-to-world',
-      start: { center: [-119.7871, 36.7378], zoom: 16 },
-      end: { center: [-98.5, 25], zoom: 1.65 },
-      durationMs: 14_000,
-      requiredLayers: ['land', 'landcover']
-    },
-    {
-      name: 'cross-border-pan',
-      start: { center: [-112.5, 31.8], zoom: 7 },
-      end: { center: [-101.5, 31.8], zoom: 7 },
-      durationMs: 9_000,
-      requiredLayers: ['land', 'landcover']
-    },
-    {
-      name: 'europe-shard-pan',
-      start: { center: [-4, 50], zoom: 6.5 },
-      end: { center: [24, 50], zoom: 6.5 },
-      durationMs: 10_000,
-      requiredLayers: ['land', 'landcover']
-    },
-    {
-      name: 'antimeridian-pan',
-      start: { center: [168, 0], zoom: 6.5 },
-      end: { center: [-168, 0], zoom: 6.5 },
-      durationMs: 10_000,
-      requiredLayers: ['depth']
-    },
-    {
-      name: 'amazon-routing-threshold-in',
-      start: { center: [-60, -8], zoom: 5.7 },
-      end: { center: [-60, -8], zoom: 6.3 },
-      durationMs: 8_000,
-      requiredLayers: ['land', 'landcover']
-    },
-    {
-      name: 'amazon-routing-threshold-out',
-      start: { center: [-60, -8], zoom: 6.3 },
-      end: { center: [-60, -8], zoom: 5.7 },
-      durationMs: 8_000,
-      requiredLayers: ['land', 'landcover']
-    },
-    {
-      name: 'pacific-routing-threshold-in',
-      start: { center: [-140, 0], zoom: 5.7 },
-      end: { center: [-140, 0], zoom: 6.3 },
-      durationMs: 8_000,
-      requiredLayers: ['depth']
-    }
+    { name: 'amazon-all-zooms-in', center: [-60, -8], startZoom: 0, endZoom: 16, requiredLayers: ['land', 'landcover'] },
+    { name: 'amazon-all-zooms-out', center: [-60, -8], startZoom: 16, endZoom: 0, requiredLayers: ['land', 'landcover'] },
+    { name: 'pacific-all-zooms-in', center: [-140, 0], startZoom: 0, endZoom: 16, requiredLayers: ['depth'] },
+    { name: 'pacific-all-zooms-out', center: [-140, 0], startZoom: 16, endZoom: 0, requiredLayers: ['depth'] },
+    { name: 'europe-all-zooms-in', center: [12, 50], startZoom: 0, endZoom: 16, requiredLayers: ['land', 'landcover'] },
+    { name: 'antimeridian-all-zooms-out', center: [179, 0], startZoom: 16, endZoom: 0, requiredLayers: ['depth'] }
   ];
 
   for (const definition of definitions) {
     try {
-      await runMotion(definition);
+      await runSweep(definition);
     } catch (error) {
-      report.motions.push({
+      report.sweeps.push({
         name: definition.name,
+        center: [...definition.center],
+        requestedStartZoom: definition.startZoom,
+        requestedEndZoom: definition.endZoom,
+        actualStartZoom: null,
+        actualEndZoom: null,
         requiredLayers: [...definition.requiredLayers],
         sampleCount: 0,
         sourceChanged: false,
         blankSampleCount: 0,
         missingFoundationSampleCount: 0,
         firstMissingFoundationSamples: [],
-        longestBlankRun: 0,
+        minimumZoom: null,
+        maximumZoom: null,
+        maximumZoomGap: 0,
         minimumFeatureCount: 0,
-        maximumFeatureCount: 0,
         postMoveendSettleMs: 0,
         samples: [],
         executionError: serializeError(error)
@@ -482,43 +425,27 @@ try {
     }
   }
 
-  const sortedDurations = tileDurations
-    .map((entry) => entry.durationMs)
-    .sort((left, right) => left - right);
-  const percentile = (fraction) => sortedDurations.length
-    ? sortedDurations[Math.min(sortedDurations.length - 1, Math.floor(sortedDurations.length * fraction))]
-    : null;
+  const failedSweeps = report.sweeps.filter((sweep) => {
+    if (sweep.executionError || sweep.sourceChanged) return true;
+    if (sweep.blankSampleCount > 0 || sweep.missingFoundationSampleCount > 0) return true;
+    if (sweep.sampleCount < 180 || sweep.maximumZoomGap > 0.3) return true;
+    if (sweep.minimumZoom === null || sweep.maximumZoom === null) return true;
+    const expectedMinimum = Math.min(sweep.actualStartZoom, sweep.actualEndZoom);
+    const expectedMaximum = Math.max(sweep.actualStartZoom, sweep.actualEndZoom);
+    return sweep.minimumZoom > expectedMinimum + 0.1 || sweep.maximumZoom < expectedMaximum - 0.1;
+  });
 
-  report.tileRequests = {
-    count: tileDurations.length,
-    p50Ms: percentile(0.5),
-    p95Ms: percentile(0.95),
-    p99Ms: percentile(0.99),
-    maximumMs: sortedDurations.at(-1) || null,
-    abortedCount: report.abortedTileRequests.length,
-    slowest: [...tileDurations]
-      .sort((left, right) => right.durationMs - left.durationMs)
-      .slice(0, 30)
-  };
-
-  const failedMotions = report.motions.filter((motion) =>
-    motion.executionError ||
-    motion.sourceChanged ||
-    motion.blankSampleCount > 0 ||
-    motion.missingFoundationSampleCount > 0 ||
-    motion.sampleCount < 20
-  );
   report.externalVectorRequests = [...new Set(report.externalVectorRequests)];
   report.passed =
-    failedMotions.length === 0 &&
+    failedSweeps.length === 0 &&
     report.pageErrors.length === 0 &&
     report.networkFailures.length === 0 &&
     report.externalVectorRequests.length === 0;
   await persistReport();
 
   if (!report.passed) {
-    throw new Error(`Continuous motion validation failed: ${safeStringify({
-      failedMotions,
+    throw new Error(`All-zoom validation failed: ${safeStringify({
+      failedSweeps,
       pageErrors: report.pageErrors,
       networkFailures: report.networkFailures,
       abortedTileRequestCount: report.abortedTileRequests.length,
@@ -527,7 +454,7 @@ try {
   }
 
   console.log(
-    `Validated ${definitions.length} continuous motions with 50ms sampling, no blank frames, no missing physical foundation, and ${report.abortedTileRequests.length} expected canceled tile requests; tile p95 ${Math.round(report.tileRequests.p95Ms || 0)}ms.`
+    `Validated ${definitions.length} complete effective-minimum-to-zoom-16 sweeps with 50ms sampling, ${report.sweeps.reduce((sum, sweep) => sum + sweep.sampleCount, 0)} sampled frames, and no missing physical foundation layers.`
   );
 } catch (error) {
   report.fatalError = serializeError(error);

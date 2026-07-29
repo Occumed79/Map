@@ -86,25 +86,27 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Run continuous zoom and pan gate
+      - name: Run every hardened HTTP and browser gate
         run: |
           set -euo pipefail
-          mkdir -p continuous-motion
+          mkdir -p continuous-motion/results continuous-motion/all-zoom-levels
           OCCUMED_WORLD_OVERVIEW_URL="http://127.0.0.1:4173/virtual-assets/${OVERVIEW_ASSET}" \
           OCCUMED_WORLD_SURFACE_URL="http://127.0.0.1:4173/virtual-assets/${SURFACE_ASSET}" \
+          OCCUMED_ENABLE_DIAGNOSTICS="true" \
             node server.mjs > continuous-motion/server.log 2>&1 &
           server_pid="$!"
           cleanup() {
             status="$?"
             if [ "$status" -ne 0 ]; then
-              tail -300 continuous-motion/server.log || true
+              tail -500 continuous-motion/server.log || true
             fi
             kill "$server_pid" 2>/dev/null || true
+            wait "$server_pid" 2>/dev/null || true
             exit "$status"
           }
           trap cleanup EXIT
 
-          for attempt in {1..90}; do
+          for attempt in {1..120}; do
             if curl --fail --silent http://127.0.0.1:4173/healthz > /dev/null; then
               break
             fi
@@ -112,8 +114,46 @@ jobs:
           done
           curl --fail http://127.0.0.1:4173/healthz
 
-          OCCUMED_PREVIEW_OUTPUT=continuous-motion/results \
+          overall_status=0
+          run_gate() {
+            gate_name="$1"
+            shift
+            set +e
+            "$@" 2>&1 | tee "continuous-motion/${gate_name}.log"
+            gate_status="${PIPESTATUS[0]}"
+            set -e
+            printf '%s=%s\n' "$gate_name" "$gate_status" >> continuous-motion/gate-status.txt
+            if [ "$gate_status" -ne 0 ]; then
+              overall_status=1
+            fi
+          }
+
+          run_gate http-hardening \
+            node scripts/check-world-http-hardening.mjs
+
+          run_gate world-soak \
+            env OCCUMED_SOAK_OUTPUT=continuous-motion/world-soak-report.json \
+            node scripts/check-world-soak.mjs
+
+          run_gate continuous-motion \
+            env OCCUMED_PREVIEW_OUTPUT=continuous-motion/results \
             node scripts/validate-continuous-zoom.mjs
+
+          run_gate all-zoom-levels \
+            env OCCUMED_PREVIEW_OUTPUT=continuous-motion/all-zoom-levels \
+            node scripts/validate-all-zoom-levels.mjs
+
+          set +e
+          curl --fail --silent http://127.0.0.1:4173/internal/tile-health \
+            > continuous-motion/tile-health.json
+          health_status="$?"
+          set -e
+          printf 'tile-health=%s\n' "$health_status" >> continuous-motion/gate-status.txt
+          if [ "$health_status" -ne 0 ]; then
+            overall_status=1
+          fi
+
+          exit "$overall_status"
 
       - uses: actions/upload-artifact@v4
         if: always()
@@ -121,7 +161,10 @@ jobs:
           name: continuous-zoom-${{ github.sha }}
           path: |
             continuous-motion/results
-            continuous-motion/server.log
+            continuous-motion/all-zoom-levels
+            continuous-motion/*.log
+            continuous-motion/*.json
+            continuous-motion/gate-status.txt
             dist/virtual-assets/occumed-world-overview.pmtiles
           if-no-files-found: error
           retention-days: 14

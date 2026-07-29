@@ -81,6 +81,9 @@ if ((landcover?.minzoom ?? 99) !== 0) fail('Landcover is unavailable at globe zo
 if (!JSON.stringify(landcover?.paint?.['fill-opacity'] || []).includes('1')) {
   fail('Exported landcover swatches are being weakened at globe and regional zooms.');
 }
+if (Object.hasOwn(landcover || {}, 'maxzoom')) {
+  fail('Landcover has a style-layer maxzoom cutoff instead of remaining continuous.');
+}
 if (layer('continent-label')?.layout?.visibility !== 'none') {
   fail('Multilingual continent aliases are cluttering the globe limb.');
 }
@@ -91,7 +94,13 @@ if (water?.paint?.['fill-opacity'] !== 1) fail('Water is blending into the land 
 
 const waterDepth = layer('water-depth');
 if (waterDepth?.['source-layer'] !== 'depth') fail('The continuous vector bathymetry layer is missing.');
-if (waterDepth?.maxzoom !== 8) fail('Bathymetry does not fade before detailed navigation zooms.');
+if (Object.hasOwn(waterDepth || {}, 'maxzoom')) {
+  fail('Bathymetry has a style-layer maxzoom cutoff instead of remaining subtly visible.');
+}
+const depthOpacity = waterDepth?.paint?.['fill-opacity'];
+if (!Array.isArray(depthOpacity) || depthOpacity[0] !== 'max' || Number(depthOpacity[1]) < 0.06) {
+  fail('Bathymetry can still collapse to zero at detailed navigation zooms.');
+}
 const waterDepthColors = JSON.stringify(waterDepth?.paint?.['fill-color'] || []);
 for (const value of ['#79BCEC59', '#5AACE759', '#3B9DE359']) {
   if (!waterDepthColors.includes(value)) fail(`The exported bathymetry swatch ${value} is missing.`);
@@ -118,6 +127,7 @@ if (runtime.metadata?.['occumed:raster-relief-disabled'] !== true) fail('Raster 
 if (runtime.metadata?.['occumed:reference-atmosphere'] !== true) fail('The reference atmosphere pass did not run.');
 if (runtime.metadata?.['occumed:atmosphere-surface-wash-disabled'] !== true) fail('Atmosphere surface-wash protection is missing.');
 if (runtime.metadata?.['occumed:atmosphere-edge-only'] !== true) fail('The edge-only atmosphere protection is missing.');
+if (runtime.metadata?.['occumed:mapbox-style-contract-applied'] !== true) fail('The documented source/layer rendering contract did not run last.');
 
 if (failures.length) {
   console.error('Occu-Med globe parity validation failed:');
@@ -125,4 +135,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log(`Globe parity validated: dark space, narrow white-blue edge bloom, neutral surface lighting, layered land, clear blue water, and ${allColors.size} structure-specific colors.`);
+console.log(`Globe parity validated: dark space, narrow white-blue edge bloom, neutral surface lighting, continuous landcover and bathymetry, clear blue water, and ${allColors.size} structure-specific colors.`);

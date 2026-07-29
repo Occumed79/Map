@@ -4,7 +4,11 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const runtimePath = path.join(root, 'public/style/occumed-open.json');
-const runtime = JSON.parse(await fs.readFile(runtimePath, 'utf8'));
+const [runtime, mapHelper, appCss] = await Promise.all([
+  fs.readFile(runtimePath, 'utf8').then(JSON.parse),
+  fs.readFile(path.join(root, 'src/occumed-map.js'), 'utf8'),
+  fs.readFile(path.join(root, 'src/styles.css'), 'utf8')
+]);
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -47,13 +51,19 @@ assert(
 );
 assert(
   runtime.sky?.['fog-color'] === 'rgba(184, 230, 255, 0.14)',
-  'The cool-blue outer atmosphere bloom is missing.'
+  'The cool-blue edge atmosphere is missing.'
 );
 assert(runtime.sky?.['fog-ground-blend'] === 0, 'Ground fog must remain disabled.');
-assert(runtime.sky?.['horizon-fog-blend'] === 0.08, 'The narrow edge bloom strength changed.');
+assert(runtime.sky?.['horizon-fog-blend'] === 0.08, 'The narrow edge atmosphere strength changed.');
 assert(!runtime.light, 'Directional light must not be reintroduced.');
 assert(!runtime.fog, 'Mapbox fog must not be copied into the MapLibre runtime.');
 assert(runtime.metadata?.['occumed:atmosphere-edge-only'] === true, 'The edge-only atmosphere protection marker is missing.');
+assert(mapHelper.includes('installOccumedAtmosphereBloom(map)'), 'The tracked exterior globe bloom is not installed.');
+assert(mapHelper.includes('resolveGlobeRadius'), 'The atmosphere bloom no longer follows the rendered globe radius.');
+assert(mapHelper.includes('BLOOM_FADE_END_ZOOM'), 'The atmosphere bloom does not fade before regional detail.');
+assert(appCss.includes('.occumed-atmosphere-bloom'), 'The exterior atmosphere bloom styling is missing.');
+assert(appCss.includes('drop-shadow(0 0 30px'), 'The atmosphere is only a hard rim and no longer has a visible outer bloom.');
+assert(appCss.includes('mix-blend-mode: screen'), 'The white-blue atmosphere bloom no longer composites luminously.');
 
 assert(layer('land')?.paint?.['background-color'] === '#79BCEC', 'The supplied Studio ocean blue changed.');
 assert(layer('occumed-land-surface')?.paint?.['fill-color'] === '#E0E0D1', 'The supplied Studio land base changed.');
@@ -139,4 +149,4 @@ assert(!/mapbox:\/\//i.test(runtime.sprite || ''), 'Runtime sprite must not use 
 assert(!/api\.mapbox\.com/i.test(runtime.glyphs || ''), 'Runtime glyphs must not use Mapbox.');
 assert(runtime.metadata?.['occumed:mapbox-runtime-dependency'] === false, 'No-Mapbox dependency marker is missing.');
 
-console.log(`Reference guard passed: supplied Studio land and water, narrow edge-only atmosphere, high-DPI vector clarity, and ${allColors.size} distinct colors.`);
+console.log(`Reference guard passed: supplied Studio land and water, narrow rim plus tracked outward atmosphere bloom, high-DPI vector clarity, and ${allColors.size} distinct colors.`);

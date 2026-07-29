@@ -2,12 +2,16 @@ import { createHash } from 'node:crypto';
 import { VectorTile } from '@mapbox/vector-tile';
 import Pbf from 'pbf';
 import vtpbf from 'vt-pbf';
+import { validateVectorTilePayload } from './tile-safety.js';
 
 export const EMPTY_MVT = Buffer.from(vtpbf.fromVectorTileJs({ layers: {} }));
 
-function decodeTile(data) {
-  const bytes = data instanceof Uint8Array ? data : new Uint8Array(data);
-  return new VectorTile(new Pbf(bytes));
+function decodeTile(data, {
+  label = 'vector tile',
+  coordinateScale = 128
+} = {}) {
+  const validated = validateVectorTilePayload(data, { label, coordinateScale });
+  return new VectorTile(new Pbf(new Uint8Array(validated.bytes)));
 }
 
 function stableProperties(properties) {
@@ -164,8 +168,11 @@ export function mergeVectorTiles(payloads, {
   const blockedLayers = excludeLayers ? new Set(excludeLayers) : null;
   const layers = new Map();
 
-  for (const payload of payloads.filter(Boolean)) {
-    const tile = decodeTile(payload);
+  for (const [payloadIndex, payload] of payloads.filter(Boolean).entries()) {
+    const tile = decodeTile(payload, {
+      label: `MVT merge input ${payloadIndex + 1}`,
+      coordinateScale
+    });
     for (const [name, sourceLayer] of Object.entries(tile.layers)) {
       if (allowedLayers && !allowedLayers.has(name)) continue;
       if (blockedLayers?.has(name)) continue;
@@ -212,7 +219,57 @@ export function mergeVectorTiles(payloads, {
   }
 
   if (!Object.keys(encodedLayers).length) return EMPTY_MVT;
-  return Buffer.from(vtpbf.fromVectorTileJs({ layers: encodedLayers }));
+  const encoded = Buffer.from(vtpbf.fromVectorTileJs({ layers: encodedLayers }));
+  validateVectorTilePayload(encoded, {
+    label: 'merged MVT output',
+    coordinateScale
+  });
+  return encoded;
+}
+
+/**
+ * Copies one source layer into a differently named layer while preserving its
+ * geometry. Property overrides let the gateway synthesize a deterministic
+ * physical fallback without mutating or replacing the browser source.
+ */
+export function copyVectorLayer(payload, {
+  sourceLayerName,
+  targetLayerName,
+  propertyOverrides = {}
+}) {
+  const tile = decodeTile(payload, {
+    label: `MVT layer copy input for ${sourceLayerName}`,
+    coordinateScale: 128
+  });
+  const sourceLayer = tile.layers[sourceLayerName];
+  if (!sourceLayer) return EMPTY_MVT;
+
+  const overrides = normalizeMvtProperties(propertyOverrides);
+  const features = [];
+  for (let index = 0; index < sourceLayer.length; index += 1) {
+    const sourceFeature = sourceLayer.feature(index);
+    if (!isSaneGeometry(sourceFeature, sourceLayer.extent, 128)) continue;
+    const feature = new CombinedFeature(sourceFeature);
+    feature.properties = { ...feature.properties, ...overrides };
+    features.push(feature);
+  }
+  if (!features.length) return EMPTY_MVT;
+
+  const encoded = Buffer.from(vtpbf.fromVectorTileJs({
+    layers: {
+      [targetLayerName]: new MergedLayer(
+        targetLayerName,
+        sourceLayer.version,
+        sourceLayer.extent,
+        features
+      )
+    }
+  }));
+  validateVectorTilePayload(encoded, {
+    label: `copied MVT output for ${targetLayerName}`,
+    coordinateScale: 128
+  });
+  return encoded;
 }
 
 function interpolateAtX(start, end, x) {
@@ -302,7 +359,10 @@ export function overscaleVectorLayer(payload, {
     throw new Error('The target zoom must be greater than or equal to the source zoom.');
   }
 
-  const tile = decodeTile(payload);
+  const tile = decodeTile(payload, {
+    label: `MVT overscale input for ${layerName}`,
+    coordinateScale: 128
+  });
   const sourceLayer = tile.layers[layerName];
   if (!sourceLayer) return EMPTY_MVT;
   if (targetZoom === sourceZoom) {
@@ -332,7 +392,7 @@ export function overscaleVectorLayer(payload, {
   }
 
   if (!features.length) return EMPTY_MVT;
-  return Buffer.from(vtpbf.fromVectorTileJs({
+  const encoded = Buffer.from(vtpbf.fromVectorTileJs({
     layers: {
       [layerName]: new MergedLayer(
         layerName,
@@ -342,10 +402,15 @@ export function overscaleVectorLayer(payload, {
       )
     }
   }));
+  validateVectorTilePayload(encoded, {
+    label: `overscaled MVT output for ${layerName}`,
+    coordinateScale: 128
+  });
+  return encoded;
 }
 
 export function inspectVectorTile(payload) {
-  const tile = decodeTile(payload);
+  const tile = decodeTile(payload, { label: 'MVT inspection input' });
   return Object.fromEntries(
     Object.entries(tile.layers).map(([name, layer]) => [
       name,

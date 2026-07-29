@@ -7,9 +7,11 @@ import { mergeVectorTiles } from '../src/server/mvt.js';
 import { RetryingFetchSource } from '../src/server/pmtiles-source.js';
 import { WorldTileRoutingIndex } from '../src/server/world-tile-routing.js';
 
+const MIN_NAVIGATION_MAX_ZOOM = 6;
+
 function parseArgs(argv) {
   const options = {
-    maxZoom: 5,
+    maxZoom: MIN_NAVIGATION_MAX_ZOOM,
     concurrency: 24
   };
   for (let index = 0; index < argv.length; index += 1) {
@@ -25,6 +27,13 @@ function parseArgs(argv) {
   }
   if (!Number.isSafeInteger(options.maxZoom) || options.maxZoom < 0 || options.maxZoom > 8) {
     throw new Error('--maxzoom must be an integer between 0 and 8.');
+  }
+  if (options.maxZoom < MIN_NAVIGATION_MAX_ZOOM) {
+    console.warn(
+      `Requested overview max zoom ${options.maxZoom} is unsafe for reverse navigation; ` +
+      `building through zoom ${MIN_NAVIGATION_MAX_ZOOM} instead.`
+    );
+    options.maxZoom = MIN_NAVIGATION_MAX_ZOOM;
   }
   if (!Number.isSafeInteger(options.concurrency) || options.concurrency < 1 || options.concurrency > 64) {
     throw new Error('--concurrency must be an integer between 1 and 64.');
@@ -125,9 +134,9 @@ const metadata = await archive(metadataRegion).getMetadata();
 await fs.writeFile(
   path.join(options.output, 'metadata.json'),
   `${JSON.stringify({
-    name: 'Occu-Med Worldwide Overview',
-    description: 'Consolidated low-zoom tiles from the Occu-Med regional storage shards',
-    version: '1',
+    name: 'Occu-Med Worldwide Navigation Overview',
+    description: 'Consolidated coarse-navigation tiles from the Occu-Med regional storage shards',
+    version: '2',
     type: 'baselayer',
     format: 'pbf',
     minzoom: 0,
@@ -139,5 +148,5 @@ await fs.writeFile(
 );
 
 console.log(
-  `Worldwide overview complete: ${writtenTiles} tiles, ${sourceTileReads} shard reads, zoom 0-${options.maxZoom}.`
+  `Worldwide navigation overview complete: ${writtenTiles} tiles, ${sourceTileReads} shard reads, zoom 0-${options.maxZoom}.`
 );

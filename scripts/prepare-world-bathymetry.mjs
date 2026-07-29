@@ -3,6 +3,8 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
+const SURFACE_MAX_ZOOM = 10;
+
 function parseArgs(argv) {
   const options = {};
   for (let index = 0; index < argv.length; index += 1) {
@@ -44,8 +46,19 @@ for (const entry of entries) {
     features.push({
       type: 'Feature',
       properties: { min_depth: entry.depth },
-      geometry: feature.geometry
+      geometry: feature.geometry,
+      tippecanoe: {
+        minzoom: 0,
+        maxzoom: SURFACE_MAX_ZOOM
+      }
     });
+  }
+}
+
+if (!features.length) throw new Error('Worldwide bathymetry preparation produced no features.');
+for (const feature of features) {
+  if (feature.tippecanoe?.minzoom !== 0 || feature.tippecanoe?.maxzoom !== SURFACE_MAX_ZOOM) {
+    throw new Error('Worldwide bathymetry contains a zoom cutoff that can empty the ocean foundation.');
   }
 }
 
@@ -54,5 +67,5 @@ await fs.writeFile(
   `${JSON.stringify({ type: 'FeatureCollection', features })}\n`
 );
 console.log(
-  `Prepared ${features.length} nested bathymetry polygons from ${entries.length} depth bands.`
+  `Prepared ${features.length} nested bathymetry polygons from ${entries.length} depth bands through zoom ${SURFACE_MAX_ZOOM}.`
 );

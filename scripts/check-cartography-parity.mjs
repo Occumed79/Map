@@ -82,6 +82,9 @@ const landcover = layer('landcover');
 if (!Array.isArray(landcover?.paint?.['fill-opacity'])) {
   fail('The landcover layer must preserve the strong green low-zoom hierarchy.');
 }
+if (Number(landcover?.minzoom || 0) !== 0) {
+  fail('The foundational landcover layer must remain visible from globe zoom instead of switching on later.');
+}
 
 const roadLayers = runtime.layers.filter(
   (candidate) =>
@@ -125,5 +128,5 @@ if (failures.length) {
 }
 
 console.log(
-  `Cartography parity validated: ${roadLayers.length} road layers, ${symbolLayers.length} symbol layers, normalized landuse, place hierarchy, and overlay isolation.`
+  `Cartography parity validated: ${roadLayers.length} road layers, ${symbolLayers.length} symbol layers, continuous globe landcover, normalized landuse, place hierarchy, and overlay isolation.`
 );

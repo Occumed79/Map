@@ -1,12 +1,20 @@
+import { createHash, randomUUID } from 'node:crypto';
 import { createReadStream } from 'node:fs';
 import fs from 'node:fs/promises';
 import http from 'node:http';
 import path from 'node:path';
+import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
-import { gzipSync } from 'node:zlib';
-import { WorldTileGateway } from './src/server/world-tile-gateway.js';
+import { gzip } from 'node:zlib';
+import { createNeonNavigationTileCacheFromEnv } from './src/server/neon-navigation-tile-cache.js';
+import {
+  GatewayOverloadedError,
+  WorldTileGateway
+} from './src/server/world-tile-gateway.js';
 import { normalizeTileCoordinates } from './src/server/world-tile-routing.js';
+import { validateVectorTilePayload } from './src/server/tile-safety.js';
 
+const gzipAsync = promisify(gzip);
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'dist');
 const port = Number(process.env.PORT || 4173);
 const host = process.env.HOST?.trim() || '0.0.0.0';
@@ -15,6 +23,12 @@ const worldReleaseTag = process.env.OCCUMED_WORLD_RELEASE_TAG?.trim() || 'occume
 const worldManifestAsset = 'world-virtual-manifest.json';
 const worldSurfaceAsset = 'occumed-world-surface.pmtiles';
 const worldSurfaceUrl = process.env.OCCUMED_WORLD_SURFACE_URL?.trim();
+const maxConcurrentTileRequests = Number(process.env.OCCUMED_MAX_CONCURRENT_TILE_REQUESTS || 64);
+const tileRequestTimeoutMs = Number(process.env.OCCUMED_TILE_REQUEST_TIMEOUT_MS || 30_000);
+const maxResolvedTileBytes = Number(process.env.OCCUMED_MAX_RESOLVED_TILE_BYTES || 24 * 1024 * 1024);
+const diagnosticsEnabled = process.env.OCCUMED_ENABLE_DIAGNOSTICS === 'true';
+let activeTileRequests = 0;
+let shuttingDown = false;
 
 const contentTypes = {
   '.css': 'text/css; charset=utf-8',
@@ -29,49 +43,114 @@ const contentTypes = {
   '.webp': 'image/webp'
 };
 
-const corsHeaders = {
+const commonHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Cache-Control, Pragma, Range',
-  'Access-Control-Expose-Headers': 'Accept-Ranges, Content-Length, Content-Range',
+  'Access-Control-Allow-Headers': 'Content-Type, Cache-Control, Pragma, Range, If-None-Match',
+  'Access-Control-Expose-Headers': 'Accept-Ranges, Content-Length, Content-Range, ETag, Server-Timing, X-Occumed-Request-Id',
   'Cross-Origin-Resource-Policy': 'cross-origin',
-  'X-Content-Type-Options': 'nosniff'
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=(), usb=()',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'X-Content-Type-Options': 'nosniff',
+  'X-DNS-Prefetch-Control': 'off'
 };
 
+function safeInteger(value, fallback, minimum, maximum) {
+  const parsed = Number(value);
+  return Number.isSafeInteger(parsed) && parsed >= minimum && parsed <= maximum
+    ? parsed
+    : fallback;
+}
+
+function sanitizeRequestId(value) {
+  const requestId = String(value || '').trim();
+  return /^[A-Za-z0-9._:-]{1,128}$/.test(requestId) ? requestId : randomUUID();
+}
+
+function resolveSafeOrigin(value) {
+  if (!value) return null;
+  try {
+    const url = new URL(value);
+    if (!['http:', 'https:'].includes(url.protocol)) return null;
+    if (url.username || url.password) return null;
+    return url.origin;
+  } catch {
+    return null;
+  }
+}
+
 function requestOrigin(request) {
-  const configured = process.env.PUBLIC_ORIGIN?.trim().replace(/\/$/, '');
+  const configured = resolveSafeOrigin(process.env.PUBLIC_ORIGIN?.trim().replace(/\/$/, ''));
   if (configured) return configured;
 
   const forwardedProtocol = String(request.headers['x-forwarded-proto'] || '').split(',')[0].trim();
+  const protocol = /^(?:http|https)$/.test(forwardedProtocol) ? forwardedProtocol : 'http';
   const forwardedHost = String(request.headers['x-forwarded-host'] || '').split(',')[0].trim();
-  const protocol = forwardedProtocol || 'http';
-  const requestHost = forwardedHost || request.headers.host || `localhost:${port}`;
-  return `${protocol}://${requestHost}`;
+  const requestHost = forwardedHost || String(request.headers.host || `localhost:${port}`).trim();
+  return resolveSafeOrigin(`${protocol}://${requestHost}`) || `http://localhost:${port}`;
 }
 
-function send(response, status, body, contentType, cacheControl = 'no-store', method = 'GET') {
+function bodyBuffer(body) {
+  return Buffer.isBuffer(body) ? body : Buffer.from(String(body ?? ''));
+}
+
+function writeHeaders(response, status, headers = {}) {
   response.writeHead(status, {
-    ...corsHeaders,
+    ...commonHeaders,
+    'X-Occumed-Request-Id': response.occumedRequestId,
+    ...headers
+  });
+}
+
+function send(response, status, body, contentType, cacheControl = 'no-store', method = 'GET', extraHeaders = {}) {
+  const payload = bodyBuffer(body);
+  writeHeaders(response, status, {
     'Cache-Control': cacheControl,
     'CDN-Cache-Control': cacheControl,
     'Surrogate-Control': cacheControl,
-    'Content-Type': contentType
+    'Content-Length': payload.byteLength,
+    'Content-Type': contentType,
+    ...extraHeaders
   });
-  if (method === 'HEAD') response.end();
-  else response.end(body);
+  if (method === 'HEAD' || status === 304) response.end();
+  else response.end(payload);
+}
+
+function sendJson(response, status, document, cacheControl = 'no-store', method = 'GET', extraHeaders = {}) {
+  send(
+    response,
+    status,
+    `${JSON.stringify(document)}\n`,
+    contentTypes['.json'],
+    cacheControl,
+    method,
+    extraHeaders
+  );
 }
 
 function sendHealth(request, response) {
-  const body = 'ok';
-  response.statusCode = 200;
-  response.shouldKeepAlive = false;
-  response.setHeader('Content-Type', 'text/plain; charset=utf-8');
-  response.setHeader('Content-Length', Buffer.byteLength(body));
-  response.setHeader('Cache-Control', 'no-store');
-  response.setHeader('Connection', 'close');
-  response.setHeader('X-Content-Type-Options', 'nosniff');
-  if (request.method === 'HEAD') response.end();
-  else response.end(body);
+  send(response, 200, 'ok', 'text/plain; charset=utf-8', 'no-store', request.method, {
+    Connection: 'close'
+  });
+}
+
+async function sendReadiness(request, response) {
+  try {
+    const ready = await Promise.race([
+      worldTileGateway.ready(),
+      new Promise((_, reject) => {
+        const timer = setTimeout(() => reject(new Error('Readiness check timed out.')), 10_000);
+        timer.unref?.();
+      })
+    ]);
+    sendJson(response, 200, { ...ready, shuttingDown }, 'no-store', request.method);
+  } catch (error) {
+    sendJson(response, 503, {
+      ready: false,
+      shuttingDown,
+      error: error?.code || error?.name || 'READINESS_FAILED'
+    }, 'no-store', request.method, { 'Retry-After': '5' });
+  }
 }
 
 async function serveStyle(request, response) {
@@ -93,35 +172,91 @@ function releaseAssetUrl(assetName) {
   return `https://github.com/${worldReleaseRepository}/releases/download/${encodeURIComponent(worldReleaseTag)}/${encodeURIComponent(assetName)}`;
 }
 
+const navigationTileCache = createNeonNavigationTileCacheFromEnv();
 const worldTileGateway = new WorldTileGateway({
   manifestUrl:
     process.env.OCCUMED_WORLD_MANIFEST_URL?.trim() ||
     releaseAssetUrl(worldManifestAsset),
-  releaseAssetUrl
+  releaseAssetUrl,
+  persistentTileCache: navigationTileCache,
+  maxResolvedTileBytes: safeInteger(
+    maxResolvedTileBytes,
+    24 * 1024 * 1024,
+    1_024,
+    96 * 1024 * 1024
+  )
 });
 
-async function serveVirtualTile(request, response, coordinates) {
-  const tile = await worldTileGateway.resolveTile(
-    coordinates.z,
-    coordinates.x,
-    coordinates.y
-  );
-  const compressed = gzipSync(tile, { level: 6 });
-  const cacheControl = 'public, max-age=86400, stale-while-revalidate=604800';
-
-  response.writeHead(200, {
-    ...corsHeaders,
-    'Cache-Control': cacheControl,
-    'CDN-Cache-Control': cacheControl,
-    'Surrogate-Control': cacheControl,
-    'Content-Encoding': 'gzip',
-    'Content-Length': compressed.byteLength,
-    'Content-Type': contentTypes['.pbf'],
-    'Vary': 'Accept-Encoding',
-    'X-Occumed-Tileset': 'virtual-worldwide-v1'
+function timeoutAfter(milliseconds, message) {
+  return new Promise((_, reject) => {
+    const timer = setTimeout(() => {
+      const error = new Error(message);
+      error.code = 'OCCUMED_TILE_REQUEST_TIMEOUT';
+      error.statusCode = 503;
+      reject(error);
+    }, milliseconds);
+    timer.unref?.();
   });
-  if (request.method === 'HEAD') response.end();
-  else response.end(compressed);
+}
+
+function tileEtag(tile) {
+  return `"${createHash('sha256').update(tile).digest('base64url').slice(0, 24)}"`;
+}
+
+async function serveVirtualTile(request, response, coordinates) {
+  const concurrencyLimit = safeInteger(maxConcurrentTileRequests, 64, 4, 512);
+  if (activeTileRequests >= concurrencyLimit) {
+    throw new GatewayOverloadedError('The HTTP tile concurrency limit has been reached.');
+  }
+
+  activeTileRequests += 1;
+  const startedAt = performance.now();
+  try {
+    const tile = await Promise.race([
+      worldTileGateway.resolveTile(coordinates.z, coordinates.x, coordinates.y),
+      timeoutAfter(
+        safeInteger(tileRequestTimeoutMs, 30_000, 1_000, 120_000),
+        `Tile ${coordinates.z}/${coordinates.x}/${coordinates.y} timed out.`
+      )
+    ]);
+    validateVectorTilePayload(tile, {
+      label: `resolved tile ${coordinates.z}/${coordinates.x}/${coordinates.y}`,
+      maxBytes: safeInteger(maxResolvedTileBytes, 24 * 1024 * 1024, 1_024, 96 * 1024 * 1024)
+    });
+
+    const etag = tileEtag(tile);
+    if (request.headers['if-none-match'] === etag) {
+      writeHeaders(response, 304, {
+        'Cache-Control': 'public, max-age=300, must-revalidate, stale-if-error=86400',
+        ETag: etag,
+        'X-Occumed-Tileset': 'virtual-worldwide-v2'
+      });
+      response.end();
+      return;
+    }
+
+    const acceptsGzip = /(?:^|,)\s*gzip\s*(?:,|$)/i.test(String(request.headers['accept-encoding'] || ''));
+    const payload = acceptsGzip ? await gzipAsync(tile, { level: 5 }) : tile;
+    const cacheControl = 'public, max-age=300, must-revalidate, stale-while-revalidate=60, stale-if-error=86400';
+    const duration = Math.max(0, performance.now() - startedAt);
+
+    writeHeaders(response, 200, {
+      'Cache-Control': cacheControl,
+      'CDN-Cache-Control': cacheControl,
+      'Surrogate-Control': cacheControl,
+      ...(acceptsGzip ? { 'Content-Encoding': 'gzip' } : {}),
+      'Content-Length': payload.byteLength,
+      'Content-Type': contentTypes['.pbf'],
+      ETag: etag,
+      'Server-Timing': `tile;dur=${duration.toFixed(1)}`,
+      Vary: 'Accept-Encoding',
+      'X-Occumed-Tileset': 'virtual-worldwide-v2'
+    });
+    if (request.method === 'HEAD') response.end();
+    else response.end(payload);
+  } finally {
+    activeTileRequests -= 1;
+  }
 }
 
 function parseByteRange(header, size) {
@@ -134,7 +269,6 @@ function parseByteRange(header, size) {
 
   let start;
   let end;
-
   if (!startText) {
     const suffixLength = Number(endText);
     if (!Number.isSafeInteger(suffixLength) || suffixLength <= 0) return null;
@@ -154,23 +288,28 @@ function parseByteRange(header, size) {
   ) {
     return null;
   }
-
   return { start, end: Math.min(end, size - 1) };
 }
 
-function pipeFile(response, absolute, options = {}) {
+function pipeFile(request, response, absolute, options = {}) {
   const stream = createReadStream(absolute, options);
+  const abort = () => stream.destroy();
+  request.once('aborted', abort);
+  response.once('close', abort);
   stream.on('error', (error) => response.destroy(error));
+  stream.on('close', () => {
+    request.removeListener('aborted', abort);
+    response.removeListener('close', abort);
+  });
   stream.pipe(response);
 }
 
 async function servePmtiles(request, response, absolute, stat) {
-  const cacheControl = 'public, max-age=3600, must-revalidate';
+  const cacheControl = 'public, max-age=3600, must-revalidate, stale-if-error=86400';
   const rangeHeader = request.headers.range;
 
   if (!rangeHeader) {
-    response.writeHead(200, {
-      ...corsHeaders,
+    writeHeaders(response, 200, {
       'Accept-Ranges': 'bytes',
       'Cache-Control': cacheControl,
       'CDN-Cache-Control': cacheControl,
@@ -179,25 +318,29 @@ async function servePmtiles(request, response, absolute, stat) {
       'Content-Type': contentTypes['.pmtiles']
     });
     if (request.method === 'HEAD') response.end();
-    else pipeFile(response, absolute);
+    else pipeFile(request, response, absolute);
     return;
   }
 
   const range = parseByteRange(rangeHeader, stat.size);
   if (!range) {
-    response.writeHead(416, {
-      ...corsHeaders,
-      'Accept-Ranges': 'bytes',
-      'Content-Range': `bytes */${stat.size}`,
-      'Content-Type': 'text/plain; charset=utf-8'
-    });
-    response.end('Requested range not satisfiable');
+    send(
+      response,
+      416,
+      'Requested range not satisfiable',
+      'text/plain; charset=utf-8',
+      'no-store',
+      request.method,
+      {
+        'Accept-Ranges': 'bytes',
+        'Content-Range': `bytes */${stat.size}`
+      }
+    );
     return;
   }
 
   const length = range.end - range.start + 1;
-  response.writeHead(206, {
-    ...corsHeaders,
+  writeHeaders(response, 206, {
     'Accept-Ranges': 'bytes',
     'Cache-Control': cacheControl,
     'CDN-Cache-Control': cacheControl,
@@ -206,16 +349,30 @@ async function servePmtiles(request, response, absolute, stat) {
     'Content-Range': `bytes ${range.start}-${range.end}/${stat.size}`,
     'Content-Type': contentTypes['.pmtiles']
   });
-
   if (request.method === 'HEAD') response.end();
-  else pipeFile(response, absolute, { start: range.start, end: range.end });
+  else pipeFile(request, response, absolute, { start: range.start, end: range.end });
+}
+
+function shouldServeSpaFallback(request, decoded) {
+  if (path.extname(decoded)) return false;
+  return String(request.headers.accept || '').includes('text/html') || decoded === '/';
 }
 
 async function serveStatic(request, response, pathname) {
   const requested = pathname === '/' ? '/index.html' : pathname;
-  const decoded = decodeURIComponent(requested);
-  const absolute = path.resolve(root, `.${decoded}`);
+  let decoded;
+  try {
+    decoded = decodeURIComponent(requested);
+  } catch {
+    send(response, 400, 'Invalid URL encoding', 'text/plain; charset=utf-8', 'no-store', request.method);
+    return;
+  }
+  if (decoded.includes('\0')) {
+    send(response, 400, 'Invalid path', 'text/plain; charset=utf-8', 'no-store', request.method);
+    return;
+  }
 
+  const absolute = path.resolve(root, `.${decoded}`);
   if (!absolute.startsWith(`${root}${path.sep}`) && absolute !== path.join(root, 'index.html')) {
     send(response, 403, 'Forbidden', 'text/plain; charset=utf-8', 'no-store', request.method);
     return;
@@ -242,6 +399,10 @@ async function serveStatic(request, response, pathname) {
       request.method
     );
   } catch {
+    if (!shouldServeSpaFallback(request, decoded)) {
+      send(response, 404, 'Not found', 'text/plain; charset=utf-8', 'no-store', request.method);
+      return;
+    }
     const index = await fs.readFile(path.join(root, 'index.html'));
     send(
       response,
@@ -254,25 +415,53 @@ async function serveStatic(request, response, pathname) {
   }
 }
 
+function tileErrorStatus(error) {
+  if (error instanceof GatewayOverloadedError) return 503;
+  if (error instanceof RangeError) return 404;
+  if (Number.isSafeInteger(error?.statusCode)) return error.statusCode;
+  if (String(error?.code || '').startsWith('OCCUMED_')) return 503;
+  return 500;
+}
+
 async function handleRequest(request, response) {
   const method = request.method || 'GET';
-
   if (method === 'OPTIONS') {
-    response.writeHead(204, {
-      ...corsHeaders,
-      'Cache-Control': 'no-store'
-    });
+    writeHeaders(response, 204, { 'Cache-Control': 'no-store' });
     response.end();
     return;
   }
-
   if (!['GET', 'HEAD'].includes(method)) {
-    send(response, 405, 'Method not allowed', 'text/plain; charset=utf-8', 'no-store', method);
+    send(response, 405, 'Method not allowed', 'text/plain; charset=utf-8', 'no-store', method, {
+      Allow: 'GET, HEAD, OPTIONS'
+    });
+    return;
+  }
+  if (shuttingDown) {
+    send(response, 503, 'Server is shutting down', 'text/plain; charset=utf-8', 'no-store', method, {
+      'Retry-After': '5'
+    });
     return;
   }
 
-  const url = new URL(request.url || '/', `http://${request.headers.host || 'localhost'}`);
+  let url;
+  try {
+    url = new URL(request.url || '/', `http://${request.headers.host || 'localhost'}`);
+  } catch {
+    send(response, 400, 'Invalid request URL', 'text/plain; charset=utf-8', 'no-store', method);
+    return;
+  }
 
+  if (url.pathname === '/readyz') {
+    await sendReadiness(request, response);
+    return;
+  }
+  if (url.pathname === '/internal/tile-health' && diagnosticsEnabled) {
+    sendJson(response, 200, {
+      activeTileRequests,
+      ...worldTileGateway.getHealthSnapshot()
+    }, 'no-store', method);
+    return;
+  }
   if (url.pathname === '/style/occumed-open.json') {
     await serveStyle(request, response);
     return;
@@ -280,16 +469,37 @@ async function handleRequest(request, response) {
 
   const tileMatch = /^\/tiles\/(\d+)\/(\d+)\/(\d+)\.pbf$/.exec(url.pathname);
   if (tileMatch) {
-    const coordinates = normalizeTileCoordinates(
-      tileMatch[1],
-      tileMatch[2],
-      tileMatch[3]
-    );
+    const coordinates = normalizeTileCoordinates(tileMatch[1], tileMatch[2], tileMatch[3]);
     if (!coordinates) {
       send(response, 404, 'Tile not found', 'text/plain; charset=utf-8', 'no-store', method);
       return;
     }
-    await serveVirtualTile(request, response, coordinates);
+    try {
+      await serveVirtualTile(request, response, coordinates);
+    } catch (error) {
+      const status = tileErrorStatus(error);
+      console.error(JSON.stringify({
+        level: 'error',
+        type: 'tile-request-failed',
+        requestId: response.occumedRequestId,
+        tile: coordinates,
+        code: error?.code || error?.name || 'UNKNOWN',
+        message: error?.message || String(error)
+      }));
+      if (!response.headersSent) {
+        send(
+          response,
+          status,
+          status === 404 ? 'Tile not found' : 'Tile temporarily unavailable',
+          'text/plain; charset=utf-8',
+          'no-store',
+          method,
+          status === 503 ? { 'Retry-After': '2' } : {}
+        );
+      } else {
+        response.destroy();
+      }
+    }
     return;
   }
 
@@ -297,17 +507,22 @@ async function handleRequest(request, response) {
 }
 
 const server = http.createServer((request, response) => {
+  response.occumedRequestId = sanitizeRequestId(request.headers['x-request-id']);
   const rawPath = (request.url || '/').split('?', 1)[0];
 
-  // Keep Render's deployment probe completely independent from URL parsing,
-  // filesystem access, the built map assets, and all application routing.
   if (rawPath === '/health' || rawPath === '/healthz') {
     sendHealth(request, response);
     return;
   }
 
   void handleRequest(request, response).catch((error) => {
-    console.error(error);
+    console.error(JSON.stringify({
+      level: 'error',
+      type: 'request-failed',
+      requestId: response.occumedRequestId,
+      code: error?.code || error?.name || 'UNKNOWN',
+      message: error?.message || String(error)
+    }));
     if (!response.headersSent) {
       send(
         response,
@@ -324,15 +539,56 @@ const server = http.createServer((request, response) => {
 });
 
 server.requestTimeout = 45_000;
-server.headersTimeout = 50_000;
+server.headersTimeout = 20_000;
 server.keepAliveTimeout = 5_000;
+server.maxHeadersCount = 100;
+server.maxRequestsPerSocket = 1_000;
 
+server.on('clientError', (error, socket) => {
+  console.warn('Occu-Med Map client error:', error.code || error.message);
+  if (socket.writable) socket.end('HTTP/1.1 400 Bad Request\r\nConnection: close\r\n\r\n');
+});
 server.on('error', (error) => {
   console.error('Occu-Med Map server error:', error);
   process.exitCode = 1;
 });
 
+function shutdown(signal) {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  console.log(`Occu-Med Map received ${signal}; draining connections.`);
+  server.close((error) => {
+    void worldTileGateway.close().finally(() => {
+      if (error) {
+        console.error('Occu-Med Map shutdown error:', error);
+        process.exitCode = 1;
+      }
+    });
+  });
+  const timer = setTimeout(() => {
+    server.closeAllConnections?.();
+    void worldTileGateway.close();
+    process.exitCode = 1;
+  }, 25_000);
+  timer.unref?.();
+}
+
+process.once('SIGTERM', () => shutdown('SIGTERM'));
+process.once('SIGINT', () => shutdown('SIGINT'));
+
 server.listen(port, host, () => {
   console.log(`Occu-Med Map listening on ${host}:${port}.`);
   console.log(`Health endpoint ready at http://127.0.0.1:${port}/health.`);
+  if (navigationTileCache) {
+    const snapshot = navigationTileCache.snapshot();
+    console.log(`Neon navigation cache configured with ${snapshot.configuredShards} of ${snapshot.expectedShards} shards.`);
+    void worldTileGateway.initializePersistentCache().then(
+      (initialized) => console.log(`Neon navigation cache initialized ${initialized} shard(s).`),
+      (error) => console.error(`Neon navigation cache initialization failed: ${error?.code || error?.name || 'UNKNOWN'}`)
+    );
+  }
+  void worldTileGateway.ready().then(
+    (ready) => console.log(`Worldwide gateway ready with ${ready.regions} regional shards.`),
+    (error) => console.error('Worldwide gateway readiness failed:', error)
+  );
 });
