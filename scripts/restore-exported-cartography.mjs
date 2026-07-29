@@ -375,26 +375,6 @@ water.paint['fill-opacity'] = [
   1
 ];
 
-const hillshade = runtime.layers.find((layer) => layer.id === 'occumed-hillshade');
-if (!hillshade) throw new Error('The open hillshade layer is missing after cartography restoration.');
-hillshade.paint['hillshade-exaggeration'] = [
-  'interpolate',
-  ['linear'],
-  ['zoom'],
-  3,
-  0.06,
-  6,
-  0.16,
-  8,
-  0.24,
-  10,
-  0.28,
-  14,
-  0.24,
-  16,
-  0.16
-];
-
 for (const layer of runtime.layers || []) {
   if (layer.type !== 'symbol') continue;
   const haloWidth = layer.paint?.['text-halo-width'];

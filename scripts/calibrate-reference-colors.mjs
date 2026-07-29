@@ -190,30 +190,6 @@ if (!water) throw new Error('The exported water layer is missing.');
 water.paint ||= {};
 water.paint['fill-opacity'] = 1;
 
-// Strengthen physical form without changing any vector structure color.
-const hillshade = layer('occumed-hillshade');
-if (!hillshade) throw new Error('The open hillshade layer is missing.');
-hillshade.minzoom = 1.5;
-hillshade.maxzoom = 16;
-hillshade.paint = {
-  'hillshade-exaggeration': [
-    'interpolate',
-    ['linear'],
-    ['zoom'],
-    1.5, 0.07,
-    4.5, 0.13,
-    7.5, 0.2,
-    10, 0.27,
-    13, 0.31,
-    16, 0.2
-  ],
-  'hillshade-shadow-color': '#52685B',
-  'hillshade-highlight-color': '#FFF8E8',
-  'hillshade-accent-color': '#6E8D69',
-  'hillshade-illumination-direction': 335,
-  'hillshade-illumination-anchor': 'map'
-};
-
 // Bring the exported road and boundary hierarchy into view at the same scales as
 // the supplied Studio references. Their individual line colors remain untouched.
 const entryZooms = new Map([

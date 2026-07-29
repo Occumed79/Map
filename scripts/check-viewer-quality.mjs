@@ -52,11 +52,8 @@ if (layer('water')?.paint?.['fill-opacity'] !== 1) fail('Water is translucent an
 
 if (runtime.layers.some((candidate) => candidate.type === 'raster')) fail('A raster fallback basemap was reintroduced.');
 
-const hillshade = layer('occumed-hillshade');
-if (hillshade?.minzoom !== 1.5) fail('Hillshade begins too late to give the globe physical form.');
-if (hillshade?.paint?.['hillshade-shadow-color'] !== '#0000004D') fail('Hillshade shadows are tinting exported colors.');
-if (hillshade?.paint?.['hillshade-highlight-color'] !== '#FFFFFF4D') fail('Hillshade highlights are tinting exported colors.');
-if (!JSON.stringify(hillshade?.paint?.['hillshade-exaggeration'] || []).includes('0.2')) fail('Regional terrain definition is too weak.');
+if (runtime.layers.some((candidate) => candidate.type === 'hillshade')) fail('An external hillshade layer was reintroduced.');
+if (Object.keys(runtime.sources || {}).length !== 1) fail('Viewer no longer uses exactly one browser source.');
 
 const allColors = collectHex(runtime.layers.map((candidate) => candidate.paint || {}));
 if (allColors.size < 25) fail(`The exported per-structure palette was flattened to only ${allColors.size} colors.`);
