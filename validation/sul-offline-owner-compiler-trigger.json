@@ -1,0 +1,8 @@
+{
+  "detailFamily": "sul",
+  "detailSha256": "6fab2b35279b1e812ec7bbc8212b1b1c10dc2a766ff98198313fc752199f4b7b",
+  "surfaceAuthority": "occumed-world-surface.pmtiles",
+  "sampleTiles": 5,
+  "runtimeMerge": false,
+  "active": false
+}
