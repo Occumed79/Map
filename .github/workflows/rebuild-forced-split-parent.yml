@@ -24,11 +24,14 @@ jobs:
       github.event_name == 'workflow_dispatch' ||
       (github.event_name == 'pull_request' &&
        github.event.pull_request.base.ref == 'hotfix/emergency-stable-online' &&
-       github.event.pull_request.head.ref == 'repair/replace-forced-split-families')
+       github.event.pull_request.head.ref == 'repair/replace-forced-split-families') ||
+      (github.event_name == 'pull_request' &&
+       github.event.pull_request.base.ref == 'main' &&
+       github.event.pull_request.head.ref == 'build/southern-zone-candidate')
     runs-on: ubuntu-latest
     timeout-minutes: 360
     env:
-      FAMILY: ${{ github.event_name == 'workflow_dispatch' && inputs.family || 'nordeste' }}
+      FAMILY: ${{ github.event_name == 'workflow_dispatch' && inputs.family || github.event.pull_request.head.ref == 'build/southern-zone-candidate' && 'southern-zone' || 'nordeste' }}
     steps:
       - uses: actions/checkout@v4
         with:
