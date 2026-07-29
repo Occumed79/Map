@@ -28,7 +28,7 @@
     {"id":"quebec","children":6,"combinedGiB":4.10},
     {"id":"rhone-alpes","children":6,"combinedGiB":1.06},
     {"id":"socal","children":6,"combinedGiB":1.20},
-    {"id":"southern-zone","children":6,"combinedGiB":1.76,"continent":"south-america"},
+    {"id":"southern-zone","children":6,"combinedGiB":1.76,"continent":"asia","country":"india","sourcePath":"asia/india/southern-zone"},
     {"id":"sudeste","children":6,"combinedGiB":2.48,"continent":"south-america"},
     {"id":"switzerland","children":6,"combinedGiB":1.00},
     {"id":"tanzania","children":6,"combinedGiB":1.57},
