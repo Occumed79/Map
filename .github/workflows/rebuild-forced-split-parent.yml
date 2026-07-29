@@ -1,4 +1,5 @@
 name: Rebuild Forced-Split Parent
+# The default PR pilot intentionally rebuilds sul from its unsplit parent source.
 
 on:
   push:
