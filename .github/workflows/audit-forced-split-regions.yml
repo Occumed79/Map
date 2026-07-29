@@ -8,6 +8,8 @@ on:
       - audit/forced-split-regions.json
       - audit/forced-split-regions.md
       - audit/world-plan.json
+      - audit/published-split-assets.json
+      - audit/published-split-assets.md
   pull_request:
     branches:
       - main
@@ -34,7 +36,7 @@ jobs:
           mkdir -p audit
           node scripts/plan-world-shards.mjs --scope all > audit/world-plan.json
 
-      - name: Identify forced grid-split families
+      - name: Identify forced grid-split families in current plan
         run: |
           node scripts/report-forced-split-regions.mjs \
             audit/world-plan.json \
@@ -42,12 +44,28 @@ jobs:
             audit/forced-split-regions.md
           cat audit/forced-split-regions.md
 
+      - name: Identify split families actually published in release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          node scripts/report-published-split-assets.mjs \
+            "$GITHUB_REPOSITORY" \
+            occumed-world-v1 \
+            audit/published-split-assets.json \
+            audit/published-split-assets.md
+          cat audit/published-split-assets.md
+
       - name: Commit audit results
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add audit/world-plan.json audit/forced-split-regions.json audit/forced-split-regions.md
+          git add \
+            audit/world-plan.json \
+            audit/forced-split-regions.json \
+            audit/forced-split-regions.md \
+            audit/published-split-assets.json \
+            audit/published-split-assets.md
           if git diff --cached --quiet; then
             echo "Audit results unchanged."
           else
@@ -62,4 +80,6 @@ jobs:
             audit/forced-split-regions.json
             audit/forced-split-regions.md
             audit/world-plan.json
+            audit/published-split-assets.json
+            audit/published-split-assets.md
           retention-days: 30
