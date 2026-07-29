@@ -2,15 +2,7 @@ name: Rebuild Forced-Split Parent
 
 on:
   pull_request:
-    branches:
-      - hotfix/emergency-stable-online
-    paths:
-      - .github/workflows/rebuild-forced-split-parent.yml
-      - config/forced-split-families.json
-      - scripts/select-unsplit-replacement-source.mjs
-      - scripts/check-forced-split-quarantine.mjs
-      - scripts/build-world-manifest.mjs
-      - planetiler/**
+    types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
     inputs:
       family:
@@ -28,6 +20,11 @@ env:
 
 jobs:
   rebuild-parent:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'pull_request' &&
+       github.event.pull_request.base.ref == 'hotfix/emergency-stable-online' &&
+       github.event.pull_request.head.ref == 'repair/replace-forced-split-families')
     runs-on: ubuntu-latest
     timeout-minutes: 360
     env:
