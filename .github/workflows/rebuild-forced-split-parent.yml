@@ -11,6 +11,16 @@ on:
       - scripts/check-forced-split-quarantine.mjs
       - scripts/build-world-manifest.mjs
       - planetiler/**
+  pull_request:
+    branches:
+      - hotfix/emergency-stable-online
+    paths:
+      - .github/workflows/rebuild-forced-split-parent.yml
+      - config/forced-split-families.json
+      - scripts/select-unsplit-replacement-source.mjs
+      - scripts/check-forced-split-quarantine.mjs
+      - scripts/build-world-manifest.mjs
+      - planetiler/**
   workflow_dispatch:
     inputs:
       family:
