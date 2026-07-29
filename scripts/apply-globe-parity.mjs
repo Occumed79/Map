@@ -49,35 +49,14 @@ runtime.sky = {
 delete runtime.fog;
 delete runtime.light;
 
-const hillshade = runtime.layers.find((layer) => layer.id === 'occumed-hillshade');
-if (!hillshade) throw new Error('The generated open hillshade layer is missing.');
-
-hillshade.paint = {
-  'hillshade-exaggeration': [
-    'interpolate',
-    ['linear'],
-    ['zoom'],
-    2,
-    0.04,
-    8,
-    0.16,
-    15,
-    0.11
-  ],
-  'hillshade-shadow-color': 'hsla(215, 22%, 28%, 0.42)',
-  'hillshade-highlight-color': 'hsla(48, 38%, 96%, 0.34)',
-  'hillshade-accent-color': 'hsla(95, 26%, 46%, 0.32)',
-  'hillshade-illumination-direction': 335,
-  'hillshade-illumination-anchor': 'map'
-};
-
 runtime.metadata = {
   ...(runtime.metadata || {}),
   'occumed:mapbox-fog-translated-to-maplibre-sky': true,
   'occumed:globe-parity-pass': 3,
   'occumed:stable-orientation-neutral-atmosphere': true,
+  'occumed:external-terrain-disabled': true,
   'occumed:visual-quality-pass': true
 };
 
 await fs.writeFile(runtimePath, `${JSON.stringify(runtime, null, 2)}\n`);
-console.log('Applied the refined Occu-Med globe rim and stable hillshade.');
+console.log('Applied the refined Occu-Med globe rim without an external terrain source.');
