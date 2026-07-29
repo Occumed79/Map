@@ -1,0 +1,142 @@
+name: Validate Offline Owner Compiler
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+
+env:
+  DETAIL_RELEASE_TAG: occumed-world-replacement-candidates-v1
+  DETAIL_ASSET: occumed-replacement-sul.pmtiles
+  SURFACE_RELEASE_TAG: occumed-world-v1
+  SURFACE_ASSET: occumed-world-surface.pmtiles
+  DETAIL_BYTES: '1527234960'
+  DETAIL_SHA256: 6fab2b35279b1e812ec7bbc8212b1b1c10dc2a766ff98198313fc752199f4b7b
+
+jobs:
+  compile-proof:
+    if: >-
+      github.event.pull_request.base.ref == 'main' &&
+      github.event.pull_request.head.ref == 'validation/sul-offline-owner-compiler'
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: repair/replace-forced-split-families
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Download immutable detail and surface inputs
+        run: |
+          set -euo pipefail
+          mkdir -p owner-input owner-proof
+          curl --fail --location --retry 5 --retry-all-errors \
+            --output "owner-input/${DETAIL_ASSET}" \
+            "https://github.com/${GITHUB_REPOSITORY}/releases/download/${DETAIL_RELEASE_TAG}/${DETAIL_ASSET}"
+          curl --fail --location --retry 5 --retry-all-errors \
+            --output "owner-input/${DETAIL_ASSET}.sha256" \
+            "https://github.com/${GITHUB_REPOSITORY}/releases/download/${DETAIL_RELEASE_TAG}/${DETAIL_ASSET}.sha256"
+          curl --fail --location --retry 5 --retry-all-errors \
+            --output "owner-input/${SURFACE_ASSET}" \
+            "https://github.com/${GITHUB_REPOSITORY}/releases/download/${SURFACE_RELEASE_TAG}/${SURFACE_ASSET}"
+
+          test "$(stat -c %s "owner-input/${DETAIL_ASSET}")" = "$DETAIL_BYTES"
+          test "$(sha256sum "owner-input/${DETAIL_ASSET}" | awk '{print $1}')" = "$DETAIL_SHA256"
+          test "$(awk '{print $1}' "owner-input/${DETAIL_ASSET}.sha256")" = "$DETAIL_SHA256"
+          test "$(head -c 7 "owner-input/${DETAIL_ASSET}")" = PMTiles
+          test "$(head -c 7 "owner-input/${SURFACE_ASSET}")" = PMTiles
+          sha256sum "owner-input/${SURFACE_ASSET}" | tee owner-proof/surface.sha256
+          stat -c '%s' "owner-input/${SURFACE_ASSET}" | tee owner-proof/surface.bytes
+
+      - name: Compile representative prebuilt owner tiles
+        run: |
+          set -euo pipefail
+          compile() {
+            name="$1" z="$2" x="$3" y="$4"
+            node scripts/compile-offline-owner-tile.mjs \
+              --detail "owner-input/${DETAIL_ASSET}" \
+              --surface "owner-input/${SURFACE_ASSET}" \
+              --z "$z" --x "$x" --y "$y" \
+              --output "owner-proof/${name}.pbf" \
+              --report "owner-proof/${name}.report.json"
+          }
+
+          compile sul-regional-z6 6 22 37
+          compile former-split-cross-z9 9 182 298
+          compile porto-alegre-z14 14 5860 9625
+          compile curitiba-z14 14 5949 9389
+          compile florianopolis-z12 12 1495 2374
+
+      - name: Enforce authority and layer contracts
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const fs = require('fs');
+          const path = require('path');
+          const contracts = {
+            'sul-regional-z6': {
+              required: ['land', 'landcover'],
+              detailAdmitted: false,
+              authority: ['land', 'landcover', 'depth']
+            },
+            'former-split-cross-z9': {
+              required: ['land', 'landcover', 'transportation'],
+              detailAdmitted: true,
+              authority: ['land', 'depth']
+            },
+            'porto-alegre-z14': {
+              required: ['land', 'transportation', 'building'],
+              detailAdmitted: true,
+              authority: ['land', 'depth']
+            },
+            'curitiba-z14': {
+              required: ['land', 'transportation', 'building'],
+              detailAdmitted: true,
+              authority: ['land', 'depth']
+            },
+            'florianopolis-z12': {
+              required: ['land', 'transportation'],
+              detailAdmitted: true,
+              authority: ['land', 'depth']
+            }
+          };
+
+          for (const [name, contract] of Object.entries(contracts)) {
+            const report = JSON.parse(fs.readFileSync(path.join('owner-proof', `${name}.report.json`), 'utf8'));
+            if (report.detail.admitted !== contract.detailAdmitted) {
+              throw new Error(`${name}: unexpected detail authority ${report.detail.admitted}.`);
+            }
+            if (JSON.stringify(report.surface.authoritativeLayers) !== JSON.stringify(contract.authority)) {
+              throw new Error(`${name}: wrong surface authority ${JSON.stringify(report.surface.authoritativeLayers)}.`);
+            }
+            if (report.policy.syntheticLandcover !== false || report.policy.runtimeMerge !== false) {
+              throw new Error(`${name}: forbidden synthesis or runtime merge policy.`);
+            }
+            for (const layer of contract.required) {
+              if (!report.layers[layer]?.featureCount) {
+                throw new Error(`${name}: required layer ${layer} is missing.`);
+              }
+            }
+            if (!fs.statSync(path.join('owner-proof', `${name}.pbf`)).size) {
+              throw new Error(`${name}: compiled tile is empty.`);
+            }
+          }
+          console.log(`Validated ${Object.keys(contracts).length} offline owner tiles with authoritative land and preserved regional detail.`);
+          NODE
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sul-offline-owner-compiler-proof
+          path: owner-proof/**
+          if-no-files-found: error
+          retention-days: 30
