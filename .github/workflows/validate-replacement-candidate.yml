@@ -1,0 +1,115 @@
+name: Validate Replacement Candidate
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+
+env:
+  FAMILY: sul
+  CANDIDATE_RELEASE_TAG: occumed-world-replacement-candidates-v1
+  CANDIDATE_ASSET: occumed-replacement-sul.pmtiles
+  EXPECTED_BYTES: '1527234960'
+
+jobs:
+  validate-candidate:
+    if: >-
+      github.event.pull_request.base.ref == 'hotfix/emergency-stable-online' &&
+      github.event.pull_request.head.ref == 'repair/replace-forced-split-families'
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: repair/replace-forced-split-families
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install application and browser dependencies
+        run: |
+          set -euo pipefail
+          npm ci
+          npx playwright install --with-deps chromium
+          python3 -m pip install --disable-pip-version-check pillow numpy
+
+      - name: Download and verify the inactive sul candidate
+        run: |
+          set -euo pipefail
+          mkdir -p candidate-input candidate-validation
+          BASE="https://github.com/${GITHUB_REPOSITORY}/releases/download/${CANDIDATE_RELEASE_TAG}"
+          curl --fail --location --retry 5 --retry-all-errors \
+            --output "candidate-input/${CANDIDATE_ASSET}" \
+            "${BASE}/${CANDIDATE_ASSET}"
+          curl --fail --location --retry 5 --retry-all-errors \
+            --output "candidate-input/${CANDIDATE_ASSET}.sha256" \
+            "${BASE}/${CANDIDATE_ASSET}.sha256"
+          EXPECTED_SHA="$(awk '{print $1}' "candidate-input/${CANDIDATE_ASSET}.sha256")"
+          ACTUAL_SHA="$(sha256sum "candidate-input/${CANDIDATE_ASSET}" | awk '{print $1}')"
+          test "$EXPECTED_SHA" = "$ACTUAL_SHA"
+          test "$ACTUAL_SHA" = "6fab2b35279b1e812ec7bbc8212b1b1c10dc2a766ff98198313fc752199f4b7b"
+          test "$(stat -c %s "candidate-input/${CANDIDATE_ASSET}")" = "$EXPECTED_BYTES"
+          test "$(head -c 7 "candidate-input/${CANDIDATE_ASSET}")" = PMTiles
+
+      - name: Build the one-source candidate viewer
+        env:
+          OCCUMED_STYLE_MAX_ZOOM: '16'
+          OCCUMED_STYLE_MODE: replacement-candidate-sul
+        run: |
+          set -euo pipefail
+          npm run prepare:assets
+          npx vite build
+
+      - name: Start the isolated candidate server
+        env:
+          OCCUMED_CANDIDATE_ARCHIVE: ${{ github.workspace }}/candidate-input/occumed-replacement-sul.pmtiles
+          OCCUMED_CANDIDATE_FAMILY: sul
+          PORT: '4173'
+        run: |
+          set -euo pipefail
+          node server-candidate.mjs > candidate-validation/server.log 2>&1 &
+          echo $! > candidate-validation/server.pid
+          for attempt in $(seq 1 180); do
+            if curl --fail --silent http://127.0.0.1:4173/readyz > candidate-validation/ready.json; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat candidate-validation/server.log
+          exit 1
+
+      - name: Validate layers, source stability, boundaries, and zooms
+        env:
+          OCCUMED_CANDIDATE_FAMILY: sul
+          OCCUMED_PREVIEW_ORIGIN: http://127.0.0.1:4173
+          OCCUMED_PREVIEW_OUTPUT: candidate-validation/results
+        run: |
+          set -euo pipefail
+          node scripts/validate-replacement-candidate.mjs
+
+      - name: Reject blank and seam-like screenshots
+        run: |
+          set -euo pipefail
+          python3 scripts/analyze-candidate-screenshots.py candidate-validation/results
+
+      - name: Stop candidate server
+        if: always()
+        run: |
+          if [ -f candidate-validation/server.pid ]; then
+            kill "$(cat candidate-validation/server.pid)" 2>/dev/null || true
+          fi
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: replacement-sul-visual-validation
+          path: |
+            candidate-validation/ready.json
+            candidate-validation/server.log
+            candidate-validation/results/**
+          if-no-files-found: warn
+          retention-days: 30
