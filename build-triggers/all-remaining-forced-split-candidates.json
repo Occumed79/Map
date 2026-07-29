@@ -1,0 +1,8 @@
+{
+  "purpose": "Queue all unfinished forced-split parent rebuilds",
+  "familiesQueued": 48,
+  "completedExcluded": ["sul", "nordeste", "southern-zone"],
+  "maxParallel": 8,
+  "active": false,
+  "productionRoutingChanged": false
+}
