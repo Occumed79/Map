@@ -8,7 +8,7 @@ on:
       family:
         description: Published forced-split parent family to rebuild from its unsplit source PBF
         required: true
-        default: sul
+        default: nordeste
 
 permissions:
   contents: write
@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 360
     env:
-      FAMILY: ${{ github.event_name == 'workflow_dispatch' && inputs.family || 'sul' }}
+      FAMILY: ${{ github.event_name == 'workflow_dispatch' && inputs.family || 'nordeste' }}
     steps:
       - uses: actions/checkout@v4
         with:
