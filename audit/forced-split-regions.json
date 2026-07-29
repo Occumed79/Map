@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-29T06:26:09.634Z",
+  "generated_at": "2026-07-29T07:04:54.416Z",
   "direct_split_limit_bytes": 850000000,
   "forced_split_family_count": 16,
   "forced_split_child_count": 176,
@@ -367,7 +367,7 @@
     {
       "source_region_id": "dach",
       "continent": "europe",
-      "source_size_bytes": 6183091366,
+      "source_size_bytes": 6182252887,
       "child_count": 25,
       "children": [
         {
@@ -856,7 +856,7 @@
     {
       "source_region_id": "sea",
       "continent": "asia",
-      "source_size_bytes": 3634737562,
+      "source_size_bytes": 3634443322,
       "child_count": 15,
       "children": [
         {
@@ -1029,7 +1029,7 @@
     {
       "source_region_id": "us-west",
       "continent": "north-america",
-      "source_size_bytes": 3374891428,
+      "source_size_bytes": 3375200481,
       "child_count": 12,
       "children": [
         {
@@ -1276,7 +1276,7 @@
     {
       "source_region_id": "us-midwest",
       "continent": "north-america",
-      "source_size_bytes": 2474124802,
+      "source_size_bytes": 2474364429,
       "child_count": 12,
       "children": [
         {
@@ -1416,7 +1416,7 @@
     {
       "source_region_id": "alps",
       "continent": "europe",
-      "source_size_bytes": 2301259383,
+      "source_size_bytes": 2301582947,
       "child_count": 8,
       "children": [
         {
@@ -1745,7 +1745,7 @@
     {
       "source_region_id": "ontario",
       "continent": "north-america",
-      "source_size_bytes": 966871523,
+      "source_size_bytes": 966741555,
       "child_count": 4,
       "children": [
         {
@@ -1797,7 +1797,7 @@
     {
       "source_region_id": "java",
       "continent": "asia",
-      "source_size_bytes": 894918961,
+      "source_size_bytes": 894892987,
       "child_count": 6,
       "children": [
         {
@@ -1871,7 +1871,7 @@
     {
       "source_region_id": "ukraine",
       "continent": "europe",
-      "source_size_bytes": 870539197,
+      "source_size_bytes": 870676344,
       "child_count": 6,
       "children": [
         {

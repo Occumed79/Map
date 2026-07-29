@@ -1,0 +1,1941 @@
+{
+  "generatedAt": "2026-07-29T07:04:57.645Z",
+  "repository": "Occumed79/Map",
+  "releaseTag": "occumed-world-v1",
+  "releaseId": 359982973,
+  "releaseName": "Occu-Med Worldwide PMTiles v1",
+  "totalReleaseAssets": 758,
+  "splitFamilyCount": 51,
+  "splitAssetCount": 262,
+  "families": [
+    {
+      "parent": "austria",
+      "assets": [
+        {
+          "name": "occumed-austria--r1-c1.pmtiles",
+          "size": 218677278,
+          "state": "uploaded",
+          "downloadCount": 80
+        },
+        {
+          "name": "occumed-austria--r1-c2.pmtiles",
+          "size": 374476041,
+          "state": "uploaded",
+          "downloadCount": 78
+        },
+        {
+          "name": "occumed-austria--r1-c3.pmtiles",
+          "size": 404662517,
+          "state": "uploaded",
+          "downloadCount": 78
+        },
+        {
+          "name": "occumed-austria--r2-c1.pmtiles",
+          "size": 172534,
+          "state": "uploaded",
+          "downloadCount": 91
+        },
+        {
+          "name": "occumed-austria--r2-c2.pmtiles",
+          "size": 342214553,
+          "state": "uploaded",
+          "downloadCount": 86
+        },
+        {
+          "name": "occumed-austria--r2-c3.pmtiles",
+          "size": 568753470,
+          "state": "uploaded",
+          "downloadCount": 88
+        }
+      ],
+      "totalBytes": 1908956393,
+      "assetCount": 6
+    },
+    {
+      "parent": "belgium",
+      "assets": [
+        {
+          "name": "occumed-belgium--r1-c1.pmtiles",
+          "size": 10934490,
+          "state": "uploaded",
+          "downloadCount": 74
+        },
+        {
+          "name": "occumed-belgium--r1-c2.pmtiles",
+          "size": 199226572,
+          "state": "uploaded",
+          "downloadCount": 73
+        },
+        {
+          "name": "occumed-belgium--r1-c3.pmtiles",
+          "size": 169288251,
+          "state": "uploaded",
+          "downloadCount": 83
+        },
+        {
+          "name": "occumed-belgium--r2-c1.pmtiles",
+          "size": 310222580,
+          "state": "uploaded",
+          "downloadCount": 77
+        },
+        {
+          "name": "occumed-belgium--r2-c2.pmtiles",
+          "size": 585752939,
+          "state": "uploaded",
+          "downloadCount": 76
+        },
+        {
+          "name": "occumed-belgium--r2-c3.pmtiles",
+          "size": 264851520,
+          "state": "uploaded",
+          "downloadCount": 90
+        }
+      ],
+      "totalBytes": 1540276352,
+      "assetCount": 6
+    },
+    {
+      "parent": "congo-democratic-republic",
+      "assets": [
+        {
+          "name": "occumed-congo-democratic-republic--r1-c1.pmtiles",
+          "size": 132677433,
+          "state": "uploaded",
+          "downloadCount": 49
+        },
+        {
+          "name": "occumed-congo-democratic-republic--r1-c2.pmtiles",
+          "size": 159413055,
+          "state": "uploaded",
+          "downloadCount": 52
+        },
+        {
+          "name": "occumed-congo-democratic-republic--r1-c3.pmtiles",
+          "size": 224522290,
+          "state": "uploaded",
+          "downloadCount": 50
+        },
+        {
+          "name": "occumed-congo-democratic-republic--r2-c1.pmtiles",
+          "size": 45624999,
+          "state": "uploaded",
+          "downloadCount": 51
+        },
+        {
+          "name": "occumed-congo-democratic-republic--r2-c2.pmtiles",
+          "size": 200154842,
+          "state": "uploaded",
+          "downloadCount": 53
+        },
+        {
+          "name": "occumed-congo-democratic-republic--r2-c3.pmtiles",
+          "size": 728280726,
+          "state": "uploaded",
+          "downloadCount": 47
+        }
+      ],
+      "totalBytes": 1490673345,
+      "assetCount": 6
+    },
+    {
+      "parent": "denmark",
+      "assets": [
+        {
+          "name": "occumed-denmark--r1-c1.pmtiles",
+          "size": 422432638,
+          "state": "uploaded",
+          "downloadCount": 81
+        },
+        {
+          "name": "occumed-denmark--r1-c2.pmtiles",
+          "size": 439926482,
+          "state": "uploaded",
+          "downloadCount": 85
+        },
+        {
+          "name": "occumed-denmark--r1-c3.pmtiles",
+          "size": 26074393,
+          "state": "uploaded",
+          "downloadCount": 72
+        },
+        {
+          "name": "occumed-denmark--r2-c1.pmtiles",
+          "size": 303663384,
+          "state": "uploaded",
+          "downloadCount": 46
+        },
+        {
+          "name": "occumed-denmark--r2-c2.pmtiles",
+          "size": 48684592,
+          "state": "uploaded",
+          "downloadCount": 49
+        },
+        {
+          "name": "occumed-denmark--r2-c3.pmtiles",
+          "size": 16732,
+          "state": "uploaded",
+          "downloadCount": 41
+        }
+      ],
+      "totalBytes": 1240798221,
+      "assetCount": 6
+    },
+    {
+      "parent": "java",
+      "assets": [
+        {
+          "name": "occumed-java--r1-c1.pmtiles",
+          "size": 300269154,
+          "state": "uploaded",
+          "downloadCount": 50
+        },
+        {
+          "name": "occumed-java--r1-c2.pmtiles",
+          "size": 942926582,
+          "state": "uploaded",
+          "downloadCount": 50
+        },
+        {
+          "name": "occumed-java--r1-c3.pmtiles",
+          "size": 327977724,
+          "state": "uploaded",
+          "downloadCount": 51
+        },
+        {
+          "name": "occumed-java--r2-c1.pmtiles",
+          "size": 489882362,
+          "state": "uploaded",
+          "downloadCount": 55
+        },
+        {
+          "name": "occumed-java--r2-c2.pmtiles",
+          "size": 56948293,
+          "state": "uploaded",
+          "downloadCount": 51
+        },
+        {
+          "name": "occumed-java--r2-c3.pmtiles",
+          "size": 6279835,
+          "state": "uploaded",
+          "downloadCount": 50
+        }
+      ],
+      "totalBytes": 2124283950,
+      "assetCount": 6
+    },
+    {
+      "parent": "kanto",
+      "assets": [
+        {
+          "name": "occumed-kanto--r1-c1.pmtiles",
+          "size": 261656,
+          "state": "uploaded",
+          "downloadCount": 49
+        },
+        {
+          "name": "occumed-kanto--r1-c2.pmtiles",
+          "size": 1967497,
+          "state": "uploaded",
+          "downloadCount": 49
+        },
+        {
+          "name": "occumed-kanto--r1-c3.pmtiles",
+          "size": 16732,
+          "state": "uploaded",
+          "downloadCount": 40
+        },
+        {
+          "name": "occumed-kanto--r2-c1.pmtiles",
+          "size": 1038301083,
+          "state": "uploaded",
+          "downloadCount": 61
+        },
+        {
+          "name": "occumed-kanto--r2-c2.pmtiles",
+          "size": 16732,
+          "state": "uploaded",
+          "downloadCount": 40
+        },
+        {
+          "name": "occumed-kanto--r2-c3.pmtiles",
+          "size": 16732,
+          "state": "uploaded",
+          "downloadCount": 40
+        }
+      ],
+      "totalBytes": 1040580432,
+      "assetCount": 6
+    },
+    {
+      "parent": "kitikmeot",
+      "assets": [
+        {
+          "name": "occumed-kitikmeot--r1-c1.pmtiles",
+          "size": 264006853,
+          "state": "uploaded",
+          "downloadCount": 43
+        },
+        {
+          "name": "occumed-kitikmeot--r1-c2.pmtiles",
+          "size": 478328852,
+          "state": "uploaded",
+          "downloadCount": 43
+        },
+        {
+          "name": "occumed-kitikmeot--r1-c3.pmtiles",
+          "size": 334220933,
+          "state": "uploaded",
+          "downloadCount": 43
+        },
+        {
+          "name": "occumed-kitikmeot--r2-c1.pmtiles",
+          "size": 108011358,
+          "state": "uploaded",
+          "downloadCount": 44
+        },
+        {
+          "name": "occumed-kitikmeot--r2-c2.pmtiles",
+          "size": 558692200,
+          "state": "uploaded",
+          "downloadCount": 44
+        },
+        {
+          "name": "occumed-kitikmeot--r2-c3.pmtiles",
+          "size": 249315399,
+          "state": "uploaded",
+          "downloadCount": 44
+        }
+      ],
+      "totalBytes": 1992575595,
+      "assetCount": 6
+    },
+    {
+      "parent": "kivalliq",
+      "assets": [
+        {
+          "name": "occumed-kivalliq--r1-c1.pmtiles",
+          "size": 260318539,
+          "state": "uploaded",
+          "downloadCount": 43
+        },
+        {
+          "name": "occumed-kivalliq--r1-c2.pmtiles",
+          "size": 165400943,
+          "state": "uploaded",
+          "downloadCount": 43
+        },
+        {
+          "name": "occumed-kivalliq--r1-c3.pmtiles",
+          "size": 16732,
+          "state": "uploaded",
+          "downloadCount": 40
+        },
+        {
+          "name": "occumed-kivalliq--r2-c1.pmtiles",
+          "size": 628476627,
+          "state": "uploaded",
+          "downloadCount": 44
+        },
+        {
+          "name": "occumed-kivalliq--r2-c2.pmtiles",
+          "size": 665168093,
+          "state": "uploaded",
+          "downloadCount": 44
+        },
+        {
+          "name": "occumed-kivalliq--r2-c3.pmtiles",
+          "size": 291947354,
+          "state": "uploaded",
+          "downloadCount": 44
+        }
+      ],
+      "totalBytes": 2011328288,
+      "assetCount": 6
+    },
+    {
+      "parent": "mexico",
+      "assets": [
+        {
+          "name": "occumed-mexico--r1-c1.pmtiles",
+          "size": 487817,
+          "state": "uploaded",
+          "downloadCount": 44
+        },
+        {
+          "name": "occumed-mexico--r1-c2.pmtiles",
+          "size": 270278155,
+          "state": "uploaded",
+          "downloadCount": 42
+        },
+        {
+          "name": "occumed-mexico--r1-c3.pmtiles",
+          "size": 1097520242,
+          "state": "uploaded",
+          "downloadCount": 48
+        },
+        {
+          "name": "occumed-mexico--r2-c1.pmtiles",
+          "size": 77635174,
+          "state": "uploaded",
+          "downloadCount": 60
+        },
+        {
+          "name": "occumed-mexico--r2-c2.pmtiles",
+          "size": 792632896,
+          "state": "uploaded",
+          "downloadCount": 85
+        },
+        {
+          "name": "occumed-mexico--r2-c3.pmtiles",
+          "size": 303751738,
+          "state": "uploaded",
+          "downloadCount": 66
+        }
+      ],
+      "totalBytes": 2542306022,
+      "assetCount": 6
+    },
+    {
+      "parent": "nepal",
+      "assets": [
+        {
+          "name": "occumed-nepal--r1-c1.pmtiles",
+          "size": 77967264,
+          "state": "uploaded",
+          "downloadCount": 47
+        },
+        {
+          "name": "occumed-nepal--r1-c2.pmtiles",
+          "size": 393150721,
+          "state": "uploaded",
+          "downloadCount": 52
+        },
+        {
+          "name": "occumed-nepal--r1-c3.pmtiles",
+          "size": 420716547,
+          "state": "uploaded",
+          "downloadCount": 49
+        },
+        {
+          "name": "occumed-nepal--r2-c1.pmtiles",
+          "size": 215348556,
+          "state": "uploaded",
+          "downloadCount": 52
+        },
+        {
+          "name": "occumed-nepal--r2-c2.pmtiles",
+          "size": 32792643,
+          "state": "uploaded",
+          "downloadCount": 56
+        },
+        {
+          "name": "occumed-nepal--r2-c3.pmtiles",
+          "size": 174663,
+          "state": "uploaded",
+          "downloadCount": 47
+        }
+      ],
+      "totalBytes": 1140150394,
+      "assetCount": 6
+    },
+    {
+      "parent": "new-zealand",
+      "assets": [
+        {
+          "name": "occumed-new-zealand--r1-c1.pmtiles",
+          "size": 400130643,
+          "state": "uploaded",
+          "downloadCount": 49
+        },
+        {
+          "name": "occumed-new-zealand--r1-c2-s1.pmtiles",
+          "size": 718406,
+          "state": "uploaded",
+          "downloadCount": 47
+        },
+        {
+          "name": "occumed-new-zealand--r1-c2-s2.pmtiles",
+          "size": 3837590,
+          "state": "uploaded",
+          "downloadCount": 39
+        },
+        {
+          "name": "occumed-new-zealand--r2-c1.pmtiles",
+          "size": 184645495,
+          "state": "uploaded",
+          "downloadCount": 49
+        },
+        {
+          "name": "occumed-new-zealand--r2-c2-s1.pmtiles",
+          "size": 595270020,
+          "state": "uploaded",
+          "downloadCount": 50
+        },
+        {
+          "name": "occumed-new-zealand--r2-c2-s2.pmtiles",
+          "size": 946882,
+          "state": "uploaded",
+          "downloadCount": 39
+        }
+      ],
+      "totalBytes": 1185549036,
+      "assetCount": 6
+    },
+    {
+      "parent": "niedersachsen",
+      "assets": [
+        {
+          "name": "occumed-niedersachsen--r1-c1.pmtiles",
+          "size": 126166861,
+          "state": "uploaded",
+          "downloadCount": 80
+        },
+        {
+          "name": "occumed-niedersachsen--r1-c2.pmtiles",
+          "size": 283802615,
+          "state": "uploaded",
+          "downloadCount": 83
+        },
+        {
+          "name": "occumed-niedersachsen--r1-c3.pmtiles",
+          "size": 278014098,
+          "state": "uploaded",
+          "downloadCount": 93
+        },
+        {
+          "name": "occumed-niedersachsen--r2-c1.pmtiles",
+          "size": 177999767,
+          "state": "uploaded",
+          "downloadCount": 74
+        },
+        {
+          "name": "occumed-niedersachsen--r2-c2.pmtiles",
+          "size": 347752986,
+          "state": "uploaded",
+          "downloadCount": 73
+        },
+        {
+          "name": "occumed-niedersachsen--r2-c3.pmtiles",
+          "size": 120727258,
+          "state": "uploaded",
+          "downloadCount": 75
+        }
+      ],
+      "totalBytes": 1334463585,
+      "assetCount": 6
+    },
+    {
+      "parent": "nigeria",
+      "assets": [
+        {
+          "name": "occumed-nigeria--r1-c1.pmtiles",
+          "size": 590917628,
+          "state": "uploaded",
+          "downloadCount": 50
+        },
+        {
+          "name": "occumed-nigeria--r1-c2.pmtiles",
+          "size": 337086709,
+          "state": "uploaded",
+          "downloadCount": 51
+        },
+        {
+          "name": "occumed-nigeria--r1-c3.pmtiles",
+          "size": 17939570,
+          "state": "uploaded",
+          "downloadCount": 52
+        },
+        {
+          "name": "occumed-nigeria--r2-c1.pmtiles",
+          "size": 346016473,
+          "state": "uploaded",
+          "downloadCount": 56
+        },
+        {
+          "name": "occumed-nigeria--r2-c2.pmtiles",
+          "size": 462597847,
+          "state": "uploaded",
+          "downloadCount": 55
+        },
+        {
+          "name": "occumed-nigeria--r2-c3.pmtiles",
+          "size": 264443352,
+          "state": "uploaded",
+          "downloadCount": 55
+        }
+      ],
+      "totalBytes": 2019001579,
+      "assetCount": 6
+    },
+    {
+      "parent": "norcal",
+      "assets": [
+        {
+          "name": "occumed-norcal--r1-c1.pmtiles",
+          "size": 91991736,
+          "state": "uploaded",
+          "downloadCount": 53
+        },
+        {
+          "name": "occumed-norcal--r1-c2.pmtiles",
+          "size": 909262639,
+          "state": "uploaded",
+          "downloadCount": 86
+        },
+        {
+          "name": "occumed-norcal--r1-c3.pmtiles",
+          "size": 88601899,
+          "state": "uploaded",
+          "downloadCount": 76
+        },
+        {
+          "name": "occumed-norcal--r2-c1.pmtiles",
+          "size": 179288818,
+          "state": "uploaded",
+          "downloadCount": 54
+        },
+        {
+          "name": "occumed-norcal--r2-c2.pmtiles",
+          "size": 279451647,
+          "state": "uploaded",
+          "downloadCount": 55
+        },
+        {
+          "name": "occumed-norcal--r2-c3.pmtiles",
+          "size": 16732,
+          "state": "uploaded",
+          "downloadCount": 48
+        }
+      ],
+      "totalBytes": 1548613471,
+      "assetCount": 6
+    },
+    {
+      "parent": "nord-norge",
+      "assets": [
+        {
+          "name": "occumed-nord-norge--r1-c1.pmtiles",
+          "size": 458668591,
+          "state": "uploaded",
+          "downloadCount": 45
+        },
+        {
+          "name": "occumed-nord-norge--r1-c2.pmtiles",
+          "size": 74310608,
+          "state": "uploaded",
+          "downloadCount": 47
+        },
+        {
+          "name": "occumed-nord-norge--r1-c3.pmtiles",
+          "size": 392183,
+          "state": "uploaded",
+          "downloadCount": 44
+        },
+        {
+          "name": "occumed-nord-norge--r2-c1.pmtiles",
+          "size": 37509044,
+          "state": "uploaded",
+          "downloadCount": 45
+        },
+        {
+          "name": "occumed-nord-norge--r2-c2.pmtiles",
+          "size": 511767172,
+          "state": "uploaded",
+          "downloadCount": 50
+        },
+        {
+          "name": "occumed-nord-norge--r2-c3.pmtiles",
+          "size": 312787292,
+          "state": "uploaded",
+          "downloadCount": 48
+        }
+      ],
+      "totalBytes": 1395434890,
+      "assetCount": 6
+    },
+    {
+      "parent": "nord-ovest",
+      "assets": [
+        {
+          "name": "occumed-nord-ovest--r1-c1.pmtiles",
+          "size": 248086757,
+          "state": "uploaded",
+          "downloadCount": 45
+        },
+        {
+          "name": "occumed-nord-ovest--r1-c2.pmtiles",
+          "size": 208497687,
+          "state": "uploaded",
+          "downloadCount": 44
+        },
+        {
+          "name": "occumed-nord-ovest--r1-c3.pmtiles",
+          "size": 31522654,
+          "state": "uploaded",
+          "downloadCount": 47
+        },
+        {
+          "name": "occumed-nord-ovest--r2-c1.pmtiles",
+          "size": 181030535,
+          "state": "uploaded",
+          "downloadCount": 73
+        },
+        {
+          "name": "occumed-nord-ovest--r2-c2.pmtiles",
+          "size": 517971977,
+          "state": "uploaded",
+          "downloadCount": 73
+        },
+        {
+          "name": "occumed-nord-ovest--r2-c3.pmtiles",
+          "size": 204533285,
+          "state": "uploaded",
+          "downloadCount": 74
+        }
+      ],
+      "totalBytes": 1391642895,
+      "assetCount": 6
+    },
+    {
+      "parent": "north-admreg",
+      "assets": [
+        {
+          "name": "occumed-north-admreg--r1-c1.pmtiles",
+          "size": 356568,
+          "state": "uploaded",
+          "downloadCount": 39
+        },
+        {
+          "name": "occumed-north-admreg--r1-c2.pmtiles",
+          "size": 338056146,
+          "state": "uploaded",
+          "downloadCount": 43
+        },
+        {
+          "name": "occumed-north-admreg--r1-c3.pmtiles",
+          "size": 331543175,
+          "state": "uploaded",
+          "downloadCount": 45
+        },
+        {
+          "name": "occumed-north-admreg--r2-c1.pmtiles",
+          "size": 66909299,
+          "state": "uploaded",
+          "downloadCount": 42
+        },
+        {
+          "name": "occumed-north-admreg--r2-c2.pmtiles",
+          "size": 662946406,
+          "state": "uploaded",
+          "downloadCount": 43
+        },
+        {
+          "name": "occumed-north-admreg--r2-c3.pmtiles",
+          "size": 530154501,
+          "state": "uploaded",
+          "downloadCount": 46
+        }
+      ],
+      "totalBytes": 1929966095,
+      "assetCount": 6
+    },
+    {
+      "parent": "portugal",
+      "assets": [
+        {
+          "name": "occumed-portugal--r1-c1.pmtiles",
+          "size": 1933521,
+          "state": "uploaded",
+          "downloadCount": 42
+        },
+        {
+          "name": "occumed-portugal--r1-c2.pmtiles",
+          "size": 27803949,
+          "state": "uploaded",
+          "downloadCount": 45
+        },
+        {
+          "name": "occumed-portugal--r1-c3.pmtiles",
+          "size": 10831754,
+          "state": "uploaded",
+          "downloadCount": 50
+        },
+        {
+          "name": "occumed-portugal--r2-c1.pmtiles",
+          "size": 45325490,
+          "state": "uploaded",
+          "downloadCount": 43
+        },
+        {
+          "name": "occumed-portugal--r2-c2.pmtiles",
+          "size": 16732,
+          "state": "uploaded",
+          "downloadCount": 39
+        },
+        {
+          "name": "occumed-portugal--r2-c3.pmtiles",
+          "size": 1029737437,
+          "state": "uploaded",
+          "downloadCount": 59
+        }
+      ],
+      "totalBytes": 1115648883,
+      "assetCount": 6
+    },
+    {
+      "parent": "quebec",
+      "assets": [
+        {
+          "name": "occumed-quebec--r1-c1.pmtiles",
+          "size": 1700104936,
+          "state": "uploaded",
+          "downloadCount": 46
+        },
+        {
+          "name": "occumed-quebec--r1-c2.pmtiles",
+          "size": 271606446,
+          "state": "uploaded",
+          "downloadCount": 46
+        },
+        {
+          "name": "occumed-quebec--r2-c1.pmtiles",
+          "size": 788850608,
+          "state": "uploaded",
+          "downloadCount": 46
+        },
+        {
+          "name": "occumed-quebec--r2-c2.pmtiles",
+          "size": 342831081,
+          "state": "uploaded",
+          "downloadCount": 43
+        },
+        {
+          "name": "occumed-quebec--r3-c1.pmtiles",
+          "size": 1122306964,
+          "state": "uploaded",
+          "downloadCount": 43
+        },
+        {
+          "name": "occumed-quebec--r3-c2.pmtiles",
+          "size": 178915707,
+          "state": "uploaded",
+          "downloadCount": 43
+        }
+      ],
+      "totalBytes": 4404615742,
+      "assetCount": 6
+    },
+    {
+      "parent": "rhone-alpes",
+      "assets": [
+        {
+          "name": "occumed-rhone-alpes--r1-c1.pmtiles",
+          "size": 142698850,
+          "state": "uploaded",
+          "downloadCount": 70
+        },
+        {
+          "name": "occumed-rhone-alpes--r1-c2.pmtiles",
+          "size": 199483653,
+          "state": "uploaded",
+          "downloadCount": 72
+        },
+        {
+          "name": "occumed-rhone-alpes--r1-c3.pmtiles",
+          "size": 29751508,
+          "state": "uploaded",
+          "downloadCount": 73
+        },
+        {
+          "name": "occumed-rhone-alpes--r2-c1.pmtiles",
+          "size": 257741227,
+          "state": "uploaded",
+          "downloadCount": 70
+        },
+        {
+          "name": "occumed-rhone-alpes--r2-c2.pmtiles",
+          "size": 304626930,
+          "state": "uploaded",
+          "downloadCount": 75
+        },
+        {
+          "name": "occumed-rhone-alpes--r2-c3.pmtiles",
+          "size": 203482852,
+          "state": "uploaded",
+          "downloadCount": 77
+        }
+      ],
+      "totalBytes": 1137785020,
+      "assetCount": 6
+    },
+    {
+      "parent": "socal",
+      "assets": [
+        {
+          "name": "occumed-socal--r1-c1.pmtiles",
+          "size": 4504102,
+          "state": "uploaded",
+          "downloadCount": 43
+        },
+        {
+          "name": "occumed-socal--r1-c2.pmtiles",
+          "size": 756182046,
+          "state": "uploaded",
+          "downloadCount": 68
+        },
+        {
+          "name": "occumed-socal--r1-c3.pmtiles",
+          "size": 64929269,
+          "state": "uploaded",
+          "downloadCount": 71
+        },
+        {
+          "name": "occumed-socal--r2-c1.pmtiles",
+          "size": 158223577,
+          "state": "uploaded",
+          "downloadCount": 49
+        },
+        {
+          "name": "occumed-socal--r2-c2.pmtiles",
+          "size": 279373854,
+          "state": "uploaded",
+          "downloadCount": 73
+        },
+        {
+          "name": "occumed-socal--r2-c3.pmtiles",
+          "size": 28656781,
+          "state": "uploaded",
+          "downloadCount": 72
+        }
+      ],
+      "totalBytes": 1291869629,
+      "assetCount": 6
+    },
+    {
+      "parent": "southern-zone",
+      "assets": [
+        {
+          "name": "occumed-southern-zone--r1-c1.pmtiles",
+          "size": 714053706,
+          "state": "uploaded",
+          "downloadCount": 51
+        },
+        {
+          "name": "occumed-southern-zone--r1-c2.pmtiles",
+          "size": 155267626,
+          "state": "uploaded",
+          "downloadCount": 51
+        },
+        {
+          "name": "occumed-southern-zone--r1-c3.pmtiles",
+          "size": 11483833,
+          "state": "uploaded",
+          "downloadCount": 49
+        },
+        {
+          "name": "occumed-southern-zone--r2-c1.pmtiles",
+          "size": 526429201,
+          "state": "uploaded",
+          "downloadCount": 48
+        },
+        {
+          "name": "occumed-southern-zone--r2-c2.pmtiles",
+          "size": 474932877,
+          "state": "uploaded",
+          "downloadCount": 50
+        },
+        {
+          "name": "occumed-southern-zone--r2-c3.pmtiles",
+          "size": 2540619,
+          "state": "uploaded",
+          "downloadCount": 48
+        }
+      ],
+      "totalBytes": 1884707862,
+      "assetCount": 6
+    },
+    {
+      "parent": "sudeste",
+      "assets": [
+        {
+          "name": "occumed-sudeste--r1-c1.pmtiles",
+          "size": 1242341802,
+          "state": "uploaded",
+          "downloadCount": 43
+        },
+        {
+          "name": "occumed-sudeste--r1-c2.pmtiles",
+          "size": 660697451,
+          "state": "uploaded",
+          "downloadCount": 44
+        },
+        {
+          "name": "occumed-sudeste--r1-c3.pmtiles",
+          "size": 3223369,
+          "state": "uploaded",
+          "downloadCount": 43
+        },
+        {
+          "name": "occumed-sudeste--r2-c1.pmtiles",
+          "size": 261881489,
+          "state": "uploaded",
+          "downloadCount": 55
+        },
+        {
+          "name": "occumed-sudeste--r2-c2.pmtiles",
+          "size": 487630430,
+          "state": "uploaded",
+          "downloadCount": 46
+        },
+        {
+          "name": "occumed-sudeste--r2-c3.pmtiles",
+          "size": 2670406,
+          "state": "uploaded",
+          "downloadCount": 42
+        }
+      ],
+      "totalBytes": 2658444947,
+      "assetCount": 6
+    },
+    {
+      "parent": "switzerland",
+      "assets": [
+        {
+          "name": "occumed-switzerland--r1-c1.pmtiles",
+          "size": 205694980,
+          "state": "uploaded",
+          "downloadCount": 74
+        },
+        {
+          "name": "occumed-switzerland--r1-c2.pmtiles",
+          "size": 135570876,
+          "state": "uploaded",
+          "downloadCount": 73
+        },
+        {
+          "name": "occumed-switzerland--r1-c3.pmtiles",
+          "size": 68624180,
+          "state": "uploaded",
+          "downloadCount": 72
+        },
+        {
+          "name": "occumed-switzerland--r2-c1.pmtiles",
+          "size": 110409352,
+          "state": "uploaded",
+          "downloadCount": 75
+        },
+        {
+          "name": "occumed-switzerland--r2-c2.pmtiles",
+          "size": 421365858,
+          "state": "uploaded",
+          "downloadCount": 76
+        },
+        {
+          "name": "occumed-switzerland--r2-c3.pmtiles",
+          "size": 135798950,
+          "state": "uploaded",
+          "downloadCount": 77
+        }
+      ],
+      "totalBytes": 1077464196,
+      "assetCount": 6
+    },
+    {
+      "parent": "tanzania",
+      "assets": [
+        {
+          "name": "occumed-tanzania--r1-c1.pmtiles",
+          "size": 82937409,
+          "state": "uploaded",
+          "downloadCount": 52
+        },
+        {
+          "name": "occumed-tanzania--r1-c2.pmtiles",
+          "size": 236635139,
+          "state": "uploaded",
+          "downloadCount": 55
+        },
+        {
+          "name": "occumed-tanzania--r1-c3.pmtiles",
+          "size": 265406651,
+          "state": "uploaded",
+          "downloadCount": 51
+        },
+        {
+          "name": "occumed-tanzania--r2-c1.pmtiles",
+          "size": 380932835,
+          "state": "uploaded",
+          "downloadCount": 54
+        },
+        {
+          "name": "occumed-tanzania--r2-c2.pmtiles",
+          "size": 521077980,
+          "state": "uploaded",
+          "downloadCount": 58
+        },
+        {
+          "name": "occumed-tanzania--r2-c3.pmtiles",
+          "size": 199190421,
+          "state": "uploaded",
+          "downloadCount": 53
+        }
+      ],
+      "totalBytes": 1686180435,
+      "assetCount": 6
+    },
+    {
+      "parent": "turkey",
+      "assets": [
+        {
+          "name": "occumed-turkey--r1-c1.pmtiles",
+          "size": 424453997,
+          "state": "uploaded",
+          "downloadCount": 48
+        },
+        {
+          "name": "occumed-turkey--r1-c2.pmtiles",
+          "size": 568916649,
+          "state": "uploaded",
+          "downloadCount": 58
+        },
+        {
+          "name": "occumed-turkey--r1-c3.pmtiles",
+          "size": 289202056,
+          "state": "uploaded",
+          "downloadCount": 59
+        },
+        {
+          "name": "occumed-turkey--r2-c1.pmtiles",
+          "size": 579581245,
+          "state": "uploaded",
+          "downloadCount": 53
+        },
+        {
+          "name": "occumed-turkey--r2-c2.pmtiles",
+          "size": 394187233,
+          "state": "uploaded",
+          "downloadCount": 57
+        },
+        {
+          "name": "occumed-turkey--r2-c3.pmtiles",
+          "size": 194939583,
+          "state": "uploaded",
+          "downloadCount": 60
+        }
+      ],
+      "totalBytes": 2451280763,
+      "assetCount": 6
+    },
+    {
+      "parent": "ukraine",
+      "assets": [
+        {
+          "name": "occumed-ukraine--r1-c1.pmtiles",
+          "size": 88193506,
+          "state": "uploaded",
+          "downloadCount": 85
+        },
+        {
+          "name": "occumed-ukraine--r1-c2.pmtiles",
+          "size": 522656919,
+          "state": "uploaded",
+          "downloadCount": 67
+        },
+        {
+          "name": "occumed-ukraine--r1-c3.pmtiles",
+          "size": 369568044,
+          "state": "uploaded",
+          "downloadCount": 56
+        },
+        {
+          "name": "occumed-ukraine--r2-c1.pmtiles",
+          "size": 960467825,
+          "state": "uploaded",
+          "downloadCount": 87
+        },
+        {
+          "name": "occumed-ukraine--r2-c2.pmtiles",
+          "size": 981527512,
+          "state": "uploaded",
+          "downloadCount": 75
+        },
+        {
+          "name": "occumed-ukraine--r2-c3.pmtiles",
+          "size": 653239266,
+          "state": "uploaded",
+          "downloadCount": 56
+        }
+      ],
+      "totalBytes": 3575653072,
+      "assetCount": 6
+    },
+    {
+      "parent": "us--florida",
+      "assets": [
+        {
+          "name": "occumed-us--florida--r1-c1.pmtiles",
+          "size": 16732,
+          "state": "uploaded",
+          "downloadCount": 39
+        },
+        {
+          "name": "occumed-us--florida--r1-c2.pmtiles",
+          "size": 26245325,
+          "state": "uploaded",
+          "downloadCount": 42
+        },
+        {
+          "name": "occumed-us--florida--r1-c3.pmtiles",
+          "size": 545085809,
+          "state": "uploaded",
+          "downloadCount": 43
+        },
+        {
+          "name": "occumed-us--florida--r2-c1.pmtiles",
+          "size": 167365951,
+          "state": "uploaded",
+          "downloadCount": 41
+        },
+        {
+          "name": "occumed-us--florida--r2-c2.pmtiles",
+          "size": 419983682,
+          "state": "uploaded",
+          "downloadCount": 46
+        },
+        {
+          "name": "occumed-us--florida--r2-c3.pmtiles",
+          "size": 720828372,
+          "state": "uploaded",
+          "downloadCount": 50
+        }
+      ],
+      "totalBytes": 1879525871,
+      "assetCount": 6
+    },
+    {
+      "parent": "us--new-york",
+      "assets": [
+        {
+          "name": "occumed-us--new-york--r1-c1.pmtiles",
+          "size": 93175302,
+          "state": "uploaded",
+          "downloadCount": 46
+        },
+        {
+          "name": "occumed-us--new-york--r1-c2.pmtiles",
+          "size": 132967298,
+          "state": "uploaded",
+          "downloadCount": 47
+        },
+        {
+          "name": "occumed-us--new-york--r1-c3.pmtiles",
+          "size": 538980853,
+          "state": "uploaded",
+          "downloadCount": 49
+        },
+        {
+          "name": "occumed-us--new-york--r2-c1.pmtiles",
+          "size": 133257720,
+          "state": "uploaded",
+          "downloadCount": 48
+        },
+        {
+          "name": "occumed-us--new-york--r2-c2.pmtiles",
+          "size": 199116940,
+          "state": "uploaded",
+          "downloadCount": 46
+        },
+        {
+          "name": "occumed-us--new-york--r2-c3.pmtiles",
+          "size": 117044681,
+          "state": "uploaded",
+          "downloadCount": 46
+        }
+      ],
+      "totalBytes": 1214542794,
+      "assetCount": 6
+    },
+    {
+      "parent": "us--texas",
+      "assets": [
+        {
+          "name": "occumed-us--texas--r1-c1.pmtiles",
+          "size": 48621809,
+          "state": "uploaded",
+          "downloadCount": 75
+        },
+        {
+          "name": "occumed-us--texas--r1-c2.pmtiles",
+          "size": 512401330,
+          "state": "uploaded",
+          "downloadCount": 76
+        },
+        {
+          "name": "occumed-us--texas--r1-c3.pmtiles",
+          "size": 521032702,
+          "state": "uploaded",
+          "downloadCount": 57
+        },
+        {
+          "name": "occumed-us--texas--r2-c1.pmtiles",
+          "size": 123750835,
+          "state": "uploaded",
+          "downloadCount": 75
+        },
+        {
+          "name": "occumed-us--texas--r2-c2.pmtiles",
+          "size": 352474837,
+          "state": "uploaded",
+          "downloadCount": 84
+        },
+        {
+          "name": "occumed-us--texas--r2-c3.pmtiles",
+          "size": 687874289,
+          "state": "uploaded",
+          "downloadCount": 65
+        }
+      ],
+      "totalBytes": 2246155802,
+      "assetCount": 6
+    },
+    {
+      "parent": "argentina",
+      "assets": [
+        {
+          "name": "occumed-argentina--r1-c1.pmtiles",
+          "size": 494017218,
+          "state": "uploaded",
+          "downloadCount": 46
+        },
+        {
+          "name": "occumed-argentina--r1-c2.pmtiles",
+          "size": 43994446,
+          "state": "uploaded",
+          "downloadCount": 47
+        },
+        {
+          "name": "occumed-argentina--r2-c1.pmtiles",
+          "size": 708652049,
+          "state": "uploaded",
+          "downloadCount": 47
+        },
+        {
+          "name": "occumed-argentina--r2-c2.pmtiles",
+          "size": 1101912183,
+          "state": "uploaded",
+          "downloadCount": 48
+        }
+      ],
+      "totalBytes": 2348575896,
+      "assetCount": 4
+    },
+    {
+      "parent": "central-fed-district",
+      "assets": [
+        {
+          "name": "occumed-central-fed-district--r1-c1.pmtiles",
+          "size": 968010742,
+          "state": "uploaded",
+          "downloadCount": 65
+        },
+        {
+          "name": "occumed-central-fed-district--r1-c2.pmtiles",
+          "size": 543404423,
+          "state": "uploaded",
+          "downloadCount": 50
+        },
+        {
+          "name": "occumed-central-fed-district--r2-c1.pmtiles",
+          "size": 1362404889,
+          "state": "uploaded",
+          "downloadCount": 62
+        },
+        {
+          "name": "occumed-central-fed-district--r2-c2.pmtiles",
+          "size": 623131423,
+          "state": "uploaded",
+          "downloadCount": 52
+        }
+      ],
+      "totalBytes": 3496951477,
+      "assetCount": 4
+    },
+    {
+      "parent": "chubu",
+      "assets": [
+        {
+          "name": "occumed-chubu--r1-c1.pmtiles",
+          "size": 494208569,
+          "state": "uploaded",
+          "downloadCount": 61
+        },
+        {
+          "name": "occumed-chubu--r1-c2.pmtiles",
+          "size": 384550417,
+          "state": "uploaded",
+          "downloadCount": 61
+        },
+        {
+          "name": "occumed-chubu--r2-c1.pmtiles",
+          "size": 96054826,
+          "state": "uploaded",
+          "downloadCount": 61
+        },
+        {
+          "name": "occumed-chubu--r2-c2.pmtiles",
+          "size": 184814398,
+          "state": "uploaded",
+          "downloadCount": 61
+        }
+      ],
+      "totalBytes": 1159628210,
+      "assetCount": 4
+    },
+    {
+      "parent": "finland",
+      "assets": [
+        {
+          "name": "occumed-finland--r1-c1.pmtiles",
+          "size": 1252280200,
+          "state": "uploaded",
+          "downloadCount": 46
+        },
+        {
+          "name": "occumed-finland--r1-c2.pmtiles",
+          "size": 1242034349,
+          "state": "uploaded",
+          "downloadCount": 49
+        },
+        {
+          "name": "occumed-finland--r2-c1.pmtiles",
+          "size": 204259001,
+          "state": "uploaded",
+          "downloadCount": 48
+        },
+        {
+          "name": "occumed-finland--r2-c2.pmtiles",
+          "size": 455403081,
+          "state": "uploaded",
+          "downloadCount": 51
+        }
+      ],
+      "totalBytes": 3153976631,
+      "assetCount": 4
+    },
+    {
+      "parent": "ireland-and-northern-ireland",
+      "assets": [
+        {
+          "name": "occumed-ireland-and-northern-ireland--r1-c1.pmtiles",
+          "size": 19231092,
+          "state": "uploaded",
+          "downloadCount": 54
+        },
+        {
+          "name": "occumed-ireland-and-northern-ireland--r1-c2.pmtiles",
+          "size": 377634183,
+          "state": "uploaded",
+          "downloadCount": 61
+        },
+        {
+          "name": "occumed-ireland-and-northern-ireland--r2-c1.pmtiles",
+          "size": 19565312,
+          "state": "uploaded",
+          "downloadCount": 56
+        },
+        {
+          "name": "occumed-ireland-and-northern-ireland--r2-c2.pmtiles",
+          "size": 686760910,
+          "state": "uploaded",
+          "downloadCount": 58
+        }
+      ],
+      "totalBytes": 1103191497,
+      "assetCount": 4
+    },
+    {
+      "parent": "nord-est",
+      "assets": [
+        {
+          "name": "occumed-nord-est--r1-c1.pmtiles",
+          "size": 365347824,
+          "state": "uploaded",
+          "downloadCount": 88
+        },
+        {
+          "name": "occumed-nord-est--r1-c2.pmtiles",
+          "size": 259286934,
+          "state": "uploaded",
+          "downloadCount": 87
+        },
+        {
+          "name": "occumed-nord-est--r2-c1.pmtiles",
+          "size": 291797120,
+          "state": "uploaded",
+          "downloadCount": 90
+        },
+        {
+          "name": "occumed-nord-est--r2-c2.pmtiles",
+          "size": 550566772,
+          "state": "uploaded",
+          "downloadCount": 74
+        }
+      ],
+      "totalBytes": 1466998650,
+      "assetCount": 4
+    },
+    {
+      "parent": "nordeste",
+      "assets": [
+        {
+          "name": "occumed-nordeste--r1-c1.pmtiles",
+          "size": 607078524,
+          "state": "uploaded",
+          "downloadCount": 48
+        },
+        {
+          "name": "occumed-nordeste--r1-c2.pmtiles",
+          "size": 294905764,
+          "state": "uploaded",
+          "downloadCount": 48
+        },
+        {
+          "name": "occumed-nordeste--r2-c1.pmtiles",
+          "size": 558513128,
+          "state": "uploaded",
+          "downloadCount": 50
+        },
+        {
+          "name": "occumed-nordeste--r2-c2.pmtiles",
+          "size": 339890107,
+          "state": "uploaded",
+          "downloadCount": 50
+        }
+      ],
+      "totalBytes": 1800387523,
+      "assetCount": 4
+    },
+    {
+      "parent": "northwest-territories",
+      "assets": [
+        {
+          "name": "occumed-northwest-territories--r1-c1.pmtiles",
+          "size": 876295249,
+          "state": "uploaded",
+          "downloadCount": 43
+        },
+        {
+          "name": "occumed-northwest-territories--r1-c2.pmtiles",
+          "size": 981382153,
+          "state": "uploaded",
+          "downloadCount": 46
+        },
+        {
+          "name": "occumed-northwest-territories--r2-c1.pmtiles",
+          "size": 335246443,
+          "state": "uploaded",
+          "downloadCount": 40
+        },
+        {
+          "name": "occumed-northwest-territories--r2-c2.pmtiles",
+          "size": 415206238,
+          "state": "uploaded",
+          "downloadCount": 43
+        }
+      ],
+      "totalBytes": 2608130083,
+      "assetCount": 4
+    },
+    {
+      "parent": "ontario",
+      "assets": [
+        {
+          "name": "occumed-ontario--r1-c1.pmtiles",
+          "size": 260334640,
+          "state": "uploaded",
+          "downloadCount": 45
+        },
+        {
+          "name": "occumed-ontario--r1-c2.pmtiles",
+          "size": 1738658478,
+          "state": "uploaded",
+          "downloadCount": 42
+        },
+        {
+          "name": "occumed-ontario--r2-c1.pmtiles",
+          "size": 806753374,
+          "state": "uploaded",
+          "downloadCount": 44
+        },
+        {
+          "name": "occumed-ontario--r2-c2.pmtiles",
+          "size": 238712132,
+          "state": "uploaded",
+          "downloadCount": 43
+        }
+      ],
+      "totalBytes": 3044458624,
+      "assetCount": 4
+    },
+    {
+      "parent": "ostlandet",
+      "assets": [
+        {
+          "name": "occumed-ostlandet--r1-c1.pmtiles",
+          "size": 403051659,
+          "state": "uploaded",
+          "downloadCount": 48
+        },
+        {
+          "name": "occumed-ostlandet--r1-c2.pmtiles",
+          "size": 503372673,
+          "state": "uploaded",
+          "downloadCount": 48
+        },
+        {
+          "name": "occumed-ostlandet--r2-c1.pmtiles",
+          "size": 214043701,
+          "state": "uploaded",
+          "downloadCount": 45
+        },
+        {
+          "name": "occumed-ostlandet--r2-c2.pmtiles",
+          "size": 355012942,
+          "state": "uploaded",
+          "downloadCount": 49
+        }
+      ],
+      "totalBytes": 1475480975,
+      "assetCount": 4
+    },
+    {
+      "parent": "philippines",
+      "assets": [
+        {
+          "name": "occumed-philippines--r1-c1.pmtiles",
+          "size": 32993660,
+          "state": "uploaded",
+          "downloadCount": 49
+        },
+        {
+          "name": "occumed-philippines--r1-c2.pmtiles",
+          "size": 710563302,
+          "state": "uploaded",
+          "downloadCount": 50
+        },
+        {
+          "name": "occumed-philippines--r2-c1.pmtiles",
+          "size": 3965100,
+          "state": "uploaded",
+          "downloadCount": 50
+        },
+        {
+          "name": "occumed-philippines--r2-c2.pmtiles",
+          "size": 800402318,
+          "state": "uploaded",
+          "downloadCount": 52
+        }
+      ],
+      "totalBytes": 1547924380,
+      "assetCount": 4
+    },
+    {
+      "parent": "qikiqtaaluk",
+      "assets": [
+        {
+          "name": "occumed-qikiqtaaluk--r1-c1.pmtiles",
+          "size": 97673773,
+          "state": "uploaded",
+          "downloadCount": 44
+        },
+        {
+          "name": "occumed-qikiqtaaluk--r1-c2.pmtiles",
+          "size": 829226013,
+          "state": "uploaded",
+          "downloadCount": 44
+        },
+        {
+          "name": "occumed-qikiqtaaluk--r2-c1.pmtiles",
+          "size": 1225828852,
+          "state": "uploaded",
+          "downloadCount": 45
+        },
+        {
+          "name": "occumed-qikiqtaaluk--r2-c2.pmtiles",
+          "size": 1122153641,
+          "state": "uploaded",
+          "downloadCount": 45
+        }
+      ],
+      "totalBytes": 3274882279,
+      "assetCount": 4
+    },
+    {
+      "parent": "south-africa",
+      "assets": [
+        {
+          "name": "occumed-south-africa--r1-c1.pmtiles",
+          "size": 1494589,
+          "state": "uploaded",
+          "downloadCount": 48
+        },
+        {
+          "name": "occumed-south-africa--r1-c2.pmtiles",
+          "size": 1889758,
+          "state": "uploaded",
+          "downloadCount": 46
+        },
+        {
+          "name": "occumed-south-africa--r2-c1.pmtiles",
+          "size": 686554066,
+          "state": "uploaded",
+          "downloadCount": 46
+        },
+        {
+          "name": "occumed-south-africa--r2-c2.pmtiles",
+          "size": 917318784,
+          "state": "uploaded",
+          "downloadCount": 49
+        }
+      ],
+      "totalBytes": 1607257197,
+      "assetCount": 4
+    },
+    {
+      "parent": "sud",
+      "assets": [
+        {
+          "name": "occumed-sud--r1-c1.pmtiles",
+          "size": 79350277,
+          "state": "uploaded",
+          "downloadCount": 46
+        },
+        {
+          "name": "occumed-sud--r1-c2.pmtiles",
+          "size": 201527631,
+          "state": "uploaded",
+          "downloadCount": 53
+        },
+        {
+          "name": "occumed-sud--r2-c1.pmtiles",
+          "size": 575398790,
+          "state": "uploaded",
+          "downloadCount": 54
+        },
+        {
+          "name": "occumed-sud--r2-c2.pmtiles",
+          "size": 193910753,
+          "state": "uploaded",
+          "downloadCount": 55
+        }
+      ],
+      "totalBytes": 1050187451,
+      "assetCount": 4
+    },
+    {
+      "parent": "sul",
+      "assets": [
+        {
+          "name": "occumed-sul--r1-c1.pmtiles",
+          "size": 373454709,
+          "state": "uploaded",
+          "downloadCount": 44
+        },
+        {
+          "name": "occumed-sul--r1-c2.pmtiles",
+          "size": 72730061,
+          "state": "uploaded",
+          "downloadCount": 45
+        },
+        {
+          "name": "occumed-sul--r2-c1.pmtiles",
+          "size": 587802099,
+          "state": "uploaded",
+          "downloadCount": 45
+        },
+        {
+          "name": "occumed-sul--r2-c2.pmtiles",
+          "size": 496193715,
+          "state": "uploaded",
+          "downloadCount": 48
+        }
+      ],
+      "totalBytes": 1530180584,
+      "assetCount": 4
+    },
+    {
+      "parent": "sweden",
+      "assets": [
+        {
+          "name": "occumed-sweden--r1-c1.pmtiles",
+          "size": 1998884296,
+          "state": "uploaded",
+          "downloadCount": 84
+        },
+        {
+          "name": "occumed-sweden--r1-c2.pmtiles",
+          "size": 299483298,
+          "state": "uploaded",
+          "downloadCount": 83
+        },
+        {
+          "name": "occumed-sweden--r2-c1.pmtiles",
+          "size": 581761912,
+          "state": "uploaded",
+          "downloadCount": 47
+        },
+        {
+          "name": "occumed-sweden--r2-c2.pmtiles",
+          "size": 534777651,
+          "state": "uploaded",
+          "downloadCount": 54
+        }
+      ],
+      "totalBytes": 3414907157,
+      "assetCount": 4
+    },
+    {
+      "parent": "us--north-carolina",
+      "assets": [
+        {
+          "name": "occumed-us--north-carolina--r1-c1.pmtiles",
+          "size": 174306636,
+          "state": "uploaded",
+          "downloadCount": 52
+        },
+        {
+          "name": "occumed-us--north-carolina--r1-c2.pmtiles",
+          "size": 508544244,
+          "state": "uploaded",
+          "downloadCount": 51
+        },
+        {
+          "name": "occumed-us--north-carolina--r1-c3.pmtiles",
+          "size": 440529649,
+          "state": "uploaded",
+          "downloadCount": 55
+        },
+        {
+          "name": "occumed-us--north-carolina--r1-c4.pmtiles",
+          "size": 33062935,
+          "state": "uploaded",
+          "downloadCount": 50
+        }
+      ],
+      "totalBytes": 1156443464,
+      "assetCount": 4
+    },
+    {
+      "parent": "us--virginia",
+      "assets": [
+        {
+          "name": "occumed-us--virginia--r1-c1.pmtiles",
+          "size": 61889105,
+          "state": "uploaded",
+          "downloadCount": 55
+        },
+        {
+          "name": "occumed-us--virginia--r1-c2.pmtiles",
+          "size": 224913044,
+          "state": "uploaded",
+          "downloadCount": 55
+        },
+        {
+          "name": "occumed-us--virginia--r1-c3.pmtiles",
+          "size": 596751788,
+          "state": "uploaded",
+          "downloadCount": 60
+        },
+        {
+          "name": "occumed-us--virginia--r1-c4.pmtiles",
+          "size": 153087038,
+          "state": "uploaded",
+          "downloadCount": 53
+        }
+      ],
+      "totalBytes": 1036640975,
+      "assetCount": 4
+    },
+    {
+      "parent": "volga-fed-district",
+      "assets": [
+        {
+          "name": "occumed-volga-fed-district--r1-c1.pmtiles",
+          "size": 1137521375,
+          "state": "uploaded",
+          "downloadCount": 51
+        },
+        {
+          "name": "occumed-volga-fed-district--r1-c2.pmtiles",
+          "size": 790755676,
+          "state": "uploaded",
+          "downloadCount": 48
+        },
+        {
+          "name": "occumed-volga-fed-district--r2-c1.pmtiles",
+          "size": 1017072919,
+          "state": "uploaded",
+          "downloadCount": 54
+        },
+        {
+          "name": "occumed-volga-fed-district--r2-c2.pmtiles",
+          "size": 822851804,
+          "state": "uploaded",
+          "downloadCount": 49
+        }
+      ],
+      "totalBytes": 3768201774,
+      "assetCount": 4
+    },
+    {
+      "parent": "northwestern-fed-district",
+      "assets": [
+        {
+          "name": "occumed-northwestern-fed-district--r1-c2.pmtiles",
+          "size": 733294869,
+          "state": "uploaded",
+          "downloadCount": 50
+        },
+        {
+          "name": "occumed-northwestern-fed-district--r2-c1.pmtiles",
+          "size": 143324765,
+          "state": "uploaded",
+          "downloadCount": 54
+        },
+        {
+          "name": "occumed-northwestern-fed-district--r2-c2.pmtiles",
+          "size": 89971002,
+          "state": "uploaded",
+          "downloadCount": 49
+        }
+      ],
+      "totalBytes": 966590636,
+      "assetCount": 3
+    },
+    {
+      "parent": "siberian-fed-district",
+      "assets": [
+        {
+          "name": "occumed-siberian-fed-district--r1-c2.pmtiles",
+          "size": 333767491,
+          "state": "uploaded",
+          "downloadCount": 54
+        },
+        {
+          "name": "occumed-siberian-fed-district--r2-c1.pmtiles",
+          "size": 505943394,
+          "state": "uploaded",
+          "downloadCount": 52
+        },
+        {
+          "name": "occumed-siberian-fed-district--r2-c2.pmtiles",
+          "size": 29538650,
+          "state": "uploaded",
+          "downloadCount": 52
+        }
+      ],
+      "totalBytes": 869249535,
+      "assetCount": 3
+    }
+  ]
+}
