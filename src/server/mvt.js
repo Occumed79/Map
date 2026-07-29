@@ -227,6 +227,51 @@ export function mergeVectorTiles(payloads, {
   return encoded;
 }
 
+/**
+ * Copies one source layer into a differently named layer while preserving its
+ * geometry. Property overrides let the gateway synthesize a deterministic
+ * physical fallback without mutating or replacing the browser source.
+ */
+export function copyVectorLayer(payload, {
+  sourceLayerName,
+  targetLayerName,
+  propertyOverrides = {}
+}) {
+  const tile = decodeTile(payload, {
+    label: `MVT layer copy input for ${sourceLayerName}`,
+    coordinateScale: 128
+  });
+  const sourceLayer = tile.layers[sourceLayerName];
+  if (!sourceLayer) return EMPTY_MVT;
+
+  const overrides = normalizeMvtProperties(propertyOverrides);
+  const features = [];
+  for (let index = 0; index < sourceLayer.length; index += 1) {
+    const sourceFeature = sourceLayer.feature(index);
+    if (!isSaneGeometry(sourceFeature, sourceLayer.extent, 128)) continue;
+    const feature = new CombinedFeature(sourceFeature);
+    feature.properties = { ...feature.properties, ...overrides };
+    features.push(feature);
+  }
+  if (!features.length) return EMPTY_MVT;
+
+  const encoded = Buffer.from(vtpbf.fromVectorTileJs({
+    layers: {
+      [targetLayerName]: new MergedLayer(
+        targetLayerName,
+        sourceLayer.version,
+        sourceLayer.extent,
+        features
+      )
+    }
+  }));
+  validateVectorTilePayload(encoded, {
+    label: `copied MVT output for ${targetLayerName}`,
+    coordinateScale: 128
+  });
+  return encoded;
+}
+
 function interpolateAtX(start, end, x) {
   const delta = end.x - start.x;
   if (delta === 0) return { x, y: start.y };

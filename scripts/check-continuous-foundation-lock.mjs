@@ -17,6 +17,8 @@ const [
   workflow,
   packageDocument,
   renderingContract,
+  tileGateway,
+  mvtHelpers,
   runtimeStyleDocument
 ] = await Promise.all([
   fs.readFile(path.join(root, 'scripts/prepare-world-landcover.mjs'), 'utf8'),
@@ -31,6 +33,8 @@ const [
   fs.readFile(path.join(root, '.github/workflows/validate-continuous-zoom.yml'), 'utf8'),
   fs.readFile(path.join(root, 'package.json'), 'utf8'),
   fs.readFile(path.join(root, 'scripts/apply-mapbox-rendering-contract.mjs'), 'utf8'),
+  fs.readFile(path.join(root, 'src/server/world-tile-gateway.js'), 'utf8'),
+  fs.readFile(path.join(root, 'src/server/mvt.js'), 'utf8'),
   fs.readFile(path.join(root, 'public/style/occumed-open.json'), 'utf8')
 ]);
 
@@ -61,6 +65,18 @@ assert(
     surfaceBuilder.includes('-L "landcover:') &&
     surfaceBuilder.includes('-L "depth:'),
   'The physical surface build no longer publishes landcover and depth from zoom 0 through zoom 10.'
+);
+for (const marker of [
+  'copyVectorLayer',
+  "sourceLayerName: 'land'",
+  "targetLayerName: 'landcover'",
+  'LANDCOVER_FALLBACK_PROPERTIES'
+]) {
+  assert(tileGateway.includes(marker), `The gateway landcover fallback lost ${marker}.`);
+}
+assert(
+  mvtHelpers.includes('copied MVT output for'),
+  'Synthesized foundation layers are no longer validated after encoding.'
 );
 
 const prepareStyle = packageJson.scripts?.['prepare:style'] || '';
@@ -129,6 +145,12 @@ for (const layer of depthLayers) {
 
 for (const marker of [
   'installOccumedAtmosphereBloom(map)',
+  'installContinuousTileRetention(map)',
+  'maxUnderzooming',
+  'maxOverzooming',
+  'globalFoundationID',
+  'idealTileIDs[0].scaledTo(0)',
+  'retained[globalFoundationID.key] = globalFoundationID',
   'resolveGlobeRadius',
   'BLOOM_FADE_START_ZOOM',
   'BLOOM_FADE_END_ZOOM',
@@ -157,8 +179,11 @@ for (const marker of [
   'pacific-routing-threshold-in',
   'antimeridian-pan',
   'missingFoundationSampleCount',
+  'setPixelRatio(1)',
   'setInterval(queueSample, 50)',
-  'requestAnimationFrame(() =>',
+  "map.on('move', queueSample)",
+  'if (sampling) return',
+  'tileManager.getRenderableIds()',
   'await waitForRequiredFoundation()',
   'postMoveendSettleMs',
   "event.sourceDataType === 'idle'",
@@ -178,8 +203,11 @@ for (const marker of [
   'antimeridian-all-zooms-out',
   'startZoom: 0, endZoom: 16',
   'startZoom: 16, endZoom: 0',
+  'setPixelRatio(1)',
   'setInterval(queueSample, 50)',
-  'requestAnimationFrame(() =>',
+  "map.on('move', queueSample)",
+  'if (sampling) return',
+  'tileManager.getRenderableIds()',
   'await waitForRequiredFoundation()',
   'postMoveendSettleMs',
   "event.sourceDataType === 'idle'",

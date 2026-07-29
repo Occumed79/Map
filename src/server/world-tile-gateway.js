@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { PMTiles, SharedPromiseCache } from 'pmtiles';
 import {
+  copyVectorLayer,
   EMPTY_MVT,
   mergeVectorTiles,
   overscaleVectorLayer
@@ -33,6 +34,7 @@ const DEFAULT_MAX_ARCHIVE_QUEUE = 256;
 const DEFAULT_MAX_UPSTREAM_TILE_BYTES = 16 * 1024 * 1024;
 const DEFAULT_MAX_RESOLVED_TILE_BYTES = 24 * 1024 * 1024;
 const CONTINUOUS_SURFACE_LAYERS = Object.freeze(['land', 'landcover', 'depth']);
+const LANDCOVER_FALLBACK_PROPERTIES = Object.freeze({ class: 'grass' });
 
 function boundedInteger(value, fallback, minimum, maximum) {
   const parsed = Number(value);
@@ -478,9 +480,20 @@ export class WorldTileGateway {
     } = manifest.virtualTiles;
     if (zoom <= surfaceMaxZoom) {
       const payload = await this.readArchiveTile(surfaceAsset, zoom, x, y);
-      return payload
-        ? mergeVectorTiles([payload], { includeLayers: CONTINUOUS_SURFACE_LAYERS })
-        : EMPTY_MVT;
+      if (!payload) return EMPTY_MVT;
+      const surface = mergeVectorTiles(
+        [payload],
+        { includeLayers: CONTINUOUS_SURFACE_LAYERS }
+      );
+      const landcoverFallback = copyVectorLayer(surface, {
+        sourceLayerName: 'land',
+        targetLayerName: 'landcover',
+        propertyOverrides: LANDCOVER_FALLBACK_PROPERTIES
+      });
+      return mergeVectorTiles(
+        [landcoverFallback, surface],
+        { includeLayers: CONTINUOUS_SURFACE_LAYERS }
+      );
     }
 
     const divisor = 2 ** (zoom - surfaceMaxZoom);
@@ -494,17 +507,21 @@ export class WorldTileGateway {
     );
     if (!payload) return EMPTY_MVT;
 
-    return mergeVectorTiles(
-      CONTINUOUS_SURFACE_LAYERS.map((layerName) =>
-        overscaleVectorLayer(payload, {
-          layerName,
-          sourceZoom: surfaceMaxZoom,
-          targetZoom: zoom,
-          targetX: x,
-          targetY: y
-        })
-      )
+    const overscaledLayers = CONTINUOUS_SURFACE_LAYERS.map((layerName) =>
+      overscaleVectorLayer(payload, {
+        layerName,
+        sourceZoom: surfaceMaxZoom,
+        targetZoom: zoom,
+        targetX: x,
+        targetY: y
+      })
     );
+    const landcoverFallback = copyVectorLayer(overscaledLayers[0], {
+      sourceLayerName: 'land',
+      targetLayerName: 'landcover',
+      propertyOverrides: LANDCOVER_FALLBACK_PROPERTIES
+    });
+    return mergeVectorTiles([landcoverFallback, ...overscaledLayers]);
   }
 
   async readBasemapTile(manifest, zoom, x, y) {

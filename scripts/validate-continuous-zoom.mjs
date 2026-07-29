@@ -63,7 +63,7 @@ function normalizeMotion(result, definition) {
     blankSampleCount: Number(result?.blankSampleCount || 0),
     missingFoundationSampleCount: Number(result?.missingFoundationSampleCount || 0),
     firstMissingFoundationSamples: Array.isArray(result?.firstMissingFoundationSamples)
-      ? result.firstMissingFoundationSamples
+      ? result.firstMissingFoundationSamples.map((sample) => structuredClone(sample))
       : [],
     longestBlankRun: Number(result?.longestBlankRun || 0),
     minimumFeatureCount: Number(result?.minimumFeatureCount || 0),
@@ -129,6 +129,12 @@ try {
     null,
     { timeout: 90_000 }
   );
+  await page.evaluate(() => {
+    // This validator measures temporal foundation continuity, not high-DPI
+    // sharpness. Keep the full CSS viewport while avoiding a 5.76M-pixel
+    // software-rendered canvas that starves the 50ms sampling timer.
+    globalThis.__OCCUMED_MAP__.setPixelRatio(1);
+  });
 
   async function waitForStableView(center, zoom, requiredLayers) {
     await page.evaluate(async ({ center, zoom, requiredLayers }) => {
@@ -145,16 +151,24 @@ try {
 
         function requiredLayerCounts() {
           const counts = Object.fromEntries(requiredLayers.map((layer) => [layer, 0]));
-          const layerIds = (map.getStyle().layers || [])
-            .filter((layer) =>
-              layer.source === 'occumed-open' &&
-              requiredLayers.includes(layer['source-layer'])
-            )
-            .map((layer) => layer.id);
-          if (layerIds.length === 0) return counts;
-          for (const feature of map.queryRenderedFeatures({ layers: layerIds })) {
-            const sourceLayer = feature.sourceLayer;
-            if (sourceLayer in counts) counts[sourceLayer] += 1;
+          const layerIds = Object.fromEntries(requiredLayers.map((sourceLayer) => [
+            sourceLayer,
+            (map.getStyle().layers || [])
+              .filter((layer) =>
+                layer.source === 'occumed-open' &&
+                layer['source-layer'] === sourceLayer
+              )
+              .map((layer) => layer.id)
+          ]));
+          const tileManager = map.style?.tileManagers?.['occumed-open'];
+          if (!tileManager) return counts;
+          for (const id of tileManager.getRenderableIds()) {
+            const tile = tileManager.getTileByID(id);
+            for (const sourceLayer of requiredLayers) {
+              if (layerIds[sourceLayer].some((layerId) => tile?.buckets?.[layerId])) {
+                counts[sourceLayer] += 1;
+              }
+            }
           }
           return counts;
         }
@@ -212,16 +226,24 @@ try {
 
       const requiredLayerCounts = () => {
         const counts = Object.fromEntries(requiredLayers.map((layer) => [layer, 0]));
-        const layerIds = (map.getStyle().layers || [])
-          .filter((layer) =>
-            layer.source === 'occumed-open' &&
-            requiredLayers.includes(layer['source-layer'])
-          )
-          .map((layer) => layer.id);
-        if (layerIds.length === 0) return counts;
-        for (const feature of map.queryRenderedFeatures({ layers: layerIds })) {
-          const sourceLayer = feature.sourceLayer;
-          if (sourceLayer in counts) counts[sourceLayer] += 1;
+        const layerIds = Object.fromEntries(requiredLayers.map((sourceLayer) => [
+          sourceLayer,
+          (map.getStyle().layers || [])
+            .filter((layer) =>
+              layer.source === 'occumed-open' &&
+              layer['source-layer'] === sourceLayer
+            )
+            .map((layer) => layer.id)
+        ]));
+        const tileManager = map.style?.tileManagers?.['occumed-open'];
+        if (!tileManager) return counts;
+        for (const id of tileManager.getRenderableIds()) {
+          const tile = tileManager.getTileByID(id);
+          for (const sourceLayer of requiredLayers) {
+            if (layerIds[sourceLayer].some((layerId) => tile?.buckets?.[layerId])) {
+              counts[sourceLayer] += 1;
+            }
+          }
         }
         return counts;
       };
@@ -284,21 +306,21 @@ try {
       };
 
       return await new Promise((resolve, reject) => {
-        let sampleFrame = null;
+        let sampling = false;
         const queueSample = () => {
-          if (sampleFrame !== null) return;
-          sampleFrame = requestAnimationFrame(() => {
-            sampleFrame = null;
+          if (sampling) return;
+          sampling = true;
+          try {
             sample();
-          });
+          } finally {
+            sampling = false;
+          }
         };
         const sampleTimer = setInterval(queueSample, 50);
+        map.on('move', queueSample);
         const stopSampling = () => {
           clearInterval(sampleTimer);
-          if (sampleFrame !== null) {
-            cancelAnimationFrame(sampleFrame);
-            sampleFrame = null;
-          }
+          map.off('move', queueSample);
         };
         const timeout = setTimeout(() => {
           stopSampling();
