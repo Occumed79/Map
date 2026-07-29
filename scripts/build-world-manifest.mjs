@@ -2,6 +2,8 @@
 
 import fs from 'node:fs/promises';
 
+const FORCED_GRID_SPLIT_PATTERN = /--r\d+-c\d+(?:-s\d+)?(?:\.pmtiles)?$/;
+
 function parseArgs(argv) {
   const options = {};
   for (let index = 0; index < argv.length; index += 1) {
@@ -21,6 +23,12 @@ function parseArgs(argv) {
   return options;
 }
 
+function isForcedGridSplit(region) {
+  return FORCED_GRID_SPLIT_PATTERN.test(String(region?.id || '')) ||
+    FORCED_GRID_SPLIT_PATTERN.test(String(region?.slug || '')) ||
+    FORCED_GRID_SPLIT_PATTERN.test(String(region?.asset_name || ''));
+}
+
 const options = parseArgs(process.argv.slice(2));
 const [plan, assetsPayload] = await Promise.all([
   fs.readFile(options.plan, 'utf8').then(JSON.parse),
@@ -36,8 +44,10 @@ const healthyAssetNames = new Set(
     .map((asset) => asset.name)
 );
 const planned = plan.include || [];
-const available = planned.filter((region) => healthyAssetNames.has(region.asset_name));
-const missing = planned.filter((region) => !healthyAssetNames.has(region.asset_name));
+const quarantined = planned.filter(isForcedGridSplit);
+const eligible = planned.filter((region) => !isForcedGridSplit(region));
+const available = eligible.filter((region) => healthyAssetNames.has(region.asset_name));
+const missing = eligible.filter((region) => !healthyAssetNames.has(region.asset_name));
 const overviewAsset = options.overviewAsset || 'occumed-world-overview.pmtiles';
 const surfaceAsset = options.surfaceAsset || 'occumed-world-surface.pmtiles';
 const missingVirtualAssets = [overviewAsset, surfaceAsset].filter(
@@ -51,12 +61,22 @@ if (missingVirtualAssets.length) {
 }
 
 const manifest = {
-  version: 2,
+  version: 3,
   generatedAt: new Date().toISOString(),
   releaseTag: options.tag,
   sourceSchema: 'planetiler/occumed-basemap.yml',
   attribution: '<a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors</a>',
   archiveTransport: 'server-side-release-storage',
+  quarantine: {
+    policy: 'forced-grid-split-assets-disabled',
+    reason: 'Independently clipped --r#-c# child archives can overlap at tile level and must not participate in runtime routing.',
+    quarantinedRegionCount: quarantined.length,
+    quarantinedRegions: quarantined.map((region) => ({
+      id: region.id,
+      asset: region.asset_name,
+      sourceRegionId: region.source_region_id || null
+    }))
+  },
   virtualTiles: {
     endpoint: '/tiles/{z}/{x}/{y}.pbf',
     overviewAsset,
@@ -80,11 +100,14 @@ const manifest = {
     maxzoom: 16
   })),
   plannedRegionCount: planned.length,
+  eligibleRegionCount: eligible.length,
   availableRegionCount: available.length,
   missingRegionCount: missing.length,
   missingRegions: missing.map((region) => region.id)
 };
 
 await fs.writeFile(options.output, `${JSON.stringify(manifest, null, 2)}\n`);
-console.log(`Published manifest coverage for ${available.length}/${planned.length} world shards.`);
-if (missing.length) console.log(`Missing shards: ${missing.map((region) => region.id).join(', ')}`);
+console.log(
+  `Published manifest coverage for ${available.length}/${eligible.length} eligible world regions; quarantined ${quarantined.length} forced grid-split children.`
+);
+if (missing.length) console.log(`Missing eligible regions: ${missing.map((region) => region.id).join(', ')}`);

@@ -16,9 +16,10 @@
     "check:runtime": "node scripts/check-runtime.mjs && node scripts/validate-maplibre-style.mjs && node scripts/check-globe-parity.mjs && node scripts/check-cartography-parity.mjs && node scripts/check-viewer-quality.mjs && node scripts/check-photo-reference.mjs && node scripts/check-exact-exported-swatches.mjs && node scripts/check-render-clarity.mjs && node scripts/check-pmtiles-integration.mjs && node scripts/check-world-tile-gateway.mjs && npm run check:neon-cache && npm run check:hardening && npm run check:foundation",
     "check:server": "node scripts/check-server-health.mjs",
     "check:emergency": "node scripts/check-emergency-overview-mode.mjs",
-    "check": "npm run check:emergency",
+    "check:quarantine": "node scripts/check-forced-split-quarantine.mjs",
+    "check": "npm run check:emergency && npm run check:quarantine",
     "dev": "npm run prepare:assets && vite",
-    "build": "npm run prepare:assets && npm run check:emergency && vite build",
+    "build": "npm run prepare:assets && npm run check && vite build",
     "preview": "vite preview",
     "start": "node scripts/start-emergency-overview.mjs"
   },

@@ -8,9 +8,17 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const stylePath = path.join(root, 'public', 'style', 'occumed-open.json');
 const style = JSON.parse(await fs.readFile(stylePath, 'utf8'));
 const source = style.sources?.['occumed-open'];
+const configuredMaxZoom = Number(process.env.OCCUMED_STYLE_MAX_ZOOM || 5);
+const mode = process.env.OCCUMED_STYLE_MODE?.trim() || 'immutable-overview-only';
 
 if (!source || source.type !== 'vector') {
-  throw new Error('Emergency overview mode requires the existing occured-open vector source.');
+  throw new Error('One-source mode requires the existing occured-open vector source.');
+}
+if (!Number.isSafeInteger(configuredMaxZoom) || configuredMaxZoom < 0 || configuredMaxZoom > 24) {
+  throw new Error('OCCUMED_STYLE_MAX_ZOOM must be an integer from 0 through 24.');
+}
+if (!/^[a-z0-9][a-z0-9._-]{0,79}$/i.test(mode)) {
+  throw new Error('OCCUMED_STYLE_MODE contains unsupported characters.');
 }
 
 style.sources = {
@@ -18,7 +26,7 @@ style.sources = {
     ...source,
     tiles: ['__OCCUMED_PUBLIC_ORIGIN__/tiles/{z}/{x}/{y}.pbf'],
     minzoom: 0,
-    maxzoom: 5
+    maxzoom: configuredMaxZoom
   }
 };
 
@@ -27,11 +35,11 @@ delete style.terrain;
 
 style.metadata = {
   ...(style.metadata || {}),
-  'occumed:emergency-mode': 'immutable-overview-only',
+  'occumed:emergency-mode': mode,
   'occumed:runtime-geometry': false,
   'occumed:neon-cache': false,
   'occumed:regional-routing': false
 };
 
 await fs.writeFile(stylePath, `${JSON.stringify(style, null, 2)}\n`);
-console.log(`Emergency overview mode locked: one vector source, ${style.layers.length} layers, maxzoom 5.`);
+console.log(`One-source style locked: mode ${mode}, ${style.layers.length} layers, maxzoom ${configuredMaxZoom}.`);
