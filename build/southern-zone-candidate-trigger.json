@@ -1,0 +1,12 @@
+{
+  "family": "southern-zone",
+  "source": "original-unsplit-geofabrik-parent",
+  "active": false,
+  "activationRequires": [
+    "pmtiles-integrity",
+    "github-size-ceiling",
+    "visual-validation",
+    "boundary-validation",
+    "exclusive-tile-ownership"
+  ]
+}
