@@ -1,0 +1,165 @@
+name: Rebuild Forced-Split Parent
+
+on:
+  pull_request:
+    branches:
+      - hotfix/emergency-stable-online
+    paths:
+      - .github/workflows/rebuild-forced-split-parent.yml
+      - config/forced-split-families.json
+      - scripts/select-unsplit-replacement-source.mjs
+      - scripts/check-forced-split-quarantine.mjs
+      - scripts/build-world-manifest.mjs
+      - planetiler/**
+  workflow_dispatch:
+    inputs:
+      family:
+        description: Published forced-split parent family to rebuild from its unsplit source PBF
+        required: true
+        default: sul
+
+permissions:
+  contents: write
+
+env:
+  PMTILES_VERSION: v1.31.2
+  CANDIDATE_RELEASE_TAG: occumed-world-replacement-candidates-v1
+  MAX_CANDIDATE_BYTES: '1932735283'
+
+jobs:
+  rebuild-parent:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      FAMILY: ${{ github.event_name == 'workflow_dispatch' && inputs.family || 'sul' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: repair/replace-forced-split-families
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.25.x'
+
+      - name: Install dependencies and validate quarantine
+        run: |
+          set -euo pipefail
+          npm ci
+          node scripts/check-forced-split-quarantine.mjs
+          node - <<'NODE'
+          const fs = require('fs');
+          const config = JSON.parse(fs.readFileSync('config/forced-split-families.json', 'utf8'));
+          const family = process.env.FAMILY;
+          if (!config.families.some((entry) => entry.id === family)) {
+            throw new Error(`${family} is not one of the 51 quarantined published split families.`);
+          }
+          console.log(`Authorized replacement build for ${family}.`);
+          NODE
+
+      - name: Resolve the original unsplit source PBF
+        run: |
+          set -euo pipefail
+          mkdir -p replacement .planetiler-data
+          OCCUMED_WORLD_SIZE_AWARE=0 node scripts/plan-world-shards.mjs --scope all > replacement/unsplit-world-plan.json
+          node scripts/select-unsplit-replacement-source.mjs \
+            "$FAMILY" \
+            replacement/unsplit-world-plan.json \
+            replacement/source.json
+          node - <<'NODE' >> "$GITHUB_ENV"
+          const fs = require('fs');
+          const source = JSON.parse(fs.readFileSync('replacement/source.json', 'utf8'));
+          console.log(`SOURCE_ID=${source.id}`);
+          console.log(`SOURCE_PBF_URL=${source.pbf_url}`);
+          NODE
+
+      - name: Download and hash the unsplit parent PBF
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 5 --retry-all-errors \
+            --output .planetiler-data/source.osm.pbf \
+            "$SOURCE_PBF_URL"
+          test -s .planetiler-data/source.osm.pbf
+          sha256sum .planetiler-data/source.osm.pbf | tee replacement/source.osm.pbf.sha256
+          ls -lh .planetiler-data/source.osm.pbf
+
+      - name: Build one coherent parent PMTiles archive
+        run: |
+          set -euo pipefail
+          mkdir -p replacement/output
+          OCCUMED_TILE_AREA="$SOURCE_ID" \
+          OCCUMED_OSM_PBF="$PWD/.planetiler-data/source.osm.pbf" \
+          OCCUMED_PMTILES_OUTPUT="$PWD/replacement/output/occumed-replacement-${FAMILY}.pmtiles" \
+          OCCUMED_PLANETILER_DATA_DIR="$PWD/.planetiler-data" \
+          OCCUMED_PLANETILER_MEMORY=6g \
+            bash planetiler/build-region.sh
+
+      - name: Verify candidate archive and enforce GitHub asset limit
+        run: |
+          set -euo pipefail
+          PMTILES_BIN="$(go env GOPATH)/bin/go-pmtiles"
+          go install "github.com/protomaps/go-pmtiles@${PMTILES_VERSION}"
+          "$PMTILES_BIN" version
+          FILE="replacement/output/occumed-replacement-${FAMILY}.pmtiles"
+          test -s "$FILE"
+          test "$(head -c 7 "$FILE")" = PMTiles
+          "$PMTILES_BIN" show "$FILE" | tee "replacement/output/occumed-replacement-${FAMILY}.metadata.txt"
+          BYTES="$(stat -c %s "$FILE")"
+          if [ "$BYTES" -ge "$MAX_CANDIDATE_BYTES" ]; then
+            echo "Candidate is ${BYTES} bytes and must be converted into deterministic exclusive tile-owner partitions before upload." >&2
+            exit 1
+          fi
+          sha256sum "$FILE" | tee "${FILE}.sha256"
+          node - <<'NODE'
+          const fs = require('fs');
+          const family = process.env.FAMILY;
+          const file = `replacement/output/occumed-replacement-${family}.pmtiles`;
+          const stat = fs.statSync(file);
+          const source = JSON.parse(fs.readFileSync('replacement/source.json', 'utf8'));
+          fs.writeFileSync(
+            `replacement/output/occumed-replacement-${family}.report.json`,
+            JSON.stringify({
+              generatedAt: new Date().toISOString(),
+              family,
+              sourceId: source.id,
+              sourcePbfUrl: source.pbf_url,
+              bytes: stat.size,
+              active: false,
+              status: 'candidate-awaiting-visual-and-tile-ownership-validation'
+            }, null, 2) + '\n'
+          );
+          NODE
+
+      - name: Upload candidate to isolated replacement release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if ! gh release view "$CANDIDATE_RELEASE_TAG" >/dev/null 2>&1; then
+            gh release create "$CANDIDATE_RELEASE_TAG" \
+              --title "Occu-Med worldwide replacement candidates" \
+              --notes "Quarantined candidate archives rebuilt from unsplit parent PBFs. These assets are not active production tiles and must not be routed until visual and ownership validation passes."
+          fi
+          gh release upload "$CANDIDATE_RELEASE_TAG" \
+            "replacement/output/occumed-replacement-${FAMILY}.pmtiles" \
+            "replacement/output/occumed-replacement-${FAMILY}.pmtiles.sha256" \
+            "replacement/output/occumed-replacement-${FAMILY}.metadata.txt" \
+            "replacement/output/occumed-replacement-${FAMILY}.report.json" \
+            --clobber
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: replacement-${{ env.FAMILY }}-report
+          path: |
+            replacement/source.json
+            replacement/source.osm.pbf.sha256
+            replacement/output/*.sha256
+            replacement/output/*.metadata.txt
+            replacement/output/*.report.json
+          if-no-files-found: warn
+          retention-days: 30
