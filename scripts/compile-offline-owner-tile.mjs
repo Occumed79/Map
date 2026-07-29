@@ -131,7 +131,7 @@ try {
     Number(surfaceHeader.maxZoom)
   );
 
-  const regionalCartography = detailPayload
+  const regionalCartography = options.z > 6 && detailPayload
     ? mergeVectorTiles([detailPayload], {
         excludeLayers: ['land', 'depth'],
         coordinateScale: 128
@@ -170,7 +170,8 @@ try {
       path: options.detailPath,
       minZoom: Number(detailHeader.minZoom),
       maxZoom: Number(detailHeader.maxZoom),
-      tilePresent: Boolean(detailPayload)
+      tilePresent: Boolean(detailPayload),
+      admitted: options.z > 6 && Boolean(detailPayload)
     },
     surface: {
       path: options.surfacePath,
@@ -179,7 +180,7 @@ try {
       authoritativeLayers: options.z <= 6 ? ['land', 'landcover', 'depth'] : ['land', 'depth']
     },
     policy: {
-      lowZoomAuthority: 'world-surface-z0-z6',
+      lowZoomAuthority: 'world-surface-only-z0-z6',
       highZoomLandAuthority: 'world-surface-offline-transform-and-clip',
       highZoomLandcoverAuthority: 'regional-detail',
       syntheticLandcover: false,
