@@ -128,9 +128,7 @@ const server = http.createServer((request, response) => {
       if (!validTile(z, x, y, maxZoom)) return write(response, 404, 'Tile not found', 'text/plain', method);
       const tile = await archive.getZxy(z, x, y);
       if (!tile?.data) return write(response, 204, Buffer.alloc(0), types['.pbf'], method);
-      return write(response, 200, Buffer.from(tile.data), types['.pbf'], method, {
-        'Content-Encoding': 'gzip'
-      });
+      return write(response, 200, Buffer.from(tile.data), types['.pbf'], method);
     }
 
     return staticFile(request, response, url.pathname);
