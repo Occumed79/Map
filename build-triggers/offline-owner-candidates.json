@@ -1,0 +1,9 @@
+{
+  "purpose": "Compile all 51 forced-split families into immutable offline owner partitions",
+  "familiesQueued": 51,
+  "routingZoom": 11,
+  "maxParallel": 8,
+  "retryRevision": 2,
+  "productionRoutingChanged": false,
+  "active": false
+}
