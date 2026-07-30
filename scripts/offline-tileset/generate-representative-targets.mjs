@@ -128,12 +128,12 @@ function candidateIntersectsTile(candidate, tile) {
   );
 }
 
-function ownerForTile(plan, tile) {
+function regionalOwnerForTile(plan, tile) {
   const matches = plan.owners.filter((owner) => prefixContains(owner.prefix, tile));
-  if (matches.length !== 1) {
-    throw new Error(`Expected one planned owner for tile ${tileKey(tile)}; found ${matches.length}.`);
+  if (matches.length > 1) {
+    throw new Error(`Expected at most one regional owner for tile ${tileKey(tile)}; found ${matches.length}.`);
   }
-  return matches[0];
+  return matches[0] || null;
 }
 
 function sortedTiles(map) {
@@ -181,11 +181,11 @@ const ownerById = new Map();
 for (const camera of buildCameras) {
   for (const tile of cameraTiles(camera)) {
     if (tile.z <= FOUNDATION_WORLD_MAX_ZOOM) continue;
-    const owner = ownerForTile(plan, tile);
-    ownerById.set(owner.id, owner);
+    const owner = regionalOwnerForTile(plan, tile);
+    if (owner) ownerById.set(owner.id, owner);
   }
 }
-if (!ownerById.size) throw new Error('Representative target did not touch any high-zoom owners.');
+if (!ownerById.size) throw new Error('Representative target did not touch any high-zoom regional owners.');
 
 const targetMaps = Object.fromEntries([
   ['foundation', new Map()],
@@ -207,8 +207,9 @@ for (const camera of buildCameras) {
       targetMaps.foundation.set(tileKey(tile), tile);
       continue;
     }
-    const owner = ownerForTile(plan, tile);
-    targetMaps[owner.id].set(tileKey(tile), tile);
+    const owner = regionalOwnerForTile(plan, tile);
+    const target = owner ? targetMaps[owner.id] : targetMaps.foundation;
+    target.set(tileKey(tile), tile);
   }
 }
 
