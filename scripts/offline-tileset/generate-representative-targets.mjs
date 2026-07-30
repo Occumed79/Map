@@ -151,6 +151,7 @@ const options = parseArguments(process.argv.slice(2));
 const plan = JSON.parse(await fs.readFile(path.resolve(options.plan), 'utf8'));
 const global = { center: [-20, 18], zoom: 2.2 };
 const fresnoStreet = { center: [-119.7871, 36.7378], zoom: 16 };
+const fresnoGlobal = { center: fresnoStreet.center, zoom: global.zoom };
 const antimeridianEast = { center: [179.65, 8], zoom: 8 };
 const antimeridianWest = { center: [-179.65, 8], zoom: 8 };
 const staticViews = [
@@ -165,8 +166,8 @@ const staticViews = [
   { name: 'fresno-street', ...fresnoStreet }
 ];
 const motions = [
-  { name: 'global-to-street', start: global, end: fresnoStreet },
-  { name: 'street-to-global', start: fresnoStreet, end: global },
+  { name: 'global-to-street', start: fresnoGlobal, end: fresnoStreet },
+  { name: 'street-to-global', start: fresnoStreet, end: fresnoGlobal },
   { name: 'antimeridian-crossing', start: antimeridianEast, end: antimeridianWest }
 ];
 const validationFrames = motions.flatMap((motion) =>
@@ -211,8 +212,12 @@ for (const camera of buildCameras) {
     const owner = [...ownerById.values()].find((candidate) =>
       prefixContains(candidate.prefix, tile)
     );
-    const target = owner ? targetMaps[owner.id] : targetMaps.foundation;
-    target.set(tileKey(tile), tile);
+    if (!owner) {
+    throw new Error(
+      `Representative high-zoom tile ${tileKey(tile)} is outside every selected owner.`
+    );
+  }
+  targetMaps[owner.id].set(tileKey(tile), tile);
   }
 }
 
