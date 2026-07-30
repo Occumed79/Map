@@ -14,10 +14,6 @@ const vectorTilesUrl =
 const glyphsUrl =
   process.env.OCCUMED_GLYPHS_URL ||
   'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf';
-const terrainUrl =
-  process.env.OCCUMED_TERRAIN_URL ||
-  'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png';
-
 const original = JSON.parse(await fs.readFile(sourcePath, 'utf8'));
 
 const fontMap = new Map([
@@ -296,8 +292,6 @@ function rewriteLayer(layer, targetSourceLayer) {
 const convertedLayers = [];
 const skippedLayers = [];
 const sourceLayerMappings = {};
-let hillshadeInserted = false;
-
 for (const layer of original.layers || []) {
   if (!layer.source) {
     convertedLayers.push(clone(layer));
@@ -324,26 +318,10 @@ for (const layer of original.layers || []) {
   const sourceLayer = layer['source-layer'];
 
   if (sourceLayer === 'hillshade') {
-    if (!hillshadeInserted) {
-      convertedLayers.push({
-        id: 'occumed-hillshade',
-        type: 'hillshade',
-        source: 'occumed-terrain',
-        minzoom: 2,
-        maxzoom: 16,
-        paint: {
-          'hillshade-exaggeration': ['interpolate', ['linear'], ['zoom'], 2, 0.16, 8, 0.34, 15, 0.24],
-          'hillshade-shadow-color': 'hsl(215, 18%, 30%)',
-          'hillshade-highlight-color': 'hsl(48, 40%, 94%)',
-          'hillshade-accent-color': 'hsl(95, 18%, 55%)',
-          'hillshade-illumination-direction': 335,
-          'hillshade-illumination-anchor': 'viewport'
-        },
-        metadata: { 'occumed:original-source-layer': 'hillshade' }
-      });
-      hillshadeInserted = true;
-    }
-    skippedLayers.push({ id: layer.id, reason: 'replaced by open raster DEM hillshade' });
+    skippedLayers.push({
+      id: layer.id,
+      reason: 'one-source immutable architecture has no external terrain source'
+    });
     continue;
   }
 
@@ -381,15 +359,6 @@ const runtimeStyle = {
       maxzoom: 16,
       attribution:
         '<a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors</a>'
-    },
-    'occumed-terrain': {
-      type: 'raster-dem',
-      tiles: [terrainUrl],
-      encoding: 'terrarium',
-      tileSize: 256,
-      minzoom: 0,
-      maxzoom: 15,
-      attribution: 'Elevation data via the AWS Terrain Tiles public dataset'
     }
   },
   sprite: '__OCCUMED_PUBLIC_ORIGIN__/sprites/occumed',
@@ -411,7 +380,7 @@ const report = {
   endpoints: {
     vectorTiles: vectorTilesUrl,
     glyphs: glyphsUrl,
-    terrain: terrainUrl,
+    terrain: null,
     relief: null,
     sprite: '__OCCUMED_PUBLIC_ORIGIN__/sprites/occumed'
   }

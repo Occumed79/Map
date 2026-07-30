@@ -83,7 +83,7 @@ assert(JSON.stringify(landcover?.paint?.['fill-opacity'] || []).includes('1'), '
 assert(layer('landuse')?.paint?.['fill-opacity'] === 1, 'Detailed landuse swatches are being weakened by extra opacity.');
 assert(layer('water')?.paint?.['fill-opacity'] === 1, 'Water must remain fully opaque.');
 assert(layer('water-depth')?.['source-layer'] === 'depth', 'The reference bathymetry layer is missing.');
-for (const required of ['#79BCEC59', '#5AACE759', '#3B9DE359']) {
+for (const required of ['#79BCEC', '#6EB6EA', '#63B1E9']) {
   assert(
     JSON.stringify(layer('water-depth')?.paint?.['fill-color'] || []).includes(required),
     `The exported bathymetry swatch ${required} is missing.`
@@ -92,11 +92,8 @@ for (const required of ['#79BCEC59', '#5AACE759', '#3B9DE359']) {
 
 assert(!runtime.layers.some((candidate) => candidate.type === 'raster'), 'A raster fallback basemap was reintroduced.');
 
-const hillshade = layer('occumed-hillshade');
-assert(hillshade?.minzoom === 1.5, 'Hillshade must begin early enough to shape the globe.');
-assert(hillshade?.paint?.['hillshade-illumination-anchor'] === 'map', 'Hillshade must stay fixed to geography.');
-assert(hillshade?.paint?.['hillshade-shadow-color'] === '#0000004D', 'Hillshade shadows are tinting the exported palette.');
-assert(hillshade?.paint?.['hillshade-highlight-color'] === '#FFFFFF4D', 'Hillshade highlights are tinting the exported palette.');
+assert(!runtime.layers.some((candidate) => candidate.type === 'hillshade'), 'An external hillshade layer was reintroduced.');
+assert(Object.keys(runtime.sources || {}).length === 1, 'The reference style no longer has exactly one browser source.');
 
 const paintedLayers = runtime.layers.filter((candidate) => candidate.paint);
 const allColors = collectHex(paintedLayers.map((candidate) => candidate.paint));

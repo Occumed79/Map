@@ -11,7 +11,6 @@ const BLOOM_FADE_START_ZOOM = 2.85;
 const BLOOM_FADE_END_ZOOM = 4.25;
 const WORLD_MIN_ZOOM = 0;
 const WORLD_MAX_ZOOM = 16;
-const WORLD_ZOOM_PYRAMID_LEVELS = WORLD_MAX_ZOOM - WORLD_MIN_ZOOM + 1;
 
 export function resolveOccumedPixelRatio() {
   const deviceRatio = Number(globalThis.devicePixelRatio);
@@ -86,92 +85,22 @@ export function installOccumedAtmosphereBloom(map) {
 }
 
 /**
- * Keeps decoded substitute tiles renderable across the complete 0–16 pyramid.
+ * Enforces exact prebuilt z/x/y addressing.
  *
- * MapLibre's normal retention only searches in-view tiles while an ideal tile
- * is loading. Fully decoded parents and children in its out-of-view cache are
- * consequently skipped, leaving no renderable tile until the ideal request is
- * parsed. Keep the same-source global foundation decoded as a last resort and
- * reattach the nearest cached substitute before cleanup removes it.
+ * The immutable tileset contains every production zoom, so a missing ideal tile
+ * must remain missing rather than being painted from a stretched parent or
+ * child. This changes MapLibre's fallback depth only; it does not replace or
+ * wrap its retained-tile algorithm.
  */
-export function installContinuousTileRetention(map) {
-  let removed = false;
-
+export function installExactTileAddressing(map) {
   const configure = () => {
-    if (removed) return;
     const tileManager = map.style?.tileManagers?.['occumed-open'];
     if (!tileManager?.constructor) return;
-    tileManager.constructor.maxUnderzooming = Math.max(
-      Number(tileManager.constructor.maxUnderzooming || 0),
-      WORLD_ZOOM_PYRAMID_LEVELS
-    );
-    tileManager.constructor.maxOverzooming = Math.max(
-      Number(tileManager.constructor.maxOverzooming || 0),
-      WORLD_ZOOM_PYRAMID_LEVELS
-    );
-    if (tileManager.__occumedContinuousRetention) return;
-
-    const updateRetainedTiles = tileManager._updateRetainedTiles.bind(tileManager);
-    let globalFoundationID = null;
-    tileManager._updateRetainedTiles = function retainCachedFoundation(idealTileIDs, zoom) {
-      const retained = updateRetainedTiles(idealTileIDs, zoom);
-      if (idealTileIDs.length && !globalFoundationID) {
-        globalFoundationID = idealTileIDs[0].scaledTo(0);
-      }
-      if (globalFoundationID) {
-        this._addTile(globalFoundationID);
-        retained[globalFoundationID.key] = globalFoundationID;
-      }
-
-      for (const idealID of idealTileIDs) {
-        if (this.getTileByID(idealID.key)?.hasData()) continue;
-
-        let foundAncestor = false;
-        for (let parentZoom = idealID.overscaledZ - 1; parentZoom >= 0; parentZoom -= 1) {
-          const parentID = idealID.scaledTo(parentZoom);
-          let parent = this.getTileByID(parentID.key);
-          if (!parent && this._outOfViewCache.has(parentID)) {
-            parent = this._addTile(parentID);
-          }
-          if (parent?.hasData()) {
-            retained[parentID.key] = parentID;
-            foundAncestor = true;
-            break;
-          }
-        }
-        if (foundAncestor) continue;
-
-        const cachedChildren = Object.values(this._outOfViewCache.data)
-          .flat()
-          .map(({ value }) => value)
-          .filter((tile) =>
-            tile.hasData() &&
-            tile.tileID.isChildOf(idealID) &&
-            tile.tileID.overscaledZ - idealID.overscaledZ <= WORLD_ZOOM_PYRAMID_LEVELS
-          )
-          .map((tile) => tile.tileID.clone());
-        if (!cachedChildren.length) continue;
-
-        const nearestZoom = Math.min(...cachedChildren.map((tileID) => tileID.overscaledZ));
-        for (const childID of cachedChildren) {
-          if (childID.overscaledZ !== nearestZoom) continue;
-          const child = this._addTile(childID);
-          if (child.hasData()) retained[childID.key] = childID;
-        }
-      }
-
-      return retained;
-    };
-    tileManager.__occumedContinuousRetention = true;
+    tileManager.constructor.maxUnderzooming = 0;
+    tileManager.constructor.maxOverzooming = 0;
   };
-
-  const remove = () => {
-    removed = true;
-    map.off('styledata', configure);
-  };
-
   map.on('styledata', configure);
-  map.once('remove', remove);
+  map.once('remove', () => map.off('styledata', configure));
   configure();
 }
 
@@ -229,8 +158,8 @@ export async function loadOccumedStyle(styleUrl = DEFAULT_STYLE_URL) {
 export async function createOccumedMap({
   container,
   styleUrl = DEFAULT_STYLE_URL,
-  center = [-98.5, 25],
-  zoom = 2.43,
+  center = [0, 20],
+  zoom = 1.25,
   minZoom = WORLD_MIN_ZOOM,
   maxZoom = WORLD_MAX_ZOOM,
   controls = true,
@@ -254,11 +183,7 @@ export async function createOccumedMap({
     hash: false,
     pixelRatio: resolveOccumedPixelRatio(),
     antialias: true,
-    // MapLibre only retains pending smaller-zoom requests during zoom-in when
-    // cancellation is disabled. Reverse zooms also require the already-loaded
-    // parent pyramid to remain in cache, so retain every zoom level from 0–16.
     cancelPendingTileRequestsWhileZooming: false,
-    maxTileCacheZoomLevels: WORLD_ZOOM_PYRAMID_LEVELS,
     refreshExpiredTiles: false,
     fadeDuration: 300,
     renderWorldCopies: false,
@@ -267,11 +192,10 @@ export async function createOccumedMap({
     ...mapOptions
   });
 
-  installContinuousTileRetention(map);
-  installOccumedAtmosphereBloom(map);
+  installExactTileAddressing(map);
 
   if (controls) {
-    map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-right');
+    map.addControl(new maplibregl.NavigationControl({ visualizePitch: false }), 'top-right');
   }
 
   if (scaleControl) {

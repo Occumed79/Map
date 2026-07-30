@@ -3,26 +3,12 @@ import { createReadStream } from 'node:fs';
 import fs from 'node:fs/promises';
 import http from 'node:http';
 import path from 'node:path';
-import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
-import { gzip } from 'node:zlib';
-import { createNeonNavigationTileCacheFromEnv } from './src/server/neon-navigation-tile-cache.js';
-import {
-  GatewayOverloadedError,
-  WorldTileGateway
-} from './src/server/world-tile-gateway.js';
-import { normalizeTileCoordinates } from './src/server/world-tile-routing.js';
-import { validateVectorTilePayload } from './src/server/tile-safety.js';
+import { ImmutableWorldTileset } from './src/server/immutable-world-tileset.js';
 
-const gzipAsync = promisify(gzip);
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'dist');
 const port = Number(process.env.PORT || 4173);
 const host = process.env.HOST?.trim() || '0.0.0.0';
-const worldReleaseRepository = process.env.OCCUMED_WORLD_RELEASE_REPOSITORY?.trim() || 'Occumed79/Map';
-const worldReleaseTag = process.env.OCCUMED_WORLD_RELEASE_TAG?.trim() || 'occumed-world-v1';
-const worldManifestAsset = 'world-virtual-manifest.json';
-const worldSurfaceAsset = 'occumed-world-surface.pmtiles';
-const worldSurfaceUrl = process.env.OCCUMED_WORLD_SURFACE_URL?.trim();
 const maxConcurrentTileRequests = Number(process.env.OCCUMED_MAX_CONCURRENT_TILE_REQUESTS || 64);
 const tileRequestTimeoutMs = Number(process.env.OCCUMED_TILE_REQUEST_TIMEOUT_MS || 30_000);
 const maxResolvedTileBytes = Number(process.env.OCCUMED_MAX_RESOLVED_TILE_BYTES || 24 * 1024 * 1024);
@@ -137,7 +123,7 @@ function sendHealth(request, response) {
 async function sendReadiness(request, response) {
   try {
     const ready = await Promise.race([
-      worldTileGateway.ready(),
+      immutableWorldTileset.ready(),
       new Promise((_, reject) => {
         const timer = setTimeout(() => reject(new Error('Readiness check timed out.')), 10_000);
         timer.unref?.();
@@ -167,19 +153,9 @@ async function serveStyle(request, response) {
   );
 }
 
-function releaseAssetUrl(assetName) {
-  if (assetName === worldSurfaceAsset && worldSurfaceUrl) return worldSurfaceUrl;
-  return `https://github.com/${worldReleaseRepository}/releases/download/${encodeURIComponent(worldReleaseTag)}/${encodeURIComponent(assetName)}`;
-}
-
-const navigationTileCache = createNeonNavigationTileCacheFromEnv();
-const worldTileGateway = new WorldTileGateway({
-  manifestUrl:
-    process.env.OCCUMED_WORLD_MANIFEST_URL?.trim() ||
-    releaseAssetUrl(worldManifestAsset),
-  releaseAssetUrl,
-  persistentTileCache: navigationTileCache,
-  maxResolvedTileBytes: safeInteger(
+const immutableWorldTileset = new ImmutableWorldTileset({
+  root: path.resolve(path.dirname(fileURLToPath(import.meta.url))),
+  maxTileBytes: safeInteger(
     maxResolvedTileBytes,
     24 * 1024 * 1024,
     1_024,
@@ -206,37 +182,45 @@ function tileEtag(tile) {
 async function serveVirtualTile(request, response, coordinates) {
   const concurrencyLimit = safeInteger(maxConcurrentTileRequests, 64, 4, 512);
   if (activeTileRequests >= concurrencyLimit) {
-    throw new GatewayOverloadedError('The HTTP tile concurrency limit has been reached.');
+    const error = new Error('The HTTP tile concurrency limit has been reached.');
+    error.code = 'OCCUMED_TILE_SERVER_OVERLOADED';
+    error.statusCode = 503;
+    throw error;
   }
 
   activeTileRequests += 1;
   const startedAt = performance.now();
   try {
-    const tile = await Promise.race([
-      worldTileGateway.resolveTile(coordinates.z, coordinates.x, coordinates.y),
+    const resolved = await Promise.race([
+      immutableWorldTileset.resolveTile(coordinates.z, coordinates.x, coordinates.y),
       timeoutAfter(
         safeInteger(tileRequestTimeoutMs, 30_000, 1_000, 120_000),
         `Tile ${coordinates.z}/${coordinates.x}/${coordinates.y} timed out.`
       )
     ]);
-    validateVectorTilePayload(tile, {
-      label: `resolved tile ${coordinates.z}/${coordinates.x}/${coordinates.y}`,
-      maxBytes: safeInteger(maxResolvedTileBytes, 24 * 1024 * 1024, 1_024, 96 * 1024 * 1024)
-    });
+    const tile = resolved.data;
+    if (!tile) {
+      writeHeaders(response, 204, {
+        'Cache-Control': 'public, max-age=3600, must-revalidate, stale-if-error=86400',
+        'X-Occumed-Tileset': resolved.artifactVersion,
+        'X-Occumed-Tile-Owner': resolved.owner.id
+      });
+      response.end();
+      return;
+    }
 
     const etag = tileEtag(tile);
     if (request.headers['if-none-match'] === etag) {
       writeHeaders(response, 304, {
         'Cache-Control': 'public, max-age=300, must-revalidate, stale-if-error=86400',
         ETag: etag,
-        'X-Occumed-Tileset': 'virtual-worldwide-v2'
+        'X-Occumed-Tileset': resolved.artifactVersion,
+        'X-Occumed-Tile-Owner': resolved.owner.id
       });
       response.end();
       return;
     }
 
-    const acceptsGzip = /(?:^|,)\s*gzip\s*(?:,|$)/i.test(String(request.headers['accept-encoding'] || ''));
-    const payload = acceptsGzip ? await gzipAsync(tile, { level: 5 }) : tile;
     const cacheControl = 'public, max-age=300, must-revalidate, stale-while-revalidate=60, stale-if-error=86400';
     const duration = Math.max(0, performance.now() - startedAt);
 
@@ -244,16 +228,21 @@ async function serveVirtualTile(request, response, coordinates) {
       'Cache-Control': cacheControl,
       'CDN-Cache-Control': cacheControl,
       'Surrogate-Control': cacheControl,
-      ...(acceptsGzip ? { 'Content-Encoding': 'gzip' } : {}),
-      'Content-Length': payload.byteLength,
+      'Content-Length': tile.byteLength,
       'Content-Type': contentTypes['.pbf'],
+      ...(resolved.contentEncoding
+        ? {
+            'Content-Encoding': resolved.contentEncoding,
+            Vary: 'Accept-Encoding'
+          }
+        : {}),
       ETag: etag,
       'Server-Timing': `tile;dur=${duration.toFixed(1)}`,
-      Vary: 'Accept-Encoding',
-      'X-Occumed-Tileset': 'virtual-worldwide-v2'
+      'X-Occumed-Tileset': resolved.artifactVersion,
+      'X-Occumed-Tile-Owner': resolved.owner.id
     });
     if (request.method === 'HEAD') response.end();
-    else response.end(payload);
+    else response.end(tile);
   } finally {
     activeTileRequests -= 1;
   }
@@ -416,7 +405,6 @@ async function serveStatic(request, response, pathname) {
 }
 
 function tileErrorStatus(error) {
-  if (error instanceof GatewayOverloadedError) return 503;
   if (error instanceof RangeError) return 404;
   if (Number.isSafeInteger(error?.statusCode)) return error.statusCode;
   if (String(error?.code || '').startsWith('OCCUMED_')) return 503;
@@ -456,10 +444,8 @@ async function handleRequest(request, response) {
     return;
   }
   if (url.pathname === '/internal/tile-health' && diagnosticsEnabled) {
-    sendJson(response, 200, {
-      activeTileRequests,
-      ...worldTileGateway.getHealthSnapshot()
-    }, 'no-store', method);
+    const ready = await immutableWorldTileset.ready().catch(() => ({ ready: false }));
+    sendJson(response, 200, { activeTileRequests, ...ready }, 'no-store', method);
     return;
   }
   if (url.pathname === '/style/occumed-open.json') {
@@ -469,8 +455,23 @@ async function handleRequest(request, response) {
 
   const tileMatch = /^\/tiles\/(\d+)\/(\d+)\/(\d+)\.pbf$/.exec(url.pathname);
   if (tileMatch) {
-    const coordinates = normalizeTileCoordinates(tileMatch[1], tileMatch[2], tileMatch[3]);
-    if (!coordinates) {
+    const coordinates = {
+      z: Number(tileMatch[1]),
+      x: Number(tileMatch[2]),
+      y: Number(tileMatch[3])
+    };
+    const width = 2 ** coordinates.z;
+    if (
+      !Number.isSafeInteger(coordinates.z) ||
+      !Number.isSafeInteger(coordinates.x) ||
+      !Number.isSafeInteger(coordinates.y) ||
+      coordinates.z < 0 ||
+      coordinates.z > 16 ||
+      coordinates.x < 0 ||
+      coordinates.y < 0 ||
+      coordinates.x >= width ||
+      coordinates.y >= width
+    ) {
       send(response, 404, 'Tile not found', 'text/plain; charset=utf-8', 'no-store', method);
       return;
     }
@@ -558,7 +559,7 @@ function shutdown(signal) {
   shuttingDown = true;
   console.log(`Occu-Med Map received ${signal}; draining connections.`);
   server.close((error) => {
-    void worldTileGateway.close().finally(() => {
+    void immutableWorldTileset.close().finally(() => {
       if (error) {
         console.error('Occu-Med Map shutdown error:', error);
         process.exitCode = 1;
@@ -567,7 +568,7 @@ function shutdown(signal) {
   });
   const timer = setTimeout(() => {
     server.closeAllConnections?.();
-    void worldTileGateway.close();
+    void immutableWorldTileset.close();
     process.exitCode = 1;
   }, 25_000);
   timer.unref?.();
@@ -579,16 +580,11 @@ process.once('SIGINT', () => shutdown('SIGINT'));
 server.listen(port, host, () => {
   console.log(`Occu-Med Map listening on ${host}:${port}.`);
   console.log(`Health endpoint ready at http://127.0.0.1:${port}/health.`);
-  if (navigationTileCache) {
-    const snapshot = navigationTileCache.snapshot();
-    console.log(`Neon navigation cache configured with ${snapshot.configuredShards} of ${snapshot.expectedShards} shards.`);
-    void worldTileGateway.initializePersistentCache().then(
-      (initialized) => console.log(`Neon navigation cache initialized ${initialized} shard(s).`),
-      (error) => console.error(`Neon navigation cache initialization failed: ${error?.code || error?.name || 'UNKNOWN'}`)
-    );
-  }
-  void worldTileGateway.ready().then(
-    (ready) => console.log(`Worldwide gateway ready with ${ready.regions} regional shards.`),
-    (error) => console.error('Worldwide gateway readiness failed:', error)
+  void immutableWorldTileset.ready().then(
+    (ready) => console.log(
+      `Immutable worldwide tileset ${ready.artifactVersion} ready ` +
+      `(${ready.builtOwnerCount}/${ready.plannedOwnerCount} owners).`
+    ),
+    (error) => console.error('Immutable worldwide tileset readiness failed:', error)
   );
 });

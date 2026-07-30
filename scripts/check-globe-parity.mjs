@@ -102,16 +102,13 @@ if (!Array.isArray(depthOpacity) || depthOpacity[0] !== 'max' || Number(depthOpa
   fail('Bathymetry can still collapse to zero at detailed navigation zooms.');
 }
 const waterDepthColors = JSON.stringify(waterDepth?.paint?.['fill-color'] || []);
-for (const value of ['#79BCEC59', '#5AACE759', '#3B9DE359']) {
+for (const value of ['#79BCEC', '#6EB6EA', '#63B1E9']) {
   if (!waterDepthColors.includes(value)) fail(`The exported bathymetry swatch ${value} is missing.`);
 }
-
-const hillshade = layer('occumed-hillshade');
-if (!hillshade) fail('The open hillshade layer is missing.');
-if (hillshade?.minzoom !== 1.5) fail('Hillshade begins too late to shape the globe.');
-if (hillshade?.paint?.['hillshade-illumination-anchor'] !== 'map') fail('Hillshade must remain geographically anchored.');
-if (hillshade?.paint?.['hillshade-shadow-color'] !== '#0000004D') fail('Hillshade shadows are tinting exported colors.');
-if (hillshade?.paint?.['hillshade-highlight-color'] !== '#FFFFFF4D') fail('Hillshade highlights are tinting exported colors.');
+if (runtime.layers.some((candidate) => candidate.type === 'hillshade')) {
+  fail('The one-source style contains an external hillshade layer.');
+}
+if (Object.keys(runtime.sources || {}).length !== 1) fail('The globe style does not use exactly one browser source.');
 
 if ((layer('road-motorway-trunk')?.minzoom ?? 99) > 2) fail('Major highways enter too late for the supplied regional hierarchy.');
 if ((layer('admin-0-boundary')?.minzoom ?? 99) > 0) fail('Country boundaries are unavailable at globe zoom.');
