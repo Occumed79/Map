@@ -1,0 +1,128 @@
+name: Validate Custom Flat PMTiles
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/validate-custom-flat-pmtiles.yml
+      - package-lock.json
+      - package.json
+      - server.mjs
+      - style.json
+      - src/**
+      - scripts/offline-tileset/**
+      - scripts/apply-flat-custom-parity.mjs
+      - scripts/check-custom-flat-tiles.mjs
+      - scripts/build-runtime-style.mjs
+      - scripts/validate-immutable-visuals.mjs
+
+permissions:
+  contents: read
+
+concurrency:
+  group: custom-flat-pmtiles-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  production-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Build exact production application
+        run: npm run build
+
+      - name: Preserve generated flat custom style
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: custom-flat-production-style-${{ github.sha }}
+          path: |
+            public/style/occumed-open.json
+            public/style/compatibility-report.json
+            dist/**
+          if-no-files-found: warn
+          retention-days: 14
+
+  representative-visuals:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: build/custom-flat/playwright
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Build exact production application
+        run: npm run build
+
+      - name: Create SHA-locked world owner plan
+        run: |
+          mkdir -p build/custom-flat
+          npm run tiles:plan-world -- \
+            --output build/custom-flat/immutable-owner-plan.json
+
+      - name: Enumerate representative world and motion targets
+        run: |
+          npm run tiles:targets-fixture -- \
+            --plan build/custom-flat/immutable-owner-plan.json \
+            --output build/custom-flat/representative-targets.json
+
+      - name: Download only the locked globe inputs required by the fixture
+        run: |
+          npm run tiles:localize-fixture -- \
+            --plan build/custom-flat/immutable-owner-plan.json \
+            --targets build/custom-flat/representative-targets.json \
+            --output-dir build/custom-flat/immutable-inputs \
+            --report build/custom-flat/representative-inputs.json
+
+      - name: Build representative immutable flat tileset
+        run: |
+          npm run tiles:build-fixture -- \
+            --plan build/custom-flat/immutable-owner-plan.json \
+            --targets build/custom-flat/representative-targets.json \
+            --input-report build/custom-flat/representative-inputs.json \
+            --output-dir build/custom-flat/artifact
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Validate static and continuous-motion views
+        run: |
+          npm run check:immutable-visuals -- \
+            --manifest build/custom-flat/artifact/manifest.json \
+            --targets build/custom-flat/representative-targets.json \
+            --output-dir build/custom-flat/visual-validation
+
+      - name: Preserve custom tile artifact and screenshots
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: custom-flat-globe-tiles-${{ github.sha }}
+          path: |
+            build/custom-flat/immutable-owner-plan.json
+            build/custom-flat/representative-targets.json
+            build/custom-flat/representative-inputs.json
+            build/custom-flat/artifact/manifest.json
+            build/custom-flat/artifact/representative-build-report.json
+            build/custom-flat/artifact/reports/**
+            build/custom-flat/visual-validation/**
+          if-no-files-found: warn
+          retention-days: 14
