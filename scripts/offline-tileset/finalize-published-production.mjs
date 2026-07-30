@@ -44,10 +44,7 @@ async function releaseAssets(repository, tag, token) {
   );
   const assets = [];
   for (let page = 1; ; page += 1) {
-    const batch = await fetchJson(
-      `${release.assets_url}?per_page=100&page=${page}`,
-      token
-    );
+    const batch = await fetchJson(`${release.assets_url}?per_page=100&page=${page}`, token);
     assets.push(...batch);
     if (batch.length < 100) break;
   }
@@ -60,11 +57,7 @@ function lockedAsset(asset, expectedName) {
   if (!/^[a-f0-9]{64}$/.test(sha256)) {
     throw new Error(`Published production asset lacks SHA-256 lock: ${expectedName}`);
   }
-  return {
-    file: expectedName,
-    bytes: Number(asset.size),
-    sha256
-  };
+  return { file: expectedName, bytes: Number(asset.size), sha256 };
 }
 
 const options = parseArguments(process.argv.slice(2));
@@ -82,29 +75,22 @@ const foundation = {
   ...lockedAsset(byName.get('foundation.pmtiles'), 'foundation.pmtiles'),
   maxZoom: plan.routingZoom
 };
-const ownerById = new Map(plan.owners.map((owner) => [owner.id, owner]));
-const assigned = new Set();
-const owners = [];
-const uniqueAssets = new Map([[foundation.file, foundation]]);
-for (const batch of batchPlan.batches) {
-  const archive = lockedAsset(byName.get(batch.file), batch.file);
-  uniqueAssets.set(archive.file, archive);
+const sourceOwnerIds = new Set();
+const owners = batchPlan.batches.map((batch) => {
   for (const ownerId of batch.ownerIds) {
-    if (assigned.has(ownerId)) throw new Error(`Production owner is assigned twice: ${ownerId}`);
-    const owner = ownerById.get(ownerId);
-    if (!owner) throw new Error(`Production owner is not in the immutable plan: ${ownerId}`);
-    assigned.add(ownerId);
-    owners.push({
-      id: owner.id,
-      prefix: owner.prefix,
-      exactTiles: owner.exactTiles || [],
-      ...archive,
-      batchId: batch.id
-    });
+    if (sourceOwnerIds.has(ownerId)) throw new Error(`Source owner is assigned twice: ${ownerId}`);
+    sourceOwnerIds.add(ownerId);
   }
-}
-if (assigned.size !== plan.owners.length) {
-  throw new Error(`Published production owner coverage is incomplete: ${assigned.size}/${plan.owners.length}.`);
+  return {
+    id: batch.id,
+    prefix: batch.prefix,
+    exactTiles: [],
+    ...lockedAsset(byName.get(batch.file), batch.file),
+    sourceOwnerCount: batch.sourceOwnerCount
+  };
+});
+if (sourceOwnerIds.size !== plan.owners.length) {
+  throw new Error(`Published source-owner coverage is incomplete: ${sourceOwnerIds.size}/${plan.owners.length}.`);
 }
 owners.sort((left, right) =>
   left.prefix.z - right.prefix.z ||
@@ -122,11 +108,12 @@ const manifest = {
   complete: true,
   validationFixture: false,
   logicalOwnerCount: plan.logicalOwnerCount,
-  plannedOwnerCount: plan.plannedOwnerCount,
+  sourceOwnerCount: plan.plannedOwnerCount,
+  plannedOwnerCount: batchPlan.batchCount,
   builtOwnerCount: owners.length,
   batchCount: batchPlan.batchCount,
   defaultOwner: foundation.id,
-  totalBytes: [...uniqueAssets.values()].reduce((sum, asset) => sum + asset.bytes, 0),
+  totalBytes: foundation.bytes + owners.reduce((sum, owner) => sum + owner.bytes, 0),
   assetBaseUrl: `https://github.com/${options.repository}/releases/download/${encodeURIComponent(options.tag)}/`,
   authorities: {
     land: 'world-surface',
@@ -154,5 +141,6 @@ await fs.writeFile(pending, `${JSON.stringify(manifest, null, 2)}\n`, { flag: 'w
 await fs.rename(pending, output);
 console.log(
   `Finalized complete production manifest ${manifest.artifactVersion}: ` +
-  `${owners.length} owners in ${batchPlan.batchCount} archives, ${manifest.totalBytes} unique bytes.`
+  `${owners.length} non-overlapping archives covering ${plan.owners.length} source owners, ` +
+  `${manifest.totalBytes} bytes.`
 );
