@@ -26,7 +26,7 @@ const views = [
     ]
   },
   { id: 'north-america', center: [-100, 39], zoom: 3.35, requiredLandPoints: [[-112.074, 33.448], [-99.133, 19.432], [-104.99, 39.739]] },
-  { id: 'europe-africa', center: [15, 18], zoom: 3.05, requiredLandPoints: [[2.352, 48.857], [38.758, 8.981], [28.047, -26.204]] },
+  { id: 'europe-africa', center: [15, 8], zoom: 2.55, requiredLandPoints: [[2.352, 48.857], [38.758, 8.981], [28.047, -26.204]] },
   { id: 'fresno', center: [-119.7871, 36.7378], zoom: 11, requiredLandPoints: [[-119.7871, 36.7378]] }
 ];
 
