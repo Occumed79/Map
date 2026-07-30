@@ -1,0 +1,274 @@
+name: Build All Offline Owner Candidates
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  PMTILES_VERSION: v1.31.2
+  OWNER_RELEASE_TAG: occumed-world-owner-candidates-v1
+  MAX_OWNER_ASSET_BYTES: '1932735283'
+  ROUTING_ZOOM: '11'
+  PARTITION_TARGET_BYTES: '650000000'
+
+jobs:
+  prepare-matrix:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'pull_request' &&
+       github.event.pull_request.base.ref == 'main' &&
+       github.event.pull_request.head.ref == 'build/offline-owner-candidates')
+    runs-on: ubuntu-latest
+    outputs:
+      families: ${{ steps.matrix.outputs.families }}
+      count: ${{ steps.matrix.outputs.count }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: bulk/offline-owner-compilation
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Validate source inventory and queue every family
+        id: matrix
+        run: |
+          set -euo pipefail
+          npm ci
+          node scripts/check-forced-split-quarantine.mjs
+          node - <<'NODE' >> "$GITHUB_OUTPUT"
+          const fs = require('fs');
+          const config = JSON.parse(fs.readFileSync('config/forced-split-families.json', 'utf8'));
+          const families = config.families.map((entry) => entry.id).sort();
+          if (families.length !== 51) throw new Error(`Expected 51 forced-split families, found ${families.length}.`);
+          console.log(`families=${JSON.stringify(families)}`);
+          console.log(`count=${families.length}`);
+          NODE
+
+      - name: Ensure isolated owner release exists
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh release view "$OWNER_RELEASE_TAG" >/dev/null 2>&1 || \
+            gh release create "$OWNER_RELEASE_TAG" \
+              --title "Occu-Med immutable owner candidates v1" \
+              --notes "Inactive offline-compiled owner partitions. Not production routing."
+
+      - run: echo "Queued ${{ steps.matrix.outputs.count }} complete offline owner builds." >> "$GITHUB_STEP_SUMMARY"
+
+  compile-owner:
+    needs: prepare-matrix
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        family: ${{ fromJSON(needs.prepare-matrix.outputs.families) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 720
+    env:
+      FAMILY: ${{ matrix.family }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: bulk/offline-owner-compilation
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.25.x'
+
+      - name: Install locked dependencies and build tools
+        run: |
+          set -euo pipefail
+          npm ci
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential gdal-bin libsqlite3-dev sqlite3 zlib1g-dev
+          git clone --depth 1 --branch 2.79.0 https://github.com/felt/tippecanoe.git /tmp/tippecanoe
+          make -C /tmp/tippecanoe -j2
+          sudo make -C /tmp/tippecanoe install
+          go install "github.com/protomaps/go-pmtiles@${PMTILES_VERSION}"
+          node scripts/check-forced-split-quarantine.mjs
+
+      - name: Resolve exact unsplit source and region geometry
+        run: |
+          set -euo pipefail
+          mkdir -p owner/source owner/raw owner/mbtiles owner/output .planetiler-data
+          OCCUMED_WORLD_SIZE_AWARE=0 node scripts/plan-world-shards.mjs --scope all > owner/source/unsplit-world-plan.json
+          node scripts/select-unsplit-replacement-source.mjs \
+            "$FAMILY" owner/source/unsplit-world-plan.json owner/source/source.json
+          node scripts/select-geofabrik-region-geometry.mjs \
+            "$FAMILY" owner/source/region.geojson
+          node - <<'NODE' >> "$GITHUB_ENV"
+          const fs = require('fs');
+          const source = JSON.parse(fs.readFileSync('owner/source/source.json', 'utf8'));
+          console.log(`SOURCE_ID=${source.id}`);
+          console.log(`SOURCE_PBF_URL=${source.pbf_url}`);
+          NODE
+
+      - name: Build one coherent regional detail archive
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 5 --retry-all-errors \
+            --output .planetiler-data/source.osm.pbf "$SOURCE_PBF_URL"
+          test -s .planetiler-data/source.osm.pbf
+          sha256sum .planetiler-data/source.osm.pbf > owner/source/source.osm.pbf.sha256
+          OCCUMED_TILE_AREA="$SOURCE_ID" \
+          OCCUMED_OSM_PBF="$PWD/.planetiler-data/source.osm.pbf" \
+          OCCUMED_PMTILES_OUTPUT="$PWD/owner/raw/detail.pmtiles" \
+          OCCUMED_PLANETILER_DATA_DIR="$PWD/.planetiler-data" \
+          OCCUMED_PLANETILER_MEMORY=6g \
+            bash planetiler/build-region.sh
+          rm -f .planetiler-data/source.osm.pbf
+          rm -rf .planetiler-data/tmp
+          docker system prune -af || true
+          test "$(head -c 7 owner/raw/detail.pmtiles)" = PMTiles
+
+      - name: Build authoritative exact-region land archive
+        run: |
+          set -euo pipefail
+          bash scripts/build-regional-land-owner.sh \
+            owner/source/region.geojson owner/raw/land.pmtiles
+
+      - name: Convert immutable inputs to indexed MBTiles
+        run: |
+          set -euo pipefail
+          PMTILES_BIN="$(go env GOPATH)/bin/go-pmtiles"
+          "$PMTILES_BIN" convert owner/raw/detail.pmtiles owner/mbtiles/detail.mbtiles
+          rm owner/raw/detail.pmtiles
+          "$PMTILES_BIN" convert owner/raw/land.pmtiles owner/mbtiles/land.mbtiles
+          rm owner/raw/land.pmtiles
+          sqlite3 owner/mbtiles/detail.mbtiles \
+            'CREATE UNIQUE INDEX IF NOT EXISTS tile_index ON tiles (zoom_level, tile_column, tile_row);'
+          sqlite3 owner/mbtiles/land.mbtiles \
+            'CREATE UNIQUE INDEX IF NOT EXISTS tile_index ON tiles (zoom_level, tile_column, tile_row);'
+
+      - name: Compile complete deterministic owner partitions offline
+        run: |
+          set -euo pipefail
+          node scripts/compile-offline-owner-mbtiles.mjs \
+            --family "$FAMILY" \
+            --detail owner/mbtiles/detail.mbtiles \
+            --land owner/mbtiles/land.mbtiles \
+            --routing-zoom "$ROUTING_ZOOM" \
+            --target-bytes "$PARTITION_TARGET_BYTES" \
+            --output-dir owner/output
+          rm -f owner/mbtiles/detail.mbtiles owner/mbtiles/land.mbtiles
+
+      - name: Convert, verify, and lock final owner PMTiles
+        run: |
+          set -euo pipefail
+          PMTILES_BIN="$(go env GOPATH)/bin/go-pmtiles"
+          for mbtiles in owner/output/*.mbtiles; do
+            pmtiles="${mbtiles%.mbtiles}.pmtiles"
+            "$PMTILES_BIN" convert "$mbtiles" "$pmtiles"
+            rm "$mbtiles"
+            test "$(head -c 7 "$pmtiles")" = PMTiles
+            bytes="$(stat -c %s "$pmtiles")"
+            if [ "$bytes" -ge "$MAX_OWNER_ASSET_BYTES" ]; then
+              echo "Owner partition exceeds asset ceiling: $pmtiles ($bytes bytes)" >&2
+              exit 1
+            fi
+            sha256sum "$pmtiles" > "$pmtiles.sha256"
+            "$PMTILES_BIN" show "$pmtiles" > "$pmtiles.metadata.txt"
+          done
+          FAMILY="$FAMILY" node - <<'NODE'
+          const fs = require('fs');
+          const path = require('path');
+          const family = process.env.FAMILY;
+          const manifestPath = path.join('owner/output', `occumed-owner-${family}.manifest.json`);
+          const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+          for (const partition of manifest.partitions) {
+            const base = partition.mbtiles.replace(/\.mbtiles$/, '.pmtiles');
+            const absolute = path.join('owner/output', base);
+            partition.asset = base;
+            partition.bytes = fs.statSync(absolute).size;
+            partition.sha256 = fs.readFileSync(`${absolute}.sha256`, 'utf8').trim().split(/\s+/)[0];
+            delete partition.mbtiles;
+          }
+          fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+          NODE
+
+      - name: Upload inactive immutable owner candidates
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          upload() {
+            file="$1"
+            for attempt in 1 2 3 4 5 6; do
+              if gh release upload "$OWNER_RELEASE_TAG" "$file" --clobber; then return 0; fi
+              sleep $((attempt * 20))
+            done
+            return 1
+          }
+          for file in owner/output/*.pmtiles owner/output/*.pmtiles.sha256 owner/output/*.pmtiles.metadata.txt; do
+            upload "$file"
+          done
+          upload "owner/output/occumed-owner-${FAMILY}.manifest.json"
+
+      - name: Preserve family manifest and diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: offline-owner-${{ matrix.family }}-manifest
+          path: |
+            owner/source/source.json
+            owner/source/source.osm.pbf.sha256
+            owner/output/*.manifest.json
+            owner/output/*.sha256
+            owner/output/*.metadata.txt
+          if-no-files-found: warn
+          retention-days: 30
+
+  aggregate-owner-manifest:
+    if: ${{ always() && needs.prepare-matrix.result != 'skipped' }}
+    needs: [prepare-matrix, compile-owner]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: bulk/offline-owner-compilation
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: offline-owner-*-manifest
+          path: owner-manifests
+
+      - name: Build exact ownership manifest and fail on gaps or overlaps
+        run: |
+          set -euo pipefail
+          mkdir -p owner-aggregate
+          node scripts/aggregate-offline-owner-manifests.mjs \
+            owner-manifests owner-aggregate/world-owner-candidate-manifest.json 51
+
+      - name: Upload aggregate manifest to inactive release
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload "$OWNER_RELEASE_TAG" \
+            owner-aggregate/world-owner-candidate-manifest.json --clobber
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: world-owner-candidate-manifest
+          path: owner-aggregate/**
+          if-no-files-found: warn
+          retention-days: 30
