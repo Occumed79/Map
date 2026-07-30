@@ -54,12 +54,26 @@ const batch = batchPlan.batches?.find((candidate) => candidate.index === batchIn
 if (!batch || targets.batch?.id !== batch.id) {
   throw new Error(`Production batch metadata mismatch: ${batchIndex}.`);
 }
-const selectedOwners = new Map(
-  targets.selectedOwners.map((owner) => [owner.id, owner])
-);
-const owners = plan.owners.filter((owner) => batch.ownerIds.includes(owner.id));
-if (owners.length !== batch.ownerIds.length || owners.some((owner) => !selectedOwners.has(owner.id))) {
-  throw new Error(`Production owner inventory is incomplete for ${batch.id}.`);
+
+const batchOwnerIds = new Set(batch.ownerIds);
+const selectedOwnerIds = new Set(targets.selectedOwners.map((owner) => owner.id));
+const activeOwnerIds = new Set(targets.batch.activeOwnerIds || []);
+const emptyOwnerIds = new Set(targets.batch.emptyOwnerIds || []);
+if (
+  selectedOwnerIds.size !== activeOwnerIds.size ||
+  [...selectedOwnerIds].some((id) => !activeOwnerIds.has(id))
+) {
+  throw new Error(`Active production owner inventory is inconsistent for ${batch.id}.`);
+}
+if (
+  activeOwnerIds.size + emptyOwnerIds.size !== batchOwnerIds.size ||
+  [...activeOwnerIds, ...emptyOwnerIds].some((id) => !batchOwnerIds.has(id))
+) {
+  throw new Error(`Active/empty production owner partition is incomplete for ${batch.id}.`);
+}
+const owners = plan.owners.filter((owner) => activeOwnerIds.has(owner.id));
+if (owners.length !== activeOwnerIds.size) {
+  throw new Error(`Active production owner lookup is incomplete for ${batch.id}.`);
 }
 
 const regionalByAsset = new Map();
@@ -110,10 +124,13 @@ built.owners = owners.map((owner) => ({
   prefix: owner.prefix,
   exactTiles: owner.exactTiles || []
 }));
+built.emptyOwnerIds = [...emptyOwnerIds].sort();
+built.sourceOwnerCount = batch.ownerIds.length;
+built.activeSourceOwnerCount = owners.length;
 const pending = `${report}.pending-${process.pid}`;
 await fs.writeFile(pending, `${JSON.stringify(built, null, 2)}\n`, { flag: 'wx' });
 await fs.rename(pending, report);
 console.log(
   `${batch.id} is release-ready: ${built.bytes} bytes, ${built.addressedTiles} exact tiles, ` +
-  `${owners.length} immutable owners.`
+  `${owners.length} active and ${emptyOwnerIds.size} empty source owners.`
 );
