@@ -64,6 +64,15 @@ docker run --rm \
   "$IMAGE" \
   "${COMMON_ARGS[@]}"
 
+# Planetiler runs as root inside the container and may leave root-owned temporary
+# databases behind. Remove the temporary directory through the same container
+# image so host-side cleanup cannot fail after a successful archive build.
+docker run --rm \
+  --entrypoint /bin/sh \
+  -v "$DATA_DIR:/data" \
+  "$IMAGE" \
+  -c 'rm -rf /data/tmp'
+
 test -s "$OUTPUT"
 (
   cd "$OUTPUT_DIR"
