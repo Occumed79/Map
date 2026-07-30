@@ -1,0 +1,82 @@
+name: Validate Flat Authoritative Surface
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/validate-flat-authoritative-surface.yml
+      - package-lock.json
+      - package.json
+      - scripts/apply-flat-overview-mode.mjs
+      - scripts/check-flat-overview-mode.mjs
+      - scripts/start-flat-overview.mjs
+      - scripts/validate-flat-authoritative-surface.mjs
+      - server-flat.mjs
+      - src/**
+
+permissions:
+  contents: read
+
+concurrency:
+  group: occumed-flat-surface-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rendered-land:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build the exact Render application
+        run: npm run build
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Start the exact Render command
+        run: |
+          set -euo pipefail
+          npm start > flat-surface-server.log 2>&1 &
+          echo "$!" > flat-surface-server.pid
+          for attempt in {1..600}; do
+            if curl --fail --silent http://127.0.0.1:4173/readyz > flat-surface-ready.json; then
+              exit 0
+            fi
+            if ! kill -0 "$(cat flat-surface-server.pid)" 2>/dev/null; then
+              cat flat-surface-server.log
+              exit 1
+            fi
+            sleep 1
+          done
+          cat flat-surface-server.log
+          exit 1
+
+      - name: Prove land renders in the flat viewport
+        env:
+          OCCUMED_PREVIEW_OUTPUT: flat-surface-validation
+        run: node scripts/validate-flat-authoritative-surface.mjs
+
+      - name: Stop server
+        if: always()
+        run: |
+          test -f flat-surface-server.pid && kill "$(cat flat-surface-server.pid)" 2>/dev/null || true
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: flat-authoritative-surface-${{ github.sha }}
+          path: |
+            flat-surface-validation/**
+            flat-surface-ready.json
+            flat-surface-server.log
+          if-no-files-found: warn
+          retention-days: 14
