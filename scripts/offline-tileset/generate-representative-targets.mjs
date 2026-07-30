@@ -128,15 +128,10 @@ function candidateIntersectsTile(candidate, tile) {
   );
 }
 
-function ownerForPoint(plan, [lon, lat], zoom = 16) {
-  const tile = {
-    z: zoom,
-    x: Math.floor(lonToTileX(lon, zoom)),
-    y: Math.floor(latToTileY(lat, zoom))
-  };
+function ownerForTile(plan, tile) {
   const matches = plan.owners.filter((owner) => prefixContains(owner.prefix, tile));
   if (matches.length !== 1) {
-    throw new Error(`Expected one planned owner for ${lon},${lat}; found ${matches.length}.`);
+    throw new Error(`Expected one planned owner for tile ${tileKey(tile)}; found ${matches.length}.`);
   }
   return matches[0];
 }
@@ -182,13 +177,16 @@ const buildCameras = [
   )
 ];
 
-const selectedOwners = [
-  ownerForPoint(plan, fresnoStreet.center),
-  ownerForPoint(plan, antimeridianEast.center),
-  ownerForPoint(plan, antimeridianWest.center)
-];
-const ownerById = new Map(selectedOwners.map((owner) => [owner.id, owner]));
-if (ownerById.size !== 3) throw new Error('Representative target requires three distinct owners.');
+const ownerById = new Map();
+for (const camera of buildCameras) {
+  for (const tile of cameraTiles(camera)) {
+    if (tile.z <= FOUNDATION_WORLD_MAX_ZOOM) continue;
+    const owner = ownerForTile(plan, tile);
+    ownerById.set(owner.id, owner);
+  }
+}
+if (!ownerById.size) throw new Error('Representative target did not touch any high-zoom owners.');
+
 const targetMaps = Object.fromEntries([
   ['foundation', new Map()],
   ...[...ownerById].map(([id]) => [id, new Map()])
@@ -209,15 +207,8 @@ for (const camera of buildCameras) {
       targetMaps.foundation.set(tileKey(tile), tile);
       continue;
     }
-    const owner = [...ownerById.values()].find((candidate) =>
-      prefixContains(candidate.prefix, tile)
-    );
-    if (!owner) {
-    throw new Error(
-      `Representative high-zoom tile ${tileKey(tile)} is outside every selected owner.`
-    );
-  }
-  targetMaps[owner.id].set(tileKey(tile), tile);
+    const owner = ownerForTile(plan, tile);
+    targetMaps[owner.id].set(tileKey(tile), tile);
   }
 }
 
