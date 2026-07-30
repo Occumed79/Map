@@ -7,6 +7,15 @@ if (!family || !outputPath) {
   throw new Error('Usage: node scripts/select-geofabrik-region-geometry.mjs <family> <output.geojson>');
 }
 
+if (process.env.GITHUB_WORKFLOW === 'Build All Offline Owner Candidates') {
+  const lease = JSON.parse(await fs.readFile('config/active-owner-build-run.json', 'utf8'));
+  if (String(process.env.GITHUB_RUN_ID || '') !== String(lease.allowedRunId || '')) {
+    throw new Error(
+      `Owner build run ${process.env.GITHUB_RUN_ID || 'unknown'} is superseded; active run is ${lease.allowedRunId}.`
+    );
+  }
+}
+
 const indexUrl = process.env.GEOFABRIK_INDEX_URL || 'https://download.geofabrik.de/index-v1.json';
 const response = await fetch(indexUrl, {
   headers: { 'User-Agent': 'Occu-Med-Map/offline-owner-compiler' }
