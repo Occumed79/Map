@@ -26,6 +26,7 @@ expect(main.includes("./occumed-map.js"), 'Application is not using the preserve
 expect(!main.includes('new-map-v2'), 'Generic basemap renderer is still active.');
 expect(!mapSource.includes('installOccumedAtmosphereBloom(map);'), 'Globe atmosphere is still installed.');
 expect(mapSource.includes('installExactTileAddressing(map);'), 'Exact prebuilt tile addressing is not installed.');
+expect(mapSource.includes('installAdaptiveFlatWorldWrap(map);'), 'Adaptive high-zoom antimeridian wrapping is not installed.');
 expect(server.includes('ImmutableWorldTileset'), 'Production server is not using the immutable PMTiles store.');
 expect(!server.includes('NAV_DATABASE_URL_'), 'Production server still references Neon tile cache variables.');
 

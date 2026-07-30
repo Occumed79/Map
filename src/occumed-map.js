@@ -99,6 +99,20 @@ export function installExactTileAddressing(map) {
   configure();
 }
 
+export function installAdaptiveFlatWorldWrap(map) {
+  const sync = () => {
+    if (typeof map.setRenderWorldCopies !== 'function') return;
+    map.setRenderWorldCopies(map.getZoom() >= 3);
+  };
+  map.on('zoom', sync);
+  map.on('zoomend', sync);
+  map.once('remove', () => {
+    map.off('zoom', sync);
+    map.off('zoomend', sync);
+  });
+  sync();
+}
+
 function resolvePublicOrigin(style, styleUrl) {
   const resolved = structuredClone(style);
   const styleOrigin = new URL(styleUrl, window.location.href).origin;
@@ -188,6 +202,7 @@ export async function createOccumedMap({
   });
 
   installExactTileAddressing(map);
+  installAdaptiveFlatWorldWrap(map);
 
   if (controls) {
     map.addControl(new maplibregl.NavigationControl({ visualizePitch: false }), 'top-right');

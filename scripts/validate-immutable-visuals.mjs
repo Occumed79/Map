@@ -127,6 +127,9 @@ async function waitForRenderedCamera(page, camera) {
   await page.evaluate(({ center, zoom }) => {
     const map = globalThis.__OCCUMED_MAP__;
     map.stop();
+    if (typeof map.setRenderWorldCopies === 'function') {
+      map.setRenderWorldCopies(zoom >= 3);
+    }
     map.jumpTo({ center, zoom, bearing: 0, pitch: 0 });
   }, camera);
   await page.waitForFunction(({ center, zoom }) => {
