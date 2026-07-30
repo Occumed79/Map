@@ -10,7 +10,7 @@ const style = JSON.parse(await fs.readFile(stylePath, 'utf8'));
 const source = style.sources?.['occumed-open'];
 
 if (!source || source.type !== 'vector') {
-  throw new Error('Flat overview mode requires the existing occumed-open vector source.');
+  throw new Error('Flat surface mode requires the existing occumed-open vector source.');
 }
 
 style.sources = {
@@ -22,10 +22,40 @@ style.sources = {
   }
 };
 
-style.layers = (style.layers || []).filter((layer) =>
-  (!layer.source || layer.source === 'occumed-open') &&
-  !['sky', 'hillshade', 'model'].includes(layer.type)
+const physicalLayers = new Set(['land', 'landcover', 'depth']);
+style.layers = (style.layers || []).filter((layer) => {
+  if (['sky', 'hillshade', 'model'].includes(layer.type)) return false;
+  if (!layer.source) return true;
+  return layer.source === 'occumed-open' && physicalLayers.has(layer['source-layer']);
+});
+
+let landLayer = style.layers.find(
+  (layer) => layer.source === 'occumed-open' && layer['source-layer'] === 'land' && layer.type === 'fill'
 );
+if (!landLayer) {
+  landLayer = {
+    id: 'occumed-flat-land-surface',
+    type: 'fill',
+    source: 'occumed-open',
+    'source-layer': 'land',
+    minzoom: 0,
+    maxzoom: 24,
+    paint: {
+      'fill-color': '#F2F2F2',
+      'fill-opacity': 1
+    }
+  };
+  const backgroundIndex = style.layers.findLastIndex((layer) => layer.type === 'background');
+  style.layers.splice(backgroundIndex + 1, 0, landLayer);
+} else {
+  landLayer.minzoom = 0;
+  landLayer.maxzoom = 24;
+  delete landLayer.filter;
+  landLayer.paint = {
+    ...(landLayer.paint || {}),
+    'fill-opacity': 1
+  };
+}
 
 style.projection = { type: 'mercator' };
 delete style.terrain;
@@ -33,8 +63,9 @@ delete style.fog;
 
 style.metadata = {
   ...(style.metadata || {}),
-  'occumed:emergency-mode': 'immutable-flat-overview-only',
+  'occumed:emergency-mode': 'immutable-flat-authoritative-surface',
   'occumed:projection': 'mercator',
+  'occumed:physical-authority': 'occumed-world-surface.pmtiles',
   'occumed:runtime-geometry': false,
   'occumed:neon-cache': false,
   'occumed:regional-routing': false,
@@ -42,4 +73,4 @@ style.metadata = {
 };
 
 await fs.writeFile(stylePath, `${JSON.stringify(style, null, 2)}\n`);
-console.log(`Flat overview locked: Mercator, one vector source, ${style.layers.length} layers, maxzoom 5.`);
+console.log(`Flat surface locked: Mercator, authoritative land/landcover/depth, ${style.layers.length} layers, maxzoom 5.`);
