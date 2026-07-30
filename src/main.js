@@ -1,5 +1,6 @@
 import { createOccumedMap } from './occumed-map.js';
 import './styles.css';
+import './flat-overview.css';
 
 const statusElement = document.querySelector('#map-status');
 let mapReady = false;
@@ -22,16 +23,18 @@ async function initialize() {
   try {
     const map = await createOccumedMap({
       container: 'map',
-      styleUrl: import.meta.env.VITE_OCCUMED_STYLE_URL || '/style/occumed-open.json'
+      styleUrl: import.meta.env.VITE_OCCUMED_STYLE_URL || '/style/occumed-open.json',
+      center: [0, 18],
+      zoom: 1.15,
+      minZoom: 0,
+      maxZoom: 16
     });
 
-    // Exposed only as a stable integration and visual-QA hook. Applications still
-    // own their overlays and should use createOccumedMap directly.
     globalThis.__OCCUMED_MAP__ = map;
 
-    map.once('render', () => markReady('Occu-Med map ready'));
-    map.once('load', () => markReady('Occu-Med map ready'));
-    map.once('idle', () => markReady('Occu-Med map ready'));
+    map.once('render', () => markReady('Occu-Med flat map ready'));
+    map.once('load', () => markReady('Occu-Med flat map ready'));
+    map.once('idle', () => markReady('Occu-Med flat map ready'));
 
     map.on('error', (event) => {
       console.warn('Occu-Med basemap resource warning:', {
