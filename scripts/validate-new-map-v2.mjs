@@ -94,12 +94,16 @@ for (const view of views) {
       const point = map.project(coordinate);
       const visible = point.x >= 0 && point.y >= 0 && point.x <= canvas.clientWidth && point.y <= canvas.clientHeight;
       const features = visible ? map.queryRenderedFeatures(point) : [];
+      const sourceLayers = [...new Set(features.map((feature) => feature.sourceLayer).filter(Boolean))].sort();
+      const layerIds = [...new Set(features.map((feature) => feature.layer?.id).filter(Boolean))].sort();
+      const keys = [...sourceLayers, ...layerIds].map((value) => String(value).toLowerCase());
       return {
         coordinate,
         visible,
         featureCount: features.length,
-        sourceLayers: [...new Set(features.map((feature) => feature.sourceLayer).filter(Boolean))].sort(),
-        layerIds: [...new Set(features.map((feature) => feature.layer?.id).filter(Boolean))].sort()
+        sourceLayers,
+        layerIds,
+        resolvesToWater: keys.some((key) => /water|ocean|lake|river|marine|bay/.test(key))
       };
     });
 
@@ -128,7 +132,7 @@ for (const view of views) {
   });
 
   const invisibleRequiredPoints = inspection.pointChecks.filter((point) => !point.visible);
-  const emptyRequiredPoints = inspection.pointChecks.filter((point) => point.visible && point.featureCount === 0);
+  const waterRequiredPoints = inspection.pointChecks.filter((point) => point.visible && point.resolvesToWater);
   const minimumFeatureCount = view.id === 'fresno' ? 80 : 25;
   const minimumSourceLayerCount = view.id === 'fresno' ? 4 : 3;
 
@@ -152,8 +156,8 @@ for (const view of views) {
   if (invisibleRequiredPoints.length) {
     throw new Error(`${view.id}: required land points fell outside the viewport: ${JSON.stringify(invisibleRequiredPoints)}.`);
   }
-  if (emptyRequiredPoints.length) {
-    throw new Error(`${view.id}: required land points rendered no features: ${JSON.stringify(emptyRequiredPoints)}.`);
+  if (waterRequiredPoints.length) {
+    throw new Error(`${view.id}: required land points resolved to water layers: ${JSON.stringify(waterRequiredPoints)}.`);
   }
 
   results.push({ id: view.id, ...inspection });
