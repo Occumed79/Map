@@ -16,11 +16,12 @@
     "check:runtime": "node scripts/check-runtime.mjs && node scripts/validate-maplibre-style.mjs && node scripts/check-globe-parity.mjs && node scripts/check-cartography-parity.mjs && node scripts/check-viewer-quality.mjs && node scripts/check-photo-reference.mjs && node scripts/check-exact-exported-swatches.mjs && node scripts/check-render-clarity.mjs && node scripts/check-pmtiles-integration.mjs && node scripts/check-world-tile-gateway.mjs && npm run check:neon-cache && npm run check:hardening && npm run check:foundation",
     "check:server": "node scripts/check-server-health.mjs",
     "check:flat": "node scripts/check-flat-overview-mode.mjs",
-    "check": "npm run check:flat",
-    "dev": "npm run prepare:assets && vite",
-    "build": "npm run prepare:assets && npm run check:flat && vite build",
+    "check:new-map": "node scripts/check-new-map-v2.mjs",
+    "check": "npm run check:new-map",
+    "dev": "vite",
+    "build": "npm run check:new-map && vite build",
     "preview": "vite preview",
-    "start": "node scripts/start-flat-overview.mjs"
+    "start": "node server-new-map-v2.mjs"
   },
   "dependencies": {
     "@mapbox/vector-tile": "2.0.4",

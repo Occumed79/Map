@@ -1,0 +1,83 @@
+name: Validate Clean Worldwide Map V2
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/validate-new-flat-map-v2.yml
+      - package-lock.json
+      - package.json
+      - server-new-map-v2.mjs
+      - scripts/check-new-map-v2.mjs
+      - scripts/validate-new-map-v2.mjs
+      - src/main.js
+      - src/new-map-v2.js
+      - src/new-map-v2.css
+
+permissions:
+  contents: read
+
+concurrency:
+  group: occumed-clean-map-v2-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  exact-render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Build the exact Render application
+        run: npm run build
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Start the exact Render command
+        run: |
+          set -euo pipefail
+          npm start > new-map-v2-server.log 2>&1 &
+          echo "$!" > new-map-v2-server.pid
+          for attempt in {1..120}; do
+            if curl --fail --silent http://127.0.0.1:4173/readyz > new-map-v2-ready.json; then
+              exit 0
+            fi
+            if ! kill -0 "$(cat new-map-v2-server.pid)" 2>/dev/null; then
+              cat new-map-v2-server.log
+              exit 1
+            fi
+            sleep 1
+          done
+          cat new-map-v2-server.log
+          exit 1
+
+      - name: Validate whole-world and regional rendering
+        env:
+          OCCUMED_PREVIEW_OUTPUT: new-map-v2-validation
+        run: node scripts/validate-new-map-v2.mjs
+
+      - name: Stop server
+        if: always()
+        run: |
+          test -f new-map-v2-server.pid && kill "$(cat new-map-v2-server.pid)" 2>/dev/null || true
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: clean-worldwide-map-v2-${{ github.sha }}
+          path: |
+            new-map-v2-validation/**
+            new-map-v2-ready.json
+            new-map-v2-server.log
+          if-no-files-found: warn
+          retention-days: 14
