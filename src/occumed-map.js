@@ -36,13 +36,8 @@ function resolveGlobeRadius(zoom) {
 }
 
 /**
- * Adds a true outward atmosphere bloom around the globe limb.
- *
- * MapLibre's sky properties provide the crisp horizon rim, but increasing their
- * blend values also brightens the visible hemisphere. This DOM halo tracks the
- * rendered globe radius and adds only an exterior white-blue bloom, leaving the
- * map surface neutral. It fades away before the projection reads as a regional
- * map rather than a complete globe.
+ * Retained for backward-compatible imports only. Flat Mercator production does
+ * not install the globe atmosphere bloom.
  */
 export function installOccumedAtmosphereBloom(map) {
   const canvasContainer = map.getCanvasContainer();
@@ -183,7 +178,7 @@ export async function createOccumedMap({
     hash: false,
     pixelRatio: resolveOccumedPixelRatio(),
     antialias: true,
-    cancelPendingTileRequestsWhileZooming: false,
+    cancelPendingTileRequestsWhileZooming: true,
     refreshExpiredTiles: false,
     fadeDuration: 300,
     renderWorldCopies: false,
