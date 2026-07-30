@@ -32,7 +32,7 @@
     "dev": "npm run prepare:assets && vite",
     "build": "npm run prepare:assets && npm run check && vite build && npm run check:server",
     "preview": "vite preview",
-    "start": "node server.mjs"
+    "start": "sh -c 'OCCUMED_IMMUTABLE_TILESET_MANIFEST=\"${OCCUMED_IMMUTABLE_TILESET_MANIFEST:-https://github.com/Occumed79/Map/releases/download/occumed-flat-v1/manifest.json}\" node server.mjs'"
   },
   "dependencies": {
     "@mapbox/vector-tile": "2.0.4",
