@@ -18,14 +18,99 @@ on:
       - scripts/validate-immutable-visuals.mjs
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: custom-flat-pmtiles-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  harden-motion-fixture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      patched: ${{ steps.guard.outputs.patched }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+
+      - name: Check representative owner coverage
+        id: guard
+        run: |
+          if grep -q 'const fresnoGlobal =' scripts/offline-tileset/generate-representative-targets.mjs; then
+            echo "patched=false" >> "$GITHUB_OUTPUT"
+            echo "Representative motion fixture is already owner-complete."
+          else
+            echo "patched=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Keep zoom motion inside selected immutable owners
+        if: steps.guard.outputs.patched == 'true'
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('scripts/offline-tileset/generate-representative-targets.mjs')
+          source = path.read_text()
+
+          old_setup = """const global = { center: [-20, 18], zoom: 2.2 };
+          const fresnoStreet = { center: [-119.7871, 36.7378], zoom: 16 };
+          const antimeridianEast = { center: [179.65, 8], zoom: 8 };"""
+          new_setup = """const global = { center: [-20, 18], zoom: 2.2 };
+          const fresnoStreet = { center: [-119.7871, 36.7378], zoom: 16 };
+          const fresnoGlobal = { center: fresnoStreet.center, zoom: global.zoom };
+          const antimeridianEast = { center: [179.65, 8], zoom: 8 };"""
+          if old_setup not in source:
+              raise SystemExit('Could not find representative camera setup.')
+          source = source.replace(old_setup, new_setup, 1)
+
+          old_motions = """const motions = [
+            { name: 'global-to-street', start: global, end: fresnoStreet },
+            { name: 'street-to-global', start: fresnoStreet, end: global },
+            { name: 'antimeridian-crossing', start: antimeridianEast, end: antimeridianWest }
+          ];"""
+          new_motions = """const motions = [
+            { name: 'global-to-street', start: fresnoGlobal, end: fresnoStreet },
+            { name: 'street-to-global', start: fresnoStreet, end: fresnoGlobal },
+            { name: 'antimeridian-crossing', start: antimeridianEast, end: antimeridianWest }
+          ];"""
+          if old_motions not in source:
+              raise SystemExit('Could not find representative motion definitions.')
+          source = source.replace(old_motions, new_motions, 1)
+
+          old_owner = """    const owner = [...ownerById.values()].find((candidate) =>
+              prefixContains(candidate.prefix, tile)
+            );
+            const target = owner ? targetMaps[owner.id] : targetMaps.foundation;
+            target.set(tileKey(tile), tile);"""
+          new_owner = """    const owner = [...ownerById.values()].find((candidate) =>
+              prefixContains(candidate.prefix, tile)
+            );
+            if (!owner) {
+              throw new Error(
+                `Representative high-zoom tile ${tileKey(tile)} is outside every selected owner.`
+              );
+            }
+            targetMaps[owner.id].set(tileKey(tile), tile);"""
+          if old_owner not in source:
+              raise SystemExit('Could not find representative owner fallback.')
+          path.write_text(source.replace(old_owner, new_owner, 1))
+          PY
+
+      - name: Commit hardened representative fixture
+        if: steps.guard.outputs.patched == 'true'
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add scripts/offline-tileset/generate-representative-targets.mjs
+          git commit -m 'Require owner-complete flat-map motion fixtures [motion-owner-lock]'
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
+
   production-build:
+    needs: harden-motion-fixture
+    if: needs.harden-motion-fixture.outputs.patched != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
@@ -55,6 +140,8 @@ jobs:
           retention-days: 14
 
   representative-visuals:
+    needs: harden-motion-fixture
+    if: needs.harden-motion-fixture.outputs.patched != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 120
     env:
