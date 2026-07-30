@@ -10,4 +10,5 @@ Production contract:
 - `land` and `depth` from the worldwide surface;
 - `landcover` from the worldwide overview at foundation zooms and one deterministic regional owner above the handoff;
 - roads, buildings, boundaries, labels, and other detail from one deterministic regional owner;
-- no globe, atmosphere, fog, terrain, hillshade, or external basemap.
+- no globe, atmosphere, fog, terrain, hillshade, or external basemap;
+- one visible world at global zooms, with horizontal wrapping enabled only above zoom 3 so regional antimeridian navigation remains continuous without duplicating the low-zoom world view.
