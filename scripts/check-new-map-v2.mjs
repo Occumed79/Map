@@ -18,25 +18,25 @@ const [main, mapSource, css, server, packageJson] = await Promise.all([
   fs.readFile(path.join(root, 'package.json'), 'utf8').then(JSON.parse)
 ]);
 
-expect(main.includes("./new-map-v2.js"), 'Application entry point does not use the clean map v2 renderer.');
-expect(main.includes("./new-map-v2.css"), 'Application entry point does not use the clean map v2 stylesheet.');
+expect(main.includes("./new-map-v2.js"), 'Application entry point does not use the replacement renderer.');
+expect(main.includes("./new-map-v2.css"), 'Application entry point does not use the replacement stylesheet.');
 expect(!main.includes('occumed-map.js'), 'Legacy PMTiles-aware map renderer is still active.');
 expect(!main.includes('flat-overview.css'), 'Legacy flat-overview stylesheet is still active.');
 
-expect(mapSource.includes("https://tiles.openfreemap.org/styles/liberty"), 'Clean map does not use the selected complete worldwide style.');
-expect(mapSource.includes('vectorSources.length !== 1'), 'Clean map does not enforce exactly one vector source.');
-expect(mapSource.includes("projection = { type: 'mercator' }"), 'Clean map does not force Mercator projection.');
-expect(mapSource.includes("water: '#79BCEC'"), 'Occu-Med water color is not locked.');
-expect(mapSource.includes("park: '#A5CC8E'"), 'Occu-Med park color is not locked.');
-expect(mapSource.includes("road: '#F2F2F2'"), 'Occu-Med road color is not locked.');
-expect(mapSource.includes("boundary: '#A65966'"), 'Occu-Med boundary color is not locked.');
+expect(
+  mapSource.includes('https://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}'),
+  'Replacement map does not use the worldwide topographic tile service.'
+);
+expect(!mapSource.includes('tiles.openfreemap.org'), 'Generic OpenFreeMap style is still active.');
+expect(mapSource.includes("type: 'raster'"), 'Topographic source is not configured as one raster source.');
+expect(mapSource.includes("projection: { type: 'mercator' }"), 'Replacement map does not force flat Mercator projection.');
+expect(mapSource.includes("'background-color': '#79BCEC'"), 'Occu-Med water fallback is not locked.');
 expect(mapSource.includes("'occumed:source-count': 1"), 'One-source metadata lock is missing.');
-expect(mapSource.includes("architecture: 'clean-worldwide-vector-v2'"), 'Browser readiness contract is missing.');
-expect(mapSource.includes('renderedFeatureCount'), 'Browser readiness contract does not record rendered features.');
-expect(mapSource.includes('renderedSourceLayers'), 'Browser readiness contract does not record rendered source layers.');
+expect(mapSource.includes("architecture: 'world-topographic-raster-v3'"), 'Browser readiness contract is missing.');
+expect(mapSource.includes("sourceType: 'raster'"), 'Browser readiness contract does not identify the raster source.');
 
 expect(css.includes('#79BCEC'), 'Map canvas fallback is not locked to the Occu-Med water color.');
-expect(css.includes('.occumed-atmosphere-bloom'), 'Clean stylesheet does not explicitly suppress the old atmosphere layer.');
+expect(css.includes('.occumed-atmosphere-bloom'), 'Replacement stylesheet does not explicitly suppress the old atmosphere layer.');
 
 expect(packageJson.scripts?.build === 'npm run check:new-map && vite build', 'Production build still runs the legacy PMTiles/style pipeline.');
 expect(packageJson.scripts?.start === 'node server-new-map-v2.mjs', 'Production start command does not use the clean static server.');
@@ -59,15 +59,16 @@ for (const [name, content] of [['renderer', mapSource], ['server', server], ['en
   }
 }
 
-expect(server.includes("mode: 'clean-worldwide-vector-v2'"), 'Readiness endpoint does not identify the new architecture.');
+expect(server.includes("mode: 'world-topographic-raster-v3'"), 'Readiness endpoint does not identify the topographic architecture.');
+expect(server.includes("sourceType: 'raster'"), 'Readiness endpoint does not identify the raster source.');
 expect(server.includes('runtimeMerging: false'), 'Readiness endpoint does not lock runtime merging off.');
 expect(server.includes('regionalRouting: false'), 'Readiness endpoint does not lock regional routing off.');
 expect(server.includes('neon: false'), 'Readiness endpoint does not lock Neon off.');
 
 if (failures.length) {
-  console.error('Clean worldwide map v2 architecture validation failed:');
+  console.error('Worldwide topographic map architecture validation failed:');
   for (const failure of failures) console.error(`- ${failure}`);
   process.exit(1);
 }
 
-console.log('Clean worldwide map v2 validated: one complete vector source, Mercator, Occu-Med palette, no PMTiles, no Neon, no routing, and no runtime merging.');
+console.log('Worldwide topographic map validated: one raster source, flat Mercator, no PMTiles, no Neon, no routing, and no runtime merging.');
