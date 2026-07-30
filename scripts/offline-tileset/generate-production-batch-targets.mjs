@@ -52,7 +52,6 @@ const owners = plan.owners.filter((owner) => ownerIds.has(owner.id));
 if (owners.length !== ownerIds.size) {
   throw new Error(`Batch ${batch.id} owner selection is incomplete.`);
 }
-const ownerById = new Map(owners.map((owner) => [owner.id, owner]));
 const candidateOwners = new Map();
 for (const owner of owners) {
   for (const candidate of owner.candidates) {
@@ -84,9 +83,10 @@ for (const owner of owners) {
 
 let scannedTiles = 0;
 let scannedDirectories = 0;
-for (const { candidate, owners: candidateOwnerList } of [...candidateOwners.values()]
-  .sort((left, right) => left.candidate.asset.localeCompare(right.candidate.asset))) {
-  const opened = await openPmtiles(candidate.url, { cacheEntries: 8_192 });
+const scannedInputs = [];
+
+async function scanInput({ label, location, candidateOwnerList }) {
+  const opened = await openPmtiles(location, { cacheEntries: 8_192 });
   try {
     const scanned = await visitPmtilesTileAddresses(opened, ({ z, x, y }) => {
       if (z <= plan.routingZoom || z > 16) return;
@@ -94,23 +94,65 @@ for (const { candidate, owners: candidateOwnerList } of [...candidateOwners.valu
       const matches = candidateOwnerList.filter((owner) => prefixContains(owner.prefix, tile));
       if (matches.length > 1) {
         throw new Error(
-          `Candidate ${candidate.asset} maps ${tileKey(tile)} to ${matches.length} owners in ${batch.id}.`
+          `${label} maps ${tileKey(tile)} to ${matches.length} owners in ${batch.id}.`
         );
       }
       if (matches.length === 1) assign(matches[0], tile);
     });
     scannedTiles += scanned.addressedTiles;
     scannedDirectories += scanned.directoryCount;
+    scannedInputs.push({
+      label,
+      addressedTiles: scanned.addressedTiles,
+      directoryCount: scanned.directoryCount
+    });
   } finally {
     await opened.close();
   }
 }
 
-for (const owner of owners) {
-  if (!ownerTileCounts.get(owner.id)) {
-    throw new Error(`Production owner ${owner.id} has no addressed output tiles.`);
-  }
+// Preserve authoritative physical coverage even where a regional bounding box
+// intersects an owner but the regional archive has no addressed tile there.
+await scanInput({
+  label: 'world-surface',
+  location: plan.inputs.surface.url,
+  candidateOwnerList: owners
+});
+await scanInput({
+  label: 'world-overview',
+  location: plan.inputs.overview.url,
+  candidateOwnerList: owners
+});
+
+for (const { candidate, owners: candidateOwnerList } of [...candidateOwners.values()]
+  .sort((left, right) => left.candidate.asset.localeCompare(right.candidate.asset))) {
+  await scanInput({
+    label: candidate.asset,
+    location: candidate.url,
+    candidateOwnerList
+  });
 }
+
+// A wholly empty batch can occur at a regional bounding-box fringe over open
+// ocean. Emit one deterministic empty MVT address so the immutable batch has a
+// valid PMTiles container; no geometry is synthesized.
+let emptyBatchAnchor = null;
+if (!tileOwners.size) {
+  const owner = owners[0];
+  const z = Math.max(plan.routingZoom + 1, owner.prefix.z);
+  const scale = 2 ** (z - owner.prefix.z);
+  emptyBatchAnchor = {
+    z,
+    x: owner.prefix.x * scale,
+    y: owner.prefix.y * scale
+  };
+  assign(owner, emptyBatchAnchor);
+}
+
+const activeOwners = owners.filter((owner) => ownerTileCounts.get(owner.id) > 0);
+const emptyOwnerIds = owners
+  .filter((owner) => ownerTileCounts.get(owner.id) === 0)
+  .map((owner) => owner.id);
 const targets = [...tileOwners.keys()]
   .sort((left, right) => left - right)
   .map((tileId) => {
@@ -124,9 +166,12 @@ const document = {
   batchPlanVersion: batchPlan.batchPlanVersion,
   batch: {
     ...batch,
+    activeOwnerIds: activeOwners.map((owner) => owner.id),
+    emptyOwnerIds,
+    emptyBatchAnchor,
     ownerTileCounts: Object.fromEntries([...ownerTileCounts].sort())
   },
-  selectedOwners: owners.map((owner) => ({
+  selectedOwners: activeOwners.map((owner) => ({
     id: owner.id,
     prefix: owner.prefix,
     exactTiles: owner.exactTiles || [],
@@ -138,15 +183,19 @@ const document = {
   totalAddressedTiles: targets.length,
   inventory: {
     ownerCount: owners.length,
+    activeOwnerCount: activeOwners.length,
+    emptyOwnerCount: emptyOwnerIds.length,
     candidateCount: candidateOwners.size,
     scannedTiles,
-    scannedDirectories
+    scannedDirectories,
+    scannedInputs
   }
 };
 const output = path.resolve(options.output);
 await fs.mkdir(path.dirname(output), { recursive: true });
 await fs.writeFile(output, `${JSON.stringify(document, null, 2)}\n`, { flag: 'wx' });
 console.log(
-  `Generated ${targets.length} exact tiles for ${batch.id} across ${owners.length} owners ` +
-  `from ${candidateOwners.size} remote PMTiles inputs.`
+  `Generated ${targets.length} exact tiles for ${batch.id} across ` +
+  `${activeOwners.length} active and ${emptyOwnerIds.length} empty source owners ` +
+  `from ${candidateOwners.size} regional inputs plus authoritative surface/overview.`
 );
