@@ -4,7 +4,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { zxyToTileId } from 'pmtiles';
 import { compileImmutableTile } from './mvt-normalizer.mjs';
-import { openLocalPmtiles } from './local-pmtiles.mjs';
+import { openPmtiles } from './local-pmtiles.mjs';
 import { DeterministicPmtilesWriter } from './pmtiles-writer.mjs';
 
 function parseArguments(argv) {
@@ -27,11 +27,19 @@ function parseArguments(argv) {
 
 function parseRegional(value) {
   const separator = value.indexOf('=');
-  if (separator <= 0) throw new Error(`Regional input must be asset=path: ${value}`);
+  if (separator <= 0) throw new Error(`Regional input must be asset=location: ${value}`);
   return {
     assetName: value.slice(0, separator),
-    filename: path.resolve(value.slice(separator + 1))
+    location: value.slice(separator + 1)
   };
+}
+
+function displayLocation(value) {
+  try {
+    return path.basename(new URL(value).pathname);
+  } catch {
+    return path.basename(value);
+  }
 }
 
 function mergeCounts(target, report) {
@@ -73,11 +81,11 @@ for (let index = 1; index < ordered.length; index += 1) {
 }
 
 const startedAt = performance.now();
-const overview = await openLocalPmtiles(path.resolve(options.overview));
-const surface = await openLocalPmtiles(path.resolve(options.surface));
+const overview = await openPmtiles(options.overview, { cacheEntries: 4_096 });
+const surface = await openPmtiles(options.surface, { cacheEntries: 4_096 });
 const regional = [];
 for (const input of options.regional.map(parseRegional)) {
-  const opened = await openLocalPmtiles(input.filename);
+  const opened = await openPmtiles(input.location, { cacheEntries: 4_096 });
   opened.assetName = input.assetName;
   regional.push(opened);
 }
@@ -152,8 +160,8 @@ try {
       cartography: 'regional-owner'
     },
     inputs: {
-      overview: path.basename(options.overview),
-      surface: path.basename(options.surface),
+      overview: displayLocation(options.overview),
+      surface: displayLocation(options.surface),
       regional: regional.map((opened) => opened.assetName)
     },
     normalization: aggregate
