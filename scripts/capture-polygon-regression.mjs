@@ -17,9 +17,10 @@ const reportPath = path.join(outputDir, 'polygon-regression-report.json');
 const report = {
   generatedAt: new Date().toISOString(),
   origin,
-  mode: 'exhaustive-polygon-foundation-and-atmosphere-regression',
+  mode: 'exhaustive-polygon-and-foundation-regression',
   expectedTemplate,
   continuityZooms,
+  projectionType: null,
   results: {},
   pageErrors: [],
   networkFailures: [],
@@ -99,13 +100,22 @@ try {
     { timeout: 90_000 }
   );
 
+  report.projectionType = await page.evaluate(() => {
+    const map = globalThis.__OCCUMED_MAP__;
+    const projection = map?.getProjection?.() || map?.getStyle?.()?.projection;
+    return typeof projection === 'string' ? projection : projection?.type || 'mercator';
+  });
+
+  const referenceViews = [
+    { name: 'north-america-z2', center: [-102, 36], zoom: 2.43 },
+    { name: 'central-pacific-z2', center: [175, 7], zoom: 2.43 },
+    { name: 'australia-z2', center: [135, -25], zoom: 2.43 },
+    { name: 'asia-pacific-z2', center: [118, 22], zoom: 2.43 },
+    { name: 'africa-europe-z2', center: [20, 20], zoom: 2.43 },
+    { name: 'world-north-america-z1', center: [-100, 25], zoom: 1.65 }
+  ];
   const views = [
-    { name: 'north-america-z2', center: [-102, 36], zoom: 2.43, requiresAtmosphereBloom: true },
-    { name: 'central-pacific-z2', center: [175, 7], zoom: 2.43, requiresAtmosphereBloom: true },
-    { name: 'australia-z2', center: [135, -25], zoom: 2.43, requiresAtmosphereBloom: true },
-    { name: 'asia-pacific-z2', center: [118, 22], zoom: 2.43, requiresAtmosphereBloom: true },
-    { name: 'africa-europe-z2', center: [20, 20], zoom: 2.43, requiresAtmosphereBloom: true },
-    { name: 'world-north-america-z1', center: [-100, 25], zoom: 1.65, requiresAtmosphereBloom: true },
+    ...referenceViews,
     ...continuityZooms.map((zoom) => ({
       name: `amazon-z${String(zoom).replace('.', '-')}`,
       center: [-60, -8],
@@ -142,9 +152,14 @@ try {
       );
       await page.waitForTimeout(350);
 
-      const diagnostics = await page.evaluate((expectedTemplate) => {
+      const diagnostics = await page.evaluate((expectedTileTemplate) => {
         const map = globalThis.__OCCUMED_MAP__;
-        const source = map.getStyle().sources?.['occumed-open'] || null;
+        const style = map.getStyle();
+        const source = style.sources?.['occumed-open'] || null;
+        const projection = map.getProjection?.() || style.projection;
+        const projectionType = typeof projection === 'string'
+          ? projection
+          : projection?.type || 'mercator';
         const features = map
           .queryRenderedFeatures()
           .filter((feature) => feature.source === 'occumed-open');
@@ -169,14 +184,15 @@ try {
         const projectedCenter = map.project(map.getCenter());
         const expectedCenterX = containerRect.left + projectedCenter.x;
         const expectedCenterY = containerRect.top + projectedCenter.y;
-        const expectedDiameter = (
-          ((512 * (2 ** map.getZoom())) / (Math.PI * 2)) * 2 * 1.006
-        );
+        const expectedDiameter = (((512 * (2 ** map.getZoom())) / (Math.PI * 2)) * 2 * 1.006);
         const actualCenterX = bloomRect ? bloomRect.left + (bloomRect.width / 2) : 0;
         const actualCenterY = bloomRect ? bloomRect.top + (bloomRect.height / 2) : 0;
         return {
           center: map.getCenter().toArray(),
           zoom: map.getZoom(),
+          projectionType,
+          terrainEnabled: Boolean(style.terrain),
+          fogEnabled: Boolean(style.fog),
           source: source ? {
             type: source.type,
             url: source.url || null,
@@ -186,7 +202,7 @@ try {
             attribution: source.attribution
           } : null,
           sourceIsPermanent:
-            !source?.url && JSON.stringify(source?.tiles || []) === JSON.stringify([expectedTemplate]),
+            !source?.url && JSON.stringify(source?.tiles || []) === JSON.stringify([expectedTileTemplate]),
           renderedFeatureCount: features.length,
           renderedSourceLayerCounts,
           sourceFeatureCounts,
@@ -194,10 +210,10 @@ try {
           atmosphereBloom: {
             exists: Boolean(bloom),
             hidden: Boolean(bloom?.hidden),
+            display: bloomStyle?.display || 'none',
             opacity: Number(bloomStyle?.opacity || 0),
             filter: bloomStyle?.filter || 'none',
             boxShadow: bloomStyle?.boxShadow || 'none',
-            borderColor: bloomStyle?.borderColor || 'transparent',
             borderWidth: Number.parseFloat(bloomStyle?.borderWidth || '0'),
             mixBlendMode: bloomStyle?.mixBlendMode || 'normal',
             width: bloomRect?.width || 0,
@@ -221,6 +237,9 @@ try {
       if (diagnostics.renderedFeatureCount <= 0) {
         failures.push(`${view.name} rendered no worldwide vector features.`);
       }
+      if (diagnostics.projectionType !== report.projectionType) {
+        failures.push(`${view.name} changed projection from ${report.projectionType} to ${diagnostics.projectionType}.`);
+      }
       for (const sourceLayer of view.requiredSourceLayers || []) {
         if ((diagnostics.sourceFeatureCounts[sourceLayer] || 0) <= 0) {
           failures.push(`${view.name} lost the ${sourceLayer} source layer at zoom ${view.zoom}.`);
@@ -231,9 +250,10 @@ try {
           failures.push(`${view.name} stopped rendering the ${sourceLayer} foundation at zoom ${view.zoom}.`);
         }
       }
-      if (view.requiresAtmosphereBloom) {
-        const bloom = diagnostics.atmosphereBloom;
-        if (!bloom.exists || bloom.hidden || bloom.opacity < 0.95) {
+
+      const bloom = diagnostics.atmosphereBloom;
+      if (diagnostics.projectionType === 'globe') {
+        if (!bloom.exists || bloom.hidden || bloom.display === 'none' || bloom.opacity < 0.95) {
           failures.push(`${view.name} does not show the full-strength globe atmosphere bloom.`);
         }
         if (
@@ -252,6 +272,17 @@ try {
         ) {
           failures.push(`${view.name} atmosphere bloom does not precisely track the rendered globe.`);
         }
+      } else if (
+        bloom.exists &&
+        !bloom.hidden &&
+        bloom.display !== 'none' &&
+        (bloom.width > 0 || bloom.height > 0 || bloom.opacity > 0.001)
+      ) {
+        failures.push(`${view.name} still renders a globe atmosphere halo in ${diagnostics.projectionType} mode.`);
+      }
+
+      if (diagnostics.projectionType === 'mercator' && (diagnostics.terrainEnabled || diagnostics.fogEnabled)) {
+        failures.push(`${view.name} enables globe-only terrain or fog in flat Mercator mode.`);
       }
       if (screenshot.length < 25_000) {
         failures.push(`${view.name} produced an unexpectedly empty screenshot.`);
@@ -287,6 +318,7 @@ try {
       zoom: result.zoom,
       failures: result.failures || [],
       executionError: result.executionError || null,
+      projectionType: result.projectionType || null,
       atmosphereBloom: result.atmosphereBloom || null,
       sourceFeatureCounts: result.sourceFeatureCounts || null,
       renderedSourceLayerCounts: result.renderedSourceLayerCounts || null
@@ -301,7 +333,8 @@ try {
   await persistReport();
 
   if (!report.passed) {
-    throw new Error(`Polygon, foundation, and atmosphere validation failed: ${safeStringify({
+    throw new Error(`Polygon and foundation validation failed: ${safeStringify({
+      projectionType: report.projectionType,
       failedViews,
       pageErrors: report.pageErrors,
       networkFailures: report.networkFailures,
@@ -310,7 +343,7 @@ try {
   }
 
   console.log(
-    `Rendered ${views.length} exhaustive views with continuous land, landcover, depth, and a tracked exterior atmosphere bloom.`
+    `Rendered ${views.length} exhaustive ${report.projectionType} views with continuous land, landcover, and depth.`
   );
 } catch (error) {
   report.fatalError = serializeError(error);
