@@ -11,4 +11,5 @@ Production contract:
 - `landcover` from the worldwide overview at foundation zooms and one deterministic regional owner above the handoff;
 - roads, buildings, boundaries, labels, and other detail from one deterministic regional owner;
 - no globe, atmosphere, fog, terrain, hillshade, or external basemap;
-- one visible world at global zooms, with horizontal wrapping enabled only above zoom 3 so regional antimeridian navigation remains continuous without duplicating the low-zoom world view.
+- one visible world at global zooms, with horizontal wrapping enabled only above zoom 3 so regional antimeridian navigation remains continuous without duplicating the low-zoom world view;
+- representative world-to-street and street-to-world motion remains centered on Fresno, and generation fails if any high-zoom frame falls outside the selected immutable owner.
