@@ -6,7 +6,8 @@ const WORLD_BOUNDS = [[-179.8, -78], [179.8, 82]];
 const PALETTE = Object.freeze({
   water: '#79BCEC',
   waterDeep: '#5EA9DF',
-  land: '#E9E7DE',
+  land: '#C1DAAB',
+  landSoft: '#D4E3C1',
   park: '#A5CC8E',
   parkDark: '#91BD78',
   road: '#F2F2F2',
@@ -90,7 +91,9 @@ function recolorLayer(layer) {
       next.paint['fill-color'] = PALETTE.building;
       next.paint['fill-opacity'] = 0.9;
     } else {
-      next.paint['fill-color'] = PALETTE.land;
+      next.paint['fill-color'] = /residential|suburb|neighbourhood|industrial|commercial/.test(key)
+        ? PALETTE.landSoft
+        : PALETTE.land;
       next.paint['fill-opacity'] = 1;
     }
     if ('fill-outline-color' in next.paint) next.paint['fill-outline-color'] = 'rgba(0,0,0,0.08)';
