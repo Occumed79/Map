@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { PMTiles, SharedPromiseCache, tileIdToZxy } from 'pmtiles';
+import { FetchSource, PMTiles, SharedPromiseCache, tileIdToZxy } from 'pmtiles';
 
 /**
  * Exact-range local source for the PMTiles JavaScript reader.
@@ -62,18 +62,35 @@ export class LocalPmtilesSource {
   }
 }
 
-export async function openLocalPmtiles(filename, { cacheEntries = 256 } = {}) {
-  const source = new LocalPmtilesSource(filename);
+function isHttpLocation(value) {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' || url.protocol === 'http:';
+  } catch {
+    return false;
+  }
+}
+
+export async function openPmtiles(location, { cacheEntries = 256 } = {}) {
+  const normalized = isHttpLocation(location) ? location : path.resolve(location);
+  const source = isHttpLocation(normalized)
+    ? new FetchSource(normalized)
+    : new LocalPmtilesSource(normalized);
   const archive = new PMTiles(source, new SharedPromiseCache(cacheEntries));
   const header = await archive.getHeader();
   return {
     archive,
     header,
     source,
+    location: normalized,
     async close() {
-      await source.close();
+      await source.close?.();
     }
   };
+}
+
+export async function openLocalPmtiles(filename, options = {}) {
+  return openPmtiles(path.resolve(filename), options);
 }
 
 export function tilePayload(result) {
@@ -86,7 +103,7 @@ export function tilePayload(result) {
 }
 
 /**
- * Visit every addressed z/x/y in a local PMTiles archive without reading tile
+ * Visit every addressed z/x/y in a PMTiles archive without reading tile
  * payloads. Run-length entries are expanded because every exact address must
  * be assigned to one immutable output owner.
  */
