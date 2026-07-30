@@ -12,4 +12,5 @@ Production contract:
 - roads, buildings, boundaries, labels, and other detail from one deterministic regional owner;
 - no globe, atmosphere, fog, terrain, hillshade, or external basemap;
 - one visible world at global zooms, with horizontal wrapping enabled only above zoom 3 so regional antimeridian navigation remains continuous without duplicating the low-zoom world view;
-- representative world-to-street and street-to-world motion remains centered on Fresno, and generation fails if any high-zoom frame falls outside the selected immutable owner.
+- the global static view remains at zoom 2.2, while Fresno continuous zoom validation starts at zoom 3.5 to avoid the intentional single-world camera clamp;
+- representative zoom motion remains centered on Fresno, and generation fails on overlapping regional ownership while ownerless ocean tiles remain exact physical-foundation tiles.
