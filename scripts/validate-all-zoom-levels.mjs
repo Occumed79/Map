@@ -102,7 +102,7 @@ try {
       });
       map.triggerRepaint();
 
-      const requiredLayerCounts = () => {
+      const countRequiredLayers = () => {
         const counts = Object.fromEntries(definition.requiredLayers.map((layer) => [layer, 0]));
         for (const feature of map.queryRenderedFeatures()) {
           if (feature.source !== 'occumed-open') continue;
@@ -113,7 +113,6 @@ try {
       };
 
       await new Promise((resolve, reject) => {
-        const startedAt = performance.now();
         const timeout = setTimeout(() => {
           cleanup();
           reject(new Error(
@@ -123,13 +122,13 @@ try {
         const interval = setInterval(check, 100);
 
         function check() {
-          const counts = requiredLayerCounts();
+          const counts = countRequiredLayers();
           if (
             map.isStyleLoaded() &&
             definition.requiredLayers.every((layer) => counts[layer] > 0)
           ) {
             cleanup();
-            resolve(performance.now() - startedAt);
+            resolve();
           }
         }
 
@@ -209,7 +208,6 @@ try {
         failures.push(error.message);
         checkpoints.push({ requestedZoom, executionError: serializeError(error) });
       }
-      await persistReport();
     }
 
     const screenshot = await page.screenshot({
