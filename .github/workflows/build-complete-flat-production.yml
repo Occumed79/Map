@@ -1,0 +1,312 @@
+name: Build Complete Flat Production Tileset
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/build-complete-flat-production.yml
+      - package.json
+      - package-lock.json
+      - scripts/offline-tileset/**
+      - src/server/immutable-world-tileset.js
+      - server.mjs
+
+permissions:
+  contents: write
+
+concurrency:
+  group: complete-flat-production-v1
+  cancel-in-progress: false
+
+env:
+  PRODUCTION_TAG: occumed-flat-v1
+  PRODUCTION_ROOT: build/complete-flat-production
+
+jobs:
+  prepare:
+    if: github.head_ref == 'build/custom-flat-from-globe-tiles'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      wave0: ${{ steps.matrix.outputs.wave0 }}
+      wave1: ${{ steps.matrix.outputs.wave1 }}
+      wave2: ${{ steps.matrix.outputs.wave2 }}
+      batch_count: ${{ steps.matrix.outputs.batch_count }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Create immutable world and spatial batch plans
+        run: |
+          mkdir -p "$PRODUCTION_ROOT/plans"
+          npm run tiles:plan-world -- \
+            --output "$PRODUCTION_ROOT/plans/immutable-owner-plan.json"
+          npm run tiles:plan-production-batches -- \
+            --plan "$PRODUCTION_ROOT/plans/immutable-owner-plan.json" \
+            --batch-count 768 \
+            --tag "$PRODUCTION_TAG" \
+            --output "$PRODUCTION_ROOT/plans/production-batch-plan.json"
+
+      - name: Create three legal GitHub matrix waves
+        id: matrix
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const plan = JSON.parse(fs.readFileSync(process.env.PRODUCTION_ROOT + '/plans/production-batch-plan.json'));
+          const output = process.env.GITHUB_OUTPUT;
+          for (let wave = 0; wave < 3; wave += 1) {
+            const include = plan.batches
+              .slice(wave * 256, (wave + 1) * 256)
+              .map(({ index, id, file }) => ({ index, id, file }));
+            fs.appendFileSync(output, `wave${wave}=${JSON.stringify({ include })}\n`);
+          }
+          fs.appendFileSync(output, `batch_count=${plan.batchCount}\n`);
+          if (plan.batchCount > 768) throw new Error(`Batch plan exceeds workflow capacity: ${plan.batchCount}`);
+          if (!plan.batchCount) throw new Error('Batch plan is empty.');
+          NODE
+
+      - name: Create public prerelease for immutable production assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "$PRODUCTION_TAG" >/dev/null 2>&1 || \
+            gh release create "$PRODUCTION_TAG" \
+              --repo "$GITHUB_REPOSITORY" \
+              --prerelease \
+              --title "Occu-Med immutable flat map v1" \
+              --notes "Complete offline-compiled worldwide PMTiles. Do not activate until manifest validation passes."
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: complete-flat-production-plans
+          path: ${{ env.PRODUCTION_ROOT }}/plans/**
+          retention-days: 7
+
+  foundation:
+    needs: prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: complete-flat-production-plans
+          path: ${{ env.PRODUCTION_ROOT }}/plans
+
+      - name: Build immutable worldwide foundation
+        run: |
+          mkdir -p "$PRODUCTION_ROOT/foundation"
+          npm run tiles:targets-foundation -- \
+            --plan "$PRODUCTION_ROOT/plans/immutable-owner-plan.json" \
+            --output "$PRODUCTION_ROOT/foundation-targets.json"
+          npm run tiles:build-production-foundation -- \
+            --plan "$PRODUCTION_ROOT/plans/immutable-owner-plan.json" \
+            --targets "$PRODUCTION_ROOT/foundation-targets.json" \
+            --output-dir "$PRODUCTION_ROOT/foundation" \
+            --concurrency 8
+
+      - name: Publish SHA-locked foundation
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload "$PRODUCTION_TAG" \
+            "$PRODUCTION_ROOT/foundation/foundation.pmtiles#foundation.pmtiles" \
+            --repo "$GITHUB_REPOSITORY" \
+            --clobber
+
+  build-wave-0:
+    needs: prepare
+    strategy:
+      fail-fast: false
+      max-parallel: 16
+      matrix: ${{ fromJSON(needs.prepare.outputs.wave0) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: complete-flat-production-plans
+          path: ${{ env.PRODUCTION_ROOT }}/plans
+      - name: Build exact spatial batch ${{ matrix.id }}
+        run: |
+          mkdir -p "$PRODUCTION_ROOT/jobs/${{ matrix.id }}"
+          npm run tiles:targets-production-batch -- \
+            --plan "$PRODUCTION_ROOT/plans/immutable-owner-plan.json" \
+            --batch-plan "$PRODUCTION_ROOT/plans/production-batch-plan.json" \
+            --batch-index "${{ matrix.index }}" \
+            --output "$PRODUCTION_ROOT/jobs/${{ matrix.id }}/targets.json"
+          npm run tiles:build-production-batch -- \
+            --plan "$PRODUCTION_ROOT/plans/immutable-owner-plan.json" \
+            --batch-plan "$PRODUCTION_ROOT/plans/production-batch-plan.json" \
+            --batch-index "${{ matrix.index }}" \
+            --targets "$PRODUCTION_ROOT/jobs/${{ matrix.id }}/targets.json" \
+            --output-dir "$PRODUCTION_ROOT/jobs/${{ matrix.id }}" \
+            --max-bytes 1900000000 \
+            --concurrency 8
+      - name: Publish ${{ matrix.file }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload "$PRODUCTION_TAG" \
+            "$PRODUCTION_ROOT/jobs/${{ matrix.id }}/batches/${{ matrix.file }}#${{ matrix.file }}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --clobber
+
+  build-wave-1:
+    needs: prepare
+    strategy:
+      fail-fast: false
+      max-parallel: 16
+      matrix: ${{ fromJSON(needs.prepare.outputs.wave1) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: complete-flat-production-plans
+          path: ${{ env.PRODUCTION_ROOT }}/plans
+      - name: Build exact spatial batch ${{ matrix.id }}
+        run: |
+          mkdir -p "$PRODUCTION_ROOT/jobs/${{ matrix.id }}"
+          npm run tiles:targets-production-batch -- \
+            --plan "$PRODUCTION_ROOT/plans/immutable-owner-plan.json" \
+            --batch-plan "$PRODUCTION_ROOT/plans/production-batch-plan.json" \
+            --batch-index "${{ matrix.index }}" \
+            --output "$PRODUCTION_ROOT/jobs/${{ matrix.id }}/targets.json"
+          npm run tiles:build-production-batch -- \
+            --plan "$PRODUCTION_ROOT/plans/immutable-owner-plan.json" \
+            --batch-plan "$PRODUCTION_ROOT/plans/production-batch-plan.json" \
+            --batch-index "${{ matrix.index }}" \
+            --targets "$PRODUCTION_ROOT/jobs/${{ matrix.id }}/targets.json" \
+            --output-dir "$PRODUCTION_ROOT/jobs/${{ matrix.id }}" \
+            --max-bytes 1900000000 \
+            --concurrency 8
+      - name: Publish ${{ matrix.file }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload "$PRODUCTION_TAG" \
+            "$PRODUCTION_ROOT/jobs/${{ matrix.id }}/batches/${{ matrix.file }}#${{ matrix.file }}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --clobber
+
+  build-wave-2:
+    needs: prepare
+    strategy:
+      fail-fast: false
+      max-parallel: 16
+      matrix: ${{ fromJSON(needs.prepare.outputs.wave2) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: complete-flat-production-plans
+          path: ${{ env.PRODUCTION_ROOT }}/plans
+      - name: Build exact spatial batch ${{ matrix.id }}
+        run: |
+          mkdir -p "$PRODUCTION_ROOT/jobs/${{ matrix.id }}"
+          npm run tiles:targets-production-batch -- \
+            --plan "$PRODUCTION_ROOT/plans/immutable-owner-plan.json" \
+            --batch-plan "$PRODUCTION_ROOT/plans/production-batch-plan.json" \
+            --batch-index "${{ matrix.index }}" \
+            --output "$PRODUCTION_ROOT/jobs/${{ matrix.id }}/targets.json"
+          npm run tiles:build-production-batch -- \
+            --plan "$PRODUCTION_ROOT/plans/immutable-owner-plan.json" \
+            --batch-plan "$PRODUCTION_ROOT/plans/production-batch-plan.json" \
+            --batch-index "${{ matrix.index }}" \
+            --targets "$PRODUCTION_ROOT/jobs/${{ matrix.id }}/targets.json" \
+            --output-dir "$PRODUCTION_ROOT/jobs/${{ matrix.id }}" \
+            --max-bytes 1900000000 \
+            --concurrency 8
+      - name: Publish ${{ matrix.file }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload "$PRODUCTION_TAG" \
+            "$PRODUCTION_ROOT/jobs/${{ matrix.id }}/batches/${{ matrix.file }}#${{ matrix.file }}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --clobber
+
+  finalize:
+    needs:
+      - prepare
+      - foundation
+      - build-wave-0
+      - build-wave-1
+      - build-wave-2
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: complete-flat-production-plans
+          path: ${{ env.PRODUCTION_ROOT }}/plans
+
+      - name: Assemble and validate the complete production manifest
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          npm run tiles:finalize-production -- \
+            --plan "$PRODUCTION_ROOT/plans/immutable-owner-plan.json" \
+            --batch-plan "$PRODUCTION_ROOT/plans/production-batch-plan.json" \
+            --repository "$GITHUB_REPOSITORY" \
+            --tag "$PRODUCTION_TAG" \
+            --output "$PRODUCTION_ROOT/manifest.json"
+
+      - name: Publish complete production manifest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload "$PRODUCTION_TAG" \
+            "$PRODUCTION_ROOT/manifest.json#manifest.json" \
+            --repo "$GITHUB_REPOSITORY" \
+            --clobber
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: complete-flat-production-manifest
+          path: ${{ env.PRODUCTION_ROOT }}/manifest.json
+          retention-days: 30
