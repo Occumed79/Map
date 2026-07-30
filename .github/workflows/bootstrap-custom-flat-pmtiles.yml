@@ -19,7 +19,6 @@ concurrency:
 
 jobs:
   replay:
-    if: ${{ github.event_name == 'pull_request' || !contains(github.event.head_commit.message, '[custom-flat-replay-complete]') }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -28,7 +27,18 @@ jobs:
           ref: build/custom-flat-from-globe-tiles
           fetch-depth: 0
 
+      - name: Check whether replay is already complete
+        id: guard
+        run: |
+          if test -f docs/custom-flat-from-globe-tiles.md; then
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "Custom flat replay already completed."
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Replay preserved immutable tileset pipeline
+        if: steps.guard.outputs.run == 'true'
         run: |
           set -euo pipefail
           git fetch origin refs/pull/45/head:pr45
@@ -88,6 +98,7 @@ jobs:
             src/flat-overview.css
 
       - name: Lock the preserved custom tileset to flat Mercator
+        if: steps.guard.outputs.run == 'true'
         run: |
           set -euo pipefail
 
@@ -99,8 +110,8 @@ jobs:
           const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
           const stylePath = path.join(root, 'public/style/occumed-open.json');
           const style = JSON.parse(await fs.readFile(stylePath, 'utf8'));
-
           const sources = Object.entries(style.sources || {});
+
           if (sources.length !== 1 || sources[0][0] !== 'occumed-open' || sources[0][1]?.type !== 'vector') {
             throw new Error(`Custom flat map requires exactly one occumed-open vector source; found ${sources.length}.`);
           }
@@ -146,9 +157,9 @@ jobs:
           const server = await fs.readFile(path.join(root, 'server.mjs'), 'utf8');
           const failures = [];
           const expect = (condition, message) => { if (!condition) failures.push(message); };
-
           const sources = Object.entries(style.sources || {});
           const source = style.sources?.['occumed-open'];
+
           expect(style.projection?.type === 'mercator', 'Projection is not flat Mercator.');
           expect(sources.length === 1, `Expected one browser source; found ${sources.length}.`);
           expect(source?.type === 'vector', 'occumed-open is not a vector source.');
@@ -204,61 +215,10 @@ jobs:
           fs.writeFileSync(path, source);
           EOF
 
-      - name: Add custom flat-map validation workflow
-        run: |
-          cat > .github/workflows/validate-custom-flat-pmtiles.yml <<'EOF'
-          name: Validate Custom Flat PMTiles
-
-          on:
-            pull_request:
-              branches: [main]
-              paths:
-                - package-lock.json
-                - package.json
-                - server.mjs
-                - src/**
-                - scripts/offline-tileset/**
-                - scripts/apply-flat-custom-parity.mjs
-                - scripts/check-custom-flat-tiles.mjs
-                - scripts/build-runtime-style.mjs
-                - style.json
-
-          permissions:
-            contents: read
-
-          concurrency:
-            group: custom-flat-pmtiles-${{ github.ref }}
-            cancel-in-progress: true
-
-          jobs:
-            build-contract:
-              runs-on: ubuntu-latest
-              timeout-minutes: 35
-              steps:
-                - uses: actions/checkout@v4
-                - uses: actions/setup-node@v4
-                  with:
-                    node-version: 24
-                    cache: npm
-                - run: npm ci
-                - name: Build exact production application
-                  run: npm run build
-                - name: Preserve generated custom style
-                  uses: actions/upload-artifact@v4
-                  if: always()
-                  with:
-                    name: custom-flat-style-${{ github.sha }}
-                    path: |
-                      public/style/occumed-open.json
-                      public/style/compatibility-report.json
-                    if-no-files-found: error
-                    retention-days: 14
-          EOF
-
       - name: Commit replayed custom map
+        if: steps.guard.outputs.run == 'true'
         run: |
           set -euo pipefail
-          rm -f .github/workflows/bootstrap-custom-flat-pmtiles.yml
           cat > docs/custom-flat-from-globe-tiles.md <<'EOF'
           # Custom flat map from the existing globe PMTiles
 
