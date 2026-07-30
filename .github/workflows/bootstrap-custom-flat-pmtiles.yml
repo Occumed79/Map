@@ -1,0 +1,97 @@
+name: Harden Custom Flat Motion Fixture
+
+on:
+  push:
+    branches:
+      - build/custom-flat-from-globe-tiles
+
+permissions:
+  contents: write
+
+concurrency:
+  group: harden-custom-flat-motion-fixture
+  cancel-in-progress: false
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: build/custom-flat-from-globe-tiles
+          fetch-depth: 0
+
+      - name: Check whether the motion fixture is already owner-complete
+        id: guard
+        run: |
+          if grep -q 'const fresnoGlobal =' scripts/offline-tileset/generate-representative-targets.mjs; then
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "Owner-complete motion fixture is already installed."
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Keep world-to-street motion inside the Fresno owner
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('scripts/offline-tileset/generate-representative-targets.mjs')
+          source = path.read_text()
+
+          old_setup = '''const global = { center: [-20, 18], zoom: 2.2 };
+          const fresnoStreet = { center: [-119.7871, 36.7378], zoom: 16 };
+          const antimeridianEast = { center: [179.65, 8], zoom: 8 };'''
+          new_setup = '''const global = { center: [-20, 18], zoom: 2.2 };
+          const fresnoStreet = { center: [-119.7871, 36.7378], zoom: 16 };
+          const fresnoGlobal = { center: fresnoStreet.center, zoom: global.zoom };
+          const antimeridianEast = { center: [179.65, 8], zoom: 8 };'''
+          if old_setup not in source:
+              raise SystemExit('Could not find representative camera setup.')
+          source = source.replace(old_setup, new_setup, 1)
+
+          old_motions = '''const motions = [
+            { name: 'global-to-street', start: global, end: fresnoStreet },
+            { name: 'street-to-global', start: fresnoStreet, end: global },
+            { name: 'antimeridian-crossing', start: antimeridianEast, end: antimeridianWest }
+          ];'''
+          new_motions = '''const motions = [
+            { name: 'global-to-street', start: fresnoGlobal, end: fresnoStreet },
+            { name: 'street-to-global', start: fresnoStreet, end: fresnoGlobal },
+            { name: 'antimeridian-crossing', start: antimeridianEast, end: antimeridianWest }
+          ];'''
+          if old_motions not in source:
+              raise SystemExit('Could not find representative motion definitions.')
+          source = source.replace(old_motions, new_motions, 1)
+
+          old_owner = '''    const owner = [...ownerById.values()].find((candidate) =>
+              prefixContains(candidate.prefix, tile)
+            );
+            const target = owner ? targetMaps[owner.id] : targetMaps.foundation;
+            target.set(tileKey(tile), tile);'''
+          new_owner = '''    const owner = [...ownerById.values()].find((candidate) =>
+              prefixContains(candidate.prefix, tile)
+            );
+            if (!owner) {
+              throw new Error(
+                `Representative high-zoom tile ${tileKey(tile)} is outside every selected owner.`
+              );
+            }
+            targetMaps[owner.id].set(tileKey(tile), tile);'''
+          if old_owner not in source:
+              raise SystemExit('Could not find representative owner fallback.')
+          source = source.replace(old_owner, new_owner, 1)
+
+          path.write_text(source)
+          PY
+
+      - name: Commit owner-complete motion fixture
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add scripts/offline-tileset/generate-representative-targets.mjs
+          git commit -m 'Require owner-complete flat-map motion fixtures [motion-owner-lock]'
+          git push origin HEAD:build/custom-flat-from-globe-tiles

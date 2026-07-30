@@ -1,4 +1,5 @@
 node_modules/
+node_modules
 dist/
 .generated/
 public/style/occumed-open.json
@@ -11,3 +12,8 @@ public/sprites/occumed@2x.png
 .env.*
 !.env.example
 .DS_Store
+build/offline-global/
+config/immutable-owner-plan.json
+immutable-inputs/
+.build-tools/
+visual-validation/immutable-*/

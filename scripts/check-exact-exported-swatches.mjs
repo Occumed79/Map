@@ -33,9 +33,9 @@ const EXACT = {
   wetland: '#A5CAD6',
   water: '#79BCEC',
   waterShadow: '#7293EE',
-  depthShallow: '#79BCEC59',
-  depthMid: '#5AACE759',
-  depthDeep: '#3B9DE359'
+  depthShallow: '#79BCEC',
+  depthMid: '#6EB6EA',
+  depthDeep: '#63B1E9'
 };
 
 expect(color('land', 'background-color') === EXACT.ocean, 'The permanent ocean background changed.');
@@ -117,10 +117,8 @@ expect(color('landuse', 'fill-opacity') === 1, 'Detailed landuse colors are weak
 expect(color('water', 'fill-opacity') === 1, 'Water is not fully opaque.');
 expect(!runtime.layers.some((candidate) => candidate.type === 'raster'), 'A raster basemap was reintroduced.');
 
-const hillshade = layer('occumed-hillshade');
-expect(hillshade?.paint?.['hillshade-shadow-color'] === '#0000004D', 'Hillshade shadows are tinting terrain.');
-expect(hillshade?.paint?.['hillshade-highlight-color'] === '#FFFFFF4D', 'Hillshade highlights are tinting terrain.');
-expect(hillshade?.paint?.['hillshade-accent-color'] === '#00000026', 'Hillshade accents are tinting terrain.');
+expect(!runtime.layers.some((candidate) => candidate.type === 'hillshade'), 'An external hillshade layer was reintroduced.');
+expect(Object.keys(runtime.sources || {}).length === 1, 'The palette style no longer has exactly one browser source.');
 
 expect(runtime.metadata?.['occumed:reference-color-system'] === 'continuous-world-v10', 'The continuous-world color pass did not run.');
 expect(runtime.metadata?.['occumed:raster-relief-disabled'] === true, 'Raster relief protection is missing.');

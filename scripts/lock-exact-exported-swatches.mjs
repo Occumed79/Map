@@ -30,9 +30,12 @@ const EXACT = Object.freeze({
   wetland: '#A5CAD6',                 // supplied Studio chip, converted from Display-P3
   water: '#79BCEC',                   // hsl(205, 75%, 70%)
   waterShadow: '#7293EE',             // hsl(224, 79%, 69%)
-  depthShallow: '#79BCEC59',          // hsla(205, 75%, 70%, 0.35)
-  depthMid: '#5AACE759',              // hsla(205, 75%, 63%, 0.35)
-  depthDeep: '#3B9DE359'              // hsla(205, 75%, 56%, 0.35)
+  // Preblended, opaque equivalents of the exported 35%-alpha bathymetry
+  // swatches over the permanent ocean background. Opaque depth is idempotent:
+  // nested bands cannot accumulate different alpha at tile boundaries.
+  depthShallow: '#79BCEC',
+  depthMid: '#6EB6EA',
+  depthDeep: '#63B1E9'
 });
 
 function requireLayer(id) {
@@ -151,31 +154,17 @@ water.paint['fill-color'] = EXACT.water;
 water.paint['fill-opacity'] = 1;
 
 const waterDepth = requireLayer('water-depth');
-waterDepth.maxzoom = 8;
+delete waterDepth.maxzoom;
 waterDepth.paint['fill-antialias'] = false;
 waterDepth.paint['fill-color'] = [
   'interpolate',
   ['linear'],
-  ['zoom'],
-  6,
-  [
-    'interpolate',
-    ['linear'],
-    ['get', 'min_depth'],
-    0, EXACT.depthShallow,
-    200, EXACT.depthMid,
-    7000, EXACT.depthDeep
-  ],
-  8,
-  [
-    'interpolate',
-    ['linear'],
-    ['get', 'min_depth'],
-    0, '#79BCEC00',
-    200, '#5AACE700',
-    7000, '#2D96E100'
-  ]
+  ['get', 'min_depth'],
+  0, EXACT.depthShallow,
+  200, EXACT.depthMid,
+  7000, EXACT.depthDeep
 ];
+waterDepth.paint['fill-opacity'] = 1;
 
 const waterway = requireLayer('waterway');
 waterway.paint['line-color'] = EXACT.water;
@@ -209,28 +198,9 @@ for (const group of REFERENCE_STUDIO_EXPRESSION_SWATCHES) {
   }
 }
 
-// Use neutral light and shadow only. Terrain may change lightness, but never hue.
-const hillshade = requireLayer('occumed-hillshade');
-hillshade.minzoom = 1.5;
-hillshade.maxzoom = 16;
-hillshade.paint = {
-  'hillshade-exaggeration': [
-    'interpolate',
-    ['linear'],
-    ['zoom'],
-    1.5, 0.04,
-    5, 0.09,
-    8, 0.15,
-    11, 0.2,
-    14, 0.24,
-    16, 0.16
-  ],
-  'hillshade-shadow-color': '#0000004D',
-  'hillshade-highlight-color': '#FFFFFF4D',
-  'hillshade-accent-color': '#00000026',
-  'hillshade-illumination-direction': 335,
-  'hillshade-illumination-anchor': 'map'
-};
+if (runtime.layers.some((candidate) => candidate.type === 'hillshade')) {
+  throw new Error('One-source runtime must not contain a hillshade layer.');
+}
 
 runtime.metadata = {
   ...(runtime.metadata || {}),
@@ -241,6 +211,8 @@ runtime.metadata = {
   'occumed:palette-source': 'supplied-mapbox-studio-screenshots-display-p3-to-srgb',
   'occumed:layer-specific-palette': true,
   'occumed:raster-relief-disabled': true,
+  'occumed:external-terrain-disabled': true,
+  'occumed:opaque-depth-palette': true,
   'occumed:high-dpi-vector-clarity': true,
   'occumed:exact-swatches': EXACT,
   'occumed:unavailable-reference-swatches': REFERENCE_STUDIO_UNAVAILABLE_SWATCHES

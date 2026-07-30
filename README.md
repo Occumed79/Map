@@ -19,9 +19,7 @@ The goal is a close visual replica without a Mapbox token or Mapbox-hosted runti
 
 - MapLibre GL JS
 - one permanent MapLibre vector source at `/tiles/{z}/{x}/{y}.pbf`
-- a server-side virtual worldwide tileset backed by the 754 PMTiles storage archives
-- one consolidated zoom 0–5 overview and one generalized worldwide physical surface
-- open elevation data used only for hillshade, not as a second basemap
+- one immutable worldwide foundation plus deterministic non-overlapping PMTiles owners
 - locally compiled sprites
 - browser-local glyph rendering
 - generated runtime style at `/style/occumed-open.json`
@@ -32,17 +30,19 @@ No `VITE_MAPBOX_ACCESS_TOKEN`, `mapbox-gl`, `mapbox://` URL, Mapbox API endpoint
 
 MapLibre sees only `occumed-open`, whose URL is permanent from zoom 0 through 16. The browser does not load the world manifest, select an archive, register a PMTiles protocol, or replace a source while the map moves.
 
-The Node tile gateway resolves each Z/X/Y request on the server:
+The existing worldwide and regional PMTiles archives are offline inputs only.
+The offline builder assigns one authority per layer family, clips and normalizes
+geometry, removes duplicates and contained overlaps, rejects malformed,
+oversized, and tile-shaped surface polygons, and writes each final Z/X/Y once.
 
-- zoom 0–5 comes from a consolidated overview built from the same regional schema;
-- zoom 6–16 is resolved against every storage shard intersecting the requested tile;
-- boundary tiles are decoded, deduplicated by stable feature ID, and re-encoded as one MVT;
-- the worldwide `land` layer is merged into the same response at every zoom;
-- nested Natural Earth bathymetry bands are served as the `depth` layer at globe
-  and regional zooms, then fade before detailed navigation zooms;
-- completed virtual tiles are held in a bounded in-memory cache and exposed with CDN cache headers.
+Production loads a versioned ownership manifest, performs one deterministic
+owner lookup, and returns the selected archive's stored MVT bytes unchanged.
+It does not connect to Neon, merge shards, synthesize landcover, create
+geometry, or stretch parent/child tiles. The browser never sees the owner
+inventory and never switches its single source.
 
-The PMTiles archives and routing manifest are storage implementation details. Their URLs never appear in the MapLibre style.
+See [the immutable tileset build guide](docs/offline-global-tileset.md) for
+the complete offline build and mandatory visual validation workflow.
 
 ## Source of truth
 
@@ -71,6 +71,12 @@ Optional Render variable:
 
 ```text
 PUBLIC_ORIGIN=https://map-yxjb.onrender.com
+```
+
+Required tileset location (unless deployed at `dist/immutable-world/manifest.json`):
+
+```text
+OCCUMED_IMMUTABLE_TILESET_MANIFEST=/absolute/path/to/immutable-world/manifest.json
 ```
 
 ## Reuse
@@ -105,10 +111,11 @@ The build verifies:
 - the original export remains intact;
 - the generated style passes the MapLibre style specification;
 - no active source, sprite, or glyph URL points to Mapbox;
-- globe, terrain, landcover, water, labels, and viewer-quality settings remain calibrated to the screenshot reference set;
+- globe, landcover, water, labels, and viewer-quality settings remain calibrated to the screenshot reference set;
 - only one permanent vector source and one same-origin Z/X/Y template exist in the style;
 - browser-side PMTiles routing, `source.setUrl()`, fallback URLs, and OpenFreeMap are absent;
-- the routing index includes every intersecting shard, including antimeridian segments;
-- duplicate features are removed while boundary geometry is preserved;
-- the overview, physical surface, regional merge, in-memory cache, and virtual release workflow remain wired;
+- the immutable manifest is complete, non-overlapping, and fail-closed;
+- every split-prefix ancestor and descendant tile has one deterministic prebuilt owner;
+- production contains no Neon tile cache, runtime merge, geometry creation, landcover synthesis, or parent/child stretch path;
+- mandatory static and exact-camera motion captures reject seams, tile footprints, stretched polygons, inconsistent neighbors, blank frames, and source switching;
 - no application-specific overlay data is included.
