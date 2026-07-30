@@ -1,4 +1,4 @@
-name: Patch Custom Flat Antimeridian
+name: Harden Custom Flat Motion Fixture
 
 on:
   push:
@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: patch-custom-flat-antimeridian
+  group: harden-custom-flat-motion-fixture
   cancel-in-progress: false
 
 jobs:
@@ -22,79 +22,76 @@ jobs:
           ref: build/custom-flat-from-globe-tiles
           fetch-depth: 0
 
-      - name: Check whether adaptive flat wrapping is already installed
+      - name: Check whether the motion fixture is already owner-complete
         id: guard
         run: |
-          if grep -q 'installAdaptiveFlatWorldWrap(map);' src/occumed-map.js; then
+          if grep -q 'const fresnoGlobal =' scripts/offline-tileset/generate-representative-targets.mjs; then
             echo "run=false" >> "$GITHUB_OUTPUT"
-            echo "Adaptive flat wrapping is already installed."
+            echo "Owner-complete motion fixture is already installed."
           else
             echo "run=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Enable antimeridian wrapping only above world zoom
+      - name: Keep world-to-street motion inside the Fresno owner
         if: steps.guard.outputs.run == 'true'
         run: |
           python - <<'PY'
           from pathlib import Path
 
-          map_path = Path('src/occumed-map.js')
-          source = map_path.read_text()
-          marker = 'function resolvePublicOrigin(style, styleUrl) {'
-          addition = '''export function installAdaptiveFlatWorldWrap(map) {
-            const sync = () => {
-              if (typeof map.setRenderWorldCopies !== 'function') return;
-              map.setRenderWorldCopies(map.getZoom() >= 3);
-            };
-            map.on('zoom', sync);
-            map.on('zoomend', sync);
-            map.once('remove', () => {
-              map.off('zoom', sync);
-              map.off('zoomend', sync);
-            });
-            sync();
-          }
+          path = Path('scripts/offline-tileset/generate-representative-targets.mjs')
+          source = path.read_text()
 
-          '''
-          if marker not in source:
-              raise SystemExit('Could not find flat-wrap insertion point.')
-          source = source.replace(marker, addition + marker, 1)
-          source = source.replace(
-              '  installExactTileAddressing(map);\n',
-              '  installExactTileAddressing(map);\n  installAdaptiveFlatWorldWrap(map);\n',
-              1,
-          )
-          map_path.write_text(source)
+          old_setup = '''const global = { center: [-20, 18], zoom: 2.2 };
+          const fresnoStreet = { center: [-119.7871, 36.7378], zoom: 16 };
+          const antimeridianEast = { center: [179.65, 8], zoom: 8 };'''
+          new_setup = '''const global = { center: [-20, 18], zoom: 2.2 };
+          const fresnoStreet = { center: [-119.7871, 36.7378], zoom: 16 };
+          const fresnoGlobal = { center: fresnoStreet.center, zoom: global.zoom };
+          const antimeridianEast = { center: [179.65, 8], zoom: 8 };'''
+          if old_setup not in source:
+              raise SystemExit('Could not find representative camera setup.')
+          source = source.replace(old_setup, new_setup, 1)
 
-          validator_path = Path('scripts/validate-immutable-visuals.mjs')
-          validator = validator_path.read_text()
-          old = '''    const map = globalThis.__OCCUMED_MAP__;
-              map.stop();
-              map.jumpTo({ center, zoom, bearing: 0, pitch: 0 });'''
-          new = '''    const map = globalThis.__OCCUMED_MAP__;
-              map.stop();
-              if (typeof map.setRenderWorldCopies === 'function') {
-                map.setRenderWorldCopies(zoom >= 3);
-              }
-              map.jumpTo({ center, zoom, bearing: 0, pitch: 0 });'''
-          if old not in validator:
-              raise SystemExit('Could not find camera-jump validation block.')
-          validator_path.write_text(validator.replace(old, new, 1))
+          old_motions = '''const motions = [
+            { name: 'global-to-street', start: global, end: fresnoStreet },
+            { name: 'street-to-global', start: fresnoStreet, end: global },
+            { name: 'antimeridian-crossing', start: antimeridianEast, end: antimeridianWest }
+          ];'''
+          new_motions = '''const motions = [
+            { name: 'global-to-street', start: fresnoGlobal, end: fresnoStreet },
+            { name: 'street-to-global', start: fresnoStreet, end: fresnoGlobal },
+            { name: 'antimeridian-crossing', start: antimeridianEast, end: antimeridianWest }
+          ];'''
+          if old_motions not in source:
+              raise SystemExit('Could not find representative motion definitions.')
+          source = source.replace(old_motions, new_motions, 1)
 
-          check_path = Path('scripts/check-custom-flat-tiles.mjs')
-          check = check_path.read_text()
-          needle = "expect(mapSource.includes('installExactTileAddressing(map);'), 'Exact prebuilt tile addressing is not installed.');"
-          replacement = needle + "\nexpect(mapSource.includes('installAdaptiveFlatWorldWrap(map);'), 'Adaptive high-zoom antimeridian wrapping is not installed.');"
-          if needle not in check:
-              raise SystemExit('Could not find custom flat contract insertion point.')
-          check_path.write_text(check.replace(needle, replacement, 1))
+          old_owner = '''    const owner = [...ownerById.values()].find((candidate) =>
+              prefixContains(candidate.prefix, tile)
+            );
+            const target = owner ? targetMaps[owner.id] : targetMaps.foundation;
+            target.set(tileKey(tile), tile);'''
+          new_owner = '''    const owner = [...ownerById.values()].find((candidate) =>
+              prefixContains(candidate.prefix, tile)
+            );
+            if (!owner) {
+              throw new Error(
+                `Representative high-zoom tile ${tileKey(tile)} is outside every selected owner.`
+              );
+            }
+            targetMaps[owner.id].set(tileKey(tile), tile);'''
+          if old_owner not in source:
+              raise SystemExit('Could not find representative owner fallback.')
+          source = source.replace(old_owner, new_owner, 1)
+
+          path.write_text(source)
           PY
 
-      - name: Commit flat antimeridian fix
+      - name: Commit owner-complete motion fixture
         if: steps.guard.outputs.run == 'true'
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add src/occumed-map.js scripts/validate-immutable-visuals.mjs scripts/check-custom-flat-tiles.mjs
-          git commit -m 'Support flat-map antimeridian validation [flat-wrap-fix]'
+          git add scripts/offline-tileset/generate-representative-targets.mjs
+          git commit -m 'Require owner-complete flat-map motion fixtures [motion-owner-lock]'
           git push origin HEAD:build/custom-flat-from-globe-tiles
