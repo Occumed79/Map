@@ -130,8 +130,9 @@ const server = http.createServer((request, response) => {
     if (url.pathname === '/readyz') {
       writeJson(response, 200, {
         ready: true,
-        mode: 'clean-worldwide-vector-v2',
-        projection: 'mercator',
+        mode: 'clean-worldwide-globe-v2',
+        projection: 'globe',
+        atmosphere: true,
         sourceCount: 1,
         runtimeMerging: false,
         neon: false,
@@ -167,6 +168,6 @@ process.once('SIGTERM', () => shutdown('SIGTERM'));
 process.once('SIGINT', () => shutdown('SIGINT'));
 
 server.listen(port, host, () => {
-  console.log(`Occu-Med clean worldwide map v2 listening on ${host}:${port}.`);
-  console.log('No PMTiles localization, Neon cache, regional routing, or runtime tile merging is active.');
+  console.log(`Occu-Med clean worldwide globe v2 listening on ${host}:${port}.`);
+  console.log('One complete worldwide vector source; no PMTiles localization, Neon cache, regional routing, or runtime tile merging.');
 });
