@@ -80,23 +80,18 @@ jobs:
               raise SystemExit('Could not find representative motion definitions.')
           source = source.replace(old_motions, new_motions, 1)
 
-          old_owner = """    const owner = [...ownerById.values()].find((candidate) =>
-              prefixContains(candidate.prefix, tile)
-            );
-            const target = owner ? targetMaps[owner.id] : targetMaps.foundation;
-            target.set(tileKey(tile), tile);"""
-          new_owner = """    const owner = [...ownerById.values()].find((candidate) =>
-              prefixContains(candidate.prefix, tile)
-            );
-            if (!owner) {
+          old_fallback = """    const target = owner ? targetMaps[owner.id] : targetMaps.foundation;
+              target.set(tileKey(tile), tile);"""
+          new_fallback = """    if (!owner) {
               throw new Error(
                 `Representative high-zoom tile ${tileKey(tile)} is outside every selected owner.`
               );
             }
             targetMaps[owner.id].set(tileKey(tile), tile);"""
-          if old_owner not in source:
+          if old_fallback not in source:
               raise SystemExit('Could not find representative owner fallback.')
-          path.write_text(source.replace(old_owner, new_owner, 1))
+          source = source.replace(old_fallback, new_fallback, 1)
+          path.write_text(source)
           PY
 
       - name: Commit hardened representative fixture
