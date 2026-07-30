@@ -233,7 +233,7 @@ jobs:
           retention-days: 30
 
   aggregate-owner-manifest:
-    if: always()
+    if: ${{ always() && needs.prepare-matrix.result != 'skipped' }}
     needs: [prepare-matrix, compile-owner]
     runs-on: ubuntu-latest
     steps:
