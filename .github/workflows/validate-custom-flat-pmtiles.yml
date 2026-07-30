@@ -36,17 +36,17 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref }}
           fetch-depth: 0
 
-      - name: Check representative owner coverage
+      - name: Check unclamped Fresno motion start
         id: guard
         run: |
-          if grep -q 'const fresnoGlobal =' scripts/offline-tileset/generate-representative-targets.mjs; then
+          if grep -q "const fresnoGlobal = { center: fresnoStreet.center, zoom: 3.5 };" scripts/offline-tileset/generate-representative-targets.mjs; then
             echo "patched=false" >> "$GITHUB_OUTPUT"
-            echo "Representative motion fixture is already owner-complete."
+            echo "Fresno motion starts at an unclamped flat-map zoom."
           else
             echo "patched=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Keep zoom motion inside selected immutable owners
+      - name: Move Fresno motion above the single-world clamp
         if: steps.guard.outputs.patched == 'true'
         run: |
           python - <<'PY'
@@ -54,53 +54,20 @@ jobs:
 
           path = Path('scripts/offline-tileset/generate-representative-targets.mjs')
           source = path.read_text()
-
-          old_setup = """const global = { center: [-20, 18], zoom: 2.2 };
-          const fresnoStreet = { center: [-119.7871, 36.7378], zoom: 16 };
-          const antimeridianEast = { center: [179.65, 8], zoom: 8 };"""
-          new_setup = """const global = { center: [-20, 18], zoom: 2.2 };
-          const fresnoStreet = { center: [-119.7871, 36.7378], zoom: 16 };
-          const fresnoGlobal = { center: fresnoStreet.center, zoom: global.zoom };
-          const antimeridianEast = { center: [179.65, 8], zoom: 8 };"""
-          if old_setup not in source:
-              raise SystemExit('Could not find representative camera setup.')
-          source = source.replace(old_setup, new_setup, 1)
-
-          old_motions = """const motions = [
-            { name: 'global-to-street', start: global, end: fresnoStreet },
-            { name: 'street-to-global', start: fresnoStreet, end: global },
-            { name: 'antimeridian-crossing', start: antimeridianEast, end: antimeridianWest }
-          ];"""
-          new_motions = """const motions = [
-            { name: 'global-to-street', start: fresnoGlobal, end: fresnoStreet },
-            { name: 'street-to-global', start: fresnoStreet, end: fresnoGlobal },
-            { name: 'antimeridian-crossing', start: antimeridianEast, end: antimeridianWest }
-          ];"""
-          if old_motions not in source:
-              raise SystemExit('Could not find representative motion definitions.')
-          source = source.replace(old_motions, new_motions, 1)
-
-          old_fallback = """    const target = owner ? targetMaps[owner.id] : targetMaps.foundation;
-              target.set(tileKey(tile), tile);"""
-          new_fallback = """    if (!owner) {
-              throw new Error(
-                `Representative high-zoom tile ${tileKey(tile)} is outside every selected owner.`
-              );
-            }
-            targetMaps[owner.id].set(tileKey(tile), tile);"""
-          if old_fallback not in source:
-              raise SystemExit('Could not find representative owner fallback.')
-          source = source.replace(old_fallback, new_fallback, 1)
-          path.write_text(source)
+          old = "const fresnoGlobal = { center: fresnoStreet.center, zoom: global.zoom };"
+          new = "const fresnoGlobal = { center: fresnoStreet.center, zoom: 3.5 };"
+          if old not in source:
+              raise SystemExit('Could not find the Fresno motion start camera.')
+          path.write_text(source.replace(old, new, 1))
           PY
 
-      - name: Commit hardened representative fixture
+      - name: Commit unclamped Fresno motion fixture
         if: steps.guard.outputs.patched == 'true'
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add scripts/offline-tileset/generate-representative-targets.mjs
-          git commit -m 'Require owner-complete flat-map motion fixtures [motion-owner-lock]'
+          git commit -m 'Start Fresno zoom motion above flat-map camera clamp'
           git push origin HEAD:${{ github.event.pull_request.head.ref }}
 
   production-build:
