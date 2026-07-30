@@ -2,11 +2,11 @@ import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 const STYLE_URL = 'https://tiles.openfreemap.org/styles/liberty';
-const WORLD_BOUNDS = [[-179.8, -78], [179.8, 82]];
 const PALETTE = Object.freeze({
   water: '#79BCEC',
   waterDeep: '#5EA9DF',
   land: '#E9E7DE',
+  landSoft: '#DDDCCF',
   park: '#A5CC8E',
   parkDark: '#91BD78',
   road: '#F2F2F2',
@@ -16,7 +16,9 @@ const PALETTE = Object.freeze({
   text: '#27313A',
   waterText: '#286E99',
   parkText: '#3D6D45',
-  halo: '#F5FDFF'
+  halo: '#F5FDFF',
+  atmosphere: '#B8E6FF',
+  space: '#181A1D'
 });
 
 function setStatus(message, state = 'loading') {
@@ -74,7 +76,7 @@ function recolorLayer(layer) {
   next.paint = { ...(next.paint || {}) };
 
   if (next.type === 'background') {
-    next.paint['background-color'] = PALETTE.land;
+    next.paint['background-color'] = PALETTE.water;
     next.paint['background-opacity'] = 1;
     return next;
   }
@@ -85,28 +87,28 @@ function recolorLayer(layer) {
       next.paint['fill-opacity'] = 1;
     } else if (isPark(key)) {
       next.paint['fill-color'] = /wood|forest/.test(key) ? PALETTE.parkDark : PALETTE.park;
-      next.paint['fill-opacity'] = 0.86;
+      next.paint['fill-opacity'] = 0.88;
     } else if (/building/.test(key)) {
       next.paint['fill-color'] = PALETTE.building;
-      next.paint['fill-opacity'] = 0.9;
+      next.paint['fill-opacity'] = 0.92;
     } else {
-      next.paint['fill-color'] = PALETTE.land;
+      next.paint['fill-color'] = /landcover|landuse/.test(key) ? PALETTE.landSoft : PALETTE.land;
       next.paint['fill-opacity'] = 1;
     }
-    if ('fill-outline-color' in next.paint) next.paint['fill-outline-color'] = 'rgba(0,0,0,0.08)';
+    if ('fill-outline-color' in next.paint) next.paint['fill-outline-color'] = 'rgba(39,49,58,0.08)';
     return next;
   }
 
   if (next.type === 'line') {
     if (isBoundary(key)) {
       next.paint['line-color'] = PALETTE.boundary;
-      next.paint['line-opacity'] = 0.82;
+      next.paint['line-opacity'] = 0.86;
     } else if (isWater(key)) {
       next.paint['line-color'] = PALETTE.waterDeep;
-      next.paint['line-opacity'] = 0.92;
+      next.paint['line-opacity'] = 0.9;
     } else if (isRoad(key)) {
       next.paint['line-color'] = /case|casing|outline/.test(key) ? PALETTE.roadCasing : PALETTE.road;
-      next.paint['line-opacity'] = 0.98;
+      next.paint['line-opacity'] = 0.99;
     }
     return next;
   }
@@ -135,17 +137,39 @@ function buildOccumedStyle(rawStyle) {
   style.sources = { [sourceId]: source };
   style.layers = (style.layers || [])
     .filter((layer) => !layer.source || layer.source === sourceId)
-    .filter((layer) => !['sky', 'hillshade', 'model', 'fill-extrusion'].includes(layer.type))
+    .filter((layer) => !['hillshade', 'model', 'fill-extrusion'].includes(layer.type))
     .map(recolorLayer);
-  style.projection = { type: 'mercator' };
+  style.projection = { type: 'globe' };
   delete style.terrain;
   delete style.fog;
-  delete style.light;
+  style.sky = {
+    'sky-color': PALETTE.space,
+    'sky-horizon-blend': 0.1,
+    'horizon-color': PALETTE.halo,
+    'horizon-fog-blend': 0.42,
+    'fog-color': PALETTE.atmosphere,
+    'fog-ground-blend': 0.12,
+    'atmosphere-blend': [
+      'interpolate',
+      ['linear'],
+      ['zoom'],
+      0, 1,
+      5, 1,
+      7, 0
+    ]
+  };
+  style.light = {
+    anchor: 'map',
+    color: '#FFFFFF',
+    intensity: 0.28,
+    position: [1.5, 90, 80]
+  };
   style.metadata = {
     ...(style.metadata || {}),
-    'occumed:architecture': 'clean-worldwide-vector-v2',
-    'occumed:projection': 'mercator',
+    'occumed:architecture': 'clean-worldwide-globe-v2',
+    'occumed:projection': 'globe',
     'occumed:source-count': 1,
+    'occumed:atmosphere': true,
     'occumed:runtime-merge': false,
     'occumed:regional-routing': false,
     'occumed:neon': false
@@ -176,9 +200,9 @@ export async function startOccumedMapV2() {
   const map = new maplibregl.Map({
     container: 'map',
     style,
-    center: [0, 20],
-    zoom: 1.35,
-    minZoom: 1,
+    center: [-24, 18],
+    zoom: 1.22,
+    minZoom: 0,
     maxZoom: 18,
     pitch: 0,
     bearing: 0,
@@ -189,7 +213,10 @@ export async function startOccumedMapV2() {
     fadeDuration: 120,
     attributionControl: false,
     cooperativeGestures: false,
-    maxTileCacheZoomLevels: 8
+    maxTileCacheZoomLevels: 8,
+    dragRotate: false,
+    pitchWithRotate: false,
+    touchPitch: false
   });
 
   map.addControl(new maplibregl.NavigationControl({ visualizePitch: false }), 'top-right');
@@ -201,17 +228,14 @@ export async function startOccumedMapV2() {
     console.warn('Occu-Med map resource warning:', message);
   });
 
-  map.once('load', () => {
-    map.fitBounds(WORLD_BOUNDS, { padding: 18, duration: 0, maxZoom: 2.2 });
-  });
-
   globalThis.__OCCUMED_MAP__ = map;
   globalThis.__OCCUMED_MAP_V2__ = {
     ready: false,
     sourceId,
     sourceCount: Object.keys(style.sources).length,
-    projection: 'mercator',
-    architecture: 'clean-worldwide-vector-v2',
+    projection: 'globe',
+    atmosphere: true,
+    architecture: 'clean-worldwide-globe-v2',
     errors
   };
 
