@@ -130,9 +130,10 @@ const server = http.createServer((request, response) => {
     if (url.pathname === '/readyz') {
       writeJson(response, 200, {
         ready: true,
-        mode: 'clean-worldwide-vector-v2',
+        mode: 'world-topographic-raster-v3',
         projection: 'mercator',
         sourceCount: 1,
+        sourceType: 'raster',
         runtimeMerging: false,
         neon: false,
         regionalRouting: false,
@@ -157,7 +158,7 @@ server.maxHeadersCount = 100;
 function shutdown(signal) {
   if (shuttingDown) return;
   shuttingDown = true;
-  console.log(`Map v2 server received ${signal}; draining connections.`);
+  console.log(`Topographic map server received ${signal}; draining connections.`);
   server.close(() => process.exit(0));
   const timer = setTimeout(() => server.closeAllConnections?.(), 15_000);
   timer.unref?.();
@@ -167,6 +168,6 @@ process.once('SIGTERM', () => shutdown('SIGTERM'));
 process.once('SIGINT', () => shutdown('SIGINT'));
 
 server.listen(port, host, () => {
-  console.log(`Occu-Med clean worldwide map v2 listening on ${host}:${port}.`);
-  console.log('No PMTiles localization, Neon cache, regional routing, or runtime tile merging is active.');
+  console.log(`Occu-Med worldwide topographic map listening on ${host}:${port}.`);
+  console.log('One raster source is active; no PMTiles, Neon cache, regional routing, or runtime tile merging is used.');
 });
